@@ -65,6 +65,7 @@ const CreateProduct=React.lazy(() => import('./views/dairy/CreateProduct'))
 const StockManagement=React.lazy(() => import('./views/dairy/StockManagement'))
 const ProcessedMilk=React.lazy(() => import('./views/dairy/ProcessedMilk'))
 const MilkProcessing=React.lazy(() => import('./views/dairy/MilkProcsssing'))
+const DairyFarmInventory=React.lazy(() => import('./views/dairy/DairyFarmInventory'))
 
 export default function fetchRoutes(){
   const user=getUserType();
@@ -161,7 +162,7 @@ export default function fetchRoutes(){
       { path: '/StockManagement', name: 'StockManagement', element:StockManagement },
       { path: '/ProcessedMilk', name: 'ProcessedMilk', element:ProcessedMilk },
       { path: '/MilkProcessing', name: 'MilkProcessing', element:MilkProcessing },
-
+      { path: '/DairyFarmInventory', name: 'DairyFarmInventory', element:DairyFarmInventory }
 
   ]
   }

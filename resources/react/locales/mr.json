@@ -194,7 +194,31 @@
 "currentCapacity":"वर्तमान क्षमता",
 
 
-"Productcreate":"उत्पादन तयार करणे"
+
+
+
+"Productcreate":"उत्पादन तयार करणे", 
+"Dairy_Farm_Inventory_Management":"दुग्धशाळा साठा व्यवस्थापन", 
+"Storage_Tanks": "साठवण टँक",
+"full":"पूर्ण",
+"available":"उपलब्ध",
+"size":"आकार",
+"percentage":"टक्केवारी",
+"level":"पातळी",
+"unit":"युनिट",
+"packaging_material":"पॅकेजिंग साहित्य",
+"good":"चांगले",
+"Adequate":"पुरेसा",
+"Moderate":"माफक",
+"lowstock":"कमी स्टॉक"
+
+
+
+
+
+
+
+
 
 
     },

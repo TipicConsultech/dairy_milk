@@ -173,7 +173,53 @@
 "naturalColor": "Natural Color",
 "sweetener": "Sweetener",
 "milkSolids": "Milk Solids",
-"kg": "Kg"
+"kg": "Kg",
+
+
+
+
+
+
+"milk_processing": "Milk Processing",
+"tank_capacity": "Tank Capacity",
+"processing_details": "Processing Details",
+"select_tank": "Select Tank",
+"milk_out": "Milk Out",
+"materials": "Materials",
+"custom_materials": "Custom Materials",
+
+"save_for_later": "Save for Later",
+"save_produce": "Save/Produce",
+"processed_products": "Processed Products",
+
+"total_milk": "Total Milk",
+"milk_removed": "Milk Removed",
+
+"processed_milk_quantity": "Processed Milk",
+"processing_date": "Processing Date",
+
+"currentCapacity": "Current Capacity",
+
+"Productcreate": "Product Creation",
+
+
+
+
+
+"Productcreate": "Create Product",
+"Dairy_Farm_Inventory_Management": "Dairy Farm Inventory Management",
+"Storage_Tanks": "Storage Tank",
+"full": "Full",
+"available": "Available",
+"size": "Size",
+"percentage": "Percentage",
+"level": "Level",
+"unit": "Unit",
+"packaging_material": "Packaging Material",
+"good": "Good",
+"Adequate": "Adequate",
+"Moderate": "Moderate",
+"lowstock": "Low Stock"
 
 
 

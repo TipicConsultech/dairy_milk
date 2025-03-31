@@ -424,6 +424,12 @@ export default function fetchNavItems(t1){
         // },
         {
           component: CNavItem,
+          name: t("LABELS.dashboard"),
+          to: '/DairyFarmInventory',
+          icon: <CIcon icon={cibElasticStack} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
           name: t("LABELS.create_product"),
           to: '/CreateProduct',
           icon: <CIcon icon={cibElasticStack} customClassName="nav-icon" />,
