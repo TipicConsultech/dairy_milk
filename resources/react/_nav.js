@@ -430,29 +430,46 @@ export default function fetchNavItems(t1){
         },
         {
           component: CNavItem,
-          name: t("LABELS.create_product"),
-          to: '/CreateProduct',
-          icon: <CIcon icon={cibElasticStack} customClassName="nav-icon" />,
-        },
-        {
-          component: CNavItem,
           name: t("LABELS.stockManagement"),
           to: '/StockManagement',
           icon: <CIcon icon={cibElasticStack} customClassName="nav-icon" />,
         },
         {
           component: CNavItem,
-          name: t("LABELS.processedMilk"),
-          to: '/ProcessedMilk',
-          icon: <CIcon icon={cibElasticStack} customClassName="nav-icon" />,
+          name: t("LABELS.milk_processing"),
+          to: '/MilkProcessing',
+          icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
         },
         {
           component: CNavItem,
           name: t("LABELS.processedMilk"),
-          to: '/MilkProcessing',
+          to: '/ProcessedMilk',
+          icon: <CIcon icon={cilList} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.create_product"),
+          to: '/CreateProduct',
           icon: <CIcon icon={cibElasticStack} customClassName="nav-icon" />,
         },
-        
+        {
+          component: CNavItem,
+          name: t("LABELS.invoice"),
+          to: '/invoice',
+          icon: <CIcon icon={cilPrint} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.credit_report"),
+          to: 'Reports/creditReport',
+          icon: <CIcon icon={cilDollar} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.customer_report"),
+          to: 'Reports/Customer_Report',
+          icon: <CIcon icon={cilAddressBook} customClassName="nav-icon" />,
+        },
       ])
     }else{
       _nav.push(...[
