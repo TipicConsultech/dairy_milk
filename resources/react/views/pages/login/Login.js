@@ -78,7 +78,7 @@ const handleLogin = async (event) => {
         if(user){
           storeUserData(resp);
           if(user.type > 1){
-            navigate('/delivery');
+            navigate('DairyFarmInventory');
           }else{
             // navigate('/dashboard'); DairyFarmInventory
             navigate('/DairyFarmInventory')

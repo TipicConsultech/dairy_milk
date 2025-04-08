@@ -20,6 +20,11 @@ import {
   cilPrint,
   cilInbox,
   cilList,
+  cilSpeedometer,
+  cilLibraryAdd,
+  cilTags,
+  cilCart,
+  cilPlus,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem } from '@coreui/react'
 import { getUserData } from './util/session';
@@ -426,13 +431,13 @@ export default function fetchNavItems(t1){
           component: CNavItem,
           name: t("LABELS.dashboard"),
           to: '/DairyFarmInventory',
-          icon: <CIcon icon={cibElasticStack} customClassName="nav-icon" />,
+          icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
         },
         {
           component: CNavItem,
           name: t("LABELS.stockManagement"),
           to: '/StockManagement',
-          icon: <CIcon icon={cibElasticStack} customClassName="nav-icon" />,
+          icon: <CIcon icon={cilLibraryAdd} customClassName="nav-icon" />,
         },
         {
           component: CNavItem,
@@ -450,7 +455,7 @@ export default function fetchNavItems(t1){
           component: CNavItem,
           name: t("LABELS.create_product"),
           to: '/CreateProduct',
-          icon: <CIcon icon={cibElasticStack} customClassName="nav-icon" />,
+          icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
         },
         {
           component: CNavItem,

@@ -13,7 +13,8 @@ import {
   CTableDataCell,
   CProgress,
   CContainer,
-  CButton
+  CButton,
+  CProgressBar
 } from '@coreui/react';
 import { CChart } from '@coreui/react-chartjs';
 import { useTranslation } from 'react-i18next'
@@ -95,8 +96,8 @@ const DairyFarmInventory = () => {
   };
  
   return (
-
-     <CCard className="p-4 max-w-2xl mx-auto  rounded-lg mt-10">
+<>
+     {/* <CCard className=""> */}
     {/* <CContainer fluid style={{ backgroundColor: colorPalette.background, padding: '20px' }}> */}
       {/* Title with styling matching the image */}
       {/* <CRow className="mb-4">
@@ -137,7 +138,7 @@ const DairyFarmInventory = () => {
             {/* <CButton color="primary" size="sm">View All</CButton> */}
           </div>
         </CCardHeader>
-        <CCardBody>
+        {/* <CCardBody>
           <CRow>
             {tanks.map((tank) => (
               <CCol md={3} key={tank.id} className="mb-3">
@@ -189,8 +190,67 @@ const DairyFarmInventory = () => {
               </CCol>
             ))}
           </CRow>
-        </CCardBody>
-      </CCard>
+        </CCardBody> */}
+
+<CCardBody>
+  <CRow>
+    {tanks.map((tank) => (
+      <CCol xs={12} sm={6} lg={3} key={tank.id} className="mb-1">
+        <CCard className="h-100">
+          <CCardBody>
+            <div className="d-flex align-items-center justify-content-between">
+              {/* Tank Info */}
+              <div style={{ flex: 1 }}>
+                <h5>{tank.name}</h5>
+                <div style={{
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  color: colorPalette.textPrimary,
+                  marginBottom: '5px'
+                }}>
+                  {tank.current} / {tank.capacity} {t('LABELS.Ltr')}
+                </div>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  color: tank.percentage <= 25 ? colorPalette.danger :
+                         tank.percentage <= 50 ? colorPalette.warning :
+                         tank.percentage <= 75 ? colorPalette.info : colorPalette.success
+                }}>
+                  {tank.percentage}% {t('LABELS.full')}
+                </div>
+              </div>
+
+              {/* Level Bar */}
+              <div className="ms-4">
+                <div style={{
+                  height: '100px',
+                  width: '30px',
+                  backgroundColor: '#eee',
+                  position: 'relative',
+                  borderRadius: '5px',
+                  border: '1px solid #ccc'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    width: '100%',
+                    height: `${tank.percentage}%`,
+                    backgroundColor: '#3498DB',
+                    borderRadius: '0 0 5px 5px'
+                  }}></div>
+                </div>
+              </div>
+            </div>
+          </CCardBody>
+        </CCard>
+      </CCol>
+    ))}
+  </CRow>
+</CCardBody>
+
+</CCard>
  
       {/* Ingredients Section - Changed to cards */}
       <CCard className="mb-4">
@@ -200,7 +260,7 @@ const DairyFarmInventory = () => {
             {/* <CButton color="primary" size="sm">View All</CButton> */}
           </div>
         </CCardHeader>
-        <CCardBody>
+        {/* <CCardBody>
           <CRow>
             {ingredients.map((ingredient) => (
               <CCol md={3} key={ingredient.id} className="mb-3">
@@ -265,7 +325,83 @@ const DairyFarmInventory = () => {
               </CCol>
             ))}
           </CRow>
-        </CCardBody>
+        </CCardBody> */}
+
+<CCardBody>
+  <CRow>
+    {ingredients.map((ingredient) => (
+      <CCol xs={12} sm={6} md={6} lg={4} xl={3} key={ingredient.id} className="mb-1">
+        <CCard className="h-100">
+          <CCardBody>
+            <div className="d-flex justify-content-between align-items-center">
+              
+              {/* Left: Ingredient Info */}
+              <div>
+                <h5 className="mb-2">{ingredient.name}</h5>
+                <div style={{
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  color: colorPalette.textPrimary,
+                  marginBottom: '5px'
+                }}>
+                  {ingredient.quantity} {ingredient.unit}
+                </div>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  color: ingredient.percentage <= 25 ? colorPalette.danger :
+                         ingredient.percentage <= 50 ? colorPalette.warning :
+                         ingredient.percentage <= 75 ? colorPalette.info : colorPalette.success
+                }}>
+                  {ingredient.percentage}% {t('LABELS.available')}
+                </div>
+                <div style={{
+                  fontSize: '14px',
+                  padding: '2px 8px',
+                  backgroundColor: ingredient.percentage <= 25 ? colorPalette.danger :
+                                   ingredient.percentage <= 50 ? colorPalette.warning :
+                                   ingredient.percentage <= 75 ? colorPalette.info : colorPalette.success,
+                  color: 'white',
+                  borderRadius: '4px',
+                  display: 'inline-block',
+                  marginTop: '5px'
+                }}>
+                  {getStatusText(ingredient.percentage)}
+                </div>
+              </div>
+
+              {/* Right: Circular Level Bar */}
+              <div>
+                <div style={{
+                  backgroundColor: '#eee',
+                  height: '80px',
+                  width: '80px',
+                  borderRadius: '50%',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  border: '1px solid #ccc'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    width: '100%',
+                    height: `${ingredient.percentage}%`,
+                    backgroundColor: '#6C5B7B',
+                  }}></div>
+                </div>
+              </div>
+
+            </div>
+          </CCardBody>
+        </CCard>
+      </CCol>
+    ))}
+  </CRow>
+</CCardBody>
+
+
+
       </CCard>
  
       {/* Products Section */}
@@ -277,71 +413,90 @@ const DairyFarmInventory = () => {
           </div>
         </CCardHeader>
         <CCardBody>
-          {products.map((product, index) => (
-            <div key={index} className="mb-4">
-              <h5 className="mb-3" style={{ borderBottom: '2px solid #eee', paddingBottom: '5px' }}>
-                {product.name}
-              </h5>
-              <CTable hover responsive>
-                <CTableHead>
-                  <CTableRow>
-                    <CTableHeaderCell>{t('LABELS.size')}</CTableHeaderCell>
-                    <CTableHeaderCell>{t('LABELS.productQty')}</CTableHeaderCell> 
-                    <CTableHeaderCell>{t('LABELS.percentage')}</CTableHeaderCell>
-                    <CTableHeaderCell>{t('LABELS.status')}</CTableHeaderCell>
-                    <CTableHeaderCell>{t('LABELS.level')}</CTableHeaderCell>
-                  </CTableRow>
-                </CTableHead>
-                <CTableBody>
-                  {product.sizes.map((size, sizeIndex) => (
-                    <CTableRow key={sizeIndex}>
-                      <CTableDataCell>
-                        <span style={{ fontWeight: 'bold' }}>{size.weight} {t('LABELS.g')}</span>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <span style={{ fontWeight: 'bold', fontSize: '16px' }}>{size.quantity} {t('LABELS.unit')}</span>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <span style={{
+  <CRow>
+    {products.map((product, index) => (
+      <CCol xs={12} md={6} key={index} className="mb-1">
+        <div style={{ border: '1px solid #eee', borderRadius: '8px', padding: '15px' }}>
+          <h5 className="mb-3" style={{ borderBottom: '2px solid #eee', paddingBottom: '5px' }}>
+            {product.name}
+          </h5>
+          <CTable hover responsive>
+            <CTableHead>
+              <CTableRow>
+                <CTableHeaderCell>{t('LABELS.size')}</CTableHeaderCell>
+                <CTableHeaderCell>{t('LABELS.productQty')}</CTableHeaderCell> 
+                <CTableHeaderCell>{t('LABELS.percentage')}</CTableHeaderCell>
+                <CTableHeaderCell>{t('LABELS.level')}</CTableHeaderCell>
+              </CTableRow>
+            </CTableHead>
+            <CTableBody>
+              {product.sizes.map((size, sizeIndex) => (
+                <CTableRow key={sizeIndex}>
+                  <CTableDataCell>
+                    <strong>{size.weight} {t('LABELS.g')}</strong>
+                  </CTableDataCell>
+                  <CTableDataCell>
+                    <strong style={{ fontSize: '16px' }}>{size.quantity} {t('LABELS.pcs')}</strong>
+                  </CTableDataCell>
+                  <CTableDataCell>
+                    <span style={{
+                      fontWeight: 'bold',
+                      fontSize: '16px',
+                      color: size.percentage <= 25 ? colorPalette.danger :
+                             size.percentage <= 50 ? colorPalette.warning :
+                             size.percentage <= 75 ? colorPalette.info : colorPalette.success
+                    }}>
+                      {size.percentage}%
+                    </span>
+                  </CTableDataCell>
+                  {/* <CTableDataCell style={{ width: '30%' }}>
+                    <CProgress
+                      value={size.percentage}
+                      color={size.percentage <= 25 ? 'danger' :
+                             size.percentage <= 50 ? 'warning' :
+                             size.percentage <= 75 ? 'info' : 'success'}
+                      style={{ height: '20px' }}
+                    />
+                  </CTableDataCell> */}
+
+<CTableDataCell style={{ width: '30%' }}>
+                    <CProgress style={{ height: '50px' }}>
+                      <CProgressBar
+                        value={size.percentage}
+                        color={size.percentage <= 25 ? 'danger' :
+                               size.percentage <= 50 ? 'warning' :
+                               size.percentage <= 75 ? 'info' : 'success'}
+                        animated
+                        striped
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '11px',
                           fontWeight: 'bold',
-                          fontSize: '16px',
-                          color: size.percentage <= 25 ? colorPalette.danger :
-                                 size.percentage <= 50 ? colorPalette.warning :
-                                 size.percentage <= 75 ? colorPalette.info : colorPalette.success
-                        }}>
-                          {size.percentage}%
-                        </span>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <span style={{
-                          padding: '3px 8px',
-                          backgroundColor: size.percentage <= 25 ? colorPalette.danger :
-                                           size.percentage <= 50 ? colorPalette.warning :
-                                           size.percentage <= 75 ? colorPalette.info : colorPalette.success,
                           color: 'white',
-                          borderRadius: '4px',
-                          display: 'inline-block'
-                        }}>
-                          {getStatusText(size.percentage)}
-                        </span>
-                      </CTableDataCell>
-                      <CTableDataCell style={{ width: '30%' }}>
-                        <CProgress
-                          value={size.percentage}
-                          color={size.percentage <= 25 ? 'danger' :
-                                 size.percentage <= 50 ? 'warning' :
-                                 size.percentage <= 75 ? 'info' : 'success'}
-                          style={{ height: '20px' }}
-                        />
-                      </CTableDataCell>
-                    </CTableRow>
-                  ))}
-                </CTableBody>
-              </CTable>
-            </div>
-          ))}
-        </CCardBody>
+                          lineHeight: '1',
+                        
+                        }}
+                      >
+                        {size.percentage}%
+                      </CProgressBar>
+                    </CProgress>
+                  </CTableDataCell>
+
+
+                </CTableRow>
+              ))}
+            </CTableBody>
+          </CTable>
+        </div>
+      </CCol>
+    ))}
+  </CRow>
+</CCardBody>
+
       </CCard>
+      
  
       {/* Pouch Materials Section - Changed to cards */}
       <CCard className="mb-4">
@@ -352,76 +507,81 @@ const DairyFarmInventory = () => {
           </div>
         </CCardHeader>
         <CCardBody>
-          <CRow>
-            {pouchMaterials.map((material, index) => (
-              <CCol md={3} key={index} className="mb-3">
-                <CCard className="h-100">
-                  <CCardBody>
-                    <div className="text-center mb-2">
-                      <h5>{material.weight} {t('LABELS.g')}</h5>
-                      <div style={{
-                        fontSize: '18px',
-                        fontWeight: 'bold',
-                        color: colorPalette.textPrimary,
-                        marginBottom: '5px'
-                      }}>
-                        {material.quantity} {material.unit} 
-                      </div>
-                      <div style={{
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        color: material.percentage <= 25 ? colorPalette.danger :
-                               material.percentage <= 50 ? colorPalette.warning :
-                               material.percentage <= 75 ? colorPalette.info : colorPalette.success
-                      }}>
-                        {material.percentage}% {t('LABELS.available')}
-                      </div>
-                      <div style={{
-                        fontSize: '14px',
-                        padding: '2px 8px',
-                        backgroundColor: material.percentage <= 25 ? colorPalette.danger :
-                                         material.percentage <= 50 ? colorPalette.warning :
-                                         material.percentage <= 75 ? colorPalette.info : colorPalette.success,
-                        color: 'white',
-                        borderRadius: '4px',
-                        display: 'inline-block',
-                        marginTop: '5px'
-                      }}>
-                        {getStatusText(material.percentage)}
-                      </div>
-                    </div>
-                    <div className="text-center mb-3">
-                      <div style={{
-                        display: 'inline-block',
-                        backgroundColor: '#eee',
-                        height: '80px',
-                        width: '80px',
-                        borderRadius: '50%',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        border: '1px solid #ccc'
-                      }}>
-                        <div style={{
-                          position: 'absolute',
-                          bottom: 0,
-                          left: 0,
-                          width: '100%',
-                          height: `${material.percentage}%`,
-                          backgroundColor: '#F39C12',
-                        }}></div>
-                      </div>
-                    </div>
-                  </CCardBody>
-                </CCard>
-              </CCol>
-            ))}
-          </CRow>
-        </CCardBody>
+  <CRow>
+    {pouchMaterials.map((material, index) => (
+      <CCol xs={12} md={6} lg={3} key={index} className="mb-3">
+        <CCard className="h-100">
+          <CCardBody>
+            <div className="d-flex align-items-center justify-content-between">
+              {/* Text Info */}
+              <div>
+                <h5>{material.weight} {t('LABELS.g')}</h5>
+                <div style={{
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  color: colorPalette.textPrimary,
+                  marginBottom: '5px'
+                }}>
+                  {material.quantity} {material.unit}
+                </div>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  color: material.percentage <= 25 ? colorPalette.danger :
+                        material.percentage <= 50 ? colorPalette.warning :
+                        material.percentage <= 75 ? colorPalette.info : colorPalette.success
+                }}>
+                  {material.percentage}% {t('LABELS.available')}
+                </div>
+                <div style={{
+                  fontSize: '14px',
+                  padding: '2px 8px',
+                  backgroundColor: material.percentage <= 25 ? colorPalette.danger :
+                                   material.percentage <= 50 ? colorPalette.warning :
+                                   material.percentage <= 75 ? colorPalette.info : colorPalette.success,
+                  color: 'white',
+                  borderRadius: '4px',
+                  display: 'inline-block',
+                  marginTop: '5px'
+                }}>
+                  {getStatusText(material.percentage)}
+                </div>
+              </div>
+
+              {/* Level Bar */}
+              <div style={{
+                display: 'inline-block',
+                backgroundColor: '#eee',
+                height: '80px',
+                width: '80px',
+                borderRadius: '50%',
+                position: 'relative',
+                overflow: 'hidden',
+                border: '1px solid #ccc'
+              }}>
+                <div style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  width: '100%',
+                  height: `${material.percentage}%`,
+                  backgroundColor: '#F39C12',
+                }}></div>
+              </div>
+            </div>
+          </CCardBody>
+        </CCard>
+      </CCol>
+    ))}
+  </CRow>
+</CCardBody>
+
       </CCard>
  
      
     {/* </CContainer> */}
-    </CCard>
+    {/* </CCard> */}
+    </>
   );
 };
  
