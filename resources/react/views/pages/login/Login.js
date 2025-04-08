@@ -80,10 +80,11 @@ const handleLogin = async (event) => {
           if(user.type > 1){
             navigate('/delivery');
           }else{
-            navigate('/dashboard');
+            // navigate('/dashboard'); DairyFarmInventory
+            navigate('/DairyFarmInventory')
           }
         }
-        else{
+        else{ 
           showToast('danger','Please provide valid email and password');
         }
     }
