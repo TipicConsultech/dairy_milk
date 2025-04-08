@@ -23,9 +23,10 @@ import {
   CTableDataCell
 } from '@coreui/react';
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom';
 
 const MilkProcessing = () => {
-
+  const navigate = useNavigate();
      const { t, i18n } = useTranslation("global")
           const lng = i18n.language;
 
@@ -41,11 +42,6 @@ const MilkProcessing = () => {
   const [totalMilk, setTotalMilk] = useState('');
   const [processedMilk, setProcessedMilk] = useState('');
   const [ingredients, setIngredients] = useState([
-    { name: t('LABELS.sugar'), quantity: 10 },
-    { name: t('LABELS.foodColor'), quantity: 1 }, 
-    { name: t('LABELS.foodColor'), quantity: 5 },
-    { name: t('LABELS.naturalColor'), quantity: 2 },
-    { name: t('LABELS.sweetener'), quantity: 3 }
   ]);
   const [processedProducts, setProcessedProducts] = useState([
     {
@@ -184,6 +180,8 @@ const MilkProcessing = () => {
       { name: t('LABELS.milkSolids'), quantity: 2 },
       { name: t('LABELS.calciumFortifier'), quantity: 3 }
     ]);
+
+    navigate('/CreateProduct');
   };
 
   const handleCreateProduct = (product) => {

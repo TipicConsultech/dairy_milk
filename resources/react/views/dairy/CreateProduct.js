@@ -125,6 +125,7 @@ function CreateProduct() {
               <CTableHeaderCell>{t('LABELS.quantity')}</CTableHeaderCell>
               <CTableHeaderCell>{t('LABELS.gram')}</CTableHeaderCell>
               <CTableHeaderCell>{t('LABELS.Date')}</CTableHeaderCell>
+              <CTableHeaderCell>{t('LABELS.batch_no')}</CTableHeaderCell>
             </CTableRow>
           </CTableHead>
           <CTableBody>
@@ -139,6 +140,8 @@ function CreateProduct() {
     <CTableDataCell>50 {t('LABELS.pcs')}</CTableDataCell>
     <CTableDataCell>200 {t('LABELS.g')}</CTableDataCell>
     <CTableDataCell>{new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "long" })}</CTableDataCell>
+    <CTableDataCell>01/02/02042025</CTableDataCell>
+
   </CTableRow>
 
   <CTableRow>
@@ -149,6 +152,7 @@ function CreateProduct() {
     <CTableDataCell>100 {t('LABELS.pcs')}</CTableDataCell>
     <CTableDataCell>250 {t('LABELS.g')}</CTableDataCell>
     <CTableDataCell>{new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "long" })}</CTableDataCell>
+    <CTableDataCell>01/02/11042025</CTableDataCell>
   </CTableRow>
 
 
@@ -163,6 +167,7 @@ function CreateProduct() {
                 <CTableDataCell>{item.productQty} {t('LABELS.pcs')}</CTableDataCell>
                 <CTableDataCell>{item.productGram} {t('LABELS.g')}</CTableDataCell>
                 <CTableDataCell>{item.date}</CTableDataCell>
+                <CTableDataCell>01/02/02042025</CTableDataCell>
               </CTableRow>
             ))}
           </CTableBody>

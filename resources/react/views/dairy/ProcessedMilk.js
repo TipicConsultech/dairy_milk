@@ -20,13 +20,13 @@ import {
   CModalFooter
 } from '@coreui/react';
 import { useTranslation } from 'react-i18next'
-
+import { useNavigate } from 'react-router-dom';
 
 
 
 const ProcessedMilk = () => {
 
-
+  const navigate = useNavigate();
     const { t, i18n } = useTranslation("global")
     const lng = i18n.language;
   
@@ -96,6 +96,10 @@ const ingredientList = [
     setIsModalOpen(true);
   };
 
+  const openCreateProduct = () => {
+    navigate('/CreateProduct');
+  };
+
   const handleAddIngredient = () => {
     if (newIngredient.name && newIngredient.quantity) {
       const selectedIngredient = ingredientList.find(
@@ -158,7 +162,7 @@ const ingredientList = [
       </span>
     </CTableDataCell>
     <CTableDataCell>
-      <CButton color="primary" shape="rounded-pill">
+      <CButton color="primary" shape="rounded-pill" onClick={() => openCreateProduct()}>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white">
           <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
         </svg>
@@ -221,43 +225,6 @@ const ingredientList = [
 
 
 
-              {tanks.map((tank, index) => (
-                <CTableRow key={index}>
-                     {/* <CTableDataCell>{tank.tank}</CTableDataCell> */}
-                  <CTableDataCell>{t('LABELS.tank')}</CTableDataCell>
-                  <CTableDataCell>{tank.totalMilk} {t('LABELS.Ltr')}.</CTableDataCell>
-                  <CTableDataCell>{tank.processedMilk} {t('LABELS.Ltr')}.</CTableDataCell>
-                  <CTableDataCell>{tank.date}</CTableDataCell>
-                  <CTableDataCell>
-                    {tank.ingredients.map((ing, i) => (
-                      <span
-                        key={i}
-                        style={{
-                          backgroundColor: ing.color,
-                          color: 'white',
-                          padding: '2px 5px',
-                          borderRadius: '3px',
-                          margin: '0 2px',
-                          display: 'inline-block'
-                        }}
-                      >
-                        {`${ing.name}: ${ing.quantity}`}  {t('LABELS.kg')}
-                      </span>
-                    ))}
-                  </CTableDataCell>
-                  <CTableDataCell>
-                    <CButton
-                      color="primary"
-                      shape="rounded-pill"
-                      onClick={() => handleAddIngredientClick(index)}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white">
-                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                      </svg>
-                    </CButton>
-                  </CTableDataCell>
-                </CTableRow>
-              ))}
             </CTableBody>
           </CTable>
         </CCardBody>

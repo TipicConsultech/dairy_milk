@@ -28,10 +28,10 @@ const DairyFarmInventory = () => {
 
   // Stock data from the handwritten notes
   const [tanks] = useState([
-    { id: 1, name: t('LABELS.tank'), current: 250, capacity: 500, percentage: 50 },
-    { id: 2, name: t('LABELS.tank'), current: 400, capacity: 500, percentage: 80 },
-    { id: 3, name: t('LABELS.tank'), current: 200, capacity: 200, percentage: 100 },
-    { id: 4, name: t('LABELS.tank'), current: 100, capacity: 100, percentage: 100 }
+    { id: 1, name: t('LABELS.tank') + " 1", current: 250, capacity: 500, percentage: 50 },
+    { id: 2, name: t('LABELS.tank')+ " 2", current: 400, capacity: 500, percentage: 80 },
+    { id: 3, name: t('LABELS.tank')+ " 3", current: 200, capacity: 200, percentage: 100 },
+    { id: 4, name: t('LABELS.tank')+ " 4", current: 100, capacity: 100, percentage: 100 }
   ]);
  
   const [ingredients] = useState([
@@ -121,9 +121,9 @@ const DairyFarmInventory = () => {
 
 
 
-            <CCardHeader className='mb-4'  style={{ backgroundColor: "#E6E6FA" }}>
+            {/* <CCardHeader className='mb-4'  style={{ backgroundColor: "#E6E6FA" }}>
            <h2> {t('LABELS.Dairy_Farm_Inventory_Management')} </h2> 
-            </CCardHeader>
+            </CCardHeader> */}
 
 
 
