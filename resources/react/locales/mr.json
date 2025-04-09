@@ -128,6 +128,10 @@
        "pcs": "पॅकेट",
 
 
+         
+
+
+
 
        "stockManagement": "साठा व्यवस्थापन",
     "tanks": "टाक्या",
@@ -211,14 +215,23 @@
 "Adequate":"पुरेसा",
 "Moderate":"माफक",
 "lowstock":"कमी स्टॉक",
-"batch_no": "बॅच क्र"
+"batch_no": "बॅच क्र",
 
 
 
 
+"addmilk":"दुध वाढवा",
 
+"PackagingMaterial" : "पॅकेजिंग साहित्य",
 
+"PackagingData":"पॅकेजिंग डेटा",
 
+"TetraPakCartons":"टेट्रा पॅक कार्टन",
+
+"HDPEPlasticBottles":"एचडीपीई प्लास्टिक बाटल्या",
+"PETBottles":"पीईटी बाटल्या",
+"no_ingredients_added":"घटक डेटा नाही",
+"enterProductQty": "उत्पादनाची मात्रा प्रविष्ट करा"
 
 
 

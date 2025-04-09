@@ -20,10 +20,14 @@ import {
   CTableRow,
   CTableHeaderCell,
   CTableBody,
-  CTableDataCell
+  CTableDataCell,
+  CProgress,
+  CProgressBar
 } from '@coreui/react';
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom';
+import CIcon from '@coreui/icons-react';
+import { cilDelete, cilPlus } from '@coreui/icons';
 
 const MilkProcessing = () => {
   const navigate = useNavigate();
@@ -31,9 +35,9 @@ const MilkProcessing = () => {
           const lng = i18n.language;
 
   const [tanks, setTanks] = useState([
-    { id: t('LABELS.tank'), capacity: 500, currentCapacity: 500 },
-    { id: t('LABELS.tank'), capacity: 700, currentCapacity: 700 },
-    { id: t('LABELS.tank'), capacity: 600, currentCapacity: 600 }
+    { id: t('LABELS.tank'), number:1, capacity: 500, currentCapacity: 500 },
+    { id: t('LABELS.tank'), number:2, capacity: 700, currentCapacity: 300 },
+    { id: t('LABELS.tank'), number:3, capacity: 600, currentCapacity: 100 }
   ]);
   const [selectedTank, setSelectedTank] = useState('');
   const [selectedIngredient, setSelectedIngredient] = useState('');
@@ -73,7 +77,7 @@ const MilkProcessing = () => {
       totalMilk: 450,
       milkOut: 400,
       ingredients: [
-        { name: t('LABELS.naturalColor'), quantity: 20 },
+        { name: t('LABELS.other'), quantity: 20 },
         { name: t('LABELS.sweetener'), quantity: 8 },
         { name: t('LABELS.foodColor'), quantity: 1 },
         { name: t('LABELS.sugar'), quantity: 4 }
@@ -190,168 +194,327 @@ const MilkProcessing = () => {
   };
 
   return (
-    <CCard className="p-4 max-w-2xl mx-auto  rounded-lg mt-10"> 
-      <CCardHeader style={{ backgroundColor: "#E6E6FA" }}>
-        <h2>{t(`LABELS.milk_processing`)}</h2>
+
+    <>
+    <CCard className=" max-w-2xl mx-auto  rounded-lg mt-10"> 
+      <CCardHeader style={{ backgroundColor: "#E6E6FA"}}>
+        <h5 >{t(`LABELS.milk_processing`)}</h5>
       </CCardHeader>  
 
+      <CCardBody className="p-2">
+
+
       {/* Tank Capacity Display */}
-      <CCard className="mb-4 mt-4">
-        <CCardHeader style={{
-          backgroundColor: '#d4edda',
-          color: 'black',
-          fontWeight: 'bold'
-        }}>
-          {t(`LABELS.tank_capacity`)}
-        </CCardHeader>
-        <CCardBody>
-          <CRow>
-            {tanks.map((tank, index) => (
-              <CCol key={index} md={4}>
-                <div className="text-center">
-                  <strong>{t(`LABELS.tank`)}{tank.id}</strong>
-                  <div>
-                  {t('LABELS.currentCapacity')}: {tank.currentCapacity} / {tank.capacity} {t('LABELS.Ltr')}
-                  </div>
-                </div>
-              </CCol>
-            ))}
-          </CRow>
-        </CCardBody>
-      </CCard>
+      <CCard className="mb-3 mt-3 shadow-sm">
+  <CCardHeader
+    style={{
+      backgroundColor: '#d4edda',
+      color: '#155724',
+      fontWeight: 'bold',
+      fontSize: '18px',
+      padding: '12px 20px',
+      borderBottom: '2px solid #c3e6cb'
+    }}
+  >
+   {t(`LABELS.tank_capacity`)}
+  </CCardHeader>
+
+  <CCardBody style={{ padding: '20px' }}>
+    {/* <CRow>
+      {tanks.map((tank, index) => {
+        const percentage = ((tank.currentCapacity / tank.capacity) * 100).toFixed(0)
+        let progressColor =
+          percentage <= 25
+            ? 'danger'
+            : percentage <= 50
+            ? 'warning'
+            : percentage <= 75
+            ? 'info'
+            : 'success'
+
+        return (
+          <CCol key={index} md={4} className="mb-1">
+            <div
+              className="p-3 border rounded shadow-sm"
+              style={{ backgroundColor: '#f8f9fa' }}
+            >
+              <div className="text-center mb-2">
+                <strong style={{ fontSize: '16px', color: '#333' }}>
+                 <h5> {t(`LABELS.tank`)} {index + 1}</h5>
+                </strong>
+              </div>
+
+              <div className="text-center mb-2" style={{ fontSize: '14px' }}>
+                <strong style={{ fontSize: '15px' }}>{t('LABELS.currentCapacity')}:</strong> <strong style={{ fontSize: '20px' }}>{tank.currentCapacity}</strong> / {tank.capacity} {t('LABELS.Ltr')}
+              </div>
+
+              <CProgress
+                style={{ height: '20px' }}
+                className="mt-2"
+              >
+                <CProgressBar
+                  value={percentage}
+                  color={progressColor}
+                  animated
+                  striped
+                >
+                  {percentage}%
+                </CProgressBar>
+              </CProgress>
+            </div>
+          </CCol>
+        )
+      })}
+    </CRow> */}
+
+
+<CRow>
+  {tanks.map((tank, index) => {
+    const percentage = ((tank.currentCapacity / tank.capacity) * 100).toFixed(0)
+    let progressColor =
+      percentage <= 25
+        ? '#dc3545' // red
+        : percentage <= 50
+        ? '#ffc107' // yellow
+        : percentage <= 75
+        ? '#17a2b8' // blue
+        : '#28a745' // green
+
+    return (
+      <CCol key={index} md={4} className="mb-1">
+        <div
+          className="p-3 border rounded shadow-sm"
+          style={{ backgroundColor: '#f8f9fa' }}
+        >
+          <div className="text-center mb-2">
+            <h5 style={{ fontWeight: 'bold', color: '#333' }}>
+              {t(`LABELS.tank`)} {index + 1}
+            </h5>
+          </div>
+
+          <div className="text-center mb-2" style={{ fontSize: '14px' }}>
+            <strong style={{ fontSize: '15px' }}>
+              {t('LABELS.currentCapacity')}:
+            </strong>{' '}
+            <strong style={{ fontSize: '20px' }}>{tank.currentCapacity}</strong> / {tank.capacity} {t('LABELS.Ltr')}
+          </div>
+
+          {/* Custom Progress Bar */}
+          <div
+            style={{
+              backgroundColor: '#e9ecef',
+              height: '24px',
+              width: '100%',
+              borderRadius: '5px',
+              overflow: 'hidden',
+              position: 'relative',
+              marginTop: '10px'
+            }}
+          >
+            <div
+              style={{
+                height: '100%',
+                width: `${percentage}%`,
+                backgroundColor: progressColor,
+                transition: 'width 0.5s ease-in-out',
+                textAlign: 'center',
+                color: 'white',
+                fontWeight: 'bold',
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              {percentage}%
+            </div>
+          </div>
+        </div>
+      </CCol>
+    )
+  })}
+</CRow>
+
+
+
+    
+  </CCardBody>
+</CCard>
+
+
+
+
 
       {/* Processing Details Form */}
-      <CCard className="mb-4">
-        <CCardHeader style={{
-          backgroundColor: '#d6eaff',
-          color: 'black',
-          fontWeight: 'bold'
-        }}>
-          {t('LABELS.processing_details')}
-        </CCardHeader>
-        <CCardBody>
-          <CRow className="mb-3">
-            <CCol md={6}>
-              <CForm className="d-flex align-items-center">
-                <span className="me-2" style={{ minWidth: '100px' }}>{t('LABELS.select_tank')}</span>
-                <CFormSelect
-                  value={selectedTank}
-                  onChange={(e) => setSelectedTank(e.target.value)}
-                  className="flex-grow-1"
-                >
-                  <option value="">{t('LABELS.select_tank')}</option>
-                  {tanks.map((tank, index) => (
-                    <option key={index} value={tank.id}>
-                      {tank.id} ({tank.currentCapacity} {t('LABELS.Ltr')})
-                    </option>
-                  ))}
-                </CFormSelect>
-              </CForm>
-            </CCol>
-            <CCol md={6}>
-              <CForm className="d-flex align-items-center">
-                <span className="me-2" style={{ minWidth: '100px' }}>{t('LABELS.milk_out')}</span>
-                <CFormInput
-                  type="number"
-                  placeholder={t('LABELS.addQuantity')}
-                  value={milkOut}
-                  onChange={(e) => setMilkOut(e.target.value)}
-                  className="flex-grow-1"
-                  max={tanks.find(tank => tank.id === selectedTank)?.currentCapacity || 0}
-                />
-              </CForm>
-            </CCol>
+      <CCard className="mb-2 shadow-sm">
+  <CCardHeader
+    style={{
+      backgroundColor: '#d6eaff',
+      color: '#003366',
+      fontWeight: 'bold',
+      fontSize: '18px',
+      letterSpacing: '0.5px',
+    }}
+  >
+    <i className="bi bi-gear me-2"></i>
+    {t('LABELS.processing_details')}
+  </CCardHeader>
+
+  <CCardBody>
+    <CRow className="mb-0">
+      <CCol md={6}>
+        <CForm className="d-flex align-items-center gap-2 mb-2">
+          <strong style={{ minWidth: '110px' }}>{t('LABELS.select_tank')}</strong>
+          <CFormSelect
+            value={selectedTank}
+            onChange={(e) => setSelectedTank(e.target.value)}
+          >
+            <option value="">{t('LABELS.select_tank')}</option>
+            {tanks.map((tank, index) => (
+              <option key={index} value={tank.id}>
+                {tank.id} {tank.number} ({tank.currentCapacity} {t('LABELS.Ltr')})
+              </option>
+            ))}
+          </CFormSelect>
+        </CForm>
+      </CCol>
+
+      <CCol md={6}>
+        <CForm className="d-flex align-items-center gap-2">
+          <strong style={{ minWidth: '110px' }}>{t('LABELS.milk_out')}</strong>
+          <CFormInput
+            type="number"
+            placeholder={t('LABELS.addQuantity')}
+            value={milkOut}
+            onChange={(e) => setMilkOut(e.target.value)}
+            max={tanks.find(tank => tank.id === selectedTank)?.currentCapacity || 0}
+          />
+        </CForm>
+      </CCol>
+    </CRow>
+
+    <hr />
+
+    <CRow className="mb-3">
+      <CCol>
+        <strong className="mb-2 d-block">{t('LABELS.ingredients')}</strong>
+        <CForm className="d-flex flex-wrap align-items-center gap-1 mb-1">
+
+
+        <CRow className="mb-4">
+        <CCol>
+          <CFormSelect
+            value={selectedIngredient}
+            onChange={(e) => setSelectedIngredient(e.target.value)}
+            style={{ minWidth: '180px' }}
+            className='mb-2'
+          >
+            <option value="">{t('LABELS.selectIngredient')}</option>
+            <option value="sugar">{t('LABELS.sugar')}</option>
+            <option value="color">{t('LABELS.salt')}</option>
+            <option value="cream">{t('LABELS.milkSolids')}</option>
+            <option value="other">{t('LABELS.other')}</option>
+          </CFormSelect>
+
+          {selectedIngredient === 'other' && (
+            <CFormInput
+              type="text"
+              placeholder="Custom"
+              value={customIngredient}
+              onChange={(e) => setCustomIngredient(e.target.value)}
+              style={{ width: '150px' }}
+            />
+          )}
+
+</CCol>
+<CCol>
+
+          <CFormInput
+            type="number"
+            placeholder={t('LABELS.quantity')}
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            style={{ width: '120px' }}
+          />
+</CCol>
+<CCol>
+          <CButton color="success" onClick={handleAddIngredient}>
+            {/* <i className="bi bi-plus-lg"></i>  icon={cilPlus} */}
+            <CIcon icon={cilPlus} size="l" style={{ '--ci-primary-color': 'white' }} />
+          </CButton>
+</CCol>
           </CRow>
 
-          <CRow className="mb-3">
-            <CCol md={6}>
-              <CForm className="d-flex align-items-center">
-                <span className="me-2" style={{ minWidth: '100px' }}>{t('LABELS.ingredients')}</span>
-                <CFormSelect
-                  value={selectedIngredient}
-                  onChange={(e) => setSelectedIngredient(e.target.value)}
-                  className="me-2 flex-grow-1"
+        </CForm>
+
+        <div
+          style={{
+            maxHeight: '150px',
+            overflowY: 'auto',
+            border: '1px solid #e0e0e0',
+            padding: '10px',
+            borderRadius: '5px',
+            background: '#f9f9f9',
+          }}
+        >
+          {ingredients.length === 0 ? (
+            <p className="text-muted">{t('LABELS.no_ingredients_added')}</p>
+          ) : (
+            ingredients.map((ingredient, index) => (
+              <div key={index} className="d-flex justify-content-between align-items-center mb-2">
+                <span>{ingredient.name}</span>
+                <span>{ingredient.quantity} {t('LABELS.kg')}</span>
+                <CButton
+                  // color="danger"
+                  size="sm"
+                  onClick={() => {
+                    const updatedIngredients = ingredients.filter((_, i) => i !== index);
+                    setIngredients(updatedIngredients);
+                  }}
                 >
-                  <option value="">{t('LABELS.selectIngredient')}</option>
-                  <option value="sugar">{t('LABELS.sugar')}</option>
-                  <option value="color">{t('LABELS.salt')}</option>
-                  <option value="cream">{t('LABELS.milkSolids')}</option>
-                  {/* <option value="preservative">Preservative</option>
-                  <option value="flavoring">Flavoring</option> */}
-                  <option value="other">{t('LABELS.other')}</option>
-                </CFormSelect>
-                {selectedIngredient === 'other' && (
-                  <CFormInput
-                    type="text"
-                    placeholder="Custom Ingredient"
-                    value={customIngredient}
-                    onChange={(e) => setCustomIngredient(e.target.value)}
-                    className="me-2"
-                    style={{ width: '150px' }}
-                  />
-                )}
-                <CFormInput
-                  type="number"
-                  placeholder={t('LABELS.quantity')}
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  className="me-2"
-                  style={{ width: '100px' }}
-                />
-                <CButton color="success" onClick={handleAddIngredient}>
-                  +
+                  {/* <i className="bi bi-dash-lg"></i> */}
+                  <CIcon icon={cilDelete} size="xl" style={{ '--ci-primary-color': 'red' }} />
                 </CButton>
-              </CForm>
-            </CCol>
-            <CCol md={6}>
-              {ingredients.map((ingredient, index) => (
-                <div key={index} className="d-flex justify-content-between mb-2">
-                  <span>{ingredient.name}</span>
-                  <span>{ingredient.quantity} {t('LABELS.kg')}</span>
-                  <button
-                    className="btn btn-sm btn-danger"
-                    onClick={() => {
-                      const updatedIngredients = ingredients.filter((_, i) => i !== index);
-                      setIngredients(updatedIngredients);
-                    }}
-                  >
-                    -
-                  </button>
-                </div>
-              ))}
-            </CCol>
-          </CRow>
+              </div>
+            ))
+          )}
+        </div>
+      </CCol>
+    </CRow>
 
-          <CRow className="mb-3">
-            <CCol md={6}>
-              <CForm className="d-flex align-items-center">
-                <span className="me-2" style={{ minWidth: '100px' }}>{t('LABELS.processed_milk_quantity')}</span>
-                <CFormInput
-                  type="number"
-                  placeholder={t('LABELS.processed_milk_quantity')}
-                  value={processedMilk}
-                  readOnly
-                  className="flex-grow-1"
-                />
-              </CForm>
-            </CCol>
-          </CRow>
+    <CRow className="mb-4">
+      <CCol md={6}>
+        <CForm className="d-flex align-items-center gap-2">
+          <strong style={{ minWidth: '170px' }}>{t('LABELS.processed_milk_quantity')}</strong>
+          <CFormInput
+            type="number"
+            value={processedMilk}
+            readOnly
+            className="text-success fw-bold"
+            style={{ background: '#e9f8ee' }}
+          />
+        </CForm>
+      </CCol>
+    </CRow>
 
-          <CRow>
-            <CCol className="d-flex justify-content-between">
-              <CButton color="secondary" className="me-2"> 
-              {t('LABELS.save_for_later')}
-              </CButton>
-              <CButton color="primary" onClick={handleSaveProcess}> 
-              {t('LABELS.save_produce')}
-              </CButton>
-            </CCol>
-          </CRow>
-        </CCardBody>
-      </CCard>
+    <CRow>
+      <CCol className="d-flex justify-content-start gap-2">
+        <CButton color="secondary">
+          <i className="bi bi-save me-1"></i>
+          {t('LABELS.save_for_later')}
+        </CButton>
+        <CButton color="primary" onClick={handleSaveProcess}>
+          <i className="bi bi-check-circle me-1"></i>
+          {t('LABELS.save_produce')}
+        </CButton>
+      </CCol>
+    </CRow>
+  </CCardBody>
+</CCard>
+
 
       {/* Processed Products List */}
-      {processedProducts.length > 0 && (
+      {/* {processedProducts.length > 0 && (
         <CCard className="mb-4">
           <CCardHeader style={{
             backgroundColor: '#f9f5d7',
@@ -399,7 +562,7 @@ const MilkProcessing = () => {
             </CTable>
           </CCardBody>
         </CCard>
-      )}
+      )} */}
 
       {/* Confirmation Modal */}
       <CModal
@@ -463,7 +626,9 @@ const MilkProcessing = () => {
           </CButton>
         </CModalFooter>
       </CModal>
+      </CCardBody>
     </CCard>
+    </>
   );
 };
 

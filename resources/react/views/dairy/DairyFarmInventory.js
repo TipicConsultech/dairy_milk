@@ -131,7 +131,7 @@ const DairyFarmInventory = () => {
 
  
       {/* Tanks Section */}
-      <CCard className="mb-4">
+      <CCard className="mb-3">
         <CCardHeader style={{ backgroundColor: '#d4edda'}}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h5 className="mb-0" >{t('LABELS.Storage_Tanks')} </h5> 
@@ -253,7 +253,7 @@ const DairyFarmInventory = () => {
 </CCard>
  
       {/* Ingredients Section - Changed to cards */}
-      <CCard className="mb-4">
+      <CCard className="mb-3">
         <CCardHeader style={{ backgroundColor: '#d6eaff' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h5 className="mb-0">{t('LABELS.ingredients')}</h5> 
@@ -405,7 +405,7 @@ const DairyFarmInventory = () => {
       </CCard>
  
       {/* Products Section */}
-      <CCard className="mb-4">
+      <CCard className="mb-3">
         <CCardHeader style={{ backgroundColor: '#f9f5d7' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h5 className="mb-0">{t('LABELS.product')}</h5>
@@ -499,7 +499,7 @@ const DairyFarmInventory = () => {
       
  
       {/* Pouch Materials Section - Changed to cards */}
-      <CCard className="mb-4">
+      <CCard className="mb-3">
         <CCardHeader style={{ backgroundColor: '#f8d7da' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h5 className="mb-0">{t('LABELS.packaging_material')}</h5> 

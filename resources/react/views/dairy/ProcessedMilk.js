@@ -17,7 +17,8 @@ import {
   CForm,
   CFormInput,
   CFormSelect,
-  CModalFooter
+  CModalFooter,
+  CBadge
 } from '@coreui/react';
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom';
@@ -125,108 +126,78 @@ const ingredientList = [
 
   return (
     <>
-      <CCard className="mb-4 p-4">
+      <CCard className="mb-4 ">
         <CCardHeader className="" style={{ backgroundColor: "#E6E6FA" }}>
-          <h2>{t('LABELS.processedMilk')}</h2>
+          <h5>{t('LABELS.processedMilk')}</h5>
         </CCardHeader>
-        <CCardBody>
-          <CTable striped hover responsive>
-            <CTableHead>
-              <CTableRow>
-                <CTableHeaderCell>{t('LABELS.tank')}</CTableHeaderCell>
-                <CTableHeaderCell>{t('LABELS.totalMilkQty')}</CTableHeaderCell>
-                <CTableHeaderCell>{t('LABELS.processedMilkQty')}</CTableHeaderCell>
-                <CTableHeaderCell>{t('LABELS.date')}</CTableHeaderCell>
-                <CTableHeaderCell>{t('LABELS.ingredientsUsed')}</CTableHeaderCell>
-                <CTableHeaderCell>{t('LABELS.action')}</CTableHeaderCell>
-              </CTableRow>
-            </CTableHead>
-            <CTableBody>
+        <CCardBody className=" p-4">
+        <CTable striped hover responsive className="align-middle border shadow-sm">
+  <CTableHead color="light">
+    <CTableRow style={{ backgroundColor: '#f0f4f8' }}>
+      <CTableHeaderCell className="fw-bold text-primary">{t('LABELS.tank')}</CTableHeaderCell>
+      <CTableHeaderCell className="fw-bold text-primary">{t('LABELS.totalMilkQty')}</CTableHeaderCell>
+      <CTableHeaderCell className="fw-bold text-primary">{t('LABELS.processedMilkQty')}</CTableHeaderCell>
+      <CTableHeaderCell className="fw-bold text-primary">{t('LABELS.date')}</CTableHeaderCell>
+      <CTableHeaderCell className="fw-bold text-primary">{t('LABELS.ingredientsUsed')}</CTableHeaderCell>
+      <CTableHeaderCell className="fw-bold text-primary">{t('LABELS.action')}</CTableHeaderCell>
+    </CTableRow>
+  </CTableHead>
+  <CTableBody>
 
+    {/* Row 1 */}
+    <CTableRow>
+      <CTableDataCell>{t('LABELS.tank')} 1</CTableDataCell>
+      <CTableDataCell>200/500 {t('LABELS.Ltr')}</CTableDataCell>
+      <CTableDataCell>200 {t('LABELS.Ltr')}</CTableDataCell>
+      <CTableDataCell>03-Jan-2025</CTableDataCell>
+      <CTableDataCell>
+        <CBadge color="info" className="me-2">{t('LABELS.sugar')}: 5 {t('LABELS.kg')}</CBadge>
+        <CBadge color="danger">{t('LABELS.salt')}: 2 {t('LABELS.kg')}</CBadge>
+      </CTableDataCell>
+      <CTableDataCell>
+        <CButton color="success" variant="outline" shape="rounded-pill" size="sm" onClick={() => openCreateProduct()}>
+        {t('LABELS.createProduct')}   
+        </CButton>
+      </CTableDataCell>
+    </CTableRow>
 
+    {/* Row 2 */}
+    <CTableRow>
+      <CTableDataCell>{t('LABELS.tank')} 2</CTableDataCell>
+      <CTableDataCell>100/300 {t('LABELS.Ltr')}</CTableDataCell>
+      <CTableDataCell>150 {t('LABELS.Ltr')}</CTableDataCell>
+      <CTableDataCell>01-Feb-2025</CTableDataCell>
+      <CTableDataCell>
+        <CBadge color="success" className="me-2">{t('LABELS.milkPowder')}: 10 {t('LABELS.kg')}</CBadge>
+        <CBadge color="secondary">{t('LABELS.foodColor')}: 1 {t('LABELS.kg')}</CBadge>
+      </CTableDataCell>
+      <CTableDataCell>
+        <CButton color="success" variant="outline" shape="rounded-pill" size="sm">
+          Create Product
+        </CButton>
+      </CTableDataCell>
+    </CTableRow>
 
+    {/* Row 3 */}
+    <CTableRow>
+      <CTableDataCell>{t('LABELS.tank')} 2</CTableDataCell>
+      <CTableDataCell>250/700 {t('LABELS.Ltr')}</CTableDataCell>
+      <CTableDataCell>150 {t('LABELS.Ltr')}</CTableDataCell>
+      <CTableDataCell>20-Mar-2025</CTableDataCell>
+      <CTableDataCell>
+        <CBadge color="info" className="me-2">{t('LABELS.sugar')}: 5 {t('LABELS.kg')}</CBadge>
+        <CBadge color="secondary">{t('LABELS.foodColor')}: 1 {t('LABELS.kg')}</CBadge>
+      </CTableDataCell>
+      <CTableDataCell>
+        <CButton color="success" variant="outline" shape="rounded-pill" size="sm">
+          Create Product
+        </CButton>
+      </CTableDataCell>
+    </CTableRow>
 
+  </CTableBody>
+</CTable>
 
-                                 {/* Dummy Data Row */}
-  <CTableRow>
-    <CTableDataCell>{t('LABELS.tank')} 1</CTableDataCell>
-    <CTableDataCell>500 {t('LABELS.Ltr')}.</CTableDataCell>
-    <CTableDataCell>200 {t('LABELS.Ltr')}.</CTableDataCell>
-    <CTableDataCell>2025-03-28</CTableDataCell>
-    <CTableDataCell>
-      <span style={{ backgroundColor: "blue", color: "white", padding: "2px 5px", borderRadius: "3px", margin: "0 2px", display: "inline-block" }}>
-      {t('LABELS.sugar')}: 5 {t('LABELS.kg')}
-      </span>
-      <span style={{ backgroundColor: "red", color: "white", padding: "2px 5px", borderRadius: "3px", margin: "0 2px", display: "inline-block" }}>
-      {t('LABELS.salt')}: 2 {t('LABELS.kg')}
-      </span>
-    </CTableDataCell>
-    <CTableDataCell>
-      <CButton color="primary" shape="rounded-pill" onClick={() => openCreateProduct()}>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white">
-          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-        </svg>
-      </CButton>
-    </CTableDataCell>
-  </CTableRow>
-
-  <CTableRow>
-    <CTableDataCell>{t('LABELS.tank')} 2</CTableDataCell>
-    <CTableDataCell>300 {t('LABELS.Ltr')}.</CTableDataCell>
-    <CTableDataCell>150 {t('LABELS.Ltr')}.</CTableDataCell>
-    <CTableDataCell>2025-03-28</CTableDataCell>
-    <CTableDataCell>
-      <span style={{ backgroundColor: "green", color: "white", padding: "2px 5px", borderRadius: "3px", margin: "0 2px", display: "inline-block" }}>
-      {t('LABELS.milkPowder')}: 10 {t('LABELS.kg')}
-      </span>
-      <span style={{ backgroundColor: "purple", color: "white", padding: "2px 5px", borderRadius: "3px", margin: "0 2px", display: "inline-block" }}>
-      {t('LABELS.foodColor')}: 1 {t('LABELS.kg')}
-      </span>
-    </CTableDataCell>
-    <CTableDataCell>
-      <CButton color="primary" shape="rounded-pill">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white">
-          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-        </svg>
-      </CButton>
-    </CTableDataCell>
-  </CTableRow>
-
-  <CTableRow>
-    <CTableDataCell>{t('LABELS.tank')} 2</CTableDataCell>
-    <CTableDataCell>300 {t('LABELS.Ltr')}.</CTableDataCell>
-    <CTableDataCell>150 {t('LABELS.Ltr')}.</CTableDataCell>
-    <CTableDataCell>2025-03-28</CTableDataCell>
-    <CTableDataCell>
-    <span style={{ backgroundColor: "blue", color: "white", padding: "2px 5px", borderRadius: "3px", margin: "0 2px", display: "inline-block" }}>
-    {t('LABELS.sugar')}: 5 {t('LABELS.kg')}
-      </span>
-      <span style={{ backgroundColor: "purple", color: "white", padding: "2px 5px", borderRadius: "3px", margin: "0 2px", display: "inline-block" }}>
-      {t('LABELS.foodColor')}: 1 {t('LABELS.kg')}
-      </span>
-    </CTableDataCell>
-    <CTableDataCell>
-      <CButton color="primary" shape="rounded-pill">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white">
-          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-        </svg>
-      </CButton>
-    </CTableDataCell>
-  </CTableRow>
-
-
-
-
-
-
-
-
-
-
-
-
-            </CTableBody>
-          </CTable>
         </CCardBody>
       </CCard>
 

@@ -63,11 +63,11 @@ const AppHeader = () => {
           </CHeaderToggler>
           <CHeaderNav className="d-md-flex">
             <CNavItem>
-              <CNavLink href="#/delivery">{t("LABELS.delivery")}</CNavLink>
+              <CNavLink href="#/invoice">{t("LABELS.invoice")}</CNavLink>
             </CNavItem>
-            <CNavItem>
+            {/* <CNavItem>
               <CNavLink href="#/booking">{t("LABELS.booking")}</CNavLink>
-            </CNavItem>
+            </CNavItem> */}
             {/* <CNavItem>
               <CNavLink href="#/Reports/Customer_Report">Report</CNavLink>
             </CNavItem> */}
