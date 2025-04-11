@@ -438,7 +438,7 @@ const DairyFarmInventory = () => {
                   <CTableDataCell>
                     <strong style={{ fontSize: '16px' }}>{size.quantity} {t('LABELS.pcs')}</strong>
                   </CTableDataCell>
-                  <CTableDataCell>
+                  {/* <CTableDataCell>
                     <span style={{
                       fontWeight: 'bold',
                       fontSize: '16px',
@@ -448,7 +448,7 @@ const DairyFarmInventory = () => {
                     }}>
                       {size.percentage}%
                     </span>
-                  </CTableDataCell>
+                  </CTableDataCell> */}
                   {/* <CTableDataCell style={{ width: '30%' }}>
                     <CProgress
                       value={size.percentage}
@@ -459,7 +459,7 @@ const DairyFarmInventory = () => {
                     />
                   </CTableDataCell> */}
 
-<CTableDataCell style={{ width: '30%' }}>
+{/* <CTableDataCell style={{ width: '30%' }}>
                     <CProgress style={{ height: '50px' }}>
                       <CProgressBar
                         value={size.percentage}
@@ -482,7 +482,36 @@ const DairyFarmInventory = () => {
                         {size.percentage}%
                       </CProgressBar>
                     </CProgress>
-                  </CTableDataCell>
+                  </CTableDataCell> */}
+ <CTableDataCell style={{ width: '40%' }}>
+  <div style={{ height: '30px', backgroundColor: '#e9ecef', borderRadius: '4px', overflow: 'hidden' }}>
+    <div
+      style={{
+        width: `${size.percentage}%`,
+        height: '100%',
+        backgroundColor:
+          size.percentage <= 25
+            ? '#dc3545' // danger
+            : size.percentage <= 50
+            ? '#ffc107' // warning
+            : size.percentage <= 75
+            ? '#17a2b8' // info
+            : '#28a745', // success
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '12px',
+        fontWeight: 'bold',
+        color: 'white',
+        transition: 'width 0.4s ease',
+      }}
+    >
+      {size.percentage}%
+    </div>
+  </div>
+</CTableDataCell>
+
+
 
 
                 </CTableRow>

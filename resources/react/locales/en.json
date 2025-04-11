@@ -215,7 +215,10 @@
 "tetraPack": "Tetra-Packs",
 "supplier": "Supplier",
 "supplierName": "Supplier Name",
-"expireDate": "Expiry Date"
+"expireDate": "Expiry Date",
+"lastUpdatedDate":"Last Updated Date",
+"updatedby":"Updated By"
+
 
 
     },

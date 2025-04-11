@@ -37,8 +37,8 @@ const StockManagement = () => {
   ]);
 
   const [ingredients, setIngredients] = useState([
-    { name: t('LABELS.sugar'), quantity: 10.50, unit:t('LABELS.kg') },
-    { name: t('LABELS.foodColor'), quantity: 5.25, unit: t('LABELS.kg') },
+    { name: t('LABELS.sugar'), quantity: 10.50, unit:t('LABELS.kg'), date: '25 Oct 2024', updatedby:'Ajinkya' },
+    { name: t('LABELS.foodColor'), quantity: 5.25, unit: t('LABELS.kg'), date: '10 Nov 2024', updatedby:'Vishal' },
   ]);
 
   const [newIngredient, setNewIngredient] = useState({
@@ -48,9 +48,9 @@ const StockManagement = () => {
   });
 
   const [packagingMaterials] = useState([
-    { name: t('LABELS.tetraPack'), quantity: 1500 },
-    { name: t('LABELS.can'), quantity: 850 },
-    { name: t('LABELS.tub'), quantity: 2300 },
+    { name: t('LABELS.tetraPack'), quantity: 1500, date: '10 Apr 2025', updatedby:'Samir' },
+    { name: t('LABELS.can'), quantity: 850 , date: '14 Jan 2025', updatedby:'Abhijeet'},
+    { name: t('LABELS.tub'), quantity: 2300, date: '01 Feb 2025', updatedby:'Shubham' },
   ]);
 
   const [showPackagingModal, setShowPackagingModal] = useState(false);
@@ -293,6 +293,8 @@ const StockManagement = () => {
                 <CTableRow>
                   <CTableHeaderCell style={tableHeaderStyle}>{t(`LABELS.ingredient`)}</CTableHeaderCell>
                   <CTableHeaderCell style={tableHeaderStyle}>{t('LABELS.quantity')}</CTableHeaderCell>
+                  <CTableHeaderCell style={tableHeaderStyle}>{t('LABELS.lastUpdatedDate')}</CTableHeaderCell>
+                  <CTableHeaderCell style={tableHeaderStyle}>{t('LABELS.updatedby')}</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
@@ -304,7 +306,10 @@ const StockManagement = () => {
                         {ingredient.quantity.toFixed(2)} {ingredient.unit}
                       </span>
                     </CTableDataCell>
+                    <CTableDataCell style={{ padding: "0.75rem 1rem" }}>{ingredient.date}</CTableDataCell>
+                    <CTableDataCell style={{ padding: "0.75rem 1rem" }}>{ingredient.updatedby}</CTableDataCell>
                   </CTableRow>
+
                 ))}
               </CTableBody>
             </CTable>
@@ -343,6 +348,8 @@ const StockManagement = () => {
                 <CTableRow>
                   <CTableHeaderCell style={tableHeaderStyle}>{t(`LABELS.ingredients`)}</CTableHeaderCell>
                   <CTableHeaderCell style={tableHeaderStyle}>{`${t('LABELS.quantity')} (${t('LABELS.pcs')})`}</CTableHeaderCell>
+                  <CTableHeaderCell style={tableHeaderStyle}>{t('LABELS.lastUpdatedDate')}</CTableHeaderCell>
+                  <CTableHeaderCell style={tableHeaderStyle}>{t('LABELS.updatedby')}</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
@@ -354,6 +361,8 @@ const StockManagement = () => {
                         {material.quantity}
                       </span>
                     </CTableDataCell>
+                    <CTableDataCell style={{ padding: "0.75rem 1rem" }}>{material.date}</CTableDataCell>
+                    <CTableDataCell style={{ padding: "0.75rem 1rem" }}>{material.updatedby}</CTableDataCell>
                   </CTableRow>
                 ))}
               </CTableBody>

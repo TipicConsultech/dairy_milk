@@ -210,7 +210,9 @@
   "tetraPack": "टेट्रा-पॅक",
   "supplier":"पुरवठादार",
   "supplierName":"पुरवठादाराचे नाव",
-  "expireDate":"कालबाह्यता तारीख"
+  "expireDate":"कालबाह्यता तारीख",
+  "lastUpdatedDate":"शेवटची अपडेट केलेली तारीख",
+  "updatedby":"द्वारे प्रक्रिया केली"
 
     },
 
