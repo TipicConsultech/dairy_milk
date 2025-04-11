@@ -103,16 +103,12 @@
         "edit": "Edit",
         "delete": "Delete",
         "status": "स्थिती",
-
-
-
-
-        "create_product": "उत्पादन तयार करा",
+       "create_product": "उत्पादन तयार करा",
         "createProduct": "उत्पादन तयार करा",
         "tank": "टाकी",
         "processed_milk": "प्रक्रियायुक्त दूध",
   
-         "enterMilk": "उत्पादनासाठी दूध प्रविष्ट करा",
+        "enterMilk": "उत्पादनासाठी दूध प्रविष्ट करा",
         "selectProduct": "उत्पादन निवडा",
         "selectGram": "ग्राम निवडा",
         "productQty": "उत्पादनाचे प्रमाण",
@@ -125,15 +121,9 @@
         "Ltr" :"लि",
         "select": "निवडा",
          "g" : "ग्रा",
-       "pcs": "पॅकेट",
+        "pcs": "पॅकेट",
 
-
-         
-
-
-
-
-       "stockManagement": "साठा व्यवस्थापन",
+    "stockManagement": "साठा व्यवस्थापन",
     "tanks": "टाक्या",
     "tankName": "टाकीचे नाव",
     "capacity": "क्षमता (लिटर)",
@@ -150,14 +140,10 @@
     "salt": "मीठ",
     "other": "इतर",
 
-
-
-
-
     "processedMilk": "प्रक्रियायुक्त दूध",
-     "totalMilkQty": "एकूण दूध प्रमाण",
+    "totalMilkQty": "एकूण दूध प्रमाण",
   "processedMilkQty": "प्रक्रियायुक्त दूध प्रमाण",
-   "ingredientsUsed": "प्रक्रियेसाठी वापरलेले साहित्य",
+  "ingredientsUsed": "प्रक्रियेसाठी वापरलेले साहित्य",
   "action": "कृती",
   "addIngredient": "साहित्य जोडा", "flavoring": "सुगंधी पदार्थ",
   "preservative": "संवर्धक",
@@ -170,12 +156,7 @@
   "naturalColor": "नैसर्गिक रंग",
   "sweetener": "गोडसर पदार्थ",
   "milkSolids": "दूध घटक",
-"kg":"किलो",
-
-
-
-
-
+  "kg":"किलो",
 
 "milk_processing": "दूध प्रक्रिया",
 "tank_capacity": "टँक क्षमता",
@@ -184,23 +165,14 @@
 "milk_out": "दूध बाहेर टाका",
 "materials": "साहित्य",
 "custom_materials": "सानुकूल साहित्य",
-
 "save_for_later": "नंतरसाठी जतन करा",
 "save_produce": "जतन करा/उत्पादन तयार करा",
 "processed_products": "प्रक्रियायुक्त उत्पादने",
-
 "total_milk": "एकूण दूध",
 "milk_removed": "बाहेर गेलेले दूध",
-
 "processed_milk_quantity": "प्रक्रियायुक्त दूध",
 "processing_date": "प्रक्रिया तारीख",
-
 "currentCapacity":"वर्तमान क्षमता",
-
-
-
-
-
 "Productcreate":"उत्पादन तयार करणे", 
 "Dairy_Farm_Inventory_Management":"दुग्धशाळा साठा व्यवस्थापन", 
 "Storage_Tanks": "साठवण टँक",
@@ -216,24 +188,29 @@
 "Moderate":"माफक",
 "lowstock":"कमी स्टॉक",
 "batch_no": "बॅच क्र",
-
-
-
-
 "addmilk":"दुध वाढवा",
-
 "PackagingMaterial" : "पॅकेजिंग साहित्य",
-
 "PackagingData":"पॅकेजिंग डेटा",
-
 "TetraPakCartons":"टेट्रा पॅक कार्टन",
-
 "HDPEPlasticBottles":"एचडीपीई प्लास्टिक बाटल्या",
 "PETBottles":"पीईटी बाटल्या",
 "no_ingredients_added":"घटक डेटा नाही",
-"enterProductQty": "उत्पादनाची मात्रा प्रविष्ट करा"
-
-
+"enterProductQty": "उत्पादनाची मात्रा प्रविष्ट करा",
+"processed_by":"द्वारे प्रक्रिया केली",
+"addPackging":"पॅकेजिंग साहित्य जोडा",
+"packagingType": "पॅकेजिंग प्रकार",
+  "selectPackagingType": "पॅकेजिंग प्रकार निवडा",
+  "glass": "काचेच्या बाटल्या",
+  "plastic": "प्लास्टिकच्या बाटल्या",
+  "cartonGable": "कार्टन (गेबल-टॉप)",
+  "cartonBrick": "कार्टन (ब्रिक-प्रकार)",
+  "pouch": "पिशव्या",
+  "tub": "टब",
+  "can": "कॅन",
+  "tetraPack": "टेट्रा-पॅक",
+  "supplier":"पुरवठादार",
+  "supplierName":"पुरवठादाराचे नाव",
+  "expireDate":"कालबाह्यता तारीख"
 
     },
 

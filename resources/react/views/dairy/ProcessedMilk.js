@@ -173,7 +173,7 @@ const ingredientList = [
       </CTableDataCell>
       <CTableDataCell>
         <CButton color="success" variant="outline" shape="rounded-pill" size="sm">
-          Create Product
+        {t('LABELS.createProduct')} 
         </CButton>
       </CTableDataCell>
     </CTableRow>
@@ -190,7 +190,7 @@ const ingredientList = [
       </CTableDataCell>
       <CTableDataCell>
         <CButton color="success" variant="outline" shape="rounded-pill" size="sm">
-          Create Product
+        {t('LABELS.createProduct')} 
         </CButton>
       </CTableDataCell>
     </CTableRow>

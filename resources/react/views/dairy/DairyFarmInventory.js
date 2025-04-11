@@ -131,7 +131,7 @@ const DairyFarmInventory = () => {
 
  
       {/* Tanks Section */}
-      <CCard className="mb-3">
+      <CCard className="mb-3 mt-0">
         <CCardHeader style={{ backgroundColor: '#d4edda'}}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h5 className="mb-0" >{t('LABELS.Storage_Tanks')} </h5> 

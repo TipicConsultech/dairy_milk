@@ -105,10 +105,6 @@
     "delete": "Delete",
     "status": "Status",
 
-
-
-
-
     "create_product": "Create Product",
     "createProduct": "Create Product",
     "tank": "Tank",
@@ -126,17 +122,13 @@
     "Ltr": "Ltr",
     "select": "Select",
     "g": "g",
-"pcs":"Packets",
-"no_ingredients_added":"No Ingredient Data",
-
-"enterProductQty":"Enter Product Quantity",
-
-
-
-"stockManagement": "Stock Management",
-"tanks": "Tanks",
-"tankName": "Tank Name",
-"capacity": "Capacity (Liters)",
+    "pcs":"Packets",
+    "no_ingredients_added":"No Ingredient Data",
+    "enterProductQty":"Enter Product Quantity",
+    "stockManagement": "Stock Management",
+    "tanks": "Tanks",
+    "tankName": "Tank Name",
+    "capacity": "Capacity (Liters)",
 "currentQuantity": "Current Quantity (Liters)",
 "addQuantity": "Enter Milk Count",
 "ingredients": "Ingredients",
@@ -149,12 +141,6 @@
 "foodColor": "Food Color",
 "salt": "Salt",
 "other": "Other",
-
-
-
-
-
-
 
 "processedMilk": "Processed Milk",
 "totalMilkQty": "Total Milk Quantity",
@@ -175,11 +161,6 @@
 "milkSolids": "Milk Solids",
 "kg": "Kg",
 
-
-
-
-
-
 "milk_processing": "Milk Processing",
 "tank_capacity": "Tank Capacity",
 "processing_details": "Processing Details",
@@ -187,24 +168,15 @@
 "milk_out": "Milk Out",
 "materials": "Materials",
 "custom_materials": "Custom Materials",
-
 "save_for_later": "Save for Later",
 "save_produce": "Create Product",
 "processed_products": "Processed Products",
-
 "total_milk": "Total Milk",
 "milk_removed": "Milk Removed",
-
 "processed_milk_quantity": "Processed Milk",
 "processing_date": "Processing Date",
-
 "currentCapacity": "Current Capacity",
-
 "Productcreate": "Product Creation",
-
-
-
-
 
 "Productcreate": "Create Product",
 "Dairy_Farm_Inventory_Management": "Dairy Farm Inventory Management",
@@ -222,20 +194,28 @@
 "lowstock": "Low Stock",
 "batch_no": "Batch No",
 
-
-
 "addmilk": "Add Milk",
-
 "PackagingMaterial": "Packaging Material",
-
 "PackagingData": "Packaging Data",
-
 "TetraPakCartons": "Tetra Pak Cartons",
-
 "HDPEPlasticBottles": "HDPE Plastic Bottles",
+"PETBottles": "PET Bottles",
+"processed_by":"Processed by",
 
-"PETBottles": "PET Bottles"
-
+"addPackging": "Add Packaging Material",
+"packagingType": "Packaging Type",
+"selectPackagingType": "Select Packaging Type",
+"glass": "Glass Bottles",
+"plastic": "Plastic Bottles",
+"cartonGable": "Cartons (Gable-Top)",
+"cartonBrick": "Cartons (Brick-Type)",
+"pouch": "Pouches",
+"tub": "Tubs",
+"can": "Cans",
+"tetraPack": "Tetra-Packs",
+"supplier": "Supplier",
+"supplierName": "Supplier Name",
+"expireDate": "Expiry Date"
 
 
     },

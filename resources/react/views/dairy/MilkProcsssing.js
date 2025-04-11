@@ -45,6 +45,7 @@ const MilkProcessing = () => {
   const [milkOut, setMilkOut] = useState('');
   const [totalMilk, setTotalMilk] = useState('');
   const [processedMilk, setProcessedMilk] = useState('');
+  const [unit, setUnit] = useState('kg');
   const [ingredients, setIngredients] = useState([
   ]);
   const [processedProducts, setProcessedProducts] = useState([
@@ -106,20 +107,23 @@ const MilkProcessing = () => {
   }, [selectedTank, milkOut, ingredients]);
 
   const handleAddIngredient = () => {
-    if (!selectedIngredient || !quantity) {
-      alert('Please select an ingredient and enter a quantity');
+    if (!selectedIngredient || !quantity || !unit) {
+      alert('Please select an ingredient, enter a quantity, and select a unit');
       return;
     }
-
-    // Handle custom ingredient
-    const ingredientName = selectedIngredient === 'other'
-      ? (customIngredient.trim() || 'Custom Ingredient')
-      : selectedIngredient;
-
+  
+    // Handle custom ingredient name
+    const ingredientName =
+      selectedIngredient === 'other'
+        ? (customIngredient.trim() || 'Custom Ingredient')
+        : selectedIngredient;
+  
     const existingIngredientIndex = ingredients.findIndex(
-      ing => ing.name.toLowerCase() === ingredientName.toLowerCase()
+      ing =>
+        ing.name.toLowerCase() === ingredientName.toLowerCase() &&
+        ing.unit === unit // match also by unit
     );
-
+  
     if (existingIngredientIndex !== -1) {
       const updatedIngredients = [...ingredients];
       updatedIngredients[existingIngredientIndex].quantity =
@@ -130,16 +134,19 @@ const MilkProcessing = () => {
         ...ingredients,
         {
           name: ingredientName.charAt(0).toUpperCase() + ingredientName.slice(1),
-          quantity: Number(quantity)
+          quantity: Number(quantity),
+          unit: unit,
         }
       ]);
     }
-
+  
     // Reset inputs
     setSelectedIngredient('');
     setQuantity('');
     setCustomIngredient('');
+    setUnit('kg'); // or '' if you prefer blank
   };
+  
 
   const handleSaveProcess = () => {
     if (!selectedTank || !milkOut) {
@@ -196,8 +203,20 @@ const MilkProcessing = () => {
   return (
 
     <>
-    <CCard className=" max-w-2xl mx-auto  rounded-lg mt-10"> 
-      <CCardHeader style={{ backgroundColor: "#E6E6FA"}}>
+    <CCard className=" max-w-2xl mx-auto  rounded-lg mt-10 mb-2"> 
+      <CCardHeader
+      //  style={{ backgroundColor: "#E6E6FA"}}
+      style={{
+        backgroundColor: '#E6E6FA', // Light lavender
+        color: '#483D8B', // Dark Slate Blue (harmonious)
+        fontWeight: 'bold',
+        
+        fontSize: '18px',
+        padding: '5px 20px',
+        borderBottom: '2px solidrgb(8, 10, 11)'
+      }}
+      
+      >
         <h5 >{t(`LABELS.milk_processing`)}</h5>
       </CCardHeader>  
 
@@ -205,7 +224,7 @@ const MilkProcessing = () => {
 
 
       {/* Tank Capacity Display */}
-      <CCard className="mb-3 mt-3 shadow-sm">
+      {/* <CCard className="mb-3 mt-3 shadow-sm">
   <CCardHeader
     style={{
       backgroundColor: '#d4edda',
@@ -217,9 +236,9 @@ const MilkProcessing = () => {
     }}
   >
    {t(`LABELS.tank_capacity`)}
-  </CCardHeader>
+  </CCardHeader> */}
 
-  <CCardBody style={{ padding: '20px' }}>
+  <CCardBody className='mb-1' style={{ padding: '0px ' }}>
     {/* <CRow>
       {tanks.map((tank, index) => {
         const percentage = ((tank.currentCapacity / tank.capacity) * 100).toFixed(0)
@@ -339,21 +358,22 @@ const MilkProcessing = () => {
 
     
   </CCardBody>
-</CCard>
+{/* </CCard> */}
 
 
 
 
 
       {/* Processing Details Form */}
-      <CCard className="mb-2 shadow-sm">
+      <CCard className="mb-1 shadow-sm">
   <CCardHeader
     style={{
       backgroundColor: '#d6eaff',
       color: '#003366',
       fontWeight: 'bold',
       fontSize: '18px',
-      letterSpacing: '0.5px',
+      // letterSpacing: '0.5px',
+      padding: '5px 20px',
     }}
   >
     <i className="bi bi-gear me-2"></i>
@@ -363,8 +383,8 @@ const MilkProcessing = () => {
   <CCardBody>
     <CRow className="mb-0">
       <CCol md={6}>
-        <CForm className="d-flex align-items-center gap-2 mb-2">
-          <strong style={{ minWidth: '110px' }}>{t('LABELS.select_tank')}</strong>
+        <CForm className="d-flex align-items-center gap-2 mb-0">
+          <strong style={{ minWidth: '90px' }}>{t('LABELS.select_tank')}</strong>
           <CFormSelect
             value={selectedTank}
             onChange={(e) => setSelectedTank(e.target.value)}
@@ -380,8 +400,8 @@ const MilkProcessing = () => {
       </CCol>
 
       <CCol md={6}>
-        <CForm className="d-flex align-items-center gap-2">
-          <strong style={{ minWidth: '110px' }}>{t('LABELS.milk_out')}</strong>
+        <CForm className="d-flex align-items-center gap-0 mb-0">
+          <strong style={{ minWidth: '80px' }}>{t('LABELS.milk_out')}</strong>
           <CFormInput
             type="number"
             placeholder={t('LABELS.addQuantity')}
@@ -395,97 +415,107 @@ const MilkProcessing = () => {
 
     <hr />
 
-    <CRow className="mb-3">
-      <CCol>
-        <strong className="mb-2 d-block">{t('LABELS.ingredients')}</strong>
-        <CForm className="d-flex flex-wrap align-items-center gap-1 mb-1">
 
 
-        <CRow className="mb-4">
-        <CCol>
-          <CFormSelect
-            value={selectedIngredient}
-            onChange={(e) => setSelectedIngredient(e.target.value)}
-            style={{ minWidth: '180px' }}
-            className='mb-2'
-          >
-            <option value="">{t('LABELS.selectIngredient')}</option>
-            <option value="sugar">{t('LABELS.sugar')}</option>
-            <option value="color">{t('LABELS.salt')}</option>
-            <option value="cream">{t('LABELS.milkSolids')}</option>
-            <option value="other">{t('LABELS.other')}</option>
-          </CFormSelect>
+    <CRow className="mb-2">
+  <CCol className=" ">
+    <CForm className="d-flex align-items-center gap-2 flex-wrap">
+      {/* Label */}
+      <strong className="mb-0">{t('LABELS.ingredients')}</strong>
 
-          {selectedIngredient === 'other' && (
-            <CFormInput
-              type="text"
-              placeholder="Custom"
-              value={customIngredient}
-              onChange={(e) => setCustomIngredient(e.target.value)}
-              style={{ width: '150px' }}
-            />
-          )}
+      {/* Ingredient Dropdown */}
+      <CFormSelect
+        value={selectedIngredient}
+        onChange={(e) => setSelectedIngredient(e.target.value)}
+        style={{ width: '180px' }}
+        className="mb-0"
+      >
+        <option value="">{t('LABELS.selectIngredient')}</option>
+        <option value="sugar">{t('LABELS.sugar')}</option>
+        <option value="salt">{t('LABELS.salt')}</option>
+        <option value="foodColor">{t('LABELS.foodColor')}</option>
+        <option value="other">{t('LABELS.other')}</option>
+      </CFormSelect>
 
-</CCol>
-<CCol>
+      {/* Custom Input if 'Other' is selected */}
+      {selectedIngredient === 'other' && (
+        <CFormInput
+          type="text"
+          placeholder="Custom"
+          value={customIngredient}
+          onChange={(e) => setCustomIngredient(e.target.value)}
+          style={{ width: '140px' }}
+          className="mb-0"
+        />
+      )}
 
-          <CFormInput
-            type="number"
-            placeholder={t('LABELS.quantity')}
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            style={{ width: '120px' }}
-          />
-</CCol>
-<CCol>
-          <CButton color="success" onClick={handleAddIngredient}>
-            {/* <i className="bi bi-plus-lg"></i>  icon={cilPlus} */}
-            <CIcon icon={cilPlus} size="l" style={{ '--ci-primary-color': 'white' }} />
-          </CButton>
-</CCol>
-          </CRow>
+      {/* Quantity Input */}
+      <CFormInput
+        type="number"
+        placeholder={t('LABELS.quantity')}
+        value={quantity}
+        onChange={(e) => setQuantity(e.target.value)}
+        style={{ width: '120px' }}
+        className="mb-0"
+      />
 
-        </CForm>
+      {/* Unit Dropdown */}
+      <CFormSelect
+        value={unit}
+        onChange={(e) => setUnit(e.target.value)}
+        style={{ width: '100px' }}
+        className="mb-0"
+      >
+        <option value="kg">{t('LABELS.kg')}</option>
+        <option value="gm">{t('LABELS.g')}</option>
+      </CFormSelect>
 
-        <div
-          style={{
-            maxHeight: '150px',
-            overflowY: 'auto',
-            border: '1px solid #e0e0e0',
-            padding: '10px',
-            borderRadius: '5px',
-            background: '#f9f9f9',
-          }}
-        >
-          {ingredients.length === 0 ? (
-            <p className="text-muted">{t('LABELS.no_ingredients_added')}</p>
-          ) : (
-            ingredients.map((ingredient, index) => (
-              <div key={index} className="d-flex justify-content-between align-items-center mb-2">
-                <span>{ingredient.name}</span>
-                <span>{ingredient.quantity} {t('LABELS.kg')}</span>
-                <CButton
-                  // color="danger"
-                  size="sm"
-                  onClick={() => {
-                    const updatedIngredients = ingredients.filter((_, i) => i !== index);
-                    setIngredients(updatedIngredients);
-                  }}
-                >
-                  {/* <i className="bi bi-dash-lg"></i> */}
-                  <CIcon icon={cilDelete} size="xl" style={{ '--ci-primary-color': 'red' }} />
-                </CButton>
-              </div>
-            ))
-          )}
-        </div>
-      </CCol>
-    </CRow>
+      {/* Add Button */}
+      <CButton color="success" onClick={handleAddIngredient}>
+        <CIcon icon={cilPlus} size="l" style={{ '--ci-primary-color': 'white' }} />
+      </CButton>
+    </CForm>
 
-    <CRow className="mb-4">
+    {/* List of added ingredients */}
+    <div
+      style={{
+        maxHeight: '150px',
+        overflowY: 'auto',
+        border: '1px solid #e0e0e0',
+        padding: '10px',
+        borderRadius: '5px',
+        background: '#f9f9f9',
+        marginTop: '10px',
+      }}
+    >
+      {ingredients.length === 0 ? (
+        <p className="text-muted mb-0">{t('LABELS.no_ingredients_added')}</p>
+      ) : (
+        ingredients.map((ingredient, index) => (
+          <div key={index} className="d-flex justify-content-between align-items-center mb-2">
+            <span>{ingredient.name}</span>
+            <span>{ingredient.quantity} {ingredient.unit}</span>
+            <CButton
+              size="sm"
+              onClick={() => {
+                const updatedIngredients = ingredients.filter((_, i) => i !== index);
+                setIngredients(updatedIngredients);
+              }}
+            >
+              <CIcon icon={cilDelete} size="xl" style={{ '--ci-primary-color': 'red' }} />
+            </CButton>
+          </div>
+        ))
+      )}
+    </div>
+  </CCol>
+</CRow>
+
+
+    <CRow className="mb-4 mt-2">
       <CCol md={6}>
         <CForm className="d-flex align-items-center gap-2">
-          <strong style={{ minWidth: '170px' }}>{t('LABELS.processed_milk_quantity')}</strong>
+          <strong style={{ minWidth: '90px' }}>{t('LABELS.processed_milk_quantity')}</strong>
           <CFormInput
             type="number"
             value={processedMilk}
