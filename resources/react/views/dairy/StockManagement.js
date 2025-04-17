@@ -22,10 +22,10 @@ import {
 } from "@coreui/react";
 import { CFormInput, CFormSelect } from '@coreui/react';
 import { useTranslation } from 'react-i18next'
-import { PlusCircle, Plus } from "lucide-react";
+import { PlusCircle, Plus, Edit, Trash2 } from "lucide-react";
 
 const StockManagement = () => {
-  
+
   const { t, i18n } = useTranslation("global")
   const lng = i18n.language;
 
@@ -37,14 +37,16 @@ const StockManagement = () => {
   ]);
 
   const [ingredients, setIngredients] = useState([
-    { name: t('LABELS.sugar'), quantity: 10.50, unit:t('LABELS.kg'), date: '25 Oct 2024', updatedby:'Ajinkya' },
-    { name: t('LABELS.foodColor'), quantity: 5.25, unit: t('LABELS.kg'), date: '10 Nov 2024', updatedby:'Vishal' },
+    { id: 1, name: t('LABELS.sugar'), quantity: 10.50, unit:t('LABELS.kg'), date: '25 Oct 2024', updatedby:'Ajinkya', isEditing: false },
+    { id: 2, name: t('LABELS.foodColor'), quantity: 5.25, unit: t('LABELS.kg'), date: '10 Nov 2024', updatedby:'Vishal', isEditing: false },
   ]);
 
-  const [newIngredient, setNewIngredient] = useState({
+  const [editIngredient, setEditIngredient] = useState({
+    id: null,
     name: "",
     quantity: "",
-    unit: "Kg"
+    unit: "",
+    updatedby: ""
   });
 
   const [packagingMaterials] = useState([
@@ -54,15 +56,12 @@ const StockManagement = () => {
   ]);
 
   const [showPackagingModal, setShowPackagingModal] = useState(false);
-  const [showIngredientModal, setShowIngredientModal] = useState(false);
   const [packagingData, setPackagingData] = useState({
     packagingType: "",
     quantity: "",
     supplier: "",
     expiryDate: "",
   });
-
-
 
   const handleTankAddQuantity = (tankId, quantity) => {
     setTanks(
@@ -79,37 +78,85 @@ const StockManagement = () => {
     );
   };
 
-  const handleAddIngredient = () => {
-    if (!newIngredient.name || !newIngredient.quantity) {
-      alert("Please select an ingredient and enter a quantity");
+  // Handlers for ingredients inline editing
+  const handleEditIngredient = (ingredient) => {
+    setIngredients(ingredients.map(item => ({
+      ...item,
+      isEditing: item.id === ingredient.id ? true : false
+    })));
+
+    setEditIngredient({
+      id: ingredient.id,
+      name: ingredient.name,
+      quantity: ingredient.quantity,
+      unit: ingredient.unit,
+      updatedby: ingredient.updatedby
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setIngredients(ingredients.map(item => ({
+      ...item,
+      isEditing: false
+    })));
+  };
+
+  const handleSaveEdit = () => {
+    if (!editIngredient.name || !editIngredient.quantity || !editIngredient.updatedby) {
+      alert("Please fill all required fields");
       return;
     }
 
-    const existingIngredientIndex = ingredients.findIndex(
-      (ing) => ing.name.toLowerCase() === newIngredient.name.toLowerCase()
-    );
+    setIngredients(ingredients.map(item => {
+      if (item.id === editIngredient.id) {
+        return {
+          ...item,
+          name: editIngredient.name,
+          quantity: Number(editIngredient.quantity),
+          unit: editIngredient.unit,
+          updatedby: editIngredient.updatedby,
+          isEditing: false,
+          // Note: date field remains unchanged as per requirement
+        };
+      }
+      return item;
+    }));
+  };
 
-    if (existingIngredientIndex !== -1) {
-      const updatedIngredients = [...ingredients];
-      updatedIngredients[existingIngredientIndex].quantity =
-        Number(updatedIngredients[existingIngredientIndex].quantity) +
-        Number(newIngredient.quantity);
-      setIngredients(updatedIngredients);
-    } else {
-      setIngredients([
-        ...ingredients,
-        {
-          name:
-            newIngredient.name.charAt(0).toUpperCase() +
-            newIngredient.name.slice(1),
-          quantity: Number(newIngredient.quantity),
-          unit: newIngredient.unit
-        },
-      ]);
+  const handleDeleteIngredient = (id) => {
+    if (confirm(t('LABELS.confirmDelete'))) {
+      setIngredients(ingredients.filter(item => item.id !== id));
     }
+  };
 
-    setNewIngredient({ name: "", quantity: "", unit: "Kg" });
-    setShowIngredientModal(false);
+  const handleAddNewIngredientRow = () => {
+    // Generate a new ID
+    const newId = Math.max(...ingredients.map(i => i.id), 0) + 1;
+
+    // Get current date for the new ingredient
+    const today = new Date();
+    const dateOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+    const formattedDate = today.toLocaleDateString('en-GB', dateOptions);
+
+    // Add new empty row in edit mode
+    const newIngredient = {
+      id: newId,
+      name: "",
+      quantity: 0,
+      unit: t('LABELS.kg'),
+      date: formattedDate,
+      updatedby: "",
+      isEditing: true
+    };
+
+    setIngredients([...ingredients, newIngredient]);
+    setEditIngredient({
+      id: newId,
+      name: "",
+      quantity: 0,
+      unit: t('LABELS.kg'),
+      updatedby: ""
+    });
   };
 
   const handlePackagingDataSubmit = () => {
@@ -150,51 +197,66 @@ const StockManagement = () => {
     return {
       backgroundColor: colors[index % colors.length],
       color: "white",
-      padding: "0.25rem 0.75rem",
-      borderRadius: "30px",
+      padding: "0.15rem 0.5rem",
+      borderRadius: "20px",
       display: "inline-block"
     };
   };
 
-  // Common table styles
+  // Common table styles - reduced padding
   const tableContainerStyle = {
     border: "1px solid #dee2e6",
     borderRadius: "0.25rem",
     overflow: "hidden",
-    marginBottom: "1.5rem"
+    marginBottom: "0.75rem"
   };
 
   const tableHeaderStyle = {
     backgroundColor: "#f8f9fa",
-    padding: "0.75rem 1rem",
+    padding: "0.4rem 0.5rem",
     fontWeight: "600",
-    fontSize: "1rem",
+    fontSize: "0.9rem",
     borderBottom: "1px solid #dee2e6"
   };
 
   // Reduced header style for the main sections
   const reducedHeaderStyle = {
     fontWeight: "600",
-    fontSize: "1.11rem"  // Reduced from 1.25rem
+    fontSize: "1rem"
   };
 
   // Reduced card header style for main component
   const mainCardHeaderStyle = {
     backgroundColor: "#E6E6FA",
-    fontSize: "1.2rem", // Reduced from 1.5rem
-    fontWeight: "600"
+    fontSize: "1.1rem",
+    fontWeight: "600",
+    padding: "0"
+  };
+
+  // Action button styles
+  const actionButtonStyle = {
+    padding: "0.15rem 0.4rem",
+    marginRight: "0.25rem",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center"
   };
 
   return (
     <CContainer fluid className="p-0">
-      <CCard className="p-1 p-md-1">
-        <CCardHeader className="bg-light-purple text-dark" style={{ backgroundColor: "#E6E6FA" }}>
-          <h2 style={mainCardHeaderStyle}>{t('LABELS.stockManagement')}</h2>
+      <CCard className="p-0">
+        <CCardHeader className="py-0 px-2" style={{ backgroundColor: "#E6E6FA" }}>
+          <h2 style={{
+            ...mainCardHeaderStyle,
+            margin: "0.2rem 0"
+          }}>
+            {t('LABELS.stockManagement')}
+          </h2>
         </CCardHeader>
-        <CCardBody>
+        <CCardBody className="p-1">
           {/* SECTION: Tank Capacity */}
-          <div className="mb-2">
-            <CRow>
+          <div className="mb-1">
+            <CRow className="g-1">
               {tanks.map((tank, index) => {
                 if (index > 2) return null; // Only show 3 tanks as in the image
                 const fillPercentage = calculateFillPercentage(tank.current, tank.capacity);
@@ -202,18 +264,18 @@ const StockManagement = () => {
 
                 return (
                   <CCol sm={4} key={tank.id}>
-                    <CCard className="mb-3" style={{ boxShadow: "0 2px 5px rgba(0,0,0,0.08)" }}>
-                      <CCardHeader style={{ backgroundColor: "#f8f9fa", borderBottom: "1px solid #dee2e6" }}>
-                        <div style={{ fontSize: "1rem", fontWeight: "600" }}>{t('LABELS.tank')} {tank.id}</div>
+                    <CCard className="mb-1" style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                      <CCardHeader className="py-1 px-2" style={{ backgroundColor: "#f8f9fa", borderBottom: "1px solid #dee2e6" }}>
+                        <div style={{ fontSize: "0.9rem", fontWeight: "600" }}>{t('LABELS.tank')} {tank.id}</div>
                       </CCardHeader>
-                      <CCardBody className="p-3">
-                        <div className="mb-3">
-                          <div className="mb-2">
-                            <span style={{ fontSize: "1.1rem", fontWeight: "600" }}>
+                      <CCardBody className="p-2">
+                        <div className="mb-2">
+                          <div className="mb-1">
+                            <span style={{ fontSize: "0.95rem", fontWeight: "600" }}>
                             {t('LABELS.currentCapacity')}: {tank.current} / {tank.capacity} {t('LABELS.Ltr')}
                             </span>
                           </div>
-                          <div style={{ backgroundColor: "#e9ecef", height: "25px", borderRadius: "0.25rem", position: "relative", overflow: "hidden" }}>
+                          <div style={{ backgroundColor: "#e9ecef", height: "20px", borderRadius: "0.25rem", position: "relative", overflow: "hidden" }}>
                             <div
                               style={{
                                 width: `${fillPercentage}%`,
@@ -224,25 +286,26 @@ const StockManagement = () => {
                                 alignItems: "center",
                                 justifyContent: "center",
                                 color: "white",
-                                fontWeight: "bold"
+                                fontWeight: "bold",
+                                fontSize: "0.8rem"
                               }}
                             >
                               {fillPercentage}%
                             </div>
                           </div>
                         </div>
-                        <div className="d-flex gap-2 mt-3">
+                        <div className="d-flex gap-1 mt-2">
                           <CFormInput
                             type="number"
                             placeholder={t(`LABELS.addmilk`)}
                             className="py-1 px-2"
                             id={`tank-${tank.id}-input`}
-                            style={{ fontSize: "1rem" }}
+                            style={{ fontSize: "0.9rem" }}
                           />
                           <CButton
                             color="primary"
-                            className="py-1 px-3"
-                            style={{ fontSize: "1rem", fontWeight: "bold" }}
+                            className="py-1 px-2"
+                            style={{ fontSize: "0.9rem", fontWeight: "bold" }}
                             onClick={() => {
                               const input = document.getElementById(`tank-${tank.id}-input`);
                               handleTankAddQuantity(tank.id, input.value);
@@ -260,32 +323,17 @@ const StockManagement = () => {
             </CRow>
           </div>
 
-          {/* SECTION: Ingredients - Styled like the table in the image */}
-          <div className="mb-4" style={tableContainerStyle}>
+          {/* SECTION: Ingredients - With inline editing */}
+          <div className="mb-2" style={tableContainerStyle}>
             <div style={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
               backgroundColor: "#d6eaff",
-              padding: "0.35rem 1rem",
+              padding: "0.25rem 0.5rem",
               borderBottom: "1px solid #dee2e6"
             }}>
               <span style={reducedHeaderStyle}>{t(`LABELS.ingredient`)}</span>
-              <CButton
-                color="primary"
-                onClick={() => setShowIngredientModal(true)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "32px",
-                  height: "32px",
-                  padding: "0",
-                  borderRadius: "50%"
-                }}
-              >
-                <Plus size={20} />
-              </CButton>
             </div>
 
             <CTable hover style={{ margin: "0" }} responsive>
@@ -295,34 +343,123 @@ const StockManagement = () => {
                   <CTableHeaderCell style={tableHeaderStyle}>{t('LABELS.quantity')}</CTableHeaderCell>
                   <CTableHeaderCell style={tableHeaderStyle}>{t('LABELS.lastUpdatedDate')}</CTableHeaderCell>
                   <CTableHeaderCell style={tableHeaderStyle}>{t('LABELS.updatedby')}</CTableHeaderCell>
+                  <CTableHeaderCell style={tableHeaderStyle}>{t('LABELS.actions')}</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
                 {ingredients.map((ingredient, index) => (
                   <CTableRow key={index} style={{ backgroundColor: index % 2 === 0 ? "#f9f9f9" : "white" }}>
-                    <CTableDataCell style={{ padding: "0.75rem 1rem" }}>{ingredient.name}</CTableDataCell>
-                    <CTableDataCell style={{ padding: "0.75rem 1rem" }}>
-                      <span style={getBadgeStyle(index)}>
-                        {ingredient.quantity.toFixed(2)} {ingredient.unit}
-                      </span>
+                    <CTableDataCell style={{ padding: "0.35rem 0.5rem", fontSize: "0.9rem" }}>
+                      {ingredient.isEditing ? (
+                        <CFormInput
+                          type="text"
+                          value={editIngredient.name}
+                          onChange={(e) => setEditIngredient({...editIngredient, name: e.target.value})}
+                          size="sm"
+                        />
+                      ) : (
+                        ingredient.name
+                      )}
                     </CTableDataCell>
-                    <CTableDataCell style={{ padding: "0.75rem 1rem" }}>{ingredient.date}</CTableDataCell>
-                    <CTableDataCell style={{ padding: "0.75rem 1rem" }}>{ingredient.updatedby}</CTableDataCell>
+                    <CTableDataCell style={{ padding: "0.35rem 0.5rem", fontSize: "0.9rem" }}>
+                      {ingredient.isEditing ? (
+                        <div className="d-flex">
+                          <CFormInput
+                            type="number"
+                            value={editIngredient.quantity}
+                            onChange={(e) => setEditIngredient({...editIngredient, quantity: e.target.value})}
+                            size="sm"
+                            style={{ width: "70px", marginRight: "5px" }}
+                          />
+                          <CFormSelect
+                            value={editIngredient.unit}
+                            onChange={(e) => setEditIngredient({...editIngredient, unit: e.target.value})}
+                            size="sm"
+                            style={{ width: "70px" }}
+                          >
+                            <option value={t('LABELS.kg')}>{t('LABELS.kg')}</option>
+                            <option value={t('LABELS.g')}>{t('LABELS.g')}</option>
+                          </CFormSelect>
+                        </div>
+                      ) : (
+                        <span style={getBadgeStyle(index)}>
+                          {ingredient.quantity.toFixed(2)} {ingredient.unit}
+                        </span>
+                      )}
+                    </CTableDataCell>
+                    <CTableDataCell style={{ padding: "0.35rem 0.5rem", fontSize: "0.9rem" }}>
+                      {ingredient.date}
+                    </CTableDataCell>
+                    <CTableDataCell style={{ padding: "0.35rem 0.5rem", fontSize: "0.9rem" }}>
+                      {ingredient.isEditing ? (
+                        <CFormInput
+                          type="text"
+                          value={editIngredient.updatedby}
+                          onChange={(e) => setEditIngredient({...editIngredient, updatedby: e.target.value})}
+                          size="sm"
+                        />
+                      ) : (
+                        ingredient.updatedby
+                      )}
+                    </CTableDataCell>
+                    <CTableDataCell style={{ padding: "0.35rem 0.5rem", fontSize: "0.9rem" }}>
+                      {ingredient.isEditing ? (
+                        <>
+                          <CButton color="success" size="sm" style={actionButtonStyle} onClick={handleSaveEdit}>
+                            {t('LABELS.save')}
+                          </CButton>
+                          <CButton color="danger" size="sm" style={actionButtonStyle} onClick={handleCancelEdit}>
+                            {t('LABELS.cancel')}
+                          </CButton>
+                        </>
+                      ) : (
+                        <>
+                          <CButton
+                            color="primary"
+                            size="sm"
+                            style={actionButtonStyle}
+                            onClick={() => handleEditIngredient(ingredient)}
+                          >
+                            <Edit size={14} />
+                          </CButton>
+                          <CButton
+                            color="danger"
+                            size="sm"
+                            style={actionButtonStyle}
+                            onClick={() => handleDeleteIngredient(ingredient.id)}
+                          >
+                            <Trash2 size={14} />
+                          </CButton>
+                        </>
+                      )}
+                    </CTableDataCell>
                   </CTableRow>
-
                 ))}
               </CTableBody>
             </CTable>
+
+            {/* Add Row Button */}
+            <div style={{ padding: "0.5rem", textAlign: "left" }}>
+              <CButton
+                color="primary"
+                size="md"
+                onClick={handleAddNewIngredientRow}
+                className="px-3"
+              >
+                <Plus size={16} style={{ marginRight: "5px" }} />
+                {t('LABELS.addRow')}
+              </CButton>
+            </div>
           </div>
 
           {/* SECTION: Packaging Material - Styled like the table in the image */}
-          <div className="mb-4" style={tableContainerStyle}>
+          <div className="mb-2" style={tableContainerStyle}>
             <div style={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
               backgroundColor: "#f8d7da",
-              padding: "0.45rem 1rem",
+              padding: "0.25rem 0.5rem",
               borderBottom: "1px solid #dee2e6"
             }}>
               <span style={reducedHeaderStyle}>{t(`LABELS.PackagingMaterial`)}</span>
@@ -333,13 +470,13 @@ const StockManagement = () => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  width: "32px",
-                  height: "32px",
+                  width: "28px",
+                  height: "28px",
                   padding: "0",
                   borderRadius: "50%"
                 }}
               >
-                <Plus size={20} />
+                <Plus size={16} />
               </CButton>
             </div>
 
@@ -355,80 +492,19 @@ const StockManagement = () => {
               <CTableBody>
                 {packagingMaterials.map((material, index) => (
                   <CTableRow key={index} style={{ backgroundColor: index % 2 === 0 ? "#f9f9f9" : "white" }}>
-                    <CTableDataCell style={{ padding: "0.75rem 1rem" }}>{material.name}</CTableDataCell>
-                    <CTableDataCell style={{ padding: "0.75rem 1rem" }}>
+                    <CTableDataCell style={{ padding: "0.35rem 0.5rem", fontSize: "0.9rem" }}>{material.name}</CTableDataCell>
+                    <CTableDataCell style={{ padding: "0.35rem 0.5rem", fontSize: "0.9rem" }}>
                       <span style={getBadgeStyle(index)}>
                         {material.quantity}
                       </span>
                     </CTableDataCell>
-                    <CTableDataCell style={{ padding: "0.75rem 1rem" }}>{material.date}</CTableDataCell>
-                    <CTableDataCell style={{ padding: "0.75rem 1rem" }}>{material.updatedby}</CTableDataCell>
+                    <CTableDataCell style={{ padding: "0.35rem 0.5rem", fontSize: "0.9rem" }}>{material.date}</CTableDataCell>
+                    <CTableDataCell style={{ padding: "0.35rem 0.5rem", fontSize: "0.9rem" }}>{material.updatedby}</CTableDataCell>
                   </CTableRow>
                 ))}
               </CTableBody>
             </CTable>
           </div>
-
-          {/* Add Ingredient Modal */}
-          <CModal
-            visible={showIngredientModal}
-            onClose={() => setShowIngredientModal(false)}
-            backdrop="static"
-            size="lg"
-          >
-            <CModalHeader closeButton>
-              <CModalTitle>{t(`LABELS.addIngredient`)}</CModalTitle>
-            </CModalHeader>
-            <CModalBody>
-              <CRow className="mb-3">
-                <CCol md={12} className="mb-3">
-                  <CFormLabel htmlFor="ingredientType">{t(`LABELS.selectIngredient`)}</CFormLabel>
-                  <CFormSelect
-                    id="ingredientType"
-                    value={newIngredient.name}
-                    onChange={(e) => setNewIngredient({ ...newIngredient, name: e.target.value })}
-                  >
-                    <option value="">{t(`LABELS.selectIngredient`)}</option>
-                    <option value="sugar">{t(`LABELS.sugar`)}</option>
-                    <option value="salt">{t(`LABELS.salt`)}</option>
-                    <option value="food-color">{t(`LABELS.foodColor`)}</option>
-                    <option value="other">{t(`LABELS.other`)}</option>
-                  </CFormSelect>
-                </CCol>
-              </CRow>
-              <CRow className="mb-3">
-                <CCol md={6} className="mb-3 mb-md-0">
-                  <CFormLabel htmlFor="ingredientQuantity">{t('LABELS.quantity')}</CFormLabel>
-                  <CFormInput
-                    id="ingredientQuantity"
-                    type="number"
-                    placeholder={t('LABELS.quantity')}
-                    value={newIngredient.quantity}
-                    onChange={(e) => setNewIngredient({ ...newIngredient, quantity: e.target.value })}
-                  />
-                </CCol>
-                <CCol md={6}>
-                  <CFormLabel htmlFor="ingredientUnit">Unit</CFormLabel>
-                  <CFormSelect
-                    id="ingredientUnit"
-                    value={newIngredient.unit}
-                    onChange={(e) => setNewIngredient({ ...newIngredient, unit: e.target.value })}
-                  >
-                    <option value="Kg">{t('LABELS.kg')}</option>
-                    <option value="Gm">{t('LABELS.g')}</option>
-                  </CFormSelect>
-                </CCol>
-              </CRow>
-            </CModalBody>
-            <CModalFooter>
-              <CButton color="secondary" onClick={() => setShowIngredientModal(false)}>
-                {t('LABELS.cancel')}
-              </CButton>
-              <CButton color="primary" onClick={handleAddIngredient}>
-                {t('LABELS.add')}
-              </CButton>
-            </CModalFooter>
-          </CModal>
 
           {/* Packaging Data Modal */}
           <CModal
@@ -441,23 +517,23 @@ const StockManagement = () => {
               <CModalTitle>{t('LABELS.addPackging')}</CModalTitle>
             </CModalHeader>
             <CModalBody>
-              <CRow className="mb-3">
-                <CCol md={6} className="mb-3 mb-md-0">
-                  <CFormLabel htmlFor="packagingType">{t('LABELS.packagingType')}</CFormLabel> 
+              <CRow className="mb-2">
+                <CCol md={6} className="mb-2 mb-md-0">
+                  <CFormLabel htmlFor="packagingType">{t('LABELS.packagingType')}</CFormLabel>
                   <CFormSelect
                     id="packagingType"
                     value={packagingData.packagingType}
                     onChange={(e) => setPackagingData({...packagingData, packagingType: e.target.value})}
                   >
-                        <option value="">{t('LABELS.selectPackagingType')}</option>
-    <option value="glass">{t('LABELS.glass')}</option>
-    <option value="plastic">{t('LABELS.plastic')}</option>
-    <option value="carton-gable">{t('LABELS.cartonGable')}</option>
-    <option value="carton-brick">{t('LABELS.cartonBrick')}</option>
-    <option value="pouch">{t('LABELS.pouch')}</option>
-    <option value="tub">{t('LABELS.tub')}</option>
-    <option value="can">{t('LABELS.can')}</option>
-    <option value="tetra-pack">{t('LABELS.tetraPack')}</option>
+                    <option value="">{t('LABELS.selectPackagingType')}</option>
+                    <option value="glass">{t('LABELS.glass')}</option>
+                    <option value="plastic">{t('LABELS.plastic')}</option>
+                    <option value="carton-gable">{t('LABELS.cartonGable')}</option>
+                    <option value="carton-brick">{t('LABELS.cartonBrick')}</option>
+                    <option value="pouch">{t('LABELS.pouch')}</option>
+                    <option value="tub">{t('LABELS.tub')}</option>
+                    <option value="can">{t('LABELS.can')}</option>
+                    <option value="tetra-pack">{t('LABELS.tetraPack')}</option>
                   </CFormSelect>
                 </CCol>
                 <CCol md={6}>
@@ -465,24 +541,24 @@ const StockManagement = () => {
                   <CFormInput
                     id="packagingQuantity"
                     type="number"
-                    placeholder={t('LABELS.addQuantity')} 
+                    placeholder={t('LABELS.addQuantity')}
                     value={packagingData.quantity}
                     onChange={(e) => setPackagingData({...packagingData, quantity: e.target.value})}
                   />
                 </CCol>
               </CRow>
-              <CRow className="mb-3">
-                <CCol md={6} className="mb-3 mb-md-0">
-                  <CFormLabel htmlFor="packagingSupplier">{t('LABELS.supplier')}</CFormLabel> 
+              <CRow className="mb-2">
+                <CCol md={6} className="mb-2 mb-md-0">
+                  <CFormLabel htmlFor="packagingSupplier">{t('LABELS.supplier')}</CFormLabel>
                   <CFormInput
-                    id="packagingSupplier" 
-                    placeholder={t('LABELS.supplierName')} 
+                    id="packagingSupplier"
+                    placeholder={t('LABELS.supplierName')}
                     value={packagingData.supplier}
                     onChange={(e) => setPackagingData({...packagingData, supplier: e.target.value})}
                   />
                 </CCol>
                 <CCol md={6}>
-                  <CFormLabel htmlFor="packagingExpiry">{t('LABELS.expireDate')}</CFormLabel> 
+                  <CFormLabel htmlFor="packagingExpiry">{t('LABELS.expireDate')}</CFormLabel>
                   <CFormInput
                     id="packagingExpiry"
                     type="date"
@@ -494,10 +570,10 @@ const StockManagement = () => {
             </CModalBody>
             <CModalFooter>
               <CButton color="secondary" onClick={() => setShowPackagingModal(false)}>
-              {t('LABELS.cancel')}
+                {t('LABELS.cancel')}
               </CButton>
               <CButton color="primary" onClick={handlePackagingDataSubmit}>
-              {t('LABELS.add')}
+                {t('LABELS.add')}
               </CButton>
             </CModalFooter>
           </CModal>

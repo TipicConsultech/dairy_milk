@@ -217,7 +217,8 @@
 "supplierName": "Supplier Name",
 "expireDate": "Expiry Date",
 "lastUpdatedDate":"Last Updated Date",
-"updatedby":"Updated By"
+"updatedby":"Updated By",
+"addRow": "Add Row"
 
 
 
