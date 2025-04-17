@@ -131,6 +131,7 @@
     "capacity": "Capacity (Liters)",
 "currentQuantity": "Current Quantity (Liters)",
 "addQuantity": "Enter Milk Count",
+"addRawQuantity": "Add Quantity",
 "ingredients": "Ingredients",
 "selectIngredient": "Select Ingredient",
 "quantityKg": "Quantity (Kg)",
@@ -175,7 +176,7 @@
 "milk_removed": "Milk Removed",
 "processed_milk_quantity": "Processed Milk",
 "processing_date": "Processing Date",
-"currentCapacity": "Current Capacity",
+"currentCapacity": "Capacity",
 "Productcreate": "Product Creation",
 
 "Productcreate": "Create Product",
