@@ -25,6 +25,7 @@ import {
   cilTags,
   cilCart,
   cilPlus,
+  cilShieldAlt,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem } from '@coreui/react'
 import { getUserData } from './util/session';
@@ -37,7 +38,7 @@ export default function fetchNavItems(t1){
   let _nav =[];
   const mode = userData?.company_info?.appMode ?? 'advance';
 
-  
+
 
   if(user===0){
     _nav = [
@@ -47,7 +48,7 @@ export default function fetchNavItems(t1){
           to: '/dashboard',
           icon: <CIcon icon={cibElasticStack} customClassName="nav-icon" />,
         },
-        
+
         {
           component: CNavItem,
           name: t("LABELS.delivery"),
@@ -102,7 +103,7 @@ export default function fetchNavItems(t1){
             //   component: CNavItem,
             //   name: 'Bulk Quantity ',
             //   to: 'products/updateqty',
-            // },        
+            // },
           ],
         },
         // {
@@ -147,7 +148,7 @@ export default function fetchNavItems(t1){
           ],
         },
 
-   
+
 
         {
           component: CNavGroup,
@@ -159,7 +160,7 @@ export default function fetchNavItems(t1){
               name: t("LABELS.new_expense"),
               to: '/expense/new',
             },
-            
+
             {
               component: CNavItem,
               name: t("LABELS.new_expense_type"),
@@ -249,7 +250,7 @@ export default function fetchNavItems(t1){
         //   to: '/map',
         //   icon: <CIcon icon={cilCursor} customClassName="nav-icon" />,
         // },
-       
+
       ]
   }
   else if(user===1){
@@ -331,7 +332,7 @@ export default function fetchNavItems(t1){
         //     //   component: CNavItem,
         //     //   name: 'Bulk Quantity ',
         //     //   to: 'products/updateqty',
-        //     // },        
+        //     // },
         //   ],
         // },
         // {
@@ -459,6 +460,12 @@ export default function fetchNavItems(t1){
         },
         {
           component: CNavItem,
+          name: t("LABELS.laboratoryUser"),
+          to: '/LaboratoryUser',
+          icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
           name: t("LABELS.invoice"),
           to: '/invoice',
           icon: <CIcon icon={cilPrint} customClassName="nav-icon" />,
@@ -494,7 +501,7 @@ export default function fetchNavItems(t1){
             //   component: CNavItem,
             //   name: 'Bulk Quantity ',
             //   to: 'products/updateqty',
-            // },        
+            // },
           ],
         },
       ])
@@ -536,7 +543,7 @@ export default function fetchNavItems(t1){
             //   component: CNavItem,
             //   name: 'Bulk Quantity ',
             //   to: 'products/updateqty',
-            // },        
+            // },
           ],
         },
       ]);
@@ -562,7 +569,7 @@ export default function fetchNavItems(t1){
         to: '/booking',
         icon: <CIcon icon={cilBookmark} customClassName="nav-icon" />,
       },
-      
+
     ]
     if(mode === 'advance'){
       _nav.push(...[
