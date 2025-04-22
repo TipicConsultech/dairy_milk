@@ -15,10 +15,10 @@ import {
 
 const LaboratoryUser = () => {
   // State for milk data
-  const [buffaloDensity, setBuffaloDensity] = useState('');
+  const [buffaloQuantity, setBuffaloQuantity] = useState('');
   const [buffaloSNF, setBuffaloSNF] = useState('');
   const [buffaloTS, setBuffaloTS] = useState('');
-  const [cowDensity, setCowDensity] = useState('');
+  const [cowQuantity, setCowQuantity] = useState('');
   const [cowSNF, setCowSNF] = useState('');
   const [cowTS, setCowTS] = useState('');
 
@@ -32,27 +32,34 @@ const LaboratoryUser = () => {
   const handleSaveMilkParams = () => {
     // Logic to save milk parameters
     console.log('Saving milk parameters:', {
-      buffalo: { density: buffaloDensity, snf: buffaloSNF, ts: buffaloTS },
-      cow: { density: cowDensity, snf: cowSNF, ts: cowTS }
+      buffalo: { Quantity: buffaloQuantity, snf: buffaloSNF, ts: buffaloTS },
+      cow: { Quantity: cowQuantity, snf: cowSNF, ts: cowTS }
     });
   };
 
   // Handle form cancel for milk parameters
   const handleCancelMilkParams = () => {
     // Reset form fields
-    setBuffaloDensity('');
+    setBuffaloQuantity('');
     setBuffaloSNF('');
     setBuffaloTS('');
-    setCowDensity('');
+    setCowQuantity('');
     setCowSNF('');
     setCowTS('');
   };
 
   return (
     <CContainer fluid className="p-0">
-      {/* Milk Parameters Interface */}
-      <CCard className="mb-4 border" style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        <CCardHeader style={{ backgroundColor: '#f8f9fa', borderBottom: '1px solid #dee2e6' }}>
+      {/* Main card with laboratory user header */}
+      <CCard className="mb-2">
+        <CCardHeader style={{ backgroundColor: "#E6E6FA" }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h5 className="mb-0">Laboratory User</h5>
+          </div>
+        </CCardHeader>
+
+        {/* Milk info header */}
+        <CCardHeader style={{ backgroundColor: '#f8f9fa', borderBottom: '1px solid #dee2e6', padding: '0.75rem' }}>
           <CRow>
             <CCol md={6}>
               <div className="d-flex justify-content-between align-items-center">
@@ -62,7 +69,7 @@ const LaboratoryUser = () => {
               <CProgress
                 value={tanks[0].percentage}
                 color={tanks[0].color}
-                className="mb-3"
+                className="mb-0"
                 height={20}
               >
                 {tanks[0].percentage}%
@@ -76,7 +83,7 @@ const LaboratoryUser = () => {
               <CProgress
                 value={tanks[1].percentage}
                 color={tanks[1].color}
-                className="mb-3"
+                className="mb-0"
                 height={20}
               >
                 {tanks[1].percentage}%
@@ -84,22 +91,23 @@ const LaboratoryUser = () => {
             </CCol>
           </CRow>
         </CCardHeader>
-        <CCardBody className="border p-4">
+
+        <CCardBody className="p-3">
           <CForm>
             <CRow className="mb-3">
               <CCol md={2}>
-                <CFormLabel>Buffalo milk</CFormLabel>
+                <CFormLabel className="mb-0">Buffalo milk</CFormLabel>
               </CCol>
               <CCol md={3}>
                 <CFormInput
                   type="number"
-                  value={buffaloDensity}
-                  onChange={(e) => setBuffaloDensity(e.target.value)}
-                  placeholder="Density"
+                  value={buffaloQuantity}
+                  onChange={(e) => setBuffaloQuantity(e.target.value)}
+                  placeholder="Quantity"
                 />
               </CCol>
               <CCol md={1} className="text-center">
-                <CFormLabel>SNF</CFormLabel>
+                <CFormLabel className="mb-0">SNF</CFormLabel>
               </CCol>
               <CCol md={3}>
                 <CFormInput
@@ -111,7 +119,7 @@ const LaboratoryUser = () => {
                 />
               </CCol>
               <CCol md={1} className="text-center">
-                <CFormLabel>TS</CFormLabel>
+                <CFormLabel className="mb-0">TS</CFormLabel>
               </CCol>
               <CCol md={2}>
                 <CFormInput
@@ -124,20 +132,20 @@ const LaboratoryUser = () => {
               </CCol>
             </CRow>
 
-            <CRow className="mb-4">
+            <CRow className="mb-3">
               <CCol md={2}>
-                <CFormLabel>Cow Milk</CFormLabel>
+                <CFormLabel className="mb-0">Cow Milk</CFormLabel>
               </CCol>
               <CCol md={3}>
                 <CFormInput
                   type="number"
-                  value={cowDensity}
-                  onChange={(e) => setCowDensity(e.target.value)}
-                  placeholder="Density"
+                  value={cowQuantity}
+                  onChange={(e) => setCowQuantity(e.target.value)}
+                  placeholder="Quantity"
                 />
               </CCol>
               <CCol md={1} className="text-center">
-                <CFormLabel>SNF</CFormLabel>
+                <CFormLabel className="mb-0">SNF</CFormLabel>
               </CCol>
               <CCol md={3}>
                 <CFormInput
@@ -149,7 +157,7 @@ const LaboratoryUser = () => {
                 />
               </CCol>
               <CCol md={1} className="text-center">
-                <CFormLabel>TS</CFormLabel>
+                <CFormLabel className="mb-0">TS</CFormLabel>
               </CCol>
               <CCol md={2}>
                 <CFormInput
@@ -165,7 +173,7 @@ const LaboratoryUser = () => {
             <CRow>
               <CCol xs={6} md={2}>
                 <CButton
-                  color="dark"
+                  color="primary"
                   className="px-4 w-100"
                   onClick={handleSaveMilkParams}
                 >
@@ -174,7 +182,7 @@ const LaboratoryUser = () => {
               </CCol>
               <CCol xs={6} md={2}>
                 <CButton
-                  color="light"
+                  color="danger"
                   className="px-4 border w-100"
                   onClick={handleCancelMilkParams}
                 >
@@ -190,3 +198,7 @@ const LaboratoryUser = () => {
 };
 
 export default LaboratoryUser;
+
+
+
+//LaboratoryUser

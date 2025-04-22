@@ -25,6 +25,7 @@ import {
   cilTags,
   cilCart,
   cilPlus,
+  cilShieldAlt,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem } from '@coreui/react'
 import { getUserData } from './util/session';
@@ -461,7 +462,7 @@ export default function fetchNavItems(t1){
           component: CNavItem,
           name: t("LABELS.laboratoryUser"),
           to: '/LaboratoryUser',
-          icon: <CIcon icon={cilLibraryAdd} customClassName="nav-icon" />,
+          icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" />,
         },
         {
           component: CNavItem,
