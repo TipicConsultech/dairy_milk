@@ -66,12 +66,13 @@ const StockManagement=React.lazy(() => import('./views/dairy/StockManagement'))
 const ProcessedMilk=React.lazy(() => import('./views/dairy/ProcessedMilk'))
 const MilkProcessing=React.lazy(() => import('./views/dairy/MilkProcsssing'))
 const DairyFarmInventory=React.lazy(() => import('./views/dairy/DairyFarmInventory'))
+const LaboratoryUser=React.lazy(() => import('./views/dairy/LaboratoryUser'))
 
 export default function fetchRoutes(){
   const user=getUserType();
   let routes=[];
 
-  
+
   if(user===0){
     routes = [
       { path: '/', exact: true, name: 'Home' },
@@ -162,7 +163,8 @@ export default function fetchRoutes(){
       { path: '/StockManagement', name: 'StockManagement', element:StockManagement },
       { path: '/ProcessedMilk', name: 'ProcessedMilk', element:ProcessedMilk },
       { path: '/MilkProcessing', name: 'MilkProcessing', element:MilkProcessing },
-      { path: '/DairyFarmInventory', name: 'DairyFarmInventory', element:DairyFarmInventory }
+      { path: '/DairyFarmInventory', name: 'DairyFarmInventory', element:DairyFarmInventory },
+      { path: '/LaboratoryUser', name: 'LaboratoryUser', element:LaboratoryUser }
 
   ]
   }
@@ -181,7 +183,7 @@ export default function fetchRoutes(){
     { path: '/customer/all', name: 'All Products', element: AllCustomers },
     { path: '/customer/edit/:id', name: 'Edit Customer', element: EditCustomer },
     { path:'/updatepassword', name: 'Update Password', element: Updatepassword },
-    
+
   ]
   }
   return routes;
