@@ -16,6 +16,10 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Middleware\Authorization;
 use App\Http\Controllers\CompanyInfoController;
 
+// Dairy 
+use App\Http\Controllers\MilkTankController;
+
+
 // ini_set('display_errors', 1);
 // ini_set('display_startup_errors', 1);
 // error_reporting(E_ALL);
@@ -56,6 +60,10 @@ Route::group(['middleware'=>['auth:sanctum']], function(){
     Route::get('/monthlyReport', [OrderController::class, 'getMonthlyReport']);
     Route::get('/customerReport', [OrderController::class, 'customerReport'])->name('customerReport');
     Route::resource('company', CompanyInfoController::class);
+
+    // Dairy milk
+    // milk_tank
+    Route::post('/milk-tank', [MilkTankController::class, 'store']);
 });
 
 

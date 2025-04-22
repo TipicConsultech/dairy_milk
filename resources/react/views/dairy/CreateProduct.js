@@ -106,141 +106,32 @@ function CreateProduct() {
           </div>
         </CCardHeader>
         <CCardBody style={{ padding: '15px' }}>
-          {/* Tank visualizations - fully responsive */}
-          <CRow className="mb-2">
-            <CCol xs={12}>
-              <div style={{
-                backgroundColor: '#f0f5ff',
-                padding: '8px 12px',
-                borderRadius: '6px',
-                border: '1px solid #d0e0ff',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-              }}>
-                {/* Responsive grid using CRow/CCol instead of custom grid */}
-                <CRow className="g-2">
-                  {/* Tank 1 Section */}
-                  <CCol xs={12} sm={6} lg={3}>
-                    <div className="d-flex align-items-center">
-                      <h5 style={{
-                        margin: 0,
-                        fontSize: '16px',
-                        fontWeight: '600',
-                        color: '#1a56db',
-                        marginRight: '8px',
-                      }}>{t('LABELS.tank')} 1:</h5>
-                      <span style={{
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        color: '#2C3E50',
-                      }}>
-                        {tankCapacity} / {tankCapacity} {t('LABELS.Ltr')}
-                      </span>
-                    </div>
-                  </CCol>
-
-                  {/* Processed Milk Section */}
-                  <CCol xs={12} sm={6} lg={3}>
-                    <div className="d-flex align-items-center">
-                      <h5 style={{
-                        margin: 0,
-                        fontSize: '16px',
-                        fontWeight: '600',
-                        color: '#0d8c45',
-                        marginRight: '8px',
-                      }}>{t('LABELS.processed_milk')}:</h5>
-                      <span style={{
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        color: '#2C3E50',
-                      }}>
-                        {processedMilk} / {tankCapacity} {t('LABELS.Ltr')}
-                      </span>
-                    </div>
-                  </CCol>
-
-                  {/* Processed By Section - New Label */}
-                  <CCol xs={12} sm={6} lg={3}>
-                    <div className="d-flex align-items-center">
-                      <h5 style={{
-                        margin: 0,
-                        fontSize: '16px',
-                        fontWeight: '600',
-                        color: '#ff5ec4',
-                        marginRight: '8px',
-                      }}>{t('LABELS.processed_by')}:</h5>
-                      <span style={{
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        color: '#2C3E50',
-                      }}>
-                        {processorName}
-                      </span>
-                    </div>
-                  </CCol>
-
-                  {/* Processed Date Section - New Label */}
-                  <CCol xs={12} sm={6} lg={3}>
-                    <div className="d-flex align-items-center">
-                      <h5 style={{
-                        margin: 0,
-                        fontSize: '16px',
-                        fontWeight: '600',
-                        color: colorPalette.indigo,
-                        marginRight: '8px',
-                      }}>{t('LABELS.date')}:</h5>
-                      <span style={{
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        color: '#2C3E50',
-                      }}>
-                        {currentDate}
-                      </span>
-                    </div>
-                  </CCol>
-                </CRow>
-              </div>
-
-              {/* Combined progress bars with reduced gap */}
-              <div style={{ display: 'flex', marginTop: '5px' }}>
-                <div style={{ flex: 1, marginRight: '3px' }}>
-                  <CProgress style={{ height: '10px' }}>
-                    <CProgressBar
-                      value={calculateFillPercentage(tankCapacity, tankCapacity)}
-                      color={calculateFillPercentage(tankCapacity, tankCapacity) <= 25 ? 'danger' :
-                        calculateFillPercentage(tankCapacity, tankCapacity) <= 50 ? 'warning' :
-                        calculateFillPercentage(tankCapacity, tankCapacity) <= 75 ? 'info' : 'success'}
-                      animated
-                      striped
-                    />
-                  </CProgress>
-                </div>
-                <div style={{ flex: 1, marginLeft: '3px' }}>
-                  <CProgress style={{ height: '10px' }}>
-                    <CProgressBar
-                      value={calculateFillPercentage(processedMilk, tankCapacity)}
-                      color={calculateFillPercentage(processedMilk, tankCapacity) <= 25 ? 'danger' :
-                        calculateFillPercentage(processedMilk, tankCapacity) <= 50 ? 'warning' :
-                        calculateFillPercentage(processedMilk, tankCapacity) <= 75 ? 'info' : 'success'}
-                      animated
-                      striped
-                    />
-                  </CProgress>
-                </div>
-              </div>
-            </CCol>
-          </CRow>
+         
+          
 
           {/* Form inputs with improved responsiveness */}
           <div style={{
             background: '#f8f9fa',
-            padding: '15px',
-            borderRadius: '8px',
-            marginTop: '-25px',
+            // padding: '15px',
+            // borderRadius: '8px',
+          
             marginBottom: '12px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
           }}>
-            <CRow className="mb-3">
-              <CCol xs={12} md={12}>
+            <CRow className="mb-3 mt-0">
+
+            <CCol xs={12} md={6}>
+                <label className="form-label mb-1 fw-bold">Select Milk Sotrage</label>
+                <CFormInput
+                  type="number"
+                  value={milkForProduct}
+                  onChange={(e) => setMilkForProduct(e.target.value)}
+                  placeholder={t('LABELS.enterMilk')}
+                  style={{ fontSize: "1rem" }}
+                />
+              </CCol>
+
+              <CCol xs={12} md={6}>
                 <label className="form-label mb-1 fw-bold">{t('LABELS.enterMilk')}</label>
                 <CFormInput
                   type="number"
@@ -250,66 +141,79 @@ function CreateProduct() {
                   style={{ fontSize: "1rem" }}
                 />
               </CCol>
-            </CRow>
+             </CRow>
 
-            <CRow className="g-2 align-items-end">
-              <CCol xs={12} sm={6} md={3}>
-                <label className="form-label mb-1 fw-bold">{t('LABELS.selectProduct')}</label>
-                <CFormSelect
-                  value={product}
-                  onChange={(e) => setProduct(e.target.value)}
-                  style={{ fontSize: "1rem" }}
-                >
-                  <option value="">{t('LABELS.select')}</option>
-                  <option value="Paneer">{t('PRODUCTS.paneer')}</option>
-                  <option value="Dahi">{t('PRODUCTS.dahi')}</option>
-                </CFormSelect>
-              </CCol>
+   <CRow className="g-2 align-items-end flex-nowrap overflow-auto mb-4">
+  <CCol xs={12} sm={6} md={3}>
+    <label className="form-label mb-1 fw-bold">{t('LABELS.selectProduct')}</label>
+    <CFormSelect
+      value={product}
+      onChange={(e) => setProduct(e.target.value)}
+      style={{ fontSize: "1rem" }}
+    >
+      <option value="">{t('LABELS.select')}</option>
+      <option value="Paneer">{t('PRODUCTS.paneer')}</option>
+      <option value="Dahi">{t('PRODUCTS.dahi')}</option>
+    </CFormSelect>
+  </CCol>
 
-              <CCol xs={12} sm={6} md={3}>
-                <label className="form-label mb-1 fw-bold">{t('LABELS.selectGram')}</label>
-                <CFormSelect
-                  value={productGram}
-                  onChange={(e) => setProductGram(e.target.value)}
-                  style={{ fontSize: "1rem" }}
-                >
-                  <option value="">{t('LABELS.select')} </option>
-                  <option value="100g">100 {t('LABELS.g')}</option>
-                  <option value="200g">200 {t('LABELS.g')}</option>
-                  <option value="500g">500 {t('LABELS.g')}</option>
-                </CFormSelect>
-              </CCol>
+  <CCol xs={12} sm={6} md={2}>
+    <label className="form-label mb-1 fw-bold">Raw Materials</label>
+    <CFormSelect
+      value={productGram}
+      onChange={(e) => setProductGram(e.target.value)}
+      style={{ fontSize: "1rem" }}
+    >
+      <option value="">{t('LABELS.select')}</option>
+      <option value="100g">100 {t('LABELS.g')}</option>
+      <option value="200g">200 {t('LABELS.g')}</option>
+      <option value="500g">500 {t('LABELS.g')}</option>
+    </CFormSelect>
+  </CCol>
 
-              <CCol xs={12} sm={6} md={3}>
-                <label className="form-label mb-1 fw-bold">{t('LABELS.productQty')}</label>
-                <CFormInput
-                  type="number"
-                  value={productQty}
-                  onChange={(e) => setProductQty(e.target.value)}
-                  placeholder={t('LABELS.enterProductQty')}
-                  style={{ fontSize: "1rem" }}
-                />
-              </CCol>
+  <CCol xs={12} sm={6} md={2}>
+    <label className="form-label mb-1 fw-bold">Select Size</label>
+    <CFormSelect
+      value={productGram}
+      onChange={(e) => setProductGram(e.target.value)}
+      style={{ fontSize: "1rem" }}
+    >
+      <option value="">{t('LABELS.select')}</option>
+      <option value="100g">100 {t('LABELS.g')}</option>
+      <option value="200g">200 {t('LABELS.g')}</option>
+      <option value="500g">500 {t('LABELS.g')}</option>
+    </CFormSelect>
+  </CCol>
 
-              <CCol xs={12} sm={6} md={3} className="d-flex justify-content-end align-items-end">
-                <CButton
-                  color="primary"
-                  onClick={handleSave}
-                  style={{
-                    fontSize: "0.9rem",
-                    fontWeight: "500",
-                    padding: "0.5rem 1.5rem",
-                    width: "auto",
-                    minWidth: "100px",
-                    marginTop: "8px", // Add a bit of spacing on mobile
-                    // marginRight:'105px'
-                  }}
-                  className="w-100 w-sm-auto"
-                >
-                  {t('LABELS.save')}
-                </CButton>
-              </CCol>
-            </CRow>
+  <CCol xs={12} sm={6} md={2}>
+    <label className="form-label mb-1 fw-bold">{t('LABELS.productQty')}</label>
+    <CFormInput
+      type="number"
+      value={productQty}
+      onChange={(e) => setProductQty(e.target.value)}
+      placeholder={t('LABELS.enterProductQty')}
+      style={{ fontSize: "1rem" }}
+    />
+  </CCol>
+
+  <CCol xs={12} sm={6} md={3} className="d-flex justify-content-end align-items-end">
+    <CButton
+      color="primary"
+      onClick={handleSave}
+      style={{
+        fontSize: "0.9rem",
+        fontWeight: "500",
+        padding: "0.5rem 1.5rem",
+        width: "auto",
+        minWidth: "100px"
+      }}
+      className="w-100 w-sm-auto"
+    >
+      {t('LABELS.save')}
+    </CButton>
+  </CCol>
+</CRow>
+
           </div>
 
           {/* Enhanced Product List Table with responsive settings */}
