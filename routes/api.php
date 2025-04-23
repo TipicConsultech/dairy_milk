@@ -1,11 +1,12 @@
 <?php
 
+use App\Http\Controllers\MilkTankController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController; 
-use App\Http\Controllers\ProductController; 
-use App\Http\Controllers\CategoryController; 
-use App\Http\Controllers\SubCategoryController; 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\SubSubCategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\JarTrackerController;
@@ -20,26 +21,51 @@ use App\Http\Controllers\CompanyInfoController;
 // ini_set('display_startup_errors', 1);
 // error_reporting(E_ALL);
 
+//-
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
+// Milk Tank API Routes
+Route::middleware('auth:sanctum')->group(function () {
+    // Get all milk tanks
+    Route::get('/milk-tanks', [MilkTankController::class, 'index']);
+
+    // Create a new milk tank
+    Route::post('/milk-tanks', [MilkTankController::class, 'store']);
+
+    // Get a specific milk tank
+    Route::get('/milk-tanks/{id}', [MilkTankController::class, 'show']);
+
+    // Update a milk tank
+    Route::put('/milk-tanks/{id}/laboratory-update', [MilkTankController::class, 'laboratoryUpdate']);
+    // Route::put('/milk-tanks/{id}', [MilkTankController::class, 'update']);
+    // Route::patch('/milk-tanks/{id}', [MilkTankController::class, 'update']);
+
+    // Delete a milk tank
+    Route::delete('/milk-tanks/{id}', [MilkTankController::class, 'destroy']);
+});
+
 
 //public API's
-Route::post('/register',[AuthController::class, 'register']);
-Route::post('/login',[AuthController::class, 'login']);
-Route::post('/mobileLogin',[AuthController::class, 'mobileLogin']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/mobileLogin', [AuthController::class, 'mobileLogin']);
 //Secured API's
-Route::group(['middleware'=>['auth:sanctum']], function(){
-    Route::post('/changePassword',[AuthController::class, 'changePassword']);
-    Route::post('/logout',[AuthController::class, 'logout']);
-    Route::post('/registerUser',[AuthController::class, 'registerUser']);
-    Route::put('/appUsers',[AuthController::class, 'update']);
-    Route::get('/appUsers',[AuthController::class, 'allUsers']);
-    Route::resource('product',ProductController::class);
-    Route::resource('expenseType',ExpenseTypeController::class);
-    Route::resource('expense',ExpenseController::class);
-    Route::resource('order',OrderController::class);
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::post('/changePassword', [AuthController::class, 'changePassword']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/registerUser', [AuthController::class, 'registerUser']);
+    Route::put('/appUsers', [AuthController::class, 'update']);
+    Route::get('/appUsers', [AuthController::class, 'allUsers']);
+    Route::resource('product', ProductController::class);
+    Route::resource('expenseType', ExpenseTypeController::class);
+    Route::resource('expense', ExpenseController::class);
+    Route::resource('order', OrderController::class);
     Route::get('/reportSales', [OrderController::class, 'Sales']);
     Route::get('/googleMapData', [OrderController::class, 'googleMapData']);
     Route::get('/totalDeliveries', [OrderController::class, 'totalDeliverie']);
-    
+
     Route::post('/newStock', [ProductController::class, 'newStock'])->name('newStock');
     Route::get('/stock', [ProductController::class, 'stock'])->name('stock');
     Route::resource('category', CategoryController::class);
