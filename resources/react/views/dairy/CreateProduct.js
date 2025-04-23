@@ -1,478 +1,315 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 import {
-  CCard,
-  CCardHeader,
-  CCardBody,
-  CFormSelect,
-  CFormInput,
-  CButton,
-  CTable,
-  CTableHead,
-  CTableRow,
-  CTableHeaderCell,
-  CTableBody,
-  CTableDataCell,
-  CBadge,
-  CProgress,
-  CContainer,
   CRow,
   CCol,
-  CProgressBar
-} from "@coreui/react";
-import { useTranslation } from 'react-i18next';
+  CFormLabel,
+  CFormSelect,
+  CFormInput,
+  CCard,
+  CCardBody,
+  CButton,
+} from '@coreui/react'
+import { getAPICall, post } from '../../util/api'
+import CIcon from '@coreui/icons-react'
+import { cilPlus, cilTrash } from '@coreui/icons'
 
-function CreateProduct() {
-  const [milkForProduct, setMilkForProduct] = useState("");
-  const [product, setProduct] = useState("");
-  const [productQty, setProductQty] = useState("");
-  const [productGram, setProductGram] = useState("");
-  const [productList, setProductList] = useState([]);
-  const { t, i18n } = useTranslation("global");
-  const lng = i18n.language;
+const MilkForm = () => {
+  const [milkType, setMilkType] = useState('')
+  const [milkAmount, setMilkAmount] = useState('')
+  const [availableQty, setAvailableQty] = useState(null)
+  const [tankData, setTankData] = useState([])
+  const [error, setError] = useState('')
 
-  // Dynamic Tank and Processed Milk Data
-  const tankCapacity = 400; // Example total tank capacity
-  const processedMilk = 200; // Example processed milk
-  const processorName = "Ramesh Patil"; // Dummy processor name
+  // Fetch tank names and available quantities
+  useEffect(() => {
+  
 
-  const formatDate = (date) => {
-    return date.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric"
-    });
-  };
+    fetchTankData()
+  }, [])
+  const fetchTankData = async () => {
+    try {
+      const res = await getAPICall('/api/milk-tanks/names')
+      setTankData(res.quantity)
+    } catch (err) {
+      console.error('Error fetching tank data:', err)
+    }
+  }
+  // Handle tank selection
+  const handleMilkTypeChange = (e) => {
+    const selected = e.target.value
+    setMilkType(selected)
+    setMilkAmount('')
+    setError('')
+    const selectedTank = tankData.find((t) => t.name === selected)
+    if (selectedTank) {
+      setAvailableQty(selectedTank.available_qty)
+    } else {
+      setAvailableQty(null)
+    }
+  }
 
-  const currentDate = formatDate(new Date()); // Formats as "08/Apr/2025"
+  // Handle milk input change
+  const handleMilkAmountChange = (e) => {
+    const value = e.target.value
+    setMilkAmount(value)
 
-  // Calculate fill percentage for tank visualization
-  const calculateFillPercentage = (current, capacity) => {
-    return Math.round((current / capacity) * 100);
-  };
+    if (availableQty !== null && parseFloat(value) > availableQty) {
+      setError('Entered quantity exceeds available milk.')
+    } else {
+      setError('')
+    }
+  }
 
-  // Color palette with more distinct colors - copied from code 1
-  const colorPalette = {
-    primary: '#2E3A87', // Dark blue
-    secondary: '#6C5B7B', // Purple
-    success: '#2ECC71', // Green
-    info: '#3498DB', // Blue
-    warning: '#F39C12', // Orange
-    danger: '#E74C3C', // Red
-    light: '#F8F9FA',
-    dark: '#343A40',
-    background: '#F5F7FA',
-    cardBg: '#FFFFFF',
-    textPrimary: '#2C3E50',
-    textSecondary: '#7F8C8D',
-    titleBackground: '#E6E9F5', // Light blue/lavender background like in the image
-    teal: '#20c997', // Teal color for one of the new labels
-    indigo: '#6610f2'  // Indigo color for the other new label
-  };
+  // Submit handler
+  const handleSubmit = async () => {
+    if (!milkType || !milkAmount || parseFloat(milkAmount) > availableQty) {
+      alert('Please enter valid quantity within available limit.')
+      return
+    }
 
-  // Function to get status text - copied from code 1
-  const getStatusText = (percentage) => {
-    if (percentage <= 25) return t('LABELS.lowstock');
-    if (percentage <= 50) return t('LABELS.Moderate');
-    if (percentage <= 75) return t('LABELS.Adequate');
-    return t('LABELS.good');
-  };
+    try {
+      const res = await post('/api/updateMilk', {
+        name: milkType.toLowerCase(),
+        quantity: parseFloat(milkAmount),
+      })
 
-  const handleSave = () => {
-    if (milkForProduct && product && productQty && productGram) {
-      setProductList([
-        ...productList,
-        {
-          tank: productList.length + 3, // Start from 3 to account for example rows
-          processedMilk: milkForProduct,
-          product,
-          productQty,
-          productGram,
-          date: currentDate,
-        },
-      ]);
-      setMilkForProduct("");
-      setProduct("");
-      setProductQty("");
-      setProductGram("");
+      alert(res.message || 'Milk updated successfully.')
+      setMilkAmount('')
+      setMilkType('')
+      setAvailableQty(null)
+      setError('')
+      fetchTankData();
+    } catch (err) {
+      console.error('Error updating milk:', err)
+      alert('Something went wrong while updating milk.')
+    }
+  }
+
+
+// for Ingredients
+  const [ingredients, setIngredients] = useState([
+    { name: 'Sugar', quantity: '10', unit: 'Kg' },
+    { name: 'Salt', quantity: '5', unit: 'Kg' }
+  ]);
+
+  const [newIngredient, setNewIngredient] = useState({
+    name: '',
+    quantity: '',
+    unit: 'Kg'
+  });
+
+  const ingredientOptions = ['Sugar', 'Salt', 'Cream', 'Color', 'Flavor'];
+
+  const addIngredient = () => {
+    if (newIngredient.name && newIngredient.quantity && newIngredient.unit) {
+      setIngredients([...ingredients, newIngredient]);
+      setNewIngredient({ name: '', quantity: '', unit: 'Kg' });
     }
   };
 
+  const removeIngredient = (index) => {
+    setIngredients(ingredients.filter((_, i) => i !== index));
+  };
+
+// for Products
+  const [products, setProducts] = useState([
+    { name: 'Paneer', quantity: '10', unit: 'Kg' },
+    { name: 'Curd', quantity: '5', unit: 'Kg' }
+  ]);
+
+  const [newProduct, setNewProduct] = useState({
+    name: '',
+    quantity: '',
+    unit: 'Kg'
+  });
+
+  const productOptions = ['Paneer', 'Curd', 'Butter', 'Ghee', 'Cheese'];
+
+  const addProduct = () => {
+    if (newProduct.name && newProduct.quantity && newProduct.unit) {
+      setProducts([...products, newProduct]);
+      setNewProduct({ name: '', quantity: '', unit: 'Kg' });
+    }
+  };
+
+  const removeProduct = (index) => {
+    setProducts(products.filter((_, i) => i !== index));
+  };
+
+
   return (
-    <>
-      <CCard className="mb-2">
-        <CCardHeader style={{ backgroundColor: "#E6E6FA" }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h5 className="mb-0">{t('LABELS.createProduct')}</h5>
-          </div>
-        </CCardHeader>
-        <CCardBody style={{ padding: '15px' }}>
-         
-          
+    <CCard className="mb-4">
+      <CCardBody>
+        <CRow className="g-3 align-items-end mb-0">
+          <CCol md={4}>
+            <CFormLabel>Select Milk Storage</CFormLabel>
+            <CFormSelect value={milkType} onChange={handleMilkTypeChange}>
+              <option value="">Select Tank</option>
+              {tankData.map((tank, idx) => (
+                <option key={idx} value={tank.name}>
+                  {tank.name}
+                </option>
+              ))}
+            </CFormSelect>
+          </CCol>
 
-          {/* Form inputs with improved responsiveness */}
-          <div style={{
-            background: '#f8f9fa',
-            // padding: '15px',
-            // borderRadius: '8px',
-          
-            marginBottom: '12px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-          }}>
-            <CRow className="mb-3 mt-0">
+          <CCol md={4}>
+            <CFormLabel>Enter Milk for Product</CFormLabel>
+            <CFormInput
+              type="number"
+              value={milkAmount}
+              onChange={handleMilkAmountChange}
+              placeholder={
+                availableQty !== null ? `Max: ${availableQty} Ltrs` : 'Enter Milk for Product'
+              }
+              className={error ? 'is-invalid' : ''}
+            />
+            {error && <div className="text-danger mt-1">{error}</div>}
+          </CCol>
 
-            <CCol xs={12} md={6}>
-                <label className="form-label mb-1 fw-bold">Select Milk Sotrage</label>
-                <CFormInput
-                  type="number"
-                  value={milkForProduct}
-                  onChange={(e) => setMilkForProduct(e.target.value)}
-                  placeholder={t('LABELS.enterMilk')}
-                  style={{ fontSize: "1rem" }}
-                />
-              </CCol>
+          <CCol md={2}>
+            <CFormLabel>Ltrs</CFormLabel>
+            <div>Ltrs</div>
+          </CCol>
 
-              <CCol xs={12} md={6}>
-                <label className="form-label mb-1 fw-bold">{t('LABELS.enterMilk')}</label>
-                <CFormInput
-                  type="number"
-                  value={milkForProduct}
-                  onChange={(e) => setMilkForProduct(e.target.value)}
-                  placeholder={t('LABELS.enterMilk')}
-                  style={{ fontSize: "1rem" }}
-                />
-              </CCol>
-             </CRow>
+          <CCol md={2}>
+            <CButton color="primary" onClick={handleSubmit} disabled={!!error || !milkAmount}>
+              Submit
+            </CButton>
+          </CCol>
+        </CRow>
 
-   <CRow className="g-2 align-items-end flex-nowrap overflow-auto mb-4">
-  <CCol xs={12} sm={6} md={3}>
-    <label className="form-label mb-1 fw-bold">{t('LABELS.selectProduct')}</label>
-    <CFormSelect
-      value={product}
-      onChange={(e) => setProduct(e.target.value)}
-      style={{ fontSize: "1rem" }}
-    >
-      <option value="">{t('LABELS.select')}</option>
-      <option value="Paneer">{t('PRODUCTS.paneer')}</option>
-      <option value="Dahi">{t('PRODUCTS.dahi')}</option>
-    </CFormSelect>
-  </CCol>
+{/* data ingredients */}
+        <CCard className="mb-4 mt-3">
+      <CCardBody>
+        <h6 className="bg-light p-2 mb-3">Ingredients Used</h6>
 
-  <CCol xs={12} sm={6} md={2}>
-    <label className="form-label mb-1 fw-bold">Raw Materials</label>
-    <CFormSelect
-      value={productGram}
-      onChange={(e) => setProductGram(e.target.value)}
-      style={{ fontSize: "1rem" }}
-    >
-      <option value="">{t('LABELS.select')}</option>
-      <option value="100g">100 {t('LABELS.g')}</option>
-      <option value="200g">200 {t('LABELS.g')}</option>
-      <option value="500g">500 {t('LABELS.g')}</option>
-    </CFormSelect>
-  </CCol>
+        {/* Input Row */}
+        <CRow className="g-2 align-items-center mb-3">
+          <CCol md={4}>
+            <CFormSelect
+              value={newIngredient.name}
+              onChange={(e) => setNewIngredient({ ...newIngredient, name: e.target.value })}
+            >
+              <option value="">Select Ingredient</option>
+              {ingredientOptions.map((item, index) => (
+                <option value={item} key={index}>{item}</option>
+              ))}
+            </CFormSelect>
+          </CCol>
+          <CCol md={3}>
+            <CFormInput
+              type="number"
+              placeholder="Quantity"
+              value={newIngredient.quantity}
+              onChange={(e) => setNewIngredient({ ...newIngredient, quantity: e.target.value })}
+            />
+          </CCol>
+          <CCol md={2}>
+            <CFormSelect
+              value={newIngredient.unit}
+              onChange={(e) => setNewIngredient({ ...newIngredient, unit: e.target.value })}
+            >
+              <option value="Kg">Kg</option>
+              <option value="Gr">Gr</option>
+            </CFormSelect>
+          </CCol>
+          <CCol md={2}>
+            <CButton color="success" variant="outline" onClick={addIngredient}>
+              <CIcon icon={cilPlus} />
+            </CButton>
+          </CCol>
+        </CRow>
 
-  <CCol xs={12} sm={6} md={2}>
-    <label className="form-label mb-1 fw-bold">Select Size</label>
-    <CFormSelect
-      value={productGram}
-      onChange={(e) => setProductGram(e.target.value)}
-      style={{ fontSize: "1rem" }}
-    >
-      <option value="">{t('LABELS.select')}</option>
-      <option value="100g">100 {t('LABELS.g')}</option>
-      <option value="200g">200 {t('LABELS.g')}</option>
-      <option value="500g">500 {t('LABELS.g')}</option>
-    </CFormSelect>
-  </CCol>
+        {/* Existing Ingredients */}
+        {ingredients.map((ing, idx) => (
+          <CRow className="g-3 align-items-center mb-2" key={idx}>
+            <CCol md={4}>
+              <CFormInput value={ing.name} readOnly />
+            </CCol>
+            <CCol md={3}>
+              <CFormInput value={ing.quantity} readOnly />
+            </CCol>
+            <CCol md={1}>{ing.unit}</CCol>
+            <CCol md={2}>
+              <CButton color="danger" variant="outline" onClick={() => removeIngredient(idx)}>
+                <CIcon icon={cilTrash} />
+              </CButton>
+            </CCol>
+          </CRow>
+        ))}
+      </CCardBody>
+    </CCard>
 
-  <CCol xs={12} sm={6} md={2}>
-    <label className="form-label mb-1 fw-bold">{t('LABELS.productQty')}</label>
-    <CFormInput
-      type="number"
-      value={productQty}
-      onChange={(e) => setProductQty(e.target.value)}
-      placeholder={t('LABELS.enterProductQty')}
-      style={{ fontSize: "1rem" }}
-    />
-  </CCol>
 
-  <CCol xs={12} sm={6} md={3} className="d-flex justify-content-end align-items-end">
-    <CButton
-      color="primary"
-      onClick={handleSave}
-      style={{
-        fontSize: "0.9rem",
-        fontWeight: "500",
-        padding: "0.5rem 1.5rem",
-        width: "auto",
-        minWidth: "100px"
-      }}
-      className="w-100 w-sm-auto"
-    >
-      {t('LABELS.save')}
-    </CButton>
-  </CCol>
-</CRow>
 
-          </div>
+{/* Product data */}
+<CCard className="mb-4">
+      <CCardBody>
+        <h6 className="bg-light p-2 mb-3">Created Products</h6>
 
-          {/* Enhanced Product List Table with responsive settings */}
-          <div style={{
-            border: '1px solid #eee',
-            borderRadius: '8px',
-            padding: '15px',
-            marginTop: '-15px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-          }}>
-            <CCardHeader style={{ backgroundColor: "#f9f5d7" }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h5 className="mb-0">{t('LABELS.products')}</h5>
-              </div>
-            </CCardHeader>
-            <div className="table-responsive">
-              <CTable striped hover responsive className="align-middle border shadow-sm">
-                <CTableHead color="light">
-                  <CTableRow style={{ backgroundColor: '#f0f4f8' }}>
-                    <CTableHeaderCell className="fw-bold text-primary">{t('LABELS.tank')}</CTableHeaderCell>
-                    <CTableHeaderCell className="fw-bold text-primary">{t('LABELS.processed_milk')}</CTableHeaderCell>
-                    <CTableHeaderCell className="fw-bold text-primary">{t('LABELS.milk_for_product')}</CTableHeaderCell>
-                    <CTableHeaderCell className="fw-bold text-primary">{t('LABELS.product')}</CTableHeaderCell>
-                    <CTableHeaderCell className="fw-bold text-primary">{t('LABELS.quantity')}</CTableHeaderCell>
-                    <CTableHeaderCell className="fw-bold text-primary">{t('LABELS.gram')}</CTableHeaderCell>
-                    <CTableHeaderCell className="fw-bold text-primary">{t('LABELS.Date')}</CTableHeaderCell>
-                    <CTableHeaderCell className="fw-bold text-primary">{t('LABELS.batch_no')}</CTableHeaderCell>
-                  </CTableRow>
-                </CTableHead>
-                <CTableBody>
-                  <CTableRow>
-                    <CTableDataCell>
-                      <strong>1</strong>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <strong style={{ fontSize: '16px' }}>100 {t('LABELS.Ltr')}</strong>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <strong style={{ fontSize: '16px' }}>100 {t('LABELS.Ltr')}</strong>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <CBadge color="info" className="px-2 py-1">{t("PRODUCTS.paneer")}</CBadge>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <strong style={{ fontSize: '16px' }}>50 {t('LABELS.pcs')}</strong>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <CBadge color="secondary" className="px-2 py-1">200 {t('LABELS.g')}</CBadge>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <strong>{formatDate(new Date())}</strong>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <CBadge color="dark" className="px-2 py-1">01/02/02042025</CBadge>
-                    </CTableDataCell>
-                  </CTableRow>
+        {/* Input Row */}
+        <CRow className="g-2 align-items-center mb-3">
+          <CCol md={4}>
+            <CFormSelect
+              value={newProduct.name}
+              onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+            >
+              <option value="">Select Product</option>
+              {productOptions.map((item, index) => (
+                <option value={item} key={index}>{item}</option>
+              ))}
+            </CFormSelect>
+          </CCol>
+          <CCol md={3}>
+            <CFormInput
+              type="number"
+              placeholder="Quantity"
+              value={newProduct.quantity}
+              onChange={(e) => setNewProduct({ ...newProduct, quantity: e.target.value })}
+            />
+          </CCol>
+          <CCol md={2}>
+            <CFormSelect
+              value={newProduct.unit}
+              onChange={(e) => setNewProduct({ ...newProduct, unit: e.target.value })}
+            >
+              <option value="Kg">Kg</option>
+              <option value="Gr">Gr</option>
+            </CFormSelect>
+          </CCol>
+          <CCol md={2}>
+            <CButton color="success" variant="outline" onClick={addProduct}>
+              <CIcon icon={cilPlus} />
+            </CButton>
+          </CCol>
+        </CRow>
 
-                  <CTableRow>
-                    <CTableDataCell>
-                      <strong>2</strong>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <strong style={{ fontSize: '16px' }}>150 {t('LABELS.Ltr')}</strong>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <strong style={{ fontSize: '16px' }}>150 {t('LABELS.Ltr')}</strong>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <CBadge color="success" className="px-2 py-1">{t("PRODUCTS.dahi")}</CBadge>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <strong style={{ fontSize: '16px' }}>100 {t('LABELS.pcs')}</strong>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <CBadge color="secondary" className="px-2 py-1">250 {t('LABELS.g')}</CBadge>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <strong>{formatDate(new Date())}</strong>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <CBadge color="dark" className="px-2 py-1">01/02/11042025</CBadge>
-                    </CTableDataCell>
-                  </CTableRow>
+        {/* Existing Products */}
+        {products.map((prod, idx) => (
+          <CRow className="g-3 align-items-center mb-2" key={idx}>
+            <CCol md={4}>
+              <CFormInput value={prod.name} readOnly />
+            </CCol>
+            <CCol md={3}>
+              <CFormInput value={prod.quantity} readOnly />
+            </CCol>
+            <CCol md={1}>{prod.unit}</CCol>
+            <CCol md={2}>
+              <CButton color="danger" variant="outline" onClick={() => removeProduct(idx)}>
+                <CIcon icon={cilTrash} />
+              </CButton>
+            </CCol>
+          </CRow>
+        ))}
+      </CCardBody>
+    </CCard>
 
-                  {productList.map((item, index) => (
-                    <CTableRow key={index}>
-                      <CTableDataCell>
-                        <strong>{item.tank}</strong>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <strong style={{ fontSize: '16px' }}>{item.processedMilk} {t('LABELS.Ltr')}</strong>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <strong style={{ fontSize: '16px' }}>{item.processedMilk} {t('LABELS.Ltr')}</strong>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <CBadge color={item.product === 'Paneer' ? 'info' : 'success'} className="px-2 py-1">
-                          {t(`PRODUCTS.${item.product.toLowerCase()}`)}
-                        </CBadge>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <strong style={{ fontSize: '16px' }}>{item.productQty} {t('LABELS.packets')}</strong>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <CBadge color="secondary" className="px-2 py-1">{item.productGram}</CBadge>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <strong>{item.date}</strong>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <CBadge color="dark" className="px-2 py-1">01/02/02042025</CBadge>
-                      </CTableDataCell>
-                    </CTableRow>
-                  ))}
-                </CTableBody>
-              </CTable>
-            </div>
-          </div>
-        </CCardBody>
-      </CCard>
-    </>
-  );
+
+      </CCardBody>
+    </CCard>
+  )
 }
 
-export default CreateProduct;
-
-
-
-
-
-
-
-
-// import React, { useState } from "react";
-// import { useTranslation } from "react-i18next"; // Import translation hook
-// import {
-//   CCard,
-//   CCardHeader,
-//   CCardBody,
-//   CFormSelect,
-//   CFormInput,
-//   CButton,
-//   CTable,
-//   CTableHead,
-//   CTableRow,
-//   CTableHeaderCell,
-//   CTableBody,
-//   CTableDataCell,
-// } from "@coreui/react";
-// import { useTranslation } from 'react-i18next'
-
-// function CreateProduct() {
-//   const  t, i18n  = useTranslation(); // Initialize translation function
-//   const [milkForProduct, setMilkForProduct] = useState("");
-//   const [product, setProduct] = useState("");
-//   const [productQty, setProductQty] = useState("");
-//   const [productGram, setProductGram] = useState("");
-//   const [productList, setProductList] = useState([]);
-
-//   const handleSave = () => {
-//     if (milkForProduct && product && productQty && productGram) {
-//       setProductList([
-//         ...productList,
-//         {
-//           tank: productList.length + 1,
-//           processedMilk: milkForProduct,
-//           product,
-//           productQty,
-//           productGram,
-//           date: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "long" }),
-//         },
-//       ]);
-//       setMilkForProduct("");
-//       setProduct("");
-//       setProductQty("");
-//       setProductGram("");
-//     }
-//   };
-
-//   return (
-//     <CCard className="p-4 max-w-2xl mx-auto shadow-lg rounded-lg mt-10">
-//       <CCardHeader style={{ backgroundColor: "#E6E6FA" }}>
-//         <h2>{t('LABELS.createProduct')}</h2>
-//       </CCardHeader>
-//       <CCardBody>
-//         <div className="mb-3">
-//           <label className="form-label">{t('LABELS.enterMilk')}</label>
-//           <CFormInput
-//             type="number"
-//             value={milkForProduct}
-//             onChange={(e) => setMilkForProduct(e.target.value)}
-//             placeholder="100 Ltr"
-//           />
-//         </div>
-
-//         <div className="d-flex gap-3">
-//           <div className="flex-grow-1">
-//             <label className="form-label">{t('LABELS.selectProduct')}</label>
-//             <CFormSelect value={product} onChange={(e) => setProduct(e.target.value)}>
-//               <option value="">{t('LABELS.selectProduct')}</option>
-//               <option value="Paneer">Paneer</option>
-//               <option value="Dahi">Dahi</option>
-//             </CFormSelect>
-//           </div>
-
-//           <div className="flex-grow-1">
-//             <label className="form-label">{t('LABELS.selectGram')}</label>
-//             <CFormSelect value={productGram} onChange={(e) => setProductGram(e.target.value)}>
-//               <option value="">{t('LABELS.selectGram')}</option>
-//               <option value="100g">100g</option>
-//               <option value="200g">200g</option>
-//               <option value="500g">500g</option>
-//             </CFormSelect>
-//           </div>
-
-//           <div className="flex-grow-1">
-//             <label className="form-label">{t('LABELS.productQty')}</label>
-//             <CFormInput
-//               type="number"
-//               value={productQty}
-//               onChange={(e) => setProductQty(e.target.value)}
-//               placeholder="50 Pcs"
-//             />
-//           </div>
-//         </div>
-
-//         <CButton color="primary" className="mt-3 w-100" onClick={handleSave}>
-//           {t('LABELS.save')}
-//         </CButton>
-
-//         <CTable striped bordered className="mt-4">
-//           <CTableHead>
-//             <CTableRow>
-//               <CTableHeaderCell>Tank</CTableHeaderCell>
-//               <CTableHeaderCell>Processed Milk</CTableHeaderCell>
-//               <CTableHeaderCell>{t('LABELS.enterMilk')}</CTableHeaderCell>
-//               <CTableHeaderCell>{t('LABELS.product')}</CTableHeaderCell>
-//               <CTableHeaderCell>{t('LABELS.productQty')}</CTableHeaderCell>
-//               <CTableHeaderCell>{t('LABELS.selectGram')}</CTableHeaderCell>
-//               <CTableHeaderCell>Date</CTableHeaderCell>
-//             </CTableRow>
-//           </CTableHead>
-//           <CTableBody>
-//             {productList.map((item, index) => (
-//               <CTableRow key={index}>
-//                 <CTableDataCell>{item.tank}</CTableDataCell>
-//                 <CTableDataCell>{item.processedMilk} Ltr</CTableDataCell>
-//                 <CTableDataCell>{item.processedMilk} Ltr</CTableDataCell>
-//                 <CTableDataCell>{item.product}</CTableDataCell>
-//                 <CTableDataCell>{item.productQty}</CTableDataCell>
-//                 <CTableDataCell>{item.productGram}</CTableDataCell>
-//                 <CTableDataCell>{item.date}</CTableDataCell>
-//               </CTableRow>
-//             ))}
-//           </CTableBody>
-//         </CTable>
-//       </CCardBody>
-//     </CCard>
-//   );
-// }
-
-// export default CreateProduct;
+export default MilkForm

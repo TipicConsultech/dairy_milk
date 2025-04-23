@@ -64,6 +64,9 @@ Route::group(['middleware'=>['auth:sanctum']], function(){
     // Dairy milk
     // milk_tank
     Route::post('/milk-tank', [MilkTankController::class, 'store']);
+    Route::get('/milk-tanks/names', [MilkTankController::class, 'getNames']);
+    Route::post('/tankLimit', [MilkTankController::class, 'tankLimit']);
+    Route::post('/updateMilk', [MilkTankController::class, 'updateMilk']);
 });
 
 
