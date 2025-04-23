@@ -146,6 +146,7 @@
 "processedMilk": "Processed Milk",
 "totalMilkQty": "Total Milk Quantity",
 "processedMilkQty": "Processed By",
+"rawMaterial":"Raw Material",
 "ingredientsUsed": "Ingredients Used for Processing",
 "action": "Action",
 "addIngredient": "Add Ingredient",

@@ -30,3 +30,17 @@
 .mr-20 {
     margin-right: 5px;
 }
+
+@keyframes strobeRed {
+    0%, 100% {
+      background-color: #ff0000;
+    }
+    50% {
+      background-color: hsl(0, 58%, 87%);
+    }
+  }
+  
+  .strobe-red {
+    animation: strobeRed 0.5s infinite;
+    color: white;
+  }
