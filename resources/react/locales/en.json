@@ -1,7 +1,7 @@
 {
     "LABELS": {
      "customer": "Customer",
-     "delivery_record": "Delivery",
+     "delivery": "Delivery",
      "customer_name": "Customer Name",
      "new_customer": "New Customer",
      "new": "New",

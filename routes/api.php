@@ -15,6 +15,7 @@ use App\Http\Controllers\FileUpload;
 use App\Http\Controllers\CustomerController;
 use App\Http\Middleware\Authorization;
 use App\Http\Controllers\CompanyInfoController;
+// use App\Http\Controllers\DeliveryItemController;
 
 // ini_set('display_errors', 1);
 // ini_set('display_startup_errors', 1);
@@ -56,6 +57,20 @@ Route::group(['middleware'=>['auth:sanctum']], function(){
     Route::get('/monthlyReport', [OrderController::class, 'getMonthlyReport']);
     Route::get('/customerReport', [OrderController::class, 'customerReport'])->name('customerReport');
     Route::resource('company', CompanyInfoController::class);
+
+
+   
+
+    // Route::get('delivery-items', [DeliveryItemController::class, 'index']);    // Get all delivery items
+    // Route::get('/delivery-items/{id}', [DeliveryItemController::class, 'show']);  // Show a specific delivery item
+    // Route::post('/delivery-items', [DeliveryItemController::class, 'store']);     // Create a new delivery item
+    // Route::put('/delivery-items/{id}', [DeliveryItemController::class, 'update']); // Update an existing delivery item
+    // Route::delete('/delivery-items/{id}', [DeliveryItemController::class, 'destroy']); // Delete a delivery item
+    
+
+
+
+
 });
 
 

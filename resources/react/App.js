@@ -4,6 +4,8 @@ import { useSelector } from 'react-redux'
 
 import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
+import DeliveryRecord from '../../resources/react/views/dairy/DeliveryRecord'
+
 
 
 
@@ -72,11 +74,14 @@ const App = () => {
           <Route exact path="/404" name="Page 404" element={<Page404 />} />
           <Route exact path="/500" name="Page 500" element={<Page500 />} />
           <Route path="*" name="Home" element={<DefaultLayout />} />
+          {/* <Route path="/delivery" element={<DeliveryRecord />} /> */}
+          
+   
 
           {/* Help and Support Routes */}
           <Route exact path="/TicketForms" name="TicketForm" element={<TicketForm />} />
           <Route exact path="/faq" name="faq" element={<Faq />} />
-
+          
         </Routes>
       </Suspense>
     </HashRouter>
