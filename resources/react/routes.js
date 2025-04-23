@@ -16,7 +16,8 @@ const InvoiceDetails = React.lazy(() => import('./views/pages/invoice/InvoiceDet
 const NewCompany = React.lazy(() => import('./views/pages/company/NewCompany'))
 const AllCompanies = React.lazy(() => import('./views/pages/company/AllCompanies'))
 
-
+//Raw MAterial 
+const RawMaterial = React.lazy(() => import('./views/dairy/RawMaterial'))
 //Products
 const NewProduct = React.lazy(() => import('./views/pages/products/NewProduct'))
 const AllProducts = React.lazy(() => import('./views/pages/products/AllProducts'))
@@ -93,7 +94,7 @@ export default function fetchRoutes(){
       { path: '/customer/new', name: 'New Product', element: NewCustomer },
       { path: '/customer/all', name: 'All Products', element: AllCustomers },
       { path: '/customer/edit/:id', name: 'Edit Products', element: EditCustomer },
-      // { path: '/category/new', name: 'New Category', element: NewCategory },
+      { path: '/rawMaterial', name: 'Raw Material', element: RawMaterial },
       // { path: '/category/all', name: 'All Category', element: AllCategory },
       // { path: '/category/edit/:id', name: 'Edit Category', element: EditCategory },
       { path: '/expense/new-type', name: 'New Type', element: NewExpenseType },
@@ -164,6 +165,9 @@ export default function fetchRoutes(){
       { path: '/ProcessedMilk', name: 'ProcessedMilk', element:ProcessedMilk },
       { path: '/MilkProcessing', name: 'MilkProcessing', element:MilkProcessing },
       { path: '/DairyFarmInventory', name: 'DairyFarmInventory', element:DairyFarmInventory },
+
+      //RawMaterial 
+      { path: '/rawMaterial', name: 'Raw Material', element: RawMaterial },
       { path: '/LaboratoryUser', name: 'LaboratoryUser', element:LaboratoryUser }
 
   ]

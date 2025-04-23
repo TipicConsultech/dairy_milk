@@ -16,6 +16,7 @@ use App\Http\Controllers\FileUpload;
 use App\Http\Controllers\CustomerController;
 use App\Http\Middleware\Authorization;
 use App\Http\Controllers\CompanyInfoController;
+use App\Http\Controllers\RawMaterialController;
 
 // ini_set('display_errors', 1);
 // ini_set('display_startup_errors', 1);
@@ -46,6 +47,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/milk-tanks/{id}', [MilkTankController::class, 'destroy']);
 });
 
+
+
+Route::prefix('raw-materials')->group(function () {
+    Route::get('/', [RawMaterialController::class, 'index']);
+    Route::get('/visible', [RawMaterialController::class, 'visible']);
+    Route::get('/company/{companyId}', [RawMaterialController::class, 'byCompany']);
+    Route::get('/{id}', [RawMaterialController::class, 'show']);
+    Route::post('/', [RawMaterialController::class, 'store']);
+    Route::put('/{id}', [RawMaterialController::class, 'update']);
+    Route::delete('/{id}', [RawMaterialController::class, 'destroy']);
+    // Route::get('/criticalStock', [RawMaterialController::class, 'criticalStock']);
+});
+Route::get('/criticalStock', [RawMaterialController::class, 'criticalStock']);
+Route::get('/csv-download', [RawMaterialController::class, 'downloadDemoCsv']);
+Route::get('/serchRawMaterials', [RawMaterialController::class, 'searchByName']);
 
 //public API's
 Route::post('/register', [AuthController::class, 'register']);
