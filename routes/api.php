@@ -62,6 +62,7 @@ Route::prefix('raw-materials')->group(function () {
 Route::get('/criticalStock', [RawMaterialController::class, 'criticalStock']);
 Route::get('/csv-download', [RawMaterialController::class, 'downloadDemoCsv']);
 Route::get('/serchRawMaterials', [RawMaterialController::class, 'searchByName']);
+Route::post('/uploadCSVRawMaterial', [RawMaterialController::class, 'uploadCsvRawMaterial']);
 
 //public API's
 Route::post('/register', [AuthController::class, 'register']);

@@ -72,7 +72,6 @@ const App = () => {
           <Route exact path="/404" name="Page 404" element={<Page404 />} />
           <Route exact path="/500" name="Page 500" element={<Page500 />} />
           <Route path="*" name="Home" element={<DefaultLayout />} />
-
           {/* Help and Support Routes */}
           <Route exact path="/TicketForms" name="TicketForm" element={<TicketForm />} />
           <Route exact path="/faq" name="faq" element={<Faq />} />
