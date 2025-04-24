@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    function register(Request $request){
+    function register(Request $request)
+    {
         $fields = $request->validate([
             'name' => 'required|string',
             'mobile' => 'required|string|unique:users',
@@ -22,23 +23,24 @@ class AuthController extends Controller
         ]);
 
         $user = User::create([
-            'name'=> $fields['name'],
-            'email'=> $fields['email'],
-            'mobile'=> $fields['mobile'],
-            'type'=> $fields['type'],
-            'company_id'=> $fields['company_id'],
-            'password'=> bcrypt($fields['password'])
+            'name' => $fields['name'],
+            'email' => $fields['email'],
+            'mobile' => $fields['mobile'],
+            'type' => $fields['type'],
+            'company_id' => $fields['company_id'],
+            'password' => bcrypt($fields['password'])
         ]);
 
         $token = $user->createToken('webapp')->plainTextToken;
         $response = [
-            'user'=> $user,
-            'token'=> $token
+            'user' => $user,
+            'token' => $token
         ];
-        return response($response,201);
+        return response($response, 201);
     }
 
-    function update(Request $request){
+    function update(Request $request)
+    {
         $fields = $request->validate([
             'id' => 'required',
             'name' => 'required|string',
@@ -46,16 +48,16 @@ class AuthController extends Controller
             'type' => 'required',
             'email' => 'required',
             'company_id' => 'required',
-            'blocked'=> 'required',
+            'blocked' => 'required',
         ]);
-        $user = User::where('id',$fields['id'])->first();
+        $user = User::where('id', $fields['id'])->first();
         $user->update([
-            'name'=> $request->name,
-            'mobile'=> $request->mobile,
-            'type'=> $request->type,
-            'company_id' => $request->company_id, 
+            'name' => $request->name,
+            'mobile' => $request->mobile,
+            'type' => $request->type,
+            'company_id' => $request->company_id,
             'blocked' => $request->blocked,
-            //'updated_by' => $user->id, 
+            //'updated_by' => $user->id,
         ]);
         $user->save();
         return response()->json([
@@ -71,24 +73,24 @@ class AuthController extends Controller
             'email' => 'required|string',
             'password' => 'required|string'
         ]);
-    
+
         // Check if email exists
         $user = User::with(['CompanyInfo'])->where('email', $fields['email'])->first();
-    
+
         // Check password
         if (!$user || !Hash::check($fields['password'], $user->password)) {
             return response()->json([
                 'message' => 'Invalid credentials'
             ], 401);
         }
-    
+
         // Check if user is blocked
         //|| $user['company_info']->block_status == 1
         if ($user->blocked == 1) {
             return response()->json([
                 'message' => 'User not allowed. Kindly contact admin.',
-                'blocked'=> true,
-                '$user'=> $user
+                'blocked' => true,
+                '$user' => $user
             ], 201);
         }
 
@@ -98,9 +100,9 @@ class AuthController extends Controller
                 'blocked' => true
             ], 201);
         }
-        
 
-        $token = $user->createToken('webapp',[$user])->plainTextToken;
+
+        $token = $user->createToken('webapp', [$user])->plainTextToken;
         $response = [
             'user' => $user,
             'token' => $token
@@ -108,42 +110,45 @@ class AuthController extends Controller
         return response()->json($response, 201);
     }
 
-    function mobileLogin(Request $request){
+    function mobileLogin(Request $request)
+    {
         $fields = $request->validate([
             'mobile' => 'required|string',
             'password' => 'required|string'
         ]);
 
         //Check if mobile no exists
-        $user = User::where('mobile',$fields['mobile'])->first();
+        $user = User::where('mobile', $fields['mobile'])->first();
 
         //Check password
-        if(!$user || !Hash::check($fields['password'], $user->password)){
-            return response->json([
-                'message'=>'Please provide valid credentials'
-            ],401);
+        if (!$user || !Hash::check($fields['password'], $user->password)) {
+            return response()->json([
+                'message' => 'Please provide valid credentials'
+            ], 401);
         }
 
-        if($user->blocked == 1){
+        if ($user->blocked == 1) {
             return response([
-                'message'=>'Kindly contact admin'
-            ],401);
+                'message' => 'Kindly contact admin'
+            ], 401);
         }
 
         $token = $user->createToken('mobileLoginToken')->plainTextToken;
         $response = [
-            'user'=> $user,
-            'token'=> $token
+            'user' => $user,
+            'token' => $token
         ];
-        return response($response,201);
+        return response($response, 201);
     }
 
-    function logout(Request $request){
+    function logout(Request $request)
+    {
         auth()->user()->tokens()->delete();
-        return ['message'=>'Logged out'];
+        return ['message' => 'Logged out'];
     }
 
-    function changePassword(Request $request){
+    function changePassword(Request $request)
+    {
         $fields = $request->validate([
             'email' => 'required|string',
             'password' => 'required|string',
@@ -151,47 +156,48 @@ class AuthController extends Controller
         ]);
 
         //Check if email exists
-        $user = User::where('email',$fields['email'])->first();
+        $user = User::where('email', $fields['email'])->first();
 
         //Check password
-        if(!$user || !Hash::check($fields['password'], $user->password)){
+        if (!$user || !Hash::check($fields['password'], $user->password)) {
             return response([
-                'message'=>'Please provide valid credentials'
-            ],401);
-        }else{
-            $user->password =  bcrypt($fields['new_password']);
+                'message' => 'Please provide valid credentials'
+            ], 401);
+        } else {
+            $user->password = bcrypt($fields['new_password']);
             $user->save();
             auth()->user()->tokens()->delete();
         }
 
         $token = $user->createToken('webapp')->plainTextToken;
         $response = [
-            'Message'=> 'Password Changed Successfully,Login with new Password',
-            'status'=> 1
+            'Message' => 'Password Changed Successfully,Login with new Password',
+            'status' => 1
             // 'user'=> $user,
             // 'token'=> $token
         ];
-        return response($response,200);
+        return response($response, 200);
     }
 
     public function allUsers(Request $request)
     {
         $companyId = Auth::user()->company_id;
-    
+
         if ($request->customers == 'true') {
             // Filter users by company_id and type
             return User::where('type', 10)
-                       ->where('company_id', $companyId)
-                       ->paginate(50);
+                ->where('company_id', $companyId)
+                ->paginate(50);
         }
-        
+
         // Filter users by company_id and type < 10
         return User::where('type', '<', 10)
-                   ->where('company_id', $companyId)
-                   ->paginate(50);
+            ->where('company_id', $companyId)
+            ->paginate(50);
     }
-    
-    function registerUser(Request $request){
+
+    function registerUser(Request $request)
+    {
         $fields = $request->validate([
             'name' => 'required|string',
             'mobile' => 'required|string|unique:users,mobile',
@@ -201,12 +207,12 @@ class AuthController extends Controller
         ]);
 
         $user = User::create([
-            'name'=> $fields['name'],
-            'email'=> $fields['email'],
-            'mobile'=> $fields['mobile'],
-            'type'=> $fields['type'],
-            'password'=> bcrypt($fields['password'])
+            'name' => $fields['name'],
+            'email' => $fields['email'],
+            'mobile' => $fields['mobile'],
+            'type' => $fields['type'],
+            'password' => bcrypt($fields['password'])
         ]);
-        return response($user,201);
+        return response($user, 201);
     }
 }

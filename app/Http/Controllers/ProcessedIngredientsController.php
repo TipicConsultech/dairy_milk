@@ -7,6 +7,28 @@ use Illuminate\Http\Request;
 
 class ProcessedIngredientsController extends Controller
 {
+     /**
+     * Store a newly created resource in storage.
+     */
+
+    public function store(Request $request)
+{
+    $validated = $request->validate([
+        'processing_id' => ['required', 'exists:milk_processing,id'],
+        'ingredient_id' => ['required', 'exists:raw_materials,id'],
+        'quantity'      => ['required', 'numeric', 'min:0.001'],
+    ]);
+
+    ProcessedIngredients::create([
+        'processing_id' => $validated['processing_id'],
+        'ingredient_id' => $validated['ingredient_id'],
+        'quantity'      => $validated['quantity'],
+        'created_by'    => auth()->id(),
+    ]);
+
+    return back()->with('success', 'Ingredient saved!');
+}
+
     /**
      * Display a listing of the resource.
      */
@@ -23,13 +45,8 @@ class ProcessedIngredientsController extends Controller
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+   
+    
 
     /**
      * Display the specified resource.

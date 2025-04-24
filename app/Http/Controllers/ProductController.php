@@ -18,7 +18,67 @@ class ProductController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     * 
+     * 
+     * 
      */
+    public function showAll()
+    {
+        $products = ProductSize::select('id','name','qty')
+        ->get()
+        ->map(function ($products) {
+            return [
+                'id' => $products->id,
+                'name' => $products->name,
+                // If you want to show remaining capacity, modify the logic accordingly.
+                
+                'qty'=>$products->qty
+            ];
+        });
+
+    return response()->json([
+        'success' => true,
+        'products' => $products
+    ]);
+    }
+
+
+    public function updateProductStock(Request $request)
+{
+    $request->validate([
+        'name'     => 'required|string',
+        'quantity' => 'required|numeric|min:0.01',
+    ]);
+
+    // find the product by name (case‑insensitive)
+    $product = ProductSize::where('name', 'LIKE', $request->name)->first();
+
+    if (!$product) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Product not found.',
+        ], 404);
+    }
+
+    if ($request->quantity > $product->qty) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Requested quantity exceeds available stock.',
+        ], 400);
+    }
+
+    // decrement and save
+    $product->qty += $request->quantity;
+    $product->save();
+
+    return response()->json([
+        'success'       => true,
+        'message'       => 'Product quantity updated successfully.',
+        'remaining_qty' => $product->qty,
+    ]);
+}
+
+
   
     public function index()
     {
@@ -45,73 +105,132 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required',
-            'localName'=>'required',
-            'slug' => 'required',
-            'categoryId' => 'required',
-            'incStep' => 'required',
-            'desc' => 'nullable',
-            'multiSize' => 'required',
-            'show' => 'required'
-        ]);
+    // public function store(Request $request)
+    // {
+    //     $request->validate([
+    //         'name' => 'required',
+    //         'localName'=>'required',
+    //         'slug' => 'required',
+    //         'categoryId' => 'required',
+    //         'incStep' => 'required',
+    //         'desc' => 'nullable',
+    //         'multiSize' => 'required',
+    //         'show' => 'required'
+    //     ]);
     
-        $user = Auth::user();
+    //     $user = Auth::user();
         
-        // Create the product with company_id and created_by
-        $product = Product::create([
-            'name' => $request->name,
-            'slug' => $request->slug,
-            'categoryId' => $request->categoryId,
-            'incStep' => $request->incStep,
-            'desc' => $request->desc,
-            'unit' => $request->unit,
-            'multiSize' => $request->multiSize,
-            'show' => $request->show,
-            'showOnHome' => $request->showOnHome,
-            'company_id' => $user->company_id, // Add company_id
-            'created_by' => $user->id, // Add created_by
-            'updated_by' => $user->id ,// Add updated by
-            'localName'=> $request->localName,
-        ]);
+    //     // Create the product with company_id and created_by
+    //     $product = Product::create([
+    //         'name' => $request->name,
+    //         'slug' => $request->slug,
+    //         'categoryId' => $request->categoryId,
+    //         'incStep' => $request->incStep,
+    //         'desc' => $request->desc,
+    //         'unit' => $request->unit,
+    //         'multiSize' => $request->multiSize,
+    //         'show' => $request->show,
+    //         'showOnHome' => $request->showOnHome,
+    //         'company_id' => $user->company_id, // Add company_id
+    //         'created_by' => $user->id, // Add created_by
+    //         'updated_by' => $user->id ,// Add updated by
+    //         'localName'=> $request->localName,
+    //     ]);
     
-        // Save images with company_id and created_by
-        $images = array();
-        foreach ($request->media as $img) {
-            $media = new ProductMedia;
-            $media->url = $img['url'];
-            $media->type = $img['type'];
-            $media->company_id = $user->company_id; // Add company_id
+    //     // Save images with company_id and created_by
+    //     $images = array();
+    //     foreach ($request->media as $img) {
+    //         $media = new ProductMedia;
+    //         $media->url = $img['url'];
+    //         $media->type = $img['type'];
+    //         $media->company_id = $user->company_id; // Add company_id
           
 
-            array_push($images, $media);
-        }
-        $product->media()->saveMany($images);
+    //         array_push($images, $media);
+    //     }
+    //     $product->media()->saveMany($images);
     
-        // Save sizes with company_id and created_by
-        $sizes = array();
-        foreach ($request->sizes as $size) {
-            $sz = new ProductSize;
-            $sz->name = $size['name'];
-            $sz->localName = $size['localName'];
-            $sz->oPrice = $size['oPrice'];
-            $sz->bPrice = $size['bPrice'];
-            $sz->stock = $size['stock'];
-            $sz->returnable = $size['returnable'];
-            if ($size['dPrice']) {
-                $sz->dPrice = $size['dPrice'];
-            }
-            $sz->qty = $size['qty'];
-            $sz->show = $size['show'];
-            $sz->company_id = $user->company_id; // Add company_id
-            array_push($sizes, $sz);
-        }
-        $product->size()->saveMany($sizes);
+    //     // Save sizes with company_id and created_by
+    //     $sizes = array();
+    //     foreach ($request->sizes as $size) {
+    //         $sz = new ProductSize;
+    //         $sz->name = $size['name'];
+    //         $sz->localName = $size['localName'];
+    //         $sz->oPrice = $size['oPrice'];
+    //         $sz->bPrice = $size['bPrice'];
+    //         $sz->stock = $size['stock'];
+    //         $sz->returnable = $size['returnable'];
+    //         if ($size['dPrice']) {
+    //             $sz->dPrice = $size['dPrice'];
+    //         }
+    //         $sz->qty = $size['qty'];
+    //         $sz->show = $size['show'];
+    //         $sz->company_id = $user->company_id; // Add company_id
+    //         array_push($sizes, $sz);
+    //     }
+    //     $product->size()->saveMany($sizes);
     
-        return $product;
+    //     return $product;
+    // }
+    public function store(Request $request)
+{
+    // Validate incoming request data (only the fields that are required for the store function)
+    $request->validate([
+        'name' => 'required',
+        'localName' => 'required',
+        'multiSize' => 'required',
+        'show' => 'required',
+        'unit' => 'nullable',  // Assuming unit can be nullable
+    ]);
+
+    $user = Auth::user();
+
+    // Create the product using only the fillable fields
+    $product = Product::create([
+        'name' => $request->name,
+        'localName' => $request->localName,
+        'unit' => $request->unit,
+        'multiSize' => $request->multiSize,
+        'show' => $request->show,
+        'company_id' => $user->company_id, // Add company_id
+        'created_by' => $user->id, // Add created_by
+        'updated_by' => $user->id, // Add updated_by
+    ]);
+
+    // Save images with company_id
+    $images = [];
+    foreach ($request->media as $img) {
+        $media = new ProductMedia;
+        $media->url = $img['url'];
+        $media->type = $img['type'];
+        $media->company_id = $user->company_id; // Add company_id
+        $images[] = $media;
     }
+    $product->media()->saveMany($images);
+
+    // Save sizes with company_id
+    $sizes = [];
+    foreach ($request->sizes as $size) {
+        $sz = new ProductSize;
+        $sz->name = $size['name'];
+        $sz->localName = $size['localName'];
+        $sz->oPrice = $size['oPrice'];
+        $sz->bPrice = $size['bPrice'];
+        $sz->stock = $size['stock'];
+        $sz->returnable = $size['returnable'];
+        if (isset($size['dPrice'])) { // Only add if dPrice exists
+            $sz->dPrice = $size['dPrice'];
+        }
+        $sz->qty = $size['qty'];
+        $sz->show = $size['show'];
+        $sz->company_id = $user->company_id; // Add company_id
+        $sizes[] = $sz;
+    }
+    $product->size()->saveMany($sizes);
+
+    return response()->json($product, 201);
+}
+
     
 
     /**

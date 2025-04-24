@@ -15,8 +15,8 @@ export async function register(data) {
  * @param {string} url - The URL to post to.
  * @param {object} data - The data to post.
  * @returns {Promise<object>} A promise that resolves to the response data.
- * 
- * 
+ *
+ *
  */
 export async function postFormData(url = '', data ) {
   try {
