@@ -36,7 +36,7 @@ class MilkTanksTrackerController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'milk_tank_id' => 'required|integer|exists:milk_tanks,id',
-            'milk_tank_na' => 'nullable|string|max:255',
+            'milk_tank_name' => 'nullable|string|max:255',
             'quantity' => 'required|numeric',
         ]);
 
@@ -57,7 +57,7 @@ class MilkTanksTrackerController extends Controller
 
         $tracker = new MilkTanksTracker();
         $tracker->milk_tank_id = $request->milk_tank_id;
-        $tracker->milk_tank_na = $request->milk_tank_name ?? $milkTank->name;
+        $tracker->milk_tank_name = $request->milk_tank_name ?? $milkTank->name;
         $tracker->quantity = $request->quantity;
         $tracker->created_by = Auth::id();
         $tracker->save();
@@ -105,7 +105,7 @@ class MilkTanksTrackerController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'milk_tank_id' => 'required|integer|exists:milk_tanks,id',
-                'milk_tank_na' => 'nullable|string|max:255',
+                'milk_tank_name' => 'nullable|string|max:255',
                 'quantity' => 'required|numeric',
             ]);
 
