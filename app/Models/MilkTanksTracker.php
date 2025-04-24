@@ -5,8 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MilkTank extends Model {
+class MilkTanksTracker extends Model
+{
     use HasFactory;
+
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'milk_tanks_tracker';
 
     /**
      * The attributes that are mass assignable.
@@ -14,38 +22,23 @@ class MilkTank extends Model {
      * @var array
      */
     protected $fillable = [
-        'company_id',
-        'number',
-        'name',
-        'capacity',
+        'milk_tank_id',
+        'milk_tank_name',
         'quantity',
-        'isVisible',
-        'snf',
-        'ts',
         'created_by',
         'updated_by'
     ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array
+     * Get the milk tank that owns the tracker record.
      */
-    protected $casts = [
-        'snf' => 'double',
-        'ts' => 'double',
-    ];
-
-    /**
-     * Get the company that owns the milk tank.
-     */
-    public function company()
+    public function milkTank()
     {
-        return $this->belongsTo(CompanyInfo::class, 'company_id', 'company_id');
+        return $this->belongsTo(MilkTank::class, 'milk_tank_id');
     }
 
     /**
-     * Get the user who created the milk tank.
+     * Get the user who created this record.
      */
     public function creator()
     {
@@ -53,7 +46,7 @@ class MilkTank extends Model {
     }
 
     /**
-     * Get the user who last updated the milk tank.
+     * Get the user who last updated this record.
      */
     public function updater()
     {

@@ -16,7 +16,8 @@ const InvoiceDetails = React.lazy(() => import('./views/pages/invoice/InvoiceDet
 const NewCompany = React.lazy(() => import('./views/pages/company/NewCompany'))
 const AllCompanies = React.lazy(() => import('./views/pages/company/AllCompanies'))
 
-
+//Raw MAterial 
+const RawMaterial = React.lazy(() => import('./views/dairy/RawMaterial'))
 //Products
 const NewProduct = React.lazy(() => import('./views/pages/products/NewProduct'))
 const AllProducts = React.lazy(() => import('./views/pages/products/AllProducts'))
@@ -69,12 +70,13 @@ const DairyFarmInventory=React.lazy(() => import('./views/dairy/DairyFarmInvento
 const DeliveryRecord=React.lazy(() => import('./views/dairy/DeliveryRecord'))
 
 
+const LaboratoryUser=React.lazy(() => import('./views/dairy/LaboratoryUser'))
 
 export default function fetchRoutes(){
   const user=getUserType();
   let routes=[];
 
-  
+
   if(user===0){
     routes = [
       { path: '/', exact: true, name: 'Home' },
@@ -95,7 +97,7 @@ export default function fetchRoutes(){
       { path: '/customer/new', name: 'New Product', element: NewCustomer },
       { path: '/customer/all', name: 'All Products', element: AllCustomers },
       { path: '/customer/edit/:id', name: 'Edit Products', element: EditCustomer },
-      // { path: '/category/new', name: 'New Category', element: NewCategory },
+      { path: '/rawMaterial', name: 'Raw Material', element: RawMaterial },
       // { path: '/category/all', name: 'All Category', element: AllCategory },
       // { path: '/category/edit/:id', name: 'Edit Category', element: EditCategory },
       { path: '/expense/new-type', name: 'New Type', element: NewExpenseType },
@@ -165,9 +167,16 @@ export default function fetchRoutes(){
       { path: '/StockManagement', name: 'StockManagement', element:StockManagement },
       { path: '/ProcessedMilk', name: 'ProcessedMilk', element:ProcessedMilk },
       { path: '/MilkProcessing', name: 'MilkProcessing', element:MilkProcessing },
-      { path: '/DairyFarmInventory', name: 'DairyFarmInventory', element:DairyFarmInventory } 
+      { path: '/DairyFarmInventory', name: 'DairyFarmInventory', element:DairyFarmInventory } ,
       
     
+    
+
+      //RawMaterial 
+      { path: '/rawMaterial', name: 'Raw Material', element: RawMaterial },
+      { path: '/LaboratoryUser', name: 'LaboratoryUser', element:LaboratoryUser },
+      { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord}
+
   ]
   }
   else if(user===2){
@@ -185,8 +194,9 @@ export default function fetchRoutes(){
     { path: '/customer/all', name: 'All Products', element: AllCustomers },
     { path: '/customer/edit/:id', name: 'Edit Customer', element: EditCustomer },
     { path:'/updatepassword', name: 'Update Password', element: Updatepassword },
-    { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord}
+    // { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord}
     
+
   ]
   }
   return routes;

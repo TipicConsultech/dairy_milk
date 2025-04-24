@@ -8,6 +8,7 @@
      "name": "Name",
      "credit": "Credit",
      "rs": "Rs",
+     "delivery_record":"Delivery View",
      "address": "Address",
      "balance": "Balance",
      "advance": "Advance",
@@ -107,6 +108,7 @@
 
     "create_product": "Create Product",
     "createProduct": "Create Product",
+    "laboratoryUser": "Laboratory User",
     "tank": "Tank",
     "processed_milk": "Processed Milk",
     "enterMilk": "Enter Milk for Product",
@@ -131,6 +133,7 @@
     "capacity": "Capacity (Liters)",
 "currentQuantity": "Current Quantity (Liters)",
 "addQuantity": "Enter Milk Count",
+"addRawQuantity": "Add Quantity",
 "ingredients": "Ingredients",
 "selectIngredient": "Select Ingredient",
 "quantityKg": "Quantity (Kg)",
@@ -145,6 +148,7 @@
 "processedMilk": "Processed Milk",
 "totalMilkQty": "Total Milk Quantity",
 "processedMilkQty": "Processed By",
+"rawMaterial":"Raw Material",
 "ingredientsUsed": "Ingredients Used for Processing",
 "action": "Action",
 "addIngredient": "Add Ingredient",
@@ -175,7 +179,7 @@
 "milk_removed": "Milk Removed",
 "processed_milk_quantity": "Processed Milk",
 "processing_date": "Processing Date",
-"currentCapacity": "Current Capacity",
+"currentCapacity": "Capacity",
 "Productcreate": "Product Creation",
 
 "Productcreate": "Create Product",
@@ -217,7 +221,8 @@
 "supplierName": "Supplier Name",
 "expireDate": "Expiry Date",
 "lastUpdatedDate":"Last Updated Date",
-"updatedby":"Updated By"
+"updatedby":"Updated By",
+"addRow": "Add Row"
 
 
 

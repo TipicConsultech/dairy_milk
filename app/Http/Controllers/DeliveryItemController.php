@@ -12,8 +12,9 @@ class DeliveryItemController extends Controller
      */
     public function index()
     {
-        $deliveryItems = DeliveryItem::all(); // Get all delivery items
-        return response()->json($deliveryItems); // Return the items as JSON (or use view for HTML response)
+        // Fetch all items' quantities
+        $quantities = DeliveryItem::pluck('quantity');
+        return response()->json($quantities); // Return quantities as JSON
     }
 
     /**
@@ -45,7 +46,8 @@ class DeliveryItemController extends Controller
             return response()->json(['error' => 'Delivery item not found'], 404);
         }
 
-        return response()->json($deliveryItem);
+        // Return just the quantity
+        return response()->json(['quantity' => $deliveryItem->quantity]);
     }
 
     /**
@@ -69,7 +71,8 @@ class DeliveryItemController extends Controller
             'quantity' => $request->quantity,
         ]);
 
-        return response()->json($deliveryItem);
+        // Return the updated quantity
+        return response()->json(['quantity' => $deliveryItem->quantity]);
     }
 
     /**
@@ -83,9 +86,12 @@ class DeliveryItemController extends Controller
             return response()->json(['error' => 'Delivery item not found'], 404);
         }
 
+        // Save the quantity before deleting
+        $quantity = $deliveryItem->quantity;
+
         // Delete the delivery item
         $deliveryItem->delete();
 
-        return response()->json(['message' => 'Delivery item deleted successfully']);
+        return response()->json(['message' => 'Delivery item deleted successfully', 'quantity' => $quantity]);
     }
 }
