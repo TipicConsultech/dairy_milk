@@ -604,13 +604,13 @@ const Delivery = () => {
                 {/* Column Headers */}
                 <CRow className="mb-2">
                   <CCol xs={4}>
-                    <div style={styles.columnHeader}>{t("") || "Crates"}</div>
+                    <div >{t("") || "Crates"}</div>
                   </CCol>
                   <CCol xs={4}>
-                    <div style={styles.columnHeader}>{t("") || "Packets/Crates"}</div>
+                    <div >{t("") || "Packets/Crates"}</div>
                   </CCol>
                   <CCol xs={4}>
-                    <div style={styles.columnHeader}>{t("") || "Total Packets"}</div>
+                    <div>{t("") || "Total Packets"}</div>
                   </CCol>
                 </CRow>
                 
@@ -671,7 +671,7 @@ const Delivery = () => {
                 {/* Empty Jar Row */}
                 <CRow className="mb-4 mt-4">
                   <CCol xs={12}>
-                    <div style={styles.emptyJarLabel}>{t("Empty Crets") || "Empty crets Collection"}</div>
+                    <div >{t("Empty Crates ") || "Empty Crates Collection"}</div>
                   </CCol>
                   <CCol xs={5} className="mt-2">
                     <CInputGroup size="sm">
