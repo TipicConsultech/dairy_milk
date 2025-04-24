@@ -33,7 +33,7 @@
 
 @keyframes strobeRed {
     0%, 100% {
-      background-color: #ff0000;
+      background-color: #f95757;
     }
     50% {
       background-color: hsl(0, 58%, 87%);
@@ -41,6 +41,6 @@
   }
   
   .strobe-red {
-    animation: strobeRed 0.5s infinite;
+    animation: strobeRed 0.7s infinite;
     color: white;
   }

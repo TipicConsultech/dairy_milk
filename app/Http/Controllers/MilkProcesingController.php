@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MilkProcesing;
+// use App\Models\MilkProcesing;
 use Illuminate\Http\Request;
 
 class MilkProcesingController extends Controller
@@ -26,10 +27,29 @@ class MilkProcesingController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        //
-    }
+   // app/Http/Controllers/MilkProcessingController.php
+public function store(Request $request)
+{
+    $request->validate([
+        'milkTank_id'  => 'required|exists:milk_tanks,id',
+        'rowMilk_qty'  => 'required|numeric|min:0.01',
+    ]);
+
+    $batchNo = now()->format('YmdHis'); // or any generator you prefer
+
+    $mp = MilkProcesing::create([
+        'batch_no'     => $batchNo,
+        'milkTank_id'  => $request->milkTank_id,
+        'rowMilk_qty'  => $request->rowMilk_qty,
+        'created_by'   => $request->user()->id ?? null,
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'data'    => $mp,
+    ], 201);
+}
+
 
     /**
      * Display the specified resource.

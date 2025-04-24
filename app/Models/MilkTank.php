@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class MilkTank extends Model {
     use HasFactory;
 
+   
+
     /**
      * The attributes that are mass assignable.
      *

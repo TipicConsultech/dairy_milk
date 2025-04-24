@@ -1,16 +1,47 @@
 import React, { useEffect, useState } from 'react';
-import { getAPICall, put } from '../../util/api';
+import { getAPICall, post, postFormData, put } from '../../util/api';
 import { CBadge, CButton } from '@coreui/react';
+import CIcon from '@coreui/icons-react';
+import { cilArrowThickToBottom, cilArrowThickToTop, cilSettings } from '@coreui/icons';
 
 function RawMaterial() {
   const [tableData, setTableData] = useState([]);
   const [quantities, setQuantities] = useState({});
-  const [file, setFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [loading, setLoading] = useState(false);
 
   console.log(tableData);
+
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedFile) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file',selectedFile);
+    console.log(formData);
+  
+    try {
+      const res = await postFormData('/api/uploadCSVRawMaterial', formData);
+       
+      alert('File uploaded successfully!');
+  
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Upload failed');
+    } finally {
+      setUploading(false);
+      setSelectedFile(null);
+    }
+  };
   
   useEffect(() => {
-   
     getData();
   }, []);
 
@@ -18,6 +49,7 @@ function RawMaterial() {
     const response = await getAPICall('/api/raw-materials');
     setTableData(response);
   }
+  
   const handleQuantityChange = (id, value) => {
     if (value === '' || /^[1-9][0-9]*$/.test(value)) {
       setQuantities((prev) => ({
@@ -27,105 +59,153 @@ function RawMaterial() {
     }
   };
 
-  const handleAddClick = async(item) => {
+  const handleAddClick = async (item) => {
     const quantity = quantities[item.id];
     if (!quantity || quantity <= 0) {
       alert('Please enter a valid quantity greater than 0');
       return;
-    }else{
-        try{
+    } else {
+      try {
+        await put(`/api/raw-materials/${item.id}`, { "unit_qty": quantity });
         
-        const response= await put(`/api/raw-materials/${item.id}`,{"unit_qty":quantity})
-        }
-        catch(e){
-            console.alert(e)
-        }
-        getData();
-      };
+        // Clear the input for this item
+        setQuantities((prev) => ({ ...prev, [item.id]: '' }));
+        // getData();
+        searchMaterials();
+      } catch (e) {
+        alert("You have entered more than the maximum capacity allowed for this item.");
+        setQuantities((prev) => ({ ...prev, [item.id]: '' }));
+      }
     }
+  };
 
-    const handleDownload = async () => {
-        try {
-          const response = await fetch('/api/csv-download');
-          if (!response.ok) {
-            throw new Error('Failed to download file');
-          }
-      
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-      
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', 'raw_materials_demo.csv');
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-        } catch (error) {
-          console.error('Error downloading CSV:', error);
-        }
-      };
-      
-      const handleSelectFile = (e) => {
-        const selectedFile = e.target.files[0];
-        setFile(selectedFile);
-      };
+  const handleDownload = async () => {
+    try {
+      const response = await fetch('/api/csv-download');
+      if (!response.ok) {
+        throw new Error('Failed to download file');
+      }
+  
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+  
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'raw_materials_demo.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+    }
+  };
     
-      const handleShare = async () => {
-        if (!file) return alert('Please select a file first.');
-    
-        const phoneNumber = '917499254007'; // Your target WhatsApp number
-    
-        const message = encodeURIComponent(
-            `Hi! Here's the CSV file: ${file.name}. Please check your downloads and upload the file manually.`
-        );
-    
-        // Try Web Share API on mobile
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-                await navigator.share({
-                    title: 'Share CSV',
-                    text: 'Sharing CSV file...',
-                    files: [file],
-                });
-                console.log('File shared successfully');
-            } catch (error) {
-                console.error('Sharing failed', error);
-                alert('Failed to share the file. Try again.');
-            }
-        } else {
-            // Fallback to WhatsApp link
-            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
-            window.open(whatsappUrl, '_blank');
-            alert('WhatsApp chat opened. Now attach the file manually.');
-        }
+  // Debounce effect - updates debouncedSearchTerm after 1 second
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 1000);
+
+    return () => {
+      clearTimeout(handler);
     };
+  }, [searchTerm]);
+
+  const searchMaterials = async () => {
+    setLoading(true);
+    try {
+      const response = await getAPICall(`/api/serchRawMaterials?search=${debouncedSearchTerm}`);
+      setTableData(response);
+    } catch (error) {
+      console.error('Error fetching materials:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  // Fetch data when debouncedSearchTerm changes
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      setLoading(true);
+      try {
+        const response = await getAPICall(`/api/serchRawMaterials?search=${debouncedSearchTerm}`);
+        setTableData(response);
+      } catch (error) {
+        console.error('Error fetching materials:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (debouncedSearchTerm === '') {
+      // If search is empty, fetch all data
+      searchMaterials();
+    } else {
+      // Fetch data filtered by search term
+      searchMaterials();
+    }
+  }, [debouncedSearchTerm]);
     
   return (
     <div className="p-4">
-        <div>
-            <h3 className='mb-3'>Raw Materials List</h3>
+      <div>
+        <h3 className='mb-3'>Raw Materials Inventory</h3>
+      </div>
 
+      <div className='flex-1' style={{marginBottom:10}}> 
+        <div className="d-flex align-items-center gap-5">
+          <div className='flex-col col-mb4'>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by name"
+              className="form-control"
+            />
+          </div>
+          <div className='d-flex gap-3'>
+            <CButton color="primary" onClick={handleDownload}>
+              <CIcon icon={cilArrowThickToBottom} size="sm" style={{marginRight:3}}/>
+              Download Template
+            </CButton>
+            
+            <CButton
+              color={selectedFile ? "primary":"primary"} 
+              variant={selectedFile ? "solid" : "outline"}
+              onClick={() => document.getElementById('fileInput').click()}
+            >
+              {!selectedFile && (<CIcon icon={cilArrowThickToTop} size="sm" style={{marginRight:3}}/>)}
+              {selectedFile ? `${selectedFile.name}`:"CSV File"}  
+            </CButton>
+          </div>
+          <input
+            type="file"
+            id="fileInput"
+            style={{ display: 'none' }}
+            accept=".csv"
+            onChange={handleFileChange}
+          />
+
+          {selectedFile && (
+            <CButton
+              color="success"
+              disabled={uploading}
+              onClick={handleSubmit}
+            >
+              {uploading ? 'Uploading...' : 'Submit'}
+            </CButton>
+          )}
         </div>
-        <CButton color="primary" className="mb-4 mr-3" onClick={handleDownload}>
-      Download Demo CSV
-    </CButton>
+      </div>
 
-    <CButton color="primary" className=" mb-4" onClick={handleDownload}>
-      Upload CSV
-    </CButton>
-
-    
-      <div className="table-responsive">
+      <div className="table-container" style={{ height: '400px', overflow: 'auto' }}>
         <table className="table table-hover table-bordered align-middle">
-          <thead className="table-light">
+          <thead className="table-light" style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#f8f9fa' }}>
             <tr>
               <th>Name</th>
               <th>Packaging</th>
               <th>Capacity</th>
               <th>Stock Indicator</th>
               <th>Available Stock</th>
-              {/* <th>Unit</th> */}
-              {/* <th>Visible</th> */}
               <th style={{ width: '120px' }}>Quantity</th>
               <th style={{ width: '100px' }}>Action</th>
             </tr>
@@ -140,43 +220,34 @@ function RawMaterial() {
                   </span>
                 </td>
                 <td>{item.capacity}&nbsp;&nbsp;{item.unit}</td>
-                {/* <td>{item.unit}</td> */}
-               
-                {/* <td>
-                  <span className={`badge ${item.isVisible ? 'bg-success' : 'bg-danger'}`}>
-                    {item.isVisible ? 'Yes' : 'No'}
-                  </span>
-                </td> */}
                 <td>
-                <CBadge
-                   style={
-                   item.min_qty === 1
-                                 ? {
-                      animation: 'strobeRed 0.5s infinite',
-                      backgroundColor: '#ff0000',
-                      color: 'white',
+                  <CBadge
+                    style={
+                      item.min_qty === 1
+                      ? {
+                          animation: 'strobeRed 0.5s infinite',
+                          backgroundColor: '#ff0000',
+                          color: 'white',
+                        }
+                      : item.min_qty === 2
+                      ? {
+                          backgroundColor: '#ffc107',
+                          color: '#212529',
+                        }
+                      : {
+                          backgroundColor: '#28a745',
+                          color: 'white',
+                        }
                     }
-                  : item.min_qty === 2
-                  ? {
-                      backgroundColor: '#ffc107', // Yellow (Bootstrap warning)
-                      color: '#212529', // Dark text
-                    }
-                  : {
-                      backgroundColor: '#28a745', // Green (Bootstrap success)
-                      color: 'white',
-                    }
-                         }
-                >
+                  >
                     {item.min_qty === 1
                       ? 'Empty Soon'
                       : item.min_qty === 2
                       ? 'Moderate'
                       : 'Sufficient'}
-                </CBadge>
-
+                  </CBadge>
                 </td>
                 <td>{item.unit_qty}&nbsp;&nbsp;{item.unit}</td>
-
                 <td>
                   <input
                     type="number"
@@ -200,6 +271,15 @@ function RawMaterial() {
           </tbody>
         </table>
       </div>
+
+      {/* Add custom CSS for strobe animation */}
+      <style jsx>{`
+        @keyframes strobeRed {
+          0% { opacity: 1; }
+          50% { opacity: 0.5; }
+          100% { opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }

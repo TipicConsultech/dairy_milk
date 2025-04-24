@@ -18,6 +18,14 @@ use App\Http\Middleware\Authorization;
 use App\Http\Controllers\CompanyInfoController;
 use App\Http\Controllers\DeliveryItemController;
 use App\Http\Controllers\RawMaterialController;
+use App\Http\Controllers\MilkProcesingController;
+use App\Http\Controllers\ProcessedIngredientsController;
+use App\Http\Controllers\CommonController;
+
+
+// Dairy 
+// use App\Http\Controllers\MilkTankController;
+
 
 // ini_set('display_errors', 1);
 // ini_set('display_startup_errors', 1);
@@ -54,15 +62,18 @@ Route::prefix('raw-materials')->group(function () {
     Route::get('/', [RawMaterialController::class, 'index']);
     Route::get('/visible', [RawMaterialController::class, 'visible']);
     Route::get('/company/{companyId}', [RawMaterialController::class, 'byCompany']);
-    Route::get('/{id}', [RawMaterialController::class, 'show']);
-    Route::post('/', [RawMaterialController::class, 'store']);
-    Route::put('/{id}', [RawMaterialController::class, 'update']);
-    Route::delete('/{id}', [RawMaterialController::class, 'destroy']);
+    // Route::get('/{id}', [RawMaterialController::class, 'show']);
+    Route::get('/showAll', [RawMaterialController::class, 'showAll']);
+    Route::post('/store', [RawMaterialController::class, 'store']);
+    Route::put('/{id}', [RawMaterialController::class, 'update']); 
+    Route::post('/updateRawMaterial', [RawMaterialController::class, 'updateRawMaterial']);
+    Route::delete('/{id}', [RawMaterialController::class, 'destroy']); 
     // Route::get('/criticalStock', [RawMaterialController::class, 'criticalStock']);
 });
 Route::get('/criticalStock', [RawMaterialController::class, 'criticalStock']);
 Route::get('/csv-download', [RawMaterialController::class, 'downloadDemoCsv']);
 Route::get('/serchRawMaterials', [RawMaterialController::class, 'searchByName']);
+Route::post('/uploadCSVRawMaterial', [RawMaterialController::class, 'uploadCsvRawMaterial']);
 
 //public API's
 Route::post('/register', [AuthController::class, 'register']);
@@ -81,7 +92,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('order', OrderController::class);
     Route::get('/reportSales', [OrderController::class, 'Sales']);
     Route::get('/googleMapData', [OrderController::class, 'googleMapData']);
-    Route::get('/totalDeliveries', [OrderController::class, 'totalDeliverie']);
+    Route::get('/totalDeliveries', [OrderController::class, 'totalDeliverie']); 
 
     Route::post('/newStock', [ProductController::class, 'newStock'])->name('newStock');
     Route::get('/stock', [ProductController::class, 'stock'])->name('stock');
@@ -102,42 +113,22 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/customerReport', [OrderController::class, 'customerReport'])->name('customerReport');
     Route::resource('company', CompanyInfoController::class);
 
-
-   
-
-    // Route::get('delivery-items', [DeliveryItemController::class, 'index']);    // Get all delivery items
-    // Route::get('/delivery-items/{id}', [DeliveryItemController::class, 'show']);  // Show a specific delivery item
-    // Route::post('/delivery-items', [DeliveryItemController::class, 'store']);     // Create a new delivery item
-    // Route::put('/delivery-items/{id}', [DeliveryItemController::class, 'update']); // Update an existing delivery item
-    // Route::delete('/delivery-items/{id}', [DeliveryItemController::class, 'destroy']); // Delete a delivery item
-    
-
-
-    Route::middleware('api')->group(function () {
-        // Fetch all delivery items' quantities
-        Route::get('/delivery-items', [DeliveryItemController::class, 'index']);
-    
-        // Store a new delivery item
-        Route::post('/delivery-items', [DeliveryItemController::class, 'store']);
-    
-        // Fetch a specific delivery item by its ID
-        Route::get('/delivery-items/{id}', [DeliveryItemController::class, 'show']);
-    
-        // Update a delivery item by its ID
-        Route::put('/delivery-items/{id}', [DeliveryItemController::class, 'update']);
-    
-        // Delete a delivery item by its ID
-        Route::delete('/delivery-items/{id}', [DeliveryItemController::class, 'destroy']);
-
-
-         /////// jar traker/////
-       
-         Route::apiResource('/jar-trackers', JarTrackerController::class);
-
-
-    });
-
+    // Dairy milk
+    // milk_tank
+    Route::post('/milk-tank', [MilkTankController::class, 'store']);
+    Route::get('/milk-tanks-byname/names', [MilkTankController::class, 'getNames']);
+    Route::post('/tankLimit', [MilkTankController::class, 'tankLimit']);
+    Route::post('/updateMilk', [MilkTankController::class, 'updateMilk']);
+    // product
+    Route::get('/showAll', [ProductController::class, 'showAll']);
+    Route::post('/updateProductStock', [ProductController::class, 'updateProductStock']);
+    // milk processing
+    Route::post('/milkProcessingStore', [MilkProcesingController::class, 'store']);
+    //processded ingredients 
+    Route::post('/ProcessedIngredients', [ProcessedIngredientsController::class, 'store']);
 });
+Route::post('/createProduct', [CommonController::class,'createProduct']);
+
 
 
 Route::get('/user', function (Request $request) {

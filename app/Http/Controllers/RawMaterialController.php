@@ -6,6 +6,7 @@ use App\Models\RawMaterial;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 
 class RawMaterialController extends Controller
 {
@@ -49,15 +50,18 @@ class RawMaterialController extends Controller
 }
 
 public function searchByName(Request $request) 
-
 {
     $search = $request->query('search');
 
-    // Use query builder with "like" for DB-level search
-    $materials = RawMaterial::when($search, function ($query, $search) {
-            return $query->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
+    $materials = RawMaterial::query()
+        ->when($search, function ($query, $search) {
+            $search = strtolower(trim($search));
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(local_name) LIKE ?', ["%{$search}%"]);
+            });
         })
-        ->orderByDesc('isPackaging') // show visible first
+        ->orderByDesc('isPackaging') // Show packaging materials first
         ->get()
         ->map(function ($item) {
             $percentage = ($item->unit_qty / $item->capacity) * 100;
@@ -75,6 +79,7 @@ public function searchByName(Request $request)
 
     return response()->json($materials, 200);
 }
+
 
 public function criticalStock()
 {
@@ -102,6 +107,64 @@ public function criticalStock()
         }
         return response()->json($material, 200);
     }
+    
+
+    public function showAll()
+    {
+        $materials = RawMaterial::select('id','name', 'unit_qty','unit')
+        ->get()
+        ->map(function ($material) {
+            return [
+                'id' => $material->id,
+                'name' => $material->name,
+                // If you want to show remaining capacity, modify the logic accordingly.
+                'available_qty' => $material->unit_qty,
+                'unit'=>$material->unit
+            ];
+        });
+
+    return response()->json([
+        'success' => true,
+        'quantity' => $materials
+    ]);
+    }
+
+    public function updateRawMaterial(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string',
+        'quantity' => 'required|numeric|min:0.01',
+    ]);
+
+    $rawMaterial = RawMaterial::where('name', 'LIKE', $request->name)->first();
+
+    if (!$rawMaterial) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Raw material not found.'
+        ], 404);
+    }
+
+    if ($request->quantity > $rawMaterial->unit_qty) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Requested quantity exceeds available stock.'
+        ], 400);
+    }
+
+    $rawMaterial->unit_qty -= $request->quantity;
+    $rawMaterial->save();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Raw material quantity updated successfully.',
+        'remaining_qty' => $rawMaterial->unit_qty
+    ]);
+}
+
+
+
+
 
     // ✅ Create a new raw material
     public function store(Request $request)
@@ -109,6 +172,7 @@ public function criticalStock()
         $validator = Validator::make($request->all(), [
             'company_id'   => 'required|integer',
             'name'         => 'required|string',
+            'local_name'   =>  'required|string',
             'capacity'     => 'required|numeric',
             'unit_qty'     => 'required|numeric',
             'unit'         => 'required|string',
@@ -127,7 +191,42 @@ public function criticalStock()
     }
 
     // ✅ Update raw material by ID
-    public function update(Request $request, $id)
+//     public function update(Request $request, $id)
+// {
+//     $rawMaterial = RawMaterial::find($id);
+//     if (!$rawMaterial) {
+//         return response()->json(['message' => 'Raw Material not found'], 404);
+//     }
+
+//     $validator = Validator::make($request->all(), [
+//         'company_id'   => 'sometimes|required|integer',
+//         'name'         => 'sometimes|required|string',
+//         'capacity'     => 'sometimes|required|numeric',
+//         'unit_qty'     => 'sometimes|required|numeric',
+//         'unit'         => 'sometimes|required|string',
+//         'isPackaging'  => 'sometimes|required|boolean',
+//         'isVisible'    => 'sometimes|required|boolean',
+//         'created_by'   => 'sometimes|required|integer',
+//         'misc'         => 'nullable|string|max:256',
+//     ]);
+
+//     if ($validator->fails()) {
+//         return response()->json(['errors' => $validator->errors()], 422);
+//     }
+
+//     $data = $request->all();
+
+//     // If unit_qty is present in the request, add it to the existing value
+//     if ($request->has('unit_qty')) {
+//         $data['unit_qty'] = $rawMaterial->unit_qty + $request->unit_qty;
+//     }
+
+//     $rawMaterial->update($data);
+
+//     return response()->json($rawMaterial, 200);
+// }
+
+public function update(Request $request, $id)
 {
     $rawMaterial = RawMaterial::find($id);
     if (!$rawMaterial) {
@@ -152,9 +251,18 @@ public function criticalStock()
 
     $data = $request->all();
 
-    // If unit_qty is present in the request, add it to the existing value
+    // Use current capacity or incoming capacity from request
+    $capacity = $request->has('capacity') ? $request->capacity : $rawMaterial->capacity;
+
+    // Check unit_qty constraint
     if ($request->has('unit_qty')) {
-        $data['unit_qty'] = $rawMaterial->unit_qty + $request->unit_qty;
+        $newUnitQty = $rawMaterial->unit_qty + $request->unit_qty;
+        if ($newUnitQty > $capacity) {
+            return response()->json([
+                'error' => 'Total unit quantity cannot exceed capacity.'
+            ], 422);
+        }
+        $data['unit_qty'] = $newUnitQty;
     }
 
     $rawMaterial->update($data);
@@ -192,6 +300,7 @@ public function downloadDemoCsv()
     $headers = [
         'company_id',
         'name',
+        'local_name',
         'capacity',
         'unit_qty',
         'unit',
@@ -211,6 +320,78 @@ public function downloadDemoCsv()
     return Response::make($csvContent, 200, [
         'Content-Type' => 'text/csv',
         'Content-Disposition' => "attachment; filename=$filename",
+    ]);
+}
+
+
+public function uploadCsvRawMaterial(Request $request)
+{
+    $request->validate([
+        'file' => 'required|mimes:csv,txt|max:2048',
+    ]);
+
+    $path = $request->file('file')->getRealPath();
+    $rows = array_map('str_getcsv', file($path));
+
+    // clean up header row, trim BOM, spaces, quotes, etc.
+    $header = array_map(function($h) {
+        return trim($h, "\xEF\xBB\xBF \"\t\n\r");
+    }, $rows[0]);
+    unset($rows[0]);
+
+    $imported = 0;
+    $errors   = [];
+
+    foreach ($rows as $index => $row) {
+        // trim each cell
+        $row = array_map(function($cell) {
+            return trim($cell, "\"\t\n\r ");
+        }, $row);
+
+        $data = array_combine($header, $row);
+
+        // normalize booleans
+        foreach (['isPackaging', 'isVisible'] as $boolCol) {
+            if (isset($data[$boolCol])) {
+                // FILTER_VALIDATE_BOOLEAN returns true/false
+                $data[$boolCol] = filter_var(
+                    $data[$boolCol],
+                    FILTER_VALIDATE_BOOLEAN,
+                    FILTER_NULL_ON_FAILURE
+                );
+            }
+        }
+
+        // run validation
+        $validator = Validator::make($data, [
+            'company_id'   => 'required|integer',
+            'name'         => 'required|string',
+            'local_name'   => 'nullable|string',
+            'capacity'     => 'required|numeric',
+            'unit_qty'     => 'required|numeric',
+            'unit'         => 'required|string',
+            'isPackaging'  => 'required|boolean',
+            'isVisible'    => 'required|boolean',
+            'created_by'   => 'required|integer',
+            'misc'         => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            $errors[] = [
+                'row'    => $index + 2, // +2 because we removed header (and want human-readable row)
+                'errors' => $validator->errors()->all(),
+                'data'   => $data,
+            ];
+            continue;
+        }
+
+        RawMaterial::create($data);
+        $imported++;
+    }
+
+    return response()->json([
+        'message'  => "$imported raw materials imported successfully.",
+        'errors'   => $errors,
     ]);
 }
 }
