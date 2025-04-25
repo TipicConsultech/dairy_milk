@@ -16,11 +16,14 @@ import {
 import { post } from '../../../util/api'
 import { useToast } from '../../common/toast/ToastContext';
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom';
+
 
 const NewExpenseType = () => {
   const [validated, setValidated] = useState(false)
   const { showToast } = useToast();
   const { t } = useTranslation("global")
+  const navigate = useNavigate();
   const [state, setState] = useState({
     name: '',
     slug: '',
@@ -53,6 +56,7 @@ const NewExpenseType = () => {
       const resp = await post('/api/expenseType', data)
       if (resp?.id) {
         showToast('success',t("MSG.expense_type_added_successfully_msg"));
+        navigate('/expense/new');
       } else {
         showToast('danger', t("MSG.failed_to_add_expense_type_msg"));
       }
@@ -82,7 +86,7 @@ const NewExpenseType = () => {
           <CCardBody>
             <CForm noValidate={true} validated={validated} onSubmit={handleSubmit}>
               <div className="mb-3">
-                <CFormLabel htmlFor="pname">{t("LABELS.expense_type_name")}</CFormLabel>
+                <CFormLabel htmlFor="pname"><b>{t("LABELS.expense_type_name")}</b></CFormLabel>
                 <CFormInput
                   type="text"
                   id="pname"
@@ -95,7 +99,7 @@ const NewExpenseType = () => {
                 />
               </div>
               <div className="mb-3">
-                <CFormLabel htmlFor="pname">{t("LABELS.expense_type_local_name")}</CFormLabel>
+                <CFormLabel htmlFor="pname"><b>{t("LABELS.expense_type_local_name")}</b></CFormLabel>
                 <CFormInput
                   type="text"
                   id="plname"
@@ -108,7 +112,7 @@ const NewExpenseType = () => {
                 />
               </div>
               <div className="mb-3">
-                <CFormLabel htmlFor="desc">{t("LABELS.short_description")}</CFormLabel>
+                <CFormLabel htmlFor="desc"><b>{t("LABELS.short_description")}</b></CFormLabel>
                 <CFormTextarea
                   id="desc"
                   rows={3}
