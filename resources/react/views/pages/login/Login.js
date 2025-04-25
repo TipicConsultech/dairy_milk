@@ -59,9 +59,9 @@ const Login = () => {
       case 0:
         return '/dashboard';
       case 1:
-        return '/dashboard';
+        return '/DairyFarmInventory';
       case 2:
-        return '/dashboard';
+        return '/DairyFarmInventory';
       case 3:
         return '/CreateProduct';
       case 4:

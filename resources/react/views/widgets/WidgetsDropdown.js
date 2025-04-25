@@ -94,21 +94,21 @@ const WidgetsDropdown = (props) => {
             color={reportMonth.currentPandL > 0 ? "success" : "danger"}
               value={
                 <><div d-flex>
-                  <span className='fs-4'>{Math.abs(reportMonth.currentPandL)}&nbsp;₹ </span>
-                  <span className="fs-6 fw-normal">
+                  <span className='fs-4' style={{color: 'white'}}>{Math.abs(reportMonth.currentPandL)}&nbsp;₹ </span>
+                  <span className="fs-6 fw-normal" style={{color: 'white'}}>
                     in {reportMonth.currentMonth}
                   </span>
                   </div>
                 </>
               }
-              title="Profit / Loss "
+              title= {<span style={{ color: 'white' }}>Profit & Loss </span>}
               
               />
           </CCol>
         
           <CCol sm={4} xl={4} xxl={4}>
             <CWidgetStatsA className='pb-3'
-                  style={{ backgroundColor: '#669DB3FF' }} 
+                  style={{ backgroundColor: '#7BAE4F' }} 
               value={
                 <>
                   

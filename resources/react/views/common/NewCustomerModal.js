@@ -129,7 +129,7 @@ export default function NewCustomerModal({ visible, hint, setVisible, onSuccess 
                     onChange={handleChange}
                   ></CFormTextarea>
                 </div>
-                <div className="mb-3">
+                {/* <div className="mb-3">
                   <CFormLabel htmlFor="discount">{t("LABELS.special_discount")} (%) </CFormLabel>
                   <CFormInput
                     type="number"
@@ -139,7 +139,7 @@ export default function NewCustomerModal({ visible, hint, setVisible, onSuccess 
                     value={state.discount}
                     onChange={handleChange}
                   />
-                </div>
+                </div> */}
                 <div className="mb-3">
                 <CButton color="success" type="submit">
                 {t("LABELS.submit")}
