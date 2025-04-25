@@ -1,13 +1,14 @@
 {
     "LABELS": {
      "customer": "Customer",
-     "delivery_record": "Delivery",
+     "delivery": "Delivery",
      "customer_name": "Customer Name",
      "new_customer": "New Customer",
      "new": "New",
      "name": "Name",
      "credit": "Credit",
      "rs": "Rs",
+     "delivery_record":"Delivery View",
      "address": "Address",
      "balance": "Balance",
      "advance": "Advance",

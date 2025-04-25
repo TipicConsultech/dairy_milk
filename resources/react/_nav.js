@@ -283,6 +283,94 @@ export default function fetchNavItems(t1){
 
     if(mode === 'advance'){
       _nav.push(...[
+                {
+          component: CNavItem,
+          name: t("LABELS.dashboard"),
+          to: '/DairyFarmInventory',
+          icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.stockManagement"),
+          to: '/StockManagement',
+          icon: <CIcon icon={cilLibraryAdd} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.milk_processing"),
+          to: '/MilkProcessing',
+          icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.processedMilk"),
+          to: '/ProcessedMilk',
+          icon: <CIcon icon={cilList} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.rawMaterial"),
+          to: '/rawMaterial',
+          icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.create_product"),
+          to: '/CreateProduct',
+          icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.laboratoryUser"),
+          to: '/LaboratoryUser',
+          icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.delivery"),
+          to: '/delivery',
+          icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavGroup,
+          name: t("LABELS.user_management"),
+          icon: <CIcon icon={cilGroup} customClassName="nav-icon" />,
+          items: [
+            {
+              component: CNavItem,
+              name: t("LABELS.all_Users"),
+              to: 'usermanagement/all-users',
+            },
+            {
+              component: CNavItem,
+              name: t("LABELS.create_user"),
+              to: 'usermanagement/create-user',
+            },
+          ],
+        },
+        {
+          component: CNavGroup,
+          name: t("LABELS.expense"),
+          icon: <CIcon icon={cilDollar} customClassName="nav-icon" />,
+          items: [
+            {
+              component: CNavItem,
+              name: t("LABELS.new_expense"),
+              to: '/expense/new',
+            },
+
+            {
+              component: CNavItem,
+              name: t("LABELS.new_expense_type"),
+              to: '/expense/new-type',
+            },
+            {
+              component: CNavItem,
+              name: t("LABELS.all_expense_types"),
+              to: '/expense/all-type',
+            },
+          ],
+        },
         // {
         //   component: CNavItem,
         //   name: t("LABELS.invoice"),
@@ -430,54 +518,6 @@ export default function fetchNavItems(t1){
         // },
         {
           component: CNavItem,
-          name: t("LABELS.dashboard"),
-          to: '/DairyFarmInventory',
-          icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-        },
-        {
-          component: CNavItem,
-          name: t("LABELS.stockManagement"),
-          to: '/StockManagement',
-          icon: <CIcon icon={cilLibraryAdd} customClassName="nav-icon" />,
-        },
-        {
-          component: CNavItem,
-          name: t("LABELS.milk_processing"),
-          to: '/MilkProcessing',
-          icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
-        },
-        {
-          component: CNavItem,
-          name: t("LABELS.processedMilk"),
-          to: '/ProcessedMilk',
-          icon: <CIcon icon={cilList} customClassName="nav-icon" />,
-        },
-        {
-          component: CNavItem,
-          name: t("LABELS.rawMaterial"),
-          to: '/rawMaterial',
-          icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
-        },
-        {
-          component: CNavItem,
-          name: t("LABELS.create_product"),
-          to: '/CreateProduct',
-          icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
-        },
-        {
-          component: CNavItem,
-          name: 'Final Product Inventry',
-          to: '/FinalProductInvenrty',
-          icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
-        },
-        {
-          component: CNavItem,
-          name: t("LABELS.laboratoryUser"),
-          to: '/LaboratoryUser',
-          icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" />,
-        },
-        {
-          component: CNavItem,
           name: t("LABELS.invoice"),
           to: '/invoice',
           icon: <CIcon icon={cilPrint} customClassName="nav-icon" />,
@@ -509,9 +549,16 @@ export default function fetchNavItems(t1){
               name: t("LABELS.all_products"),
               to: '/products/all',
             },
+
+            {
+              component: CNavItem,
+              name: t("LABELS.delivery"),
+              to: '/delivery',
+            },
+
             // {
             //   component: CNavItem,
-            //   name: 'Bulk Quantity ',
+            //   name: 'Delivery ',
             //   to: 'products/updateqty',
             // },
           ],
@@ -563,24 +610,113 @@ export default function fetchNavItems(t1){
   }
   else if(user===2){
     _nav = [
-      {
-        component: CNavItem,
-        name: t("LABELS.dashboard"),
-        to: '/dashboard',
-        icon: <CIcon icon={cibElasticStack} customClassName="nav-icon" />,
-      },
-      {
-        component: CNavItem,
-        name: t("LABELS.delivery"),
-        to: '/delivery',
-        icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
-      },
-      {
-        component: CNavItem,
-        name: t("LABELS.booking"),
-        to: '/booking',
-        icon: <CIcon icon={cilBookmark} customClassName="nav-icon" />,
-      },
+        {
+          component: CNavItem,
+          name: t("LABELS.dashboard"),
+          to: '/DairyFarmInventory',
+          icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.stockManagement"),
+          to: '/StockManagement',
+          icon: <CIcon icon={cilLibraryAdd} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.milk_processing"),
+          to: '/MilkProcessing',
+          icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.processedMilk"),
+          to: '/ProcessedMilk',
+          icon: <CIcon icon={cilList} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.rawMaterial"),
+          to: '/rawMaterial',
+          icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.create_product"),
+          to: '/CreateProduct',
+          icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.laboratoryUser"),
+          to: '/LaboratoryUser',
+          icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
+          name: t("LABELS.delivery"),
+          to: '/delivery',
+          icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavGroup,
+          name: t("LABELS.user_management"),
+          icon: <CIcon icon={cilGroup} customClassName="nav-icon" />,
+          items: [
+            {
+              component: CNavItem,
+              name: t("LABELS.all_Users"),
+              to: 'usermanagement/all-users',
+            },
+            {
+              component: CNavItem,
+              name: t("LABELS.create_user"),
+              to: 'usermanagement/create-user',
+            },
+          ],
+        },
+        {
+          component: CNavGroup,
+          name: t("LABELS.expense"),
+          icon: <CIcon icon={cilDollar} customClassName="nav-icon" />,
+          items: [
+            {
+              component: CNavItem,
+              name: t("LABELS.new_expense"),
+              to: '/expense/new',
+            },
+
+            {
+              component: CNavItem,
+              name: t("LABELS.new_expense_type"),
+              to: '/expense/new-type',
+            },
+            {
+              component: CNavItem,
+              name: t("LABELS.all_expense_types"),
+              to: '/expense/all-type',
+            },
+          ],
+        },
+
+    //   {
+    //     component: CNavItem,
+    //     name: t("LABELS.dashboard"),
+    //     to: '/dashboard',
+    //     icon: <CIcon icon={cibElasticStack} customClassName="nav-icon" />,
+    //   },
+    //   {
+    //     component: CNavItem,
+    //     name: t("LABELS.delivery"),
+    //     to: '/delivery',
+    //     icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
+    //   },
+    //   {
+    //     component: CNavItem,
+    //     name: t("LABELS.booking"),
+    //     to: '/booking',
+    //     icon: <CIcon icon={cilBookmark} customClassName="nav-icon" />,
+    //   },
 
     ]
     if(mode === 'advance'){
@@ -636,7 +772,42 @@ export default function fetchNavItems(t1){
         },
       ]);
     }
+  }else if(user===3){
+    _nav = [
+      {
+        component: CNavItem,
+        name: t("LABELS.create_product"),
+        to: '/CreateProduct',
+        icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+      },
+]
+
   }
+
+  else if(user===4){
+    _nav = [
+      {
+        component: CNavItem,
+        name: t("LABELS.delivery"),
+        to: '/delivery',
+        icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
+      },
+]
+
+  }
+
+  else if(user===5){
+    _nav = [
+      {
+        component: CNavItem,
+        name: t("LABELS.laboratoryUser"),
+        to: '/LaboratoryUser',
+        icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" />,
+      },
+]
+
+  }
+
   // _nav.push({
   //   component: CNavItem,
   //   name: t("LABELS.map"),

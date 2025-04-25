@@ -14,6 +14,7 @@ class Customer extends Model
         'discount',
         'address',
         'show',
+        'default_qty',
         'company_id',
         'created_by',
         'updated_by'
