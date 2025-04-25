@@ -79,6 +79,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/mobileLogin', [AuthController::class, 'mobileLogin']);
 //Secured API's
+
+Route::get('productSizes/{id}', [ProductController::class,'showProductSize']);
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/changePassword', [AuthController::class, 'changePassword']);
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -86,6 +88,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('/appUsers', [AuthController::class, 'update']);
     Route::get('/appUsers', [AuthController::class, 'allUsers']);
     Route::resource('product', ProductController::class);
+
     Route::resource('expenseType', ExpenseTypeController::class);
     Route::resource('expense', ExpenseController::class);
     Route::resource('order', OrderController::class);

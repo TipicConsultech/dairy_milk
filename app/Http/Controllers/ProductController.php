@@ -100,78 +100,7 @@ class ProductController extends Controller
         return $newProducts;
     }
     
-    /**
-     * Display a all available products.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    // public function store(Request $request)
-    // {
-    //     $request->validate([
-    //         'name' => 'required',
-    //         'localName'=>'required',
-    //         'slug' => 'required',
-    //         'categoryId' => 'required',
-    //         'incStep' => 'required',
-    //         'desc' => 'nullable',
-    //         'multiSize' => 'required',
-    //         'show' => 'required'
-    //     ]);
-    
-    //     $user = Auth::user();
-        
-    //     // Create the product with company_id and created_by
-    //     $product = Product::create([
-    //         'name' => $request->name,
-    //         'slug' => $request->slug,
-    //         'categoryId' => $request->categoryId,
-    //         'incStep' => $request->incStep,
-    //         'desc' => $request->desc,
-    //         'unit' => $request->unit,
-    //         'multiSize' => $request->multiSize,
-    //         'show' => $request->show,
-    //         'showOnHome' => $request->showOnHome,
-    //         'company_id' => $user->company_id, // Add company_id
-    //         'created_by' => $user->id, // Add created_by
-    //         'updated_by' => $user->id ,// Add updated by
-    //         'localName'=> $request->localName,
-    //     ]);
-    
-    //     // Save images with company_id and created_by
-    //     $images = array();
-    //     foreach ($request->media as $img) {
-    //         $media = new ProductMedia;
-    //         $media->url = $img['url'];
-    //         $media->type = $img['type'];
-    //         $media->company_id = $user->company_id; // Add company_id
-          
-
-    //         array_push($images, $media);
-    //     }
-    //     $product->media()->saveMany($images);
-    
-    //     // Save sizes with company_id and created_by
-    //     $sizes = array();
-    //     foreach ($request->sizes as $size) {
-    //         $sz = new ProductSize;
-    //         $sz->name = $size['name'];
-    //         $sz->localName = $size['localName'];
-    //         $sz->oPrice = $size['oPrice'];
-    //         $sz->bPrice = $size['bPrice'];
-    //         $sz->stock = $size['stock'];
-    //         $sz->returnable = $size['returnable'];
-    //         if ($size['dPrice']) {
-    //             $sz->dPrice = $size['dPrice'];
-    //         }
-    //         $sz->qty = $size['qty'];
-    //         $sz->show = $size['show'];
-    //         $sz->company_id = $user->company_id; // Add company_id
-    //         array_push($sizes, $sz);
-    //     }
-    //     $product->size()->saveMany($sizes);
-    
-    //     return $product;
-    // }
+  
     public function store(Request $request)
 {
     // Validate incoming request data (only the fields that are required for the store function)
@@ -286,6 +215,22 @@ class ProductController extends Controller
         $product->sizes = $product->size;
         return $product;
     }
+
+    public function showProductSize($id)
+{
+    try {
+        $product = ProductSize::where('id',$id)->first();
+
+        if (!$product) {
+            return response()->json(['message' => 'Product size not found'], 404);
+        }
+
+        return response()->json($product, 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
 
     /**
      * Update the specified resource in storage.

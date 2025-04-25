@@ -17,7 +17,8 @@ class ProductSize extends Model
         'oPrice',
         'dPrice',
         'qty',
-        'stock',
+        'unit',
+        'max_stock',
         'booked',
         'returnable',
         'show'

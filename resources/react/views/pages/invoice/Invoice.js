@@ -17,7 +17,7 @@ import {
 import { cilDelete, cilPlus } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import { getAPICall, post } from '../../../util/api'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useToast } from '../../common/toast/ToastContext'
 import NewCustomerModal from '../../common/NewCustomerModal'
 import { useSpinner } from '../../common/spinner/SpinnerProvider'
@@ -29,7 +29,12 @@ const Invoice = () => {
   const [allProducts, setAllProducts] = useState()
   const [customerHistory, setCustomerHistory] = useState()
   const [showCustomerModal, setShowCustomerModal] = useState(false)
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const queryParams = new URLSearchParams(location.search);
+  const id = queryParams.get('id');
+
   const { showSpinner, hideSpinner } = useSpinner();
   const timeNow = ()=> `${new Date().getHours()}:${new Date().getMinutes().toString().padStart(2, '0')}`;
   const [state, setState] = useState({
@@ -69,6 +74,43 @@ const Invoice = () => {
     finalAmount: 0,
     paymentType: 1,
   })
+
+  async function getProductFromParam(){
+    try{
+      const data=await getAPICall(`/api/productSizes/${id}`);
+      setState(prev => ({
+        ...prev,
+        items: [
+          {
+            product_id: data.product_id,
+            product_sizes_id: data.id,
+            product_name: '', // you can populate this if available in response
+            product_unit: data.unit,
+            product_local_name: data.localName,
+            size_name: data.name,
+            size_local_name: data.localName,
+            oPrice: data.oPrice,
+            bPrice: data.bPrice,
+            dPrice: data.dPrice,
+            dQty: 0,
+            eQty: 0,
+            qty: 0,
+            total_price: 0,
+            returnable: data.returnable,
+          },
+        ]
+      }));
+    }
+    catch(e){
+      console.alert(e)
+    }
+  }
+
+  useEffect(()=>{
+    if(id){
+      getProductFromParam();
+    }
+  },[id]);
   
   const { showToast } = useToast();
   const [customerName, setCustomerName] = useState({});
@@ -365,7 +407,8 @@ const Invoice = () => {
           <CCardBody>
             <CForm noValidate validated={validated} onSubmit={handleSubmit}>
             <div className="row mb-2">
-              <div className="col-9">
+              <div className="col-8">
+              <CFormLabel htmlFor="invoiceDate">Search customer</CFormLabel>
                 <CFormInput
                   type="text"
                   id="pname"
@@ -395,7 +438,7 @@ const Invoice = () => {
                   </ul>
                 )}
               </div>
-              <div className="col-3">
+              {/* <div className="col-3">
               <CBadge
                 role="button"
                 color="danger"
@@ -403,9 +446,24 @@ const Invoice = () => {
               >
                 New Customer
               </CBadge>
-              </div>
+              </div> */}
+               <div className="col-sm-4">
+                  <div className="mb-3">
+                    <CFormLabel htmlFor="invoiceDate">Invoice Date</CFormLabel>
+                    <CFormInput
+                      type="date"
+                      id="invoiceDate"
+                      placeholder="Pune"
+                      name="invoiceDate"
+                      value={state.invoiceDate}
+                      onChange={handleChange}
+                      required
+                      feedbackInvalid="Please select date."
+                    />
+                  </div>
+                </div>
             </div>
-              {customerName.id && <div className="row">
+              {/* {customerName.id && <div className="row">
                 <div className="col-sm-12 mt-1">
                 <CAlert color="success">
                   <p>
@@ -427,10 +485,10 @@ const Invoice = () => {
                   </p>
                 </CAlert>
                 </div>
-              </div>}
+              </div>} */}
               <div className="row">
                 <div className="col-sm-4">
-                  <div className="mb-3">
+                  {/* <div className="mb-3">
                     <CFormLabel htmlFor="invoiceType">Invoice Type</CFormLabel>
                     <CFormSelect
                       aria-label="Select Invoice Type"
@@ -450,23 +508,9 @@ const Invoice = () => {
                       required
                       feedbackInvalid="Please select type."
                     />
-                  </div>
+                  </div> */}
                 </div>
-                <div className="col-sm-4">
-                  <div className="mb-3">
-                    <CFormLabel htmlFor="invoiceDate">Invoice Date</CFormLabel>
-                    <CFormInput
-                      type="date"
-                      id="invoiceDate"
-                      placeholder="Pune"
-                      name="invoiceDate"
-                      value={state.invoiceDate}
-                      onChange={handleChange}
-                      required
-                      feedbackInvalid="Please select date."
-                    />
-                  </div>
-                </div>
+               
                 <div className="col-sm-4">
                   {state.invoiceType == 2 && (
                     <div className="mb-3">
@@ -494,12 +538,12 @@ const Invoice = () => {
                 </div>
                 <div className="col-2">
                   <div className="mb-1">
-                    <b>Price</b>
+                    <b>Quantity</b>
                   </div>
                 </div>
                 <div className="col-2">
                   <div className="mb-1">
-                    <b>Quantity</b>
+                    <b>Price</b>
                   </div>
                 </div>
                 <div className="col-2">
@@ -529,9 +573,7 @@ const Invoice = () => {
                       />
                     </div>
                   </div>
-                  <div className="col-2">
-                    <p>{oitem.dPrice + (oitem.unit ? ' / ' + oitem.unit : '')}</p>
-                  </div>
+                 
                   <div className="col-2">
                     <CFormInput
                       type="number"
@@ -542,7 +584,10 @@ const Invoice = () => {
                       onChange={() => handleQtyChange(event, index)}
                     />
                   </div>
-                  <div className="col-2">
+                  <div className="col-2 pt-2">
+                    <p>{oitem.dPrice + (oitem.unit ? ' / ' + oitem.unit : '')}</p>
+                  </div>
+                  <div className="col-2 pt-2">
                     <p>{oitem.total_price}</p>
                   </div>
                   <div className="col-2">
@@ -554,7 +599,7 @@ const Invoice = () => {
                     &nbsp;
                     {index === state.items.length - 1 && (
                       <CButton onClick={handleAddProductRow} color="">
-                        <CIcon icon={cilPlus} size="xl" style={{ '--ci-primary-color': 'green' }} />
+                        <CIcon icon={cilPlus}  size="xl" style={{ '--ci-primary-color': 'green' }} />
                       </CButton>
                     )}
                   </div>
@@ -568,18 +613,18 @@ const Invoice = () => {
                   <div className="mb-1"></div>
                 </div>
                 <div className="col-2"></div>
-                <div className="col-2">
+                {/* <div className="col-2">
                   <b>Total (RS)</b>
                 </div>
                 <div className="col-2">
                   {state.totalAmount}
-                </div>
+                </div> */}
                 <div className="col-2"></div>
               </div>
               {/* Payment info */}
               <div className="row">
-                <div className="col-sm-2">
-                  <div className="mb-3">
+                {/* <div className="col-sm-4"> */}
+                  {/* <div className="mb-3">
                     <CFormLabel htmlFor="discount">Discount (%)</CFormLabel>
                     <CFormInput
                       type="number"
@@ -589,9 +634,9 @@ const Invoice = () => {
                       value={state.discount}
                       onChange={handleChange}
                     />
-                  </div>
-                </div>
-                <div className="col-sm-3">
+                  </div> */}
+                {/* </div> */}
+                <div className="col-sm-4">
                   <div className="mb-3">
                     <CFormLabel htmlFor="paidAmount">Balance Amount (Rs)</CFormLabel>
                     <CFormInput
@@ -605,7 +650,7 @@ const Invoice = () => {
                     />
                   </div>
                 </div>
-                <div className="col-sm-3">
+                <div className="col-sm-4">
                   <div className="mb-3">
                     <CFormLabel htmlFor="paidAmount">Paid Amount (Rs)</CFormLabel>
                     <CFormInput
@@ -618,9 +663,9 @@ const Invoice = () => {
                     />
                   </div>
                 </div>
-                <div className="col-sm-2">
+                <div className="col-sm-4">
                   <div className="mb-3">
-                    <CFormLabel htmlFor="finalAmount">Final Amount (Rs)</CFormLabel>
+                    <CFormLabel htmlFor="finalAmount">Total Amount (Rs)</CFormLabel>
                     <CFormInput
                       type="number"
                       id="finalAmount"
