@@ -16,11 +16,13 @@ import {
 import { getAPICall, post, put } from '../../../util/api'
 import { useParams } from 'react-router-dom'
 import { useToast } from '../../common/toast/ToastContext';
+import { useNavigate } from 'react-router-dom';
 
 const EditExpenseType = () => {
   const params = useParams()
   const [validated, setValidated] = useState(false)
   const { showToast } = useToast();
+  const navigate = useNavigate();
   const [state, setState] = useState({
     id: 0,
     name: '',
@@ -73,6 +75,7 @@ const EditExpenseType = () => {
       const resp = await put('/api/expenseType/' + data.id, data)
       if (resp?.id) {
         showToast('success','ExpenseType updated successfully');
+        navigate('/expense/all-type');
       } else {
         showToast('danger','Error occured, please try again later.');
       }
@@ -86,12 +89,12 @@ const EditExpenseType = () => {
       <CCol xs={12}>
         <CCard className="mb-4">
           <CCardHeader>
-            <strong>Edit ExpenseType</strong>
+            <strong><b>Edit ExpenseType</b></strong>
           </CCardHeader>
           <CCardBody>
             <CForm noValidate={true} validated={validated} onSubmit={handleSubmit}>
               <div className="mb-3">
-                <CFormLabel htmlFor="pname">ExpenseType Name</CFormLabel>
+                <CFormLabel htmlFor="pname"><b>ExpenseType Name</b></CFormLabel>
                 <CFormInput
                   type="text"
                   id="pname"
@@ -104,7 +107,7 @@ const EditExpenseType = () => {
                 />
               </div>
               <div className="mb-3">
-                <CFormLabel htmlFor="pname">ExpenseType Local Name</CFormLabel>
+                <CFormLabel htmlFor="pname"><b>ExpenseType Local Name</b></CFormLabel>
                 <CFormInput
                   type="text"
                   id="plname"
@@ -117,7 +120,7 @@ const EditExpenseType = () => {
                 />
               </div>
               <div className="mb-3">
-                <CFormLabel htmlFor="desc">Short Description</CFormLabel>
+                <CFormLabel htmlFor="desc"><b>Short Description</b></CFormLabel>
                 <CFormTextarea
                   id="desc"
                   rows={3}

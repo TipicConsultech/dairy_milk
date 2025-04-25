@@ -6,7 +6,9 @@
         "new_customer": "नवीन ग्राहक",
         "new": "नवीन ग्राहक",
         "name": "नाव",
+        "finalproductinventry":"अंतिम उत्पादन यादी",
         "credit": "येणे",
+        "Packet":"पाकिटे/खोके",
         "rs": "रु",
         "address": "पत्ता",
         "balance": "शिल्लक",
@@ -19,7 +21,7 @@
         "date": "तारीख",
         "filled": "भरलेले",
         "rate": "रेट",
-        "total": "एकूण",
+        "total": "एकूण पाकिटे",
         "total_amount": "एकूण रक्कम",
         "cash_collected": "जमा रक्कम",
         "submit": "सबमिट",
@@ -212,7 +214,24 @@
   "supplierName":"पुरवठादाराचे नाव",
   "expireDate":"कालबाह्यता तारीख",
   "lastUpdatedDate":"शेवटची अपडेट केलेली तारीख",
-  "updatedby":"द्वारे प्रक्रिया केली"
+  "updatedby":"द्वारे प्रक्रिया केली",
+  "finalproductinventry":"अंतिम उत्पादन यादी",
+
+
+
+
+  "select_milk_storage": "दूध साठवणूक निवडा",
+  "enter_milk_for_product": "उत्पादनासाठी दूध प्रविष्ट करा",
+  "available_qty": "उपलब्ध प्रमाण",
+  "ltrs": "लिटर",
+  "ingredients_used": "वापरलेले साहित्य",
+  "select_ingredient": "साहित्य निवडा",
+ 
+  "select_product": "उत्पादन निवडा",
+  "product_created": "उत्पादन तयार केले:",
+  "created_at": "तयार केलेल्या वेळेस:",
+  "submitt": "सबमिट करा"
+
 
     },
 

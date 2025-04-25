@@ -113,4 +113,8 @@ class PaymentTrackerController extends Controller
             return PaymentTracker::where('company_id', $companyId)->destroy($id);
         }
     }
+
+
+   
+
 }

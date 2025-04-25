@@ -67,7 +67,10 @@ const StockManagement=React.lazy(() => import('./views/dairy/StockManagement'))
 const ProcessedMilk=React.lazy(() => import('./views/dairy/ProcessedMilk'))
 const MilkProcessing=React.lazy(() => import('./views/dairy/MilkProcsssing'))
 const DairyFarmInventory=React.lazy(() => import('./views/dairy/DairyFarmInventory'))
+const DeliveryRecord=React.lazy(() => import('./views/dairy/DeliveryRecord'))
+
 const LaboratoryUser=React.lazy(() => import('./views/dairy/LaboratoryUser'))
+const FinalProductInvenrty = React.lazy(()=>import('./views/dairy/FinalProductInvenrty'))
 
 export default function fetchRoutes(){
   const user=getUserType();
@@ -112,12 +115,7 @@ export default function fetchRoutes(){
       { path:'/usermanagement/create-user', name: 'Create User', element: NewUsers },
       { path:'usermanagement/all-users', name: 'All Users', element: AllUser },
 
-      //HelpModule
-      //Ticket
-      { path: '/TicketFormLogin', name: 'TicketFormLogin', element: TicketFormLogin },
-      { path: '/loginFaq', name: 'loginFaq', element: LoginFaq },
-      { path: '/ExistingTicketView/:id', name: 'ExistingTicketView', element:ExistingTicketView },
-      { path: '/ExistingTicketTable', name: 'ExistingTicketTable', element:ExistingTicketTable },
+     
       // { path: '/map', name: 'Map', element: JarMap },
     ]
   }
@@ -153,40 +151,89 @@ export default function fetchRoutes(){
     { path:'/usermanagement/create-user', name: 'Create User', element: NewUsers },
     { path:'usermanagement/all-users', name: 'All Users', element: AllUser },
 
-      //Ticket
-      { path: '/TicketFormLogin', name: 'TicketFormLogin', element: TicketFormLogin },
-      { path: '/loginFaq', name: 'loginFaq', element: LoginFaq },
-      { path: '/ExistingTicketView/:id', name: 'ExistingTicketView', element:ExistingTicketView },
-      { path: '/ExistingTicketTable', name: 'ExistingTicketTable', element:ExistingTicketTable },
-
+     
 
       { path: '/CreateProduct', name: 'CreateProduct', element:CreateProduct },
       { path: '/StockManagement', name: 'StockManagement', element:StockManagement },
       { path: '/ProcessedMilk', name: 'ProcessedMilk', element:ProcessedMilk },
       { path: '/MilkProcessing', name: 'MilkProcessing', element:MilkProcessing },
-      { path: '/DairyFarmInventory', name: 'DairyFarmInventory', element:DairyFarmInventory },
+      { path: '/DairyFarmInventory', name: 'DairyFarmInventory', element:DairyFarmInventory } ,
+      
+    
+    
 
       //RawMaterial 
       { path: '/rawMaterial', name: 'Raw Material', element: RawMaterial },
-      { path: '/LaboratoryUser', name: 'LaboratoryUser', element:LaboratoryUser }
+      { path: '/LaboratoryUser', name: 'LaboratoryUser', element:LaboratoryUser },
+      { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord},
+      { path: '/finalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty},
 
   ]
   }
+  //Manager
   else if(user===2){
     routes = [
+    { path: '/', exact: true, name: 'Home' },
     { path: '/', exact: true, name: 'Home' },
     { path: '/dashboard', name: 'Dashboard', element: Dashboard },
     { path: '/delivery', name: 'Delivery', element: Delivery },
     { path: '/invoice', name: 'invoice', element: Invoice },
     { path: '/booking', name: 'Booking', element: Booking },
     { path: '/invoice-details/:id', name: 'InvoiceDetails', element: InvoiceDetails },
-    { path: '/bookings', name: 'Advance Bookings', element: Orders },
-    { path: '/regular', name: 'Regular Orders', element: Orders },
-    { path: '/order', name: 'All Orders', element: Orders },
+  
     { path: '/customer/new', name: 'New Product', element: NewCustomer },
     { path: '/customer/all', name: 'All Products', element: AllCustomers },
     { path: '/customer/edit/:id', name: 'Edit Customer', element: EditCustomer },
+    { path: '/products/new', name: 'New Product', element: NewProduct },
+    { path: '/products/all', name: 'All Products', element: AllProducts },
+    { path: '/products/edit/:id', name: 'Edit Products', element: EditProduct },
+    { path: '/expense/new-type', name: 'New Type', element: NewExpenseType },
+    { path: '/expense/edit-type/:id', name: 'Edit Type', element: EditExpenseType },
+    { path: '/expense/all-type', name: 'All Types', element: AllExpenseType },
+    { path: '/expense/new', name: 'New Expense', element: NewExpense },
     { path:'/updatepassword', name: 'Update Password', element: Updatepassword },
+  
+    { path:'/usermanagement/create-user', name: 'Create User', element: NewUsers },
+    { path:'usermanagement/all-users', name: 'All Users', element: AllUser },
+
+      { path: '/CreateProduct', name: 'CreateProduct', element:CreateProduct },
+      { path: '/StockManagement', name: 'StockManagement', element:StockManagement },
+      { path: '/ProcessedMilk', name: 'ProcessedMilk', element:ProcessedMilk },
+      { path: '/MilkProcessing', name: 'MilkProcessing', element:MilkProcessing },
+      { path: '/DairyFarmInventory', name: 'DairyFarmInventory', element:DairyFarmInventory } ,
+
+      //RawMaterial 
+      { path: '/rawMaterial', name: 'Raw Material', element: RawMaterial },
+      { path: '/LaboratoryUser', name: 'LaboratoryUser', element:LaboratoryUser },
+      { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord},
+      { path: '/finalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty},
+      
+    
+
+  ]
+  }
+  //Product Engineer
+  else if(user===3){
+    routes = [
+    { path: '/CreateProduct', name: 'CreateProduct', element:CreateProduct },
+    { path: '/finalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty},
+    { path: '/invoice', name: 'invoice', element: Invoice },
+    { path: '/invoice-details/:id', name: 'InvoiceDetails', element: InvoiceDetails },
+      
+  ]
+  }
+  //Delivery Team
+  else if(user===4){
+    routes = [
+    { path: '/delivery', name: 'Delivery', element: Delivery },  
+  ]
+  }
+  //Lab Technician
+  else if(user===5){
+    routes = [
+    
+      { path: '/LaboratoryUser', name: 'LaboratoryUser', element:LaboratoryUser },
+      
 
   ]
   }

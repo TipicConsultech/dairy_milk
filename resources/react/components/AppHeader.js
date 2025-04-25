@@ -62,9 +62,7 @@ const AppHeader = () => {
             <CIcon icon={cilMenu} size="lg" />
           </CHeaderToggler>
           <CHeaderNav className="d-md-flex">
-            <CNavItem>
-              <CNavLink href="#/invoice">{t("LABELS.invoice")}</CNavLink>
-            </CNavItem>
+           
             {/* <CNavItem>
               <CNavLink href="#/booking">{t("LABELS.booking")}</CNavLink>
             </CNavItem> */}
@@ -74,7 +72,7 @@ const AppHeader = () => {
           </CHeaderNav>
           <CHeaderNav className="ms-auto">
           <CHeaderNav>
-        <AppHeaderHelp />
+        
         </CHeaderNav>
             {/* <CNavItem>
               <CNavLink href="#">

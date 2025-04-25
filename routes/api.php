@@ -16,11 +16,12 @@ use App\Http\Controllers\FileUpload;
 use App\Http\Controllers\CustomerController;
 use App\Http\Middleware\Authorization;
 use App\Http\Controllers\CompanyInfoController;
+use App\Http\Controllers\DeliveryItemController;
 use App\Http\Controllers\RawMaterialController;
 use App\Http\Controllers\MilkProcesingController;
 use App\Http\Controllers\ProcessedIngredientsController;
 use App\Http\Controllers\CommonController;
-
+use App\Http\Controllers\ProductsTrackerController;
 
 // Dairy 
 // use App\Http\Controllers\MilkTankController;
@@ -103,15 +104,20 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('subSubCategory', SubSubCategoryController::class);
     Route::resource('customer', CustomerController::class);
     Route::get('/searchCustomer', [CustomerController::class, 'search']);
+    
     Route::get('/customerHistory', [CustomerController::class, 'history']);
+
     Route::get('/customerBookings', [CustomerController::class, 'booking']);
     Route::get('/creditReport', [CustomerController::class, 'creditReport']);
-    Route::resource('jarTracker', JarTrackerController::class);
+    Route::resource('/jarTracker', JarTrackerController::class);
     Route::post('/product/updateQty', [ProductController::class, 'updateQty']);
     Route::post('/fileUpload', [FileUpload::class, 'fileUpload']);
     Route::get('/monthlyReport', [OrderController::class, 'getMonthlyReport']);
     Route::get('/customerReport', [OrderController::class, 'customerReport'])->name('customerReport');
     Route::resource('company', CompanyInfoController::class);
+
+    //Roles
+    Route::resource('roles', App\Http\Controllers\RoleController::class);
 
     // Dairy milk
     // milk_tank
@@ -126,6 +132,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/milkProcessingStore', [MilkProcesingController::class, 'store']);
     //processded ingredients 
     Route::post('/ProcessedIngredients', [ProcessedIngredientsController::class, 'store']);
+    //FinalProductInventory  
+    Route::get('/finalProductInventory', [ProductsTrackerController::class, 'getFinalProductInventory']);  
+    Route::get('/searchByProductNameFinalInventry', [ProductsTrackerController::class, 'searchByProductNameFinalInventry']);
 });
 Route::post('/createProduct', [CommonController::class,'createProduct']);
 

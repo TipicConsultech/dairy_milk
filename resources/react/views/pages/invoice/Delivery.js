@@ -1,5 +1,5 @@
-import './Invoice.css'
-import React, { useEffect, useState } from 'react'
+import './Invoice.css';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   CAlert,
   CBadge,
@@ -21,18 +21,23 @@ import NewCustomerModal from '../../common/NewCustomerModal'
 import { useToast } from '../../common/toast/ToastContext'
 import { useTranslation } from 'react-i18next'
 import { useSpinner } from '../../common/spinner/SpinnerProvider'
+import { fetchCustomers, filterCustomers, invalidateCustomerCache } from '../../../util/customers'
+import CIcon from '@coreui/icons-react'
+import { cilSearch } from '@coreui/icons'
+import AllCustomerModal from '../../common/AllCustomerModal';
 let debounceTimer;
 const Delivery = () => {
+  const timeNow = useCallback(() => `${new Date().getHours()}:${new Date().getMinutes().toString().padStart(2, '0')}`, []);
   const [validated, setValidated] = useState(false)
   const [showQR, setShowQR] = useState(false)
   const [showCustomerModal, setShowCustomerModal] = useState(false)
+  const [showAllCustomerModal, setShowAllCustomerModal] = useState(false)
   const [deleteModalVisible, setDeleteModalVisible] = useState(false)
   const [deliveryModalVisible, setDeliveryModalVisible] = useState(false)
   const [order, setOrder] = useState();
   const [allProducts, setAllProducts] = useState([])
   const [customerHistory, setCustomerHistory] = useState()
   const [bookings, setBookings] = useState([])
-  const timeNow = ()=> `${new Date().getHours()}:${new Date().getMinutes().toString().padStart(2, '0')}`;
   const [state, setState] = useState({
     customer_id: 0,
     lat:'',
@@ -44,7 +49,7 @@ const Delivery = () => {
     deliveryDate: '',
     invoiceType: 1,
     items: [],
-    totalAmount: 0,
+    totalAmount:'',
     orderStatus: 1,
     discount: 0,
     balanceAmount: 0,
@@ -70,23 +75,21 @@ const Delivery = () => {
       };
   };
 
-  const searchCustomer = async (value) => {
+  const searchCustomer = useCallback(async (value) => {
     try {
-      const customers = await getAPICall('/api/searchCustomer?searchQuery=' + value);
-      if (customers?.length) {
-        setSuggestions(customers);
-      } else {
-        setSuggestions([]);
-      }
+      // const customers = await getAPICall('/api/searchCustomer?searchQuery=' + value);
+      const customers = await fetchCustomers();
+      const filteredCustomers = filterCustomers(customers,value);
+      setSuggestions(filteredCustomers);
     } catch (error) {
       showToast('danger', 'Error occured ' + error);
     }
-  };
+  });
 
   // Wrap the searchCustomer function with debounce
-  const debouncedSearchCustomer = debounce(searchCustomer, 750);
+  const debouncedSearchCustomer = useMemo(() => debounce(searchCustomer, 300), [searchCustomer]);
 
-  const handleNameChange = (event) => {
+  const handleNameChange = useCallback((event) => {
     const value = event.target.value;
     setCustomerName({name : value});
     // Filter suggestions based on input
@@ -95,7 +98,7 @@ const Delivery = () => {
     } else {
       setSuggestions([]);
     }
-  };
+  });
 
   const handleSuggestionClick = (suggestion) => {
     setCustomerName(suggestion);
@@ -111,9 +114,11 @@ const Delivery = () => {
   const onCustomerAdded = (customer) => {
     handleSuggestionClick(customer);
     setShowCustomerModal(false);
+    setShowAllCustomerModal(false);
+    invalidateCustomerCache();
   }
 
-  const getCustomerHistory = async (customer_id)=>{
+  const getCustomerHistory = useCallback(async (customer_id) => {
     try {
       //customerHistory
       const response = await getAPICall('/api/customerHistory?id=' + customer_id);
@@ -123,9 +128,9 @@ const Delivery = () => {
     } catch (error) {
       showToast('danger', 'Error occured ' + error);
     }
-  }
+  });
 
-  const getBookings = async (customer_id)=>{
+  const getBookings = useCallback(async (customer_id) => {
     showSpinner();
     try {
       //customerHistory
@@ -138,40 +143,57 @@ const Delivery = () => {
     } finally{
       hideSpinner();
     }
-  }
+  });
 
-  const discountedPrices = (products, discount) =>{
+  const discountedPrices = useCallback((products, discount) => {
     products.forEach(p=>{
       p.sizes[0].dPrice = getDiscountedPrice(p, discount)
     })
     return products;
-  }
-  const getDiscountedPrice = (p, discount) =>{
+  });
+
+  const getDiscountedPrice = useCallback((p, discount) => {
     const value = p.sizes[0].oPrice;
     const price = value - (value * (discount || (customerName.discount ?? 0)) /100);    
     return Math.round(price);
-  }
+  });
 
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
       showSpinner();
       const response = await getAPICall('/api/product');
-      setAllProducts(discountedPrices([...response.filter((p) => p.show == 1 && p.showOnHome == 1)]));
+      setAllProducts(
+        discountedPrices(
+          response.filter(
+            (p) => p.show === 1 && p.sizes.length > 0 && p.sizes[0].returnable === 1
+          )
+        )
+      );
+      
     } catch (error) {
       showToast('danger', 'Error occured ' + error);
     } finally{
       hideSpinner();
     }
-  }
+  });
 
-  const calculateTotal = (items) => {
-    //update function with code.
-    let total = 0
+  const calculateTotal = useCallback((items) => {
+    let total = 0;
     items.forEach((item) => {
-      total += (item.dQty ?? 0) * item.sizes[0].dPrice;
-    })
-    setState((prev)=>({...prev, totalAmount: total}));
-  }
+      const rowTotal = item.total !== undefined && item.total !== null
+        ? parseFloat(item.total)
+        : (item.dQty ?? 0) * item.sizes[0].dPrice;
+  
+      total += rowTotal;
+    });
+    setState((prev) => ({
+      ...prev,
+      totalAmount: total,
+      finalAmount: total
+    }));
+  });
+  
+  
 
   //Disabled location fetching
   // useEffect(()=>{
@@ -198,12 +220,12 @@ const Delivery = () => {
     fetchProduct();
   }, [])
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target
     setState({ ...state, [name]: value })
-  }
+  });
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = useCallback(async (event) => {
     try {
       const form = event.currentTarget
       event.preventDefault()
@@ -230,7 +252,7 @@ const Delivery = () => {
             oPrice: sz.oPrice,
             bPrice: sz.bPrice,
             dPrice: sz.dPrice,
-            total_price: sz.dPrice * p.dQty
+            total_price: p.total ?? sz.default_qty * p.dQty
           };
           clonedState.items.push({...item});
         }
@@ -260,9 +282,20 @@ const Delivery = () => {
     }
     hideSpinner();
     setIsSubmitting(false);
-  }
+  });
 
-  const handleClear = async () => {
+  const handleTotalChange = (e, index) => {
+    const newTotal = parseFloat(e.target.value) || 0;
+    const updatedProducts = [...allProducts];
+    updatedProducts[index].total = newTotal;
+    setAllProducts(updatedProducts);
+    calculateTotal(updatedProducts); // <-- ADD THIS
+  };
+  
+  
+  
+
+  const handleClear = useCallback(async () => {
     setState({
       customer_id: 0,
       lat:'',
@@ -286,6 +319,8 @@ const Delivery = () => {
     allProductsCopy.forEach(p=>{
       p['eQty'] = 0;
       p['dQty'] = 0;
+      p.total = 0;
+      p.sizes[0].dPrice = getDiscountedPrice(p, 0);
     });
     setAllProducts([...allProductsCopy]);
     setCustomerName({name: ''});
@@ -294,25 +329,55 @@ const Delivery = () => {
     setDeleteModalVisible(false);
     setDeliveryModalVisible(false);
     setValidated(false);
-  }
-  const handleQuantityChange = (index, qty, key) => {
+  });
+  const handleQuantityChange = useCallback((index, qty, key) => {
     const allProductsCopy = [...allProducts];
     allProductsCopy[index][key] = qty;
     setAllProducts([...allProductsCopy]);
     calculateTotal(allProductsCopy);
-  }
+  });
 
-  const handleDelete = (order) => {
+  const handlePriceChange = useCallback((index, price) => {
+    const allProductsCopy = [...allProducts];
+    allProductsCopy[index].sizes[0].dPrice = price;
+    setAllProducts([...allProductsCopy]);
+    calculateTotal(allProductsCopy);
+  });
+
+  const handleQuantityChangeRate = useCallback((index, qty, key) => {
+    const allProductsCopy = [...allProducts];
+    allProductsCopy[index][key] = qty;
+  
+    // Reset manual total when qty changes
+    allProductsCopy[index].total = allProductsCopy[index].sizes[0].default_qty * allProductsCopy[index].dQty;
+  
+    setAllProducts([...allProductsCopy]);
+    calculateTotal(allProductsCopy);
+  });
+  
+  const handlePriceChangeRate = useCallback((index, price) => {
+    const allProductsCopy = [...allProducts];
+    allProductsCopy[index].sizes[0].dPrice = price;
+  
+    // Reset manual total when price changes
+    allProductsCopy[index].total = price * allProductsCopy[index].dQty;
+  
+    setAllProducts([...allProductsCopy]);
+    calculateTotal(allProductsCopy);
+  });
+  
+
+  const handleDelete = useCallback((order) => {
     setOrder(order);
     setDeleteModalVisible(true);
-  };
+  });
 
-  const handleEdit = (order) => {
+  const handleEdit = useCallback((order) => {
     setOrder(order);
     setDeliveryModalVisible(true);
-  };
+  });
 
-  const onDeliver = async () => {
+  const onDeliver = useCallback(async () => {
     showSpinner();
     try {
       const res = await put(`/api/order/${order.id}`,
@@ -333,9 +398,9 @@ const Delivery = () => {
       showToast('danger', 'Error occured ' + error);
     }
     hideSpinner();
-  };
+  });
 
-  const onDelete = async () => {
+  const onDelete = useCallback(async () => {
     showSpinner();
     try {
       const res = await put(`/api/order/${order.id}`, { ...order, orderStatus: 0 });
@@ -351,10 +416,11 @@ const Delivery = () => {
       showToast('danger', 'Error occured ' + error);
     }
     hideSpinner();
-  };
+  });
 
   return (
     <CRow>
+      <AllCustomerModal onClick={handleSuggestionClick} visible={showAllCustomerModal} setVisible={setShowAllCustomerModal} newCustomer={setShowCustomerModal}/>
       <ConfirmationModal visible={deleteModalVisible} setVisible={setDeleteModalVisible} onYes={onDelete} resource={t("LABELS.cancel_order")}/>
       <ConfirmationModal visible={deliveryModalVisible} setVisible={setDeliveryModalVisible} onYes={onDeliver} resource={t("LABELS.deliver_order")}/>
       <QRCodeModal visible={showQR} setVisible={setShowQR}></QRCodeModal>
@@ -367,7 +433,7 @@ const Delivery = () => {
         <CCardBody>
           <CForm noValidate validated={validated} onSubmit={handleSubmit}>
             <div className="row mb-2">
-              <div className="col-8">
+              <div className="col-9" style={{ position: 'relative'}}>
                 <CFormInput
                   type="text"
                   id="pname"
@@ -379,6 +445,11 @@ const Delivery = () => {
                   autoComplete='off'
                   required
                 />
+                <CIcon 
+                    icon={cilSearch} 
+                    style={{ cursor: 'pointer', position: 'absolute', marginRight: '10px', right: '10px', top: '10px' }} 
+                    onClick={() => setShowAllCustomerModal(true)}
+                  />
                 {customerName.name?.length > 0 && (
                   <ul className="suggestions-list">
                     {suggestions.map((suggestion, index) => (
@@ -398,13 +469,13 @@ const Delivery = () => {
                   </ul>
                 )}
               </div>
-              <div className="col-4">
+              <div className="col-3">
                 <CBadge
                   role="button"
                   color="danger"
                   style={{
                     padding: '10px 8px',
-                    float: 'right'
+                    width:'70px'
                   }}
                   onClick={() => setShowCustomerModal(true)}
                 >
@@ -419,16 +490,16 @@ const Delivery = () => {
                   <strong>{t("LABELS.name")}:</strong> {customerName.name} ({customerName.mobile}) <br/>
                   {customerName.address && <><strong>{t("LABELS.address")}: </strong> {customerName.address}</>}
                   {customerHistory && <>
-                  {
+                  {/* {
                     customerHistory.pendingPayment > 0 && <><br/>{t("LABELS.credit")} <strong className="text-danger">{customerHistory.pendingPayment}</strong> {t("LABELS.rs")}.</>
                   }
                   {
-                    customerHistory.pendingPayment < 0 && <><br/>{t("LABELS.balance")} ({t("LABELS.advance")}) <strong className="text-success">{customerHistory.pendingPayment * -1}</strong> {t("LABELS.rs")}.</>
-                  }
+                    customerHistory.pendingPayment < 0 && <><br/>{t("LABELS.advance")} <strong className="text-success">{customerHistory.pendingPayment * -1}</strong> {t("LABELS.rs")}.</>
+                  } */}
                   {
-                    customerHistory.returnEmptyProducts.filter(p=>p.quantity>0).map(p=>(<>
+                    customerHistory.returnEmptyProducts.filter(p=>p.quantity>0).map(p=>(<React.Fragment key={p.id}>
                     <br/>{t("LABELS.collect")} <strong className="text-danger"> {p.quantity} </strong> {t("LABELS.empty")}  <strong className="text-danger"> {lng === 'en' ? p.product_name : p.product_local_name} </strong>
-                    </>))
+                    </React.Fragment>))
                   }
                   </>}
                 </p>
@@ -508,6 +579,7 @@ const Delivery = () => {
                   />
                 </div>
               </div>
+              <div className='mt-3'>
                 {
                   allProducts.map((p, index)=> (<div key={p.id} className="row bottom-border">
                     <div className="col-6 mb-3 pr-5">
@@ -532,7 +604,7 @@ const Delivery = () => {
                         name="dQty"
                         value={p.dQty}
                         onChange={(e)=>{
-                          handleQuantityChange(index, parseInt(e.target.value ?? '0'),'dQty')
+                          handleQuantityChangeRate(index, parseInt(e.target.value ?? '0'),'dQty')
                         }}
                         min="0"
                       />
@@ -540,7 +612,7 @@ const Delivery = () => {
                         className="btn btn-success" 
                         type="button" 
                         onClick={() => {
-                          handleQuantityChange(index, Math.max(0, (p.dQty ?? 0) + 1),'dQty')
+                          handleQuantityChangeRate(index, Math.max(0, (p.dQty ?? 0) + 1),'dQty')
                         }}
                       >
                         +
@@ -553,33 +625,39 @@ const Delivery = () => {
                         type="number"
                         readOnly
                         disabled
-                        value={p.sizes[0].oPrice}
+                        value={p.sizes[0].default_qty}
                       />
                     </div>
-                    <div className="col-3 mb-3 pr-5">
-                      <CFormLabel htmlFor="product">{t("LABELS.rate")}</CFormLabel>
-                      <br/>
-                      {getDiscountedPrice(p)}
-                      {/* <CFormInput
-                        type="number"
-                        disabled
-                        value={getDiscountedPrice(p)}
-                      /> */}
-                    </div>
-                    <div className="col-3 mb-3 pr-5">
-                      <CFormLabel htmlFor="product">{t("LABELS.total")}</CFormLabel>
-                      {/* <CFormInput
-                        type="number"
-                        id="bPrice"
-                        placeholder="0"
-                        name="bPrice"
-                        disabled
-                        value={(getDiscountedPrice(p) * p.dQty)}
-                        onChange={handleChange}
-                      /> */}
-                      <br/>
-                      {(getDiscountedPrice(p) * p.dQty) || 0}
-                    </div>
+                    <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3 pr-5">
+  <CFormLabel htmlFor="product">{t("LABELS.Packet")}</CFormLabel>
+  <br/>
+  {/* {getDiscountedPrice(p)} */}
+  <CFormInput
+    type="number"
+    value={p.sizes[0].default_qty}
+    onChange={(e) => {
+      handlePriceChange(index, parseInt(e.target.value ?? '0'));
+    }}
+  />
+</div>
+
+<div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3 pr-5">
+  <CFormLabel htmlFor="total">{t("LABELS.total")}</CFormLabel>
+  <CFormInput
+    id="total"
+    placeholder="0"
+    name="total"
+    value={
+      p.total !== undefined && p.total !== null
+        ? p.total
+        : (p.sizes[0].default_qty * p.dQty) || ''
+    }
+    onChange={(e) => handleTotalChange(e, index)}
+  />
+</div>
+
+
+
                     {p.sizes[0].returnable === 1 && <div className="col-6 mb-3 pr-5" >
                       <CFormLabel htmlFor="product">{t("LABELS.empty")} {lng === 'en' ? p.name : p.localName}</CFormLabel>
                       <div className="input-group">
@@ -597,14 +675,14 @@ const Delivery = () => {
                           name="eQty"
                           value={p.eQty ?? 0}
                           onChange={(e)=>{
-                            handleQuantityChange(index, parseInt(e.target.value ?? '0'),'eQty')
+                            handleQuantityChange(index, Math.min(parseInt(e.target.value ?? '0'), customerHistory?.returnEmptyProducts?.find((itm)=> itm.product_sizes_id === p.sizes[0].id)?.quantity ?? 0),'eQty')
                           }}
                           min="0"
                         />
                         <button 
                           className="btn btn-success" 
                           type="button" 
-                          onClick={() => handleQuantityChange(index, Math.max(0, (p.eQty ?? 0) + 1),'eQty')}
+                          onClick={() => handleQuantityChange(index, Math.min(parseInt(p.eQty ?? '0') + 1, (customerHistory?.returnEmptyProducts?.find((itm)=> itm.product_sizes_id === p.sizes[0].id)?.quantity ?? 0)),'eQty')}
                         >
                           +
                         </button>
@@ -612,40 +690,12 @@ const Delivery = () => {
                     </div>}
                     </div>))
                 }
-
-              <div className="side-by-side">
-                <div className="col-sm-3 mb-3 pr-5">
-                  <CFormLabel htmlFor="totalAmount">{t("LABELS.total_amount")}</CFormLabel>
-                  <CFormInput
-                    type="number"
-                    id="totalAmount"
-                    placeholder="0"
-                    name="totalAmount"
-                    readOnly
-                    disabled
-                    value={state.totalAmount}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="col-sm-3 mb-3 pr-5">
-                  <CFormLabel htmlFor="bPrice">{t("LABELS.cash_collected")}</CFormLabel>
-                  <CFormInput
-                    type="number"
-                    id="paidAmount"
-                    placeholder="0"
-                    name="paidAmount"
-                    value={state.paidAmount}
-                    onChange={handleChange}
-                  />
-                </div>
               </div>
 
             <div className="side-by-side">
               <CButton type="submit" color="success">{t("LABELS.submit")}</CButton>
               &nbsp; &nbsp;
               <CButton className='mr-20' type="button" onClick={handleClear} color="danger">{t("LABELS.clear")}</CButton> 
-              &nbsp; &nbsp;
-              <CButton className='mr-20' type="button" onClick={()=>{setShowQR(true)}} color="primary">{t("LABELS.view_QR")}</CButton>
             </div>
            
           </CForm>

@@ -24,7 +24,7 @@ class ProductController extends Controller
      */
     public function showAll()
     {
-        $products = ProductSize::select('id','name','qty')
+        $products = ProductSize::select('id','name','qty','unit')
         ->get()
         ->map(function ($products) {
             return [
@@ -32,7 +32,8 @@ class ProductController extends Controller
                 'name' => $products->name,
                 // If you want to show remaining capacity, modify the logic accordingly.
                 
-                'qty'=>$products->qty
+                'qty'=>$products->qty,
+                'unit'=>$products->unit,
             ];
         });
 
@@ -145,7 +146,10 @@ class ProductController extends Controller
         $sz->localName = $size['localName'];
         $sz->oPrice = $size['oPrice'];
         $sz->bPrice = $size['bPrice'];
-        $sz->stock = $size['stock'];
+        $sz->default_qty = $size['default_qty'] ?? 0;
+        // $sz->stock = $size['stock'];
+        $sz->max_stock = $size['stock'] ?? null;
+
         $sz->returnable = $size['returnable'];
         if (isset($size['dPrice'])) { // Only add if dPrice exists
             $sz->dPrice = $size['dPrice'];
@@ -178,7 +182,7 @@ class ProductController extends Controller
                     ProductSize::where('id', $size['id'])
                     ->update([
                         'qty'=> DB::raw('qty+'.$size['newStock']),
-                        'stock'=> DB::raw('stock+'.$size['newStock'])
+                        'max_stock'=> DB::raw('max_stock+'.$size['newStock'])
                     ]);
                 }
             }
@@ -273,6 +277,7 @@ class ProductController extends Controller
                 $sz->oPrice = $size['oPrice'];
                 $sz->dPrice = $size['dPrice'];
                 $sz->bPrice = $size['bPrice'];
+                $sz->default_qty = $size['default_qty'] ?? 0;
                 //$sz->stock =  $size['stock'];
                 $sz->returnable = $size['returnable'];
                 $sz->show = $size['show'];
@@ -284,7 +289,7 @@ class ProductController extends Controller
                 $sz->oPrice = $size['oPrice'];
                 $sz->dPrice = $size['dPrice'];
                 $sz->qty = $size['qty'];
-                $sz->stock = $size['stock'];
+                $sz->max_stock = $size['max_stock'];
                 $sz->show = $size['show'];
                 $sz->returnable = $size['returnable'];
                 $product->sizes = $product->size()->save($sz);

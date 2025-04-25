@@ -1,4 +1,4 @@
-.suggestions-list {
+/* .suggestions-list {
     border: 1px solid #ccc;
     border-radius: 5px;
     list-style-type: none;
@@ -18,4 +18,71 @@
 .bottom-border{
     border-bottom: 1px solid #dee2e6;
 }
+   */
+
+
+
+
+   /* Delivery.css */
+.suggestions-list {
+    position: absolute;
+    z-index: 1000;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    list-style: none;
+    padding: 0;
+    margin-top: 5px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
   
+  .suggestions-list li {
+    padding: 8px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .suggestions-list li:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .caret-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+  }
+  
+  .form-section {
+    margin-bottom: 20px;
+  }
+  
+  /* Make form inputs more readable */
+  .form-control:disabled, 
+  .form-control[readonly] {
+    background-color: #f8f9fa !important;
+    opacity: 1;
+  }
+  
+  /* Improve badge styling */
+  .badge[role="button"] {
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .badge[role="button"]:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+  
+  /* Style the form section headers */
+  .section-heading {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: #495057;
+  }
