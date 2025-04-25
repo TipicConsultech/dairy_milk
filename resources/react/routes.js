@@ -68,6 +68,7 @@ const ProcessedMilk=React.lazy(() => import('./views/dairy/ProcessedMilk'))
 const MilkProcessing=React.lazy(() => import('./views/dairy/MilkProcsssing'))
 const DairyFarmInventory=React.lazy(() => import('./views/dairy/DairyFarmInventory'))
 const LaboratoryUser=React.lazy(() => import('./views/dairy/LaboratoryUser'))
+const FinalProductInvenrty = React.lazy(()=>import('./views/dairy/FinalProductInvenrty'))
 
 export default function fetchRoutes(){
   const user=getUserType();
@@ -165,6 +166,8 @@ export default function fetchRoutes(){
       { path: '/ProcessedMilk', name: 'ProcessedMilk', element:ProcessedMilk },
       { path: '/MilkProcessing', name: 'MilkProcessing', element:MilkProcessing },
       { path: '/DairyFarmInventory', name: 'DairyFarmInventory', element:DairyFarmInventory },
+      { path: '/FinalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty },
+
 
       //RawMaterial 
       { path: '/rawMaterial', name: 'Raw Material', element: RawMaterial },

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getAPICall, post, postFormData, put } from '../../util/api';
-import { CBadge, CButton } from '@coreui/react';
+import { CBadge, CButton, CCardHeader } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilArrowThickToBottom, cilArrowThickToTop, cilSettings } from '@coreui/icons';
 
@@ -147,9 +147,17 @@ function RawMaterial() {
     
   return (
     <div className="p-4">
-      <div>
+
+ <CCardHeader style={{ backgroundColor: '#d6eaff', marginBottom:'10px'}} className='p-2 rounded'>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h5 className="mb-0" >Raw Materials Inventory </h5> 
+           
+          </div>
+        </CCardHeader>
+
+      {/* <div>
         <h3 className='mb-3'>Raw Materials Inventory</h3>
-      </div>
+      </div> */}
 
       <div className='flex-1' style={{marginBottom:10}}> 
         <div className="d-flex align-items-center gap-5">

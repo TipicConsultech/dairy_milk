@@ -9,12 +9,21 @@ import {
   CCard,
   CCardBody,
   CButton,
+  CCardHeader,
+  CAlert,
 } from '@coreui/react'
 import { getAPICall, post } from '../../util/api'
 import CIcon from '@coreui/icons-react'
 import { cilPlus, cilTrash } from '@coreui/icons'
+import { useTranslation } from 'react-i18next'
 
 const MilkForm = () => {
+
+
+   const { t, i18n } = useTranslation("global")
+            const lng = i18n.language;
+
+            
   const [milkType, setMilkType] = useState('')
   const [milkAmount, setMilkAmount] = useState('')
   const [availableQty, setAvailableQty] = useState(null)
@@ -38,6 +47,9 @@ const MilkForm = () => {
 
   const [prductsData, setPrductsData] = useState([])  
   const [productUnit, setProductUnit] = useState([])
+
+  const [createdSummary, setCreatedSummary] = useState(null);
+
 
   useEffect(() => {
     fetchTankData()
@@ -100,64 +112,7 @@ const MilkForm = () => {
 
  
   
-  const handleSubmit = async () => {
-    if (!milkType || !milkAmount || parseFloat(milkAmount) > availableQty) {
-        alert('Please enter valid quantity within available limit.');
-        return;
-    }
-
-    const selectedTank = tankData.find(t => t.name === milkType);
-    if (!selectedTank) {
-        alert('Selected milk tank not found.');
-        return;
-    }
-
-    // Prepare milk tank data as an object with `id` and `quantity`
-    const milkTankData = {
-        id: selectedTank.id,
-        quantity: parseFloat(milkAmount), // Assuming you want to update the quantity with the milkAmount
-    };
-
-    // Ensure ingredients and products are in the correct format
-    const ingredientsData = ingredients.map(ing => ({
-        id: ing.id, // Ensure this is added
-        name: ing.name,
-        quantity: parseFloat(ing.quantity),
-    }));
-    console.log(ingredientsData);
-    
-
-    const productsData = products.map(prod => ({
-        name: prod.name,
-        quantity: parseFloat(prod.quantity),
-    }));
-
-    try {
-        // 1️⃣ Call the createProduct API with properly structured data
-        await post('/api/createProduct', {
-            milkTank: milkTankData, // Send milkTank as an object with id and quantity
-            rawMaterials: ingredientsData, // Ensure rawMaterials contains id
-            products: productsData, // Format the products as required
-        });
-
-        alert('Product created and stocks updated successfully.');
-
-        // Reset form
-        setMilkAmount('');
-        setMilkType('');
-        setAvailableQty(null);
-        setError('');
-        setIngredients([]);
-        setProducts([]);
-        fetchTankData();
-        fetchRawMaterials();
-        fetchProducts();
-    } catch (err) {
-        console.error('Error in submission:', err);
-        alert('Something went wrong while creating the product.');
-    }
-};
-
+  
 
 
   
@@ -224,9 +179,13 @@ const MilkForm = () => {
       // convert { id, name, qty } -> { id, name, quantity }
       const normalized = res.products.map(p => ({
         ...p,
+        id:p.id,
         quantity: p.qty,           // rename here
+        unit:p.unit,
       }));
+  console.log(res.products);
   
+
       setPrductsData(normalized);
       setProductOptions(normalized.map(p => p.name));
     } catch (err) {
@@ -240,7 +199,7 @@ const MilkForm = () => {
     const item = prductsData.find(p => p.name === sel);
   
     if (item) {
-      setNewProduct({ name: sel, quantity:'', unit: item.unit || '' });
+      setNewProduct({ id:item.id , name: sel, quantity:'', unit: item.unit || '' });
       setProductAvailQty(item.quantity);          // use renamed field
     } else {
       setNewProduct({ name:'', quantity:'', unit:'' });
@@ -273,16 +232,108 @@ const MilkForm = () => {
 
 
 
+  const handleSubmit = async () => {
+    if (!milkType || !milkAmount || parseFloat(milkAmount) > availableQty) {
+        alert('Please enter valid quantity within available limit.');
+        return;
+    }
+
+    const selectedTank = tankData.find(t => t.name === milkType);
+    if (!selectedTank) {
+        alert('Selected milk tank not found.');
+        return;
+    }
+
+    // Prepare milk tank data as an object with `id` and `quantity`
+    const milkTankData = {
+        id: selectedTank.id,
+        quantity: parseFloat(milkAmount), // Assuming you want to update the quantity with the milkAmount
+    };
+
+    // Ensure ingredients and products are in the correct format
+    const ingredientsData = ingredients.map(ing => ({
+        id: ing.id, // Ensure this is added
+        name: ing.name,
+        quantity: parseFloat(ing.quantity),
+    }));
+    console.log(ingredientsData);
+    
+
+    const productsData = products.map(prod => ({
+        id: prod.id,
+        name:prod.name,
+        qty: parseFloat(prod.quantity),
+    }));
+    console.log(productsData);
+    
+    // Create a summary string for alert
+const createdSummary = productsData
+.map(prod => `${prod.name} ${prod.qty} Kg`)
+.join(', ');
+
+    try {
+        // 1️⃣ Call the createProduct API with properly structured data
+        await post('/api/createProduct', {
+            milkTank: milkTankData, // Send milkTank as an object with id and quantity
+            rawMaterials: ingredientsData, // Ensure rawMaterials contains id
+            productSizes: productsData, // Format the products as required
+        });
+
+        // alert(`Product ${productsData?.prod?.name} created and stocks updated successfully.`);
+         alert(`${createdSummary} created successfully:`);
+
+
+         const now = new Date();
+         const formattedTime = now.toLocaleString(); // gives date + time in readable format
+         
+         const summaryText = productsData
+           .map(prod => `${prod.name} ${prod.qty} Kg`)
+           .join(', ');
+         
+         setCreatedSummary({
+           text: `${summaryText} created successfully`,
+           time: formattedTime,
+         });
+
+        // Reset form
+        setMilkAmount('');
+        setMilkType('');
+        setAvailableQty(null);
+        setError('');
+        setIngredients([]);
+        setProducts([]);
+        fetchTankData();
+        fetchRawMaterials();
+        fetchProducts();
+    } catch (err) {
+        console.error('Error in submission:', err);
+        alert('Something went wrong while creating the product.');
+    }
+};
+
+
+
+useEffect(() => {
+  setCreatedSummary(null); // Clear it on load or refresh
+}, []);
 
 
 
 
   return (
     <CCard className="mb-4">
+
+ <CCardHeader style={{ backgroundColor: '#d4edda'}}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h5 className="mb-0" >{t('LABELS.create_product')}</h5>  
+           
+          </div>
+        </CCardHeader>
+
       <CCardBody>
         <CRow className="g-3 align-items-end mb-0">
           <CCol md={4}>
-            <CFormLabel>Select Milk Storage</CFormLabel>
+            <CFormLabel ><b>Select Milk Storage</b></CFormLabel>
             <CFormSelect value={milkType} onChange={handleMilkTypeChange}>
               <option value="">Select Tank</option>
               {tankData.map((tank, idx) => (
@@ -294,7 +345,7 @@ const MilkForm = () => {
           </CCol>
 
           <CCol md={4}>
-            <CFormLabel>Enter Milk for Product</CFormLabel>
+            <CFormLabel><b>Enter Milk for Product</b></CFormLabel>
             <CFormInput
               type="number"
               value={milkAmount}
@@ -309,7 +360,7 @@ const MilkForm = () => {
 
           <CCol md={2}>
             {/* <CFormLabel>Ltrs</CFormLabel> */}
-            <div>Ltrs</div>
+            <div><b>Ltrs</b></div>
           </CCol>
 
           <CCol md={2}>
@@ -321,8 +372,16 @@ const MilkForm = () => {
 
         {/* Ingredients */}
         <CCard className="mb-4 mt-3">
+
+        <CCardHeader style={{ backgroundColor: '#E6E6FA'}}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h5 className="mb-0" >Ingredients Used </h5> 
+           
+          </div>
+        </CCardHeader>
+
           <CCardBody>
-            <h6 className="bg-light p-2 mb-3">Ingredients Used</h6>
+            {/* <h6 className="bg-light p-2 mb-3">Ingredients Used</h6> */}
 
             <CRow className="g-2 align-items-center mb-3">
               <CCol md={4}>
@@ -395,8 +454,16 @@ const MilkForm = () => {
             {/* Products */}
            
         <CCard className="mb-4 mt-3">
+
+        <CCardHeader style={{ backgroundColor: '#f8d7da'}}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h5 className="mb-0" >Products</h5> 
+           
+          </div>
+        </CCardHeader>
+
   <CCardBody>
-    <h6 className="bg-light p-2 mb-3">Products</h6>
+    {/* <h6 className="bg-light p-2 mb-3">Products</h6> */}
 
     <CRow className="g-2 align-items-center mb-3">
       <CCol md={4}>
@@ -409,13 +476,13 @@ const MilkForm = () => {
       <CCol md={3}>
         <CFormInput
           type="number"
-          placeholder={productAvailQty!==null?`Max: ${productAvailQty}`:'Quantity'}
+          placeholder={productAvailQty!==null?`Available Quantity: ${productAvailQty}`:'Quantity'}
           value={newProduct.qty}
           onChange={handleProductQty}
           className={prodError ? 'is-invalid' : ''}
           // placeholder='Quanity'
         />
-        {prodError && <div className="text-danger mt-1">{prodError}</div>}
+        {/* {prodError && <div className="text-danger mt-1">{prodError}</div>} */}
       </CCol>
 
       <CCol md={3}>
@@ -450,6 +517,23 @@ const MilkForm = () => {
         <CButton color="primary" onClick={handleSubmit} disabled={!!error || !milkAmount}>
               Submit
             </CButton>
+
+
+    
+{createdSummary && (
+  <CAlert color='success' className='mt-2'>
+  <div className="">
+    <strong>Product Created:</strong>
+    <p>{createdSummary.text}</p>
+    <p className=" mt-1">Created at: {createdSummary.time}</p>
+  </div>
+  </CAlert>
+)}
+
+
+
+
+
 
 
       </CCardBody>

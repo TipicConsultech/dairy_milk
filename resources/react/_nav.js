@@ -466,6 +466,12 @@ export default function fetchNavItems(t1){
         },
         {
           component: CNavItem,
+          name: 'Final Product Inventry',
+          to: '/FinalProductInvenrty',
+          icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
           name: t("LABELS.laboratoryUser"),
           to: '/LaboratoryUser',
           icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" />,

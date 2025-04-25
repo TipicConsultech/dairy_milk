@@ -20,7 +20,7 @@ use App\Http\Controllers\RawMaterialController;
 use App\Http\Controllers\MilkProcesingController;
 use App\Http\Controllers\ProcessedIngredientsController;
 use App\Http\Controllers\CommonController;
-
+use App\Http\Controllers\ProductsTrackerController;
 
 // Dairy 
 // use App\Http\Controllers\MilkTankController;
@@ -123,6 +123,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/milkProcessingStore', [MilkProcesingController::class, 'store']);
     //processded ingredients 
     Route::post('/ProcessedIngredients', [ProcessedIngredientsController::class, 'store']);
+    //FinalProductInventory  
+    Route::get('/finalProductInventory', [ProductsTrackerController::class, 'getFinalProductInventory']);  
+    Route::get('/searchByProductNameFinalInventry', [ProductsTrackerController::class, 'searchByProductNameFinalInventry']);
 });
 Route::post('/createProduct', [CommonController::class,'createProduct']);
 
