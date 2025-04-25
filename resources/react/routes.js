@@ -166,7 +166,10 @@ export default function fetchRoutes(){
       //RawMaterial 
       { path: '/rawMaterial', name: 'Raw Material', element: RawMaterial },
       { path: '/LaboratoryUser', name: 'LaboratoryUser', element:LaboratoryUser },
-      { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord}
+      { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord},
+
+      { path: '/finalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty},
+
 
   ]
   }
@@ -212,7 +215,10 @@ export default function fetchRoutes(){
       //RawMaterial 
       { path: '/rawMaterial', name: 'Raw Material', element: RawMaterial },
       { path: '/LaboratoryUser', name: 'LaboratoryUser', element:LaboratoryUser },
-      { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord}
+      { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord},
+
+     // FinalProductInvenrty
+      { path: '/finalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty},
     
 
   ]

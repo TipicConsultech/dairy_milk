@@ -3,6 +3,7 @@ import { getAPICall, postFormData, put } from '../../util/api';
 import { CBadge, CButton, CCardHeader } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilArrowThickToBottom, cilArrowThickToTop } from '@coreui/icons';
+import { useNavigate } from 'react-router-dom';
 
 function RawMaterial() {
   const [tableData, setTableData] = useState([]);
@@ -12,6 +13,8 @@ function RawMaterial() {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();  
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -63,20 +66,8 @@ function RawMaterial() {
   };
 
   const handleAddClick = async (item) => {
-    const quantity = parseInt(quantities[item.id], 10);
-    if (!quantity || quantity <= 0) {
-      alert('Please enter a valid quantity greater than 0');
-      return;
-    }
-
-    try {
-      await put(`/api/raw-materials/${item.id}`, { unit_qty: quantity });
-      setQuantities((prev) => ({ ...prev, [item.id]: '' }));
-      await searchMaterials();
-    } catch (e) {
-      alert("You have entered more than the maximum capacity allowed for this item.");
-      setQuantities((prev) => ({ ...prev, [item.id]: '' }));
-    }
+    
+    navigate(`/invoice?id=${item.id}`);
   };
 
   const handleDownload = async () => {

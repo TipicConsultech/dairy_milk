@@ -20,7 +20,7 @@ class ProductsTrackerController extends Controller
      */
     public function getFinalProductInventory()
     {
-        $materials = ProductSize::all()
+        $materials = ProductSize::all()   // ProductSize
             ->sortByDesc('max_stock') // show visible first
             ->values() // reset the index
     

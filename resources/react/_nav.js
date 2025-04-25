@@ -321,6 +321,12 @@ export default function fetchNavItems(t1){
         },
         {
           component: CNavItem,
+          name: t("LABELS.finalproductinventry"),
+          to: '/finalProductInvenrty',
+          icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+        },
+        {
+          component: CNavItem,
           name: t("LABELS.laboratoryUser"),
           to: '/LaboratoryUser',
           icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" />,
@@ -778,6 +784,12 @@ export default function fetchNavItems(t1){
         component: CNavItem,
         name: t("LABELS.create_product"),
         to: '/CreateProduct',
+        icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+      },
+      {
+        component: CNavItem,
+        name: t("LABELS.create_product"),
+        to: '/finalProductInvenrty',
         icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
       },
 ]
