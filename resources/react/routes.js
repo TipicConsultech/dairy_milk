@@ -71,6 +71,7 @@ const DeliveryRecord=React.lazy(() => import('./views/dairy/DeliveryRecord'))
 
 
 const LaboratoryUser=React.lazy(() => import('./views/dairy/LaboratoryUser'))
+const FinalProductInvenrty = React.lazy(()=>import('./views/dairy/FinalProductInvenrty'))
 
 export default function fetchRoutes(){
   const user=getUserType();

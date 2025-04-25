@@ -13,11 +13,12 @@ class ProductSize extends Model
         'product_id',
         'name',
         'localName',
+        'unit',
         'bPrice',
         'oPrice',
         'dPrice',
         'qty',
-        'stock',
+        'max_stock',
         'booked',
         'returnable',
         'show'

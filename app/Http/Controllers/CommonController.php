@@ -687,6 +687,7 @@ class CommonController extends Controller
 // }
 
 
+
 public function createProduct(Request $request)
 {
     /* ───────────── 1. VALIDATE SHAPE ───────────── */
