@@ -17,6 +17,7 @@ class ProductSize extends Model
         'bPrice',
         'oPrice',
         'dPrice',
+        'default_qty',
         'qty',
         'max_stock',
         'booked',

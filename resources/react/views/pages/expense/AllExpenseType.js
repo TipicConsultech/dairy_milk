@@ -12,7 +12,7 @@ import { deleteAPICall, getAPICall } from '../../../util/api';
 import ConfirmationModal from '../../common/ConfirmationModal';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../common/toast/ToastContext';
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next';
 
 const AllExpenseType = () => {
   const navigate = useNavigate();
@@ -20,12 +20,12 @@ const AllExpenseType = () => {
   const [deleteResource, setDeleteResource] = useState();
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const { showToast } = useToast();
-  const { t } = useTranslation("global")
+  const { t } = useTranslation("global");
 
   const fetchExpenseType = async () => {
     try {
       const response = await getAPICall('/api/expenseType');
-      setExpenseType(response);
+      setExpenseType(response); // Keep all fields, including 'id'
     } catch (error) {
       showToast('danger', 'Error occured ' + error);
     }
@@ -36,26 +36,27 @@ const AllExpenseType = () => {
   }, []);
 
   const handleDelete = (p) => {
-    setDeleteResource(p);
+    setDeleteResource(p); // Store the resource with the full data (including id)
     setDeleteModalVisible(true);
   };
 
   const onDelete = async () => {
     try {
-      await deleteAPICall('/api/expenseType/' + deleteResource.id);
+      await deleteAPICall('/api/expenseType/' + deleteResource.id); // Use the expense `id` from the resource
       setDeleteModalVisible(false);
       fetchExpenseType();
+      showToast('success', 'Expense type deleted successfully'); // Refresh the list after deletion
     } catch (error) {
       showToast('danger', 'Error occured ' + error);
     }
   };
 
   const handleEdit = (p) => {
-    navigate('/expense/edit-type/' + p.id);
+    navigate('/expense/edit-type/' + p.id); // Use the full resource `id` for editing
   };
 
   const columns = [
-    { accessorKey: 'id', header: t("LABELS.id") },
+    { accessorKey: 'id', header: 'Expense Id' },
     { accessorKey: 'name', header: t("LABELS.name") },
     { accessorKey: 'localName', header: t("LABELS.local_name") },
     { accessorKey: 'desc', header: t("LABELS.short_desc") },
@@ -93,11 +94,6 @@ const AllExpenseType = () => {
     },
   ];
 
-  const data = expenseType.map((type, index) => ({
-    ...type,
-    id: index + 1,
-  }));
-
   return (
     <CRow>
       <ConfirmationModal
@@ -107,7 +103,7 @@ const AllExpenseType = () => {
         resource={'Delete expense type - ' + deleteResource?.name}
       />
       <CCol xs={12}>
-            <MantineReactTable columns={columns} data={data}  enableFullScreenToggle={false}/>
+        <MantineReactTable columns={columns} data={expenseType} enableFullScreenToggle={false} />
       </CCol>
     </CRow>
   );

@@ -217,6 +217,7 @@ class ProductController extends Controller
         $sz->localName = $size['localName'];
         $sz->oPrice = $size['oPrice'];
         $sz->bPrice = $size['bPrice'];
+        $sz->default_qty = $size['default_qty'] ?? 0;
         // $sz->stock = $size['stock'];
         $sz->max_stock = $size['stock'] ?? null;
 
@@ -331,6 +332,7 @@ class ProductController extends Controller
                 $sz->oPrice = $size['oPrice'];
                 $sz->dPrice = $size['dPrice'];
                 $sz->bPrice = $size['bPrice'];
+                $sz->default_qty = $size['default_qty'] ?? 0;
                 //$sz->stock =  $size['stock'];
                 $sz->returnable = $size['returnable'];
                 $sz->show = $size['show'];

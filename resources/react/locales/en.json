@@ -1,13 +1,14 @@
 {
     "LABELS": {
      "customer": "Customer",
-     "delivery": "Delivery",
+     
      "Packet":"Packets/Crate",
      "customer_name": "Customer Name",
      "new_customer": "New Customer",
      "new": "New",
      "name": "Name",
      "credit": "Credit",
+     "finalproductinventry":"Final Product Inventory",
      "rs": "Rs",
      "delivery_record":"Delivery View",
      "address": "Address",

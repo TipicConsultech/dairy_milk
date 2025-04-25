@@ -31,7 +31,7 @@ const NewExpense = () => {
     qty: 0,
     price: 0,
     total_price: 0,
-    expense_date: '',
+    expense_date: new Date().toISOString().split('T')[0],
     show: true,
   });
 
@@ -63,6 +63,8 @@ const NewExpense = () => {
   };
 
   const handleChange = (e) => {
+
+    
     const { name, value } = e.target;
     if (name === 'price' || name === 'qty') {
       setState((prev) => {
@@ -79,7 +81,7 @@ const NewExpense = () => {
         return { ...old };
       });
     } else if (name === 'name') {
-      const regex = /^[A-Za-z\s]*$/;
+      const regex = /^[a-zA-Z0-9 ]*$/;
       if (regex.test(value)) {
         setState({ ...state, [name]: value });
       }
@@ -137,23 +139,30 @@ const NewExpense = () => {
             <CForm noValidate validated={validated} onSubmit={handleSubmit}>
               <div className="row">
                 <div className="col-sm-4">
-                  <div className="mb-3">
-                    <CFormLabel htmlFor="expense_id">{t("LABELS.expense_type")}</CFormLabel>
-                    <CFormSelect
-                      aria-label={t("MSG.select_expense_type_msg")}
-                      value={state.expense_id}
-                      id="expense_id"
-                      name="expense_id"
-                      options={expenseTypes}
-                      onChange={handleChange}
-                      required
-                      feedbackInvalid="Select Expense type."
-                    />
+                  <div className="mb-3 d-flex align-items-center">
+                    <CFormLabel htmlFor="expense_id"><b>{t("LABELS.expense_type")}</b></CFormLabel>
+                    <CButton
+                      color="danger"
+                      className="ms-3"
+                      onClick={() => window.location.href = "/#/expense/new-type"} // Navigate to /expense/new-type
+                    >
+                      {t("LABELS.new_expense_type")}
+                    </CButton>
                   </div>
+                  <CFormSelect
+                    aria-label={t("MSG.select_expense_type_msg")}
+                    value={state.expense_id}
+                    id="expense_id"
+                    name="expense_id"
+                    options={expenseTypes}
+                    onChange={handleChange}
+                    required
+                    feedbackInvalid="Select Expense type."
+                  />
                 </div>
                 <div className="col-sm-4">
                   <div className="mb-3">
-                    <CFormLabel htmlFor="name">{t("LABELS.about_expense")}</CFormLabel>
+                    <CFormLabel htmlFor="name"><b>{t("LABELS.about_expense")}</b></CFormLabel>
                     <CFormInput
                       type="text"
                       id="name"
@@ -168,7 +177,7 @@ const NewExpense = () => {
                 </div>
                 <div className="col-sm-4">
                   <div className="mb-3">
-                    <CFormLabel htmlFor="expense_date">{t("LABELS.expense_date")}</CFormLabel>
+                    <CFormLabel htmlFor="expense_date"><b>{t("LABELS.expense_date")}</b></CFormLabel>
                     <CFormInput
                       type="date"
                       id="expense_date"
@@ -185,13 +194,14 @@ const NewExpense = () => {
               <div className="row">
                 <div className="col-sm-4">
                   <div className="mb-3">
-                    <CFormLabel htmlFor="price">{t("LABELS.price_per_unit")}</CFormLabel>
+                    <CFormLabel htmlFor="price"><b>{t("LABELS.price_per_unit")}</b></CFormLabel>
                     <CFormInput
                       type="number"
                       min="0"
                       id="price"
                       placeholder=""
                       name="price"
+                      onFocus={() => setState(prev => ({ ...prev, price: '' }))}
                       value={state.price}
                       onChange={handleChange}
                       required
@@ -201,7 +211,7 @@ const NewExpense = () => {
                 </div>
                 <div className="col-sm-4">
                   <div className="mb-3">
-                    <CFormLabel htmlFor="qty">{t("LABELS.total_units")}</CFormLabel>
+                    <CFormLabel htmlFor="qty"><b>{t("LABELS.total_units")}</b></CFormLabel>
                     <CFormInput
                       type="number"
                       id="qty"
@@ -209,37 +219,37 @@ const NewExpense = () => {
                       name="qty"
                       min="0"
                       value={state.qty}
+                      onFocus={() => setState(prev => ({ ...prev, qty: '' }))}
                       onChange={handleChange}
                       required
-                      feedbackInvalid="Please provide total units .Negative numbers not allowed.."
+                      feedbackInvalid="Please provide total units. Negative numbers not allowed."
                     />
                   </div>
                 </div>
                 <div className="col-sm-4">
                   <div className="mb-3">
-                    <CFormLabel htmlFor="total_price">{t("LABELS.total_price")}</CFormLabel>
+                    <CFormLabel htmlFor="total_price"><b>{t("LABELS.total_price")}</b></CFormLabel>
                     <CFormInput
                       type="number"
                       min="0"
                       id="total_price"
                       placeholder=""
                       name="total_price"
-
+                      onFocus={() => setState(prev => ({ ...prev, total_price: '' }))}
                       value={state.total_price}
                       onChange={handleChange}
                       readOnly
-                      
                     />
                   </div>
                 </div>
               </div>
               <div className="mb-3 mt-3">
                 <CButton color="success" type="submit">
-                {t("LABELS.submit")}
+                  {t("LABELS.submit")}
                 </CButton>
                 &nbsp;
                 <CButton color="secondary" onClick={handleClear}>
-                {t("LABELS.clear")}
+                  {t("LABELS.clear")}
                 </CButton>
               </div>
             </CForm>
@@ -248,6 +258,6 @@ const NewExpense = () => {
       </CCol>
     </CRow>
   );
-};
+}  
 
 export default NewExpense;

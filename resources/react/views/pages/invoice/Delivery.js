@@ -162,7 +162,14 @@ const Delivery = () => {
     try {
       showSpinner();
       const response = await getAPICall('/api/product');
-      setAllProducts(discountedPrices([...response.filter((p) => p.show == 1 && p.showOnHome == 1&&p.sizes[0]?.returnable === 1)]));
+      setAllProducts(
+        discountedPrices(
+          response.filter(
+            (p) => p.show === 1 && p.sizes.length > 0 && p.sizes[0].returnable === 1
+          )
+        )
+      );
+      
     } catch (error) {
       showToast('danger', 'Error occured ' + error);
     } finally{

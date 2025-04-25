@@ -12,7 +12,7 @@ class Product extends Model
         'name',
         
         'localName',
-       
+        
         'unit',
        
         'multiSize',

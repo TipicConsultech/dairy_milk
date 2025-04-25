@@ -69,7 +69,6 @@ const MilkProcessing=React.lazy(() => import('./views/dairy/MilkProcsssing'))
 const DairyFarmInventory=React.lazy(() => import('./views/dairy/DairyFarmInventory'))
 const DeliveryRecord=React.lazy(() => import('./views/dairy/DeliveryRecord'))
 
-
 const LaboratoryUser=React.lazy(() => import('./views/dairy/LaboratoryUser'))
 const FinalProductInvenrty = React.lazy(()=>import('./views/dairy/FinalProductInvenrty'))
 
@@ -166,10 +165,12 @@ export default function fetchRoutes(){
       //RawMaterial 
       { path: '/rawMaterial', name: 'Raw Material', element: RawMaterial },
       { path: '/LaboratoryUser', name: 'LaboratoryUser', element:LaboratoryUser },
-      { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord}
+      { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord},
+      { path: '/finalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty},
 
   ]
   }
+  //Manager
   else if(user===2){
     routes = [
     { path: '/', exact: true, name: 'Home' },
@@ -179,9 +180,7 @@ export default function fetchRoutes(){
     { path: '/invoice', name: 'invoice', element: Invoice },
     { path: '/booking', name: 'Booking', element: Booking },
     { path: '/invoice-details/:id', name: 'InvoiceDetails', element: InvoiceDetails },
-    { path: '/bookings', name: 'Advance Bookings', element: Orders },
-    { path: '/regular', name: 'Regular Orders', element: Orders },
-    { path: '/order', name: 'All Orders', element: Orders },
+  
     { path: '/customer/new', name: 'New Product', element: NewCustomer },
     { path: '/customer/all', name: 'All Products', element: AllCustomers },
     { path: '/customer/edit/:id', name: 'Edit Customer', element: EditCustomer },
@@ -193,13 +192,7 @@ export default function fetchRoutes(){
     { path: '/expense/all-type', name: 'All Types', element: AllExpenseType },
     { path: '/expense/new', name: 'New Expense', element: NewExpense },
     { path:'/updatepassword', name: 'Update Password', element: Updatepassword },
-    // { path: '/map', name: 'Map', element: JarMap },
-    { path: '/Reports/Customer_Report', name: 'Customer Report', element: CustomerReport },
-    { path: '/Reports/creditReport', name: 'Credit Report', element: CreditReport },
-    { path: '/Reports/Expense_Report', name: 'Expense Report', element: ExpenseReport },
-    { path: 'Reports/Sales_Report', name: 'Sales Report', element: SalesReport },
-    { path: 'Reports/pnl_Report', name: 'Profit and Loss Report', element: PnLReport },
-    { path: '/Reports/Reports', name: 'Reports', element: All_Reports },
+  
     { path:'/usermanagement/create-user', name: 'Create User', element: NewUsers },
     { path:'usermanagement/all-users', name: 'All Users', element: AllUser },
 
@@ -212,7 +205,9 @@ export default function fetchRoutes(){
       //RawMaterial 
       { path: '/rawMaterial', name: 'Raw Material', element: RawMaterial },
       { path: '/LaboratoryUser', name: 'LaboratoryUser', element:LaboratoryUser },
-      { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord}
+      { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord},
+      { path: '/finalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty},
+      
     
 
   ]
@@ -221,6 +216,9 @@ export default function fetchRoutes(){
   else if(user===3){
     routes = [
     { path: '/CreateProduct', name: 'CreateProduct', element:CreateProduct },
+    { path: '/finalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty},
+    { path: '/invoice', name: 'invoice', element: Invoice },
+    { path: '/invoice-details/:id', name: 'InvoiceDetails', element: InvoiceDetails },
       
   ]
   }
