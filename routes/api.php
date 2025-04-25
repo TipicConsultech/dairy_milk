@@ -113,6 +113,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/customerReport', [OrderController::class, 'customerReport'])->name('customerReport');
     Route::resource('company', CompanyInfoController::class);
 
+    //Roles
+    Route::resource('roles', App\Http\Controllers\RoleController::class);
+
     // Dairy milk
     // milk_tank
     Route::post('/milk-tank', [MilkTankController::class, 'store']);

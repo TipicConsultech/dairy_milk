@@ -74,7 +74,7 @@ const AppHeader = () => {
           </CHeaderNav>
           <CHeaderNav className="ms-auto">
           <CHeaderNav>
-        <AppHeaderHelp />
+        
         </CHeaderNav>
             {/* <CNavItem>
               <CNavLink href="#">
