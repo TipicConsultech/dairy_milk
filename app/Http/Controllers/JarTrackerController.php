@@ -5,112 +5,66 @@ namespace App\Http\Controllers;
 use App\Models\JarTracker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
 class JarTrackerController extends Controller
 {
-    protected $user;
-
-    public function __construct()
-    {
-        $this->user = Auth::user();
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
+    // List all JarTracker entries
     public function index()
     {
-        $user = Auth::user();
-        $companyId = $user->company_id;
-        $userType = $user->type;
-
-        if ($userType == 0) {
-            return JarTracker::all(); // Admin can see all records
-        } else {
-            return JarTracker::where('company_id', $companyId)->get(); // Non-admin can see only their company's records
-        }
+        return response()->json(JarTracker::all());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Store a new JarTracker entry
     public function store(Request $request)
     {
-        $request->validate([
-            'quantity' => 'required|integer',
+        $validated = $request->validate([
             'customer_id' => 'required|integer',
-            // Add other validation rules as necessary
+            'product_sizes_id' => 'required|integer',
+            'product_name' => 'required|string',
+            'product_local_name' => 'required|string',
+            'crates_quantity' => 'required|numeric',
+            'packets'=>'required|numeric'
         ]);
+        $user=Auth::user();
 
-        // Create a new JarTracker record
-        return JarTracker::create(array_merge($request->all(), [
-            'created_by' => $this->user->id, // Assuming you want to track who created the record
-        ]));
+        $validated['created_by']=$user->id;
+        $validated['updated_by']=$user->id;
+        $tracker = JarTracker::create($validated);
+        return response()->json($tracker, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
+    // Show a single JarTracker entry
     public function show($id)
     {
-        $user = Auth::user();
-        $companyId = $user->company_id;
-        $userType = $user->type;
-
-        if ($userType == 0) {
-            return JarTracker::find($id); // Admin can see any record
-        } else {
-            return JarTracker::where('company_id', $companyId)->find($id); // Non-admin can see only their company's records
-        }
+        $tracker = JarTracker::findOrFail($id);
+        return response()->json($tracker);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    // Update an existing JarTracker entry
     public function update(Request $request, $id)
     {
-        $user = Auth::user();
-        $companyId = $user->company_id;
-        $userType = $user->type;
+        $tracker = JarTracker::findOrFail($id);
 
-        $request->validate([
-            'quantity' => 'required|integer',
-            'customer_id' => 'required|integer',
-            // Add other validation rules as necessary
+        $validated = $request->validate([
+            'customer_id' => 'sometimes|required|integer',
+            'product_sizes_id' => 'sometimes|required|integer',
+            'product_name' => 'sometimes|required|string',
+            'product_local_name' => 'sometimes|required|string',
+            'crates_quantity' => 'sometimes|required|numeric',
+            'packets' => '|required|numeric',
+            'created_by' => 'nullable|integer',
+            'updated_by' => 'nullable|integer'
         ]);
 
-        if ($userType == 0) {
-            $jarTracker = JarTracker::find($id);
-            $jarTracker->update(array_merge($request->all(), [
-                'updated_by' => $this->user->id, // Track who updated the record
-            ]));
-            return $jarTracker;
-        } else {
-            $jarTracker = JarTracker::where('company_id', $companyId)->find($id);
-            if ($jarTracker) {
-                $jarTracker->update(array_merge($request->all(), [
-                    'updated_by' => $this->user->id,
-                ]));
-                return $jarTracker;
-            }
-            return response()->json(['message' => 'Not found'], 404); // Not found response
-        }
+        $tracker->update($validated);
+        return response()->json($tracker);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    // Delete a JarTracker entry
     public function destroy($id)
     {
-        $user = Auth::user();
-        $companyId = $user->company_id;
-        $userType = $user->type;
+        $tracker = JarTracker::findOrFail($id);
+        $tracker->delete();
 
-        if ($userType == 0) {
-            return JarTracker::destroy($id); // Admin can delete any record
-        } else {
-            // Destroy if company ID matches
-            return JarTracker::where('company_id', $companyId)->destroy($id);
-        }
+        return response()->json(['message' => 'JarTracker deleted successfully.']);
     }
 }

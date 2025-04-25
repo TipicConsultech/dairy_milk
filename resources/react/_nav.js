@@ -549,9 +549,16 @@ export default function fetchNavItems(t1){
               name: t("LABELS.all_products"),
               to: '/products/all',
             },
+
+            {
+              component: CNavItem,
+              name: t("LABELS.delivery"),
+              to: '/delivery',
+            },
+
             // {
             //   component: CNavItem,
-            //   name: 'Bulk Quantity ',
+            //   name: 'Delivery ',
             //   to: 'products/updateqty',
             // },
           ],

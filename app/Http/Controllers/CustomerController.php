@@ -58,25 +58,55 @@ class CustomerController extends Controller
         }
     }
 
+    // public function history(Request $request)
+    // {
+    //     // Validate the input to ensure the 'searchQuery' field is a string
+    //     $request->validate([
+    //         'id' => 'required|string'
+    //     ]);
+
+    //     $user = Auth::user();
+    //     $companyId = $user->company_id;
+    //     $userType = $user->type;
+    //     $id = $request->query('id'); 
+    //     $returnEmptyProducts = JarTracker::where('customer_id', $id)->get();
+    //     $paymentTrackerSum = PaymentTracker::where('customer_id', $id)->sum('amount'); // Assuming there is an 'amount' column
+    //     $customer = Customer::find($request->id);
+    //     return response()->json([
+    //         'returnEmptyProducts' => $returnEmptyProducts,
+    //         'pendingPayment' => $paymentTrackerSum * -1,
+    //         'default_qty'=>$customer
+    //     ]);
+
+    // }
+
+
+
+
     public function history(Request $request)
-    {
-        // Validate the input to ensure the 'searchQuery' field is a string
-        $request->validate([
-            'id' => 'required|string'
-        ]);
+{
+    // Validate the input to ensure the 'id' field is present
+    $request->validate([
+        'id' => 'required|string'
+    ]);
 
-        $user = Auth::user();
-        $companyId = $user->company_id;
-        $userType = $user->type;
-        $id = $request->query('id'); 
-        $returnEmptyProducts = JarTracker::where('customer_id', $id)->get();
-        $paymentTrackerSum = PaymentTracker::where('customer_id', $id)->sum('amount'); // Assuming there is an 'amount' column
+    $user = Auth::user();
+    $companyId = $user->company_id;
+    $userType = $user->type;
 
-        return response()->json([
-            'returnEmptyProducts' => $returnEmptyProducts,
-            'pendingPayment' => $paymentTrackerSum * -1
-        ]);
-    }
+    $id = $request->query('id'); 
+
+    $returnEmptyProducts = JarTracker::where('customer_id', $id)->get();
+    $paymentTrackerSum = PaymentTracker::where('customer_id', $id)->sum('amount');
+    $customer = Customer::find($id);
+
+    return response()->json([
+        'returnEmptyProducts' => $returnEmptyProducts,
+        'pendingPayment' => $paymentTrackerSum * -1,
+        'default_qty' => $customer->default_qty
+    ]);
+}
+
 
     public function creditReport(Request $request)
     {
