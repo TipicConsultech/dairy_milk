@@ -82,21 +82,25 @@ const Invoice = () => {
         ...prev,
         items: [
           {
-            product_id: data.product_id,
+            product_id: data.product_id.toString(),
             product_sizes_id: data.id,
-            product_name: '', // you can populate this if available in response
-            product_unit: data.unit,
+            product_name: data.name, // you can populate this if available in response
+            name: data.name,
+            product_name: data.name,
             product_local_name: data.localName,
+            localName:data.localName,
             size_name: data.name,
             size_local_name: data.localName,
             oPrice: data.oPrice,
             bPrice: data.bPrice,
             dPrice: data.dPrice,
+            id:'0',
             dQty: 0,
             eQty: 0,
             qty: 0,
             total_price: 0,
             returnable: data.returnable,
+            unit:data.unit
           },
         ]
       }));
@@ -336,7 +340,7 @@ const Invoice = () => {
         deliveryTime: timeNow(),
       };
       
-      const eligibleToSubmit = clonedState.customer_id > 0 && (clonedState.paidAmount > 0 || clonedState.items.length)
+      const eligibleToSubmit =clonedState.balanceAmount>=0 && clonedState.customer_id > 0 && (clonedState.paidAmount > 0 || clonedState.items.length)
 
       if (!isInvalid && eligibleToSubmit) {
         showSpinner();

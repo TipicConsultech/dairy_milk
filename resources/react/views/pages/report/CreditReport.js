@@ -96,7 +96,7 @@ const CreditReport = () => {
                     <CTableHeaderCell scope="col">{t('LABELS.name')}</CTableHeaderCell>
                     <CTableHeaderCell scope="col" className="d-none d-sm-table-cell">{t('LABELS.mobile_number')}</CTableHeaderCell>
                     <CTableHeaderCell scope="col">{t('LABELS.total')} ₹ </CTableHeaderCell>
-                    <CTableHeaderCell scope="col">{t('LABELS.return_items')}</CTableHeaderCell>
+                    {/* <CTableHeaderCell scope="col">{t('LABELS.return_items')}</CTableHeaderCell> */}
                     <CTableHeaderCell scope="col">{t('LABELS.actions')}</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
@@ -109,19 +109,7 @@ const CreditReport = () => {
                         <CTableDataCell>{p.name}</CTableDataCell>
                         <CTableDataCell className="d-none d-sm-table-cell">{p.mobile}</CTableDataCell>
                         <CTableDataCell>{p.totalPayment > 0 ? <><CBadge color="success">{p.totalPayment}</CBadge> <br /> ({t('LABELS.advance')})</> : <CBadge color="danger">{p.totalPayment * -1}</CBadge>}</CTableDataCell>
-                        <CTableDataCell>
-                          <table className="table table-sm borderless">
-                            <tbody>
-                            {
-                              p.items?.map(i => (
-                                <tr key={i.id}>
-                                  <td>{lng === 'en' ? i.product_name : i.product_local_name} {i.quantity + `(${t('LABELS.empty')})`}</td>
-                                </tr>
-                              ))
-                            }
-                            </tbody>
-                          </table>
-                        </CTableDataCell>
+                        {/* git  */}
                         <CTableDataCell>
                           <a className='btn btn-outline-primary btn-sm' href={"tel:" + p.mobile}>
                             <CIcon icon={cilPhone} />
