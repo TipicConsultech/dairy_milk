@@ -26,6 +26,7 @@ const EditProduct = () => {
     slug: '',
     categoryId: 0,
     incStep: 1,
+    default_qty : 0,
     desc: '',
     multiSize: false,
     show: true,
@@ -42,6 +43,19 @@ const EditProduct = () => {
     const { name, value } = e.target
     setState({ ...state, [name]: value })
   }
+
+  const handleDefaulyQtyChange = (e) => {
+    const { value } = e.target;
+  
+    // Allow empty string to let the field appear blank when clicked
+    if (value === '' || /^[0-9]+$/.test(value)) {
+      setState((prev) => ({
+        ...prev,
+        default_qty: value === '' ? '' : parseInt(value),
+      }));
+    }
+  };
+  
 
   const handleCBChange = (e) => {
     const { name, checked } = e.target
@@ -61,6 +75,7 @@ const EditProduct = () => {
         desc: data.desc,
         multiSize: data.multiSize,
         show: data.show,
+        default_qty: data.sizes[0].default_qty,
         returnable: data.sizes[0].returnable,
         showOnHome: data.showOnHome,
         unit: data.unit,
@@ -88,6 +103,7 @@ const EditProduct = () => {
       data.sizes[0].oPrice = parseFloat(data.oPrice)
       data.sizes[0].bPrice = parseFloat(data.bPrice)
       data.sizes[0].dPrice = -1
+      data.sizes[0].default_qty=parseInt(data.default_qty)
       data.sizes[0].show = true
       data.sizes[0].returnable = data.returnable
       data.sizes[0].showOnHome = data.showOnHome
@@ -191,6 +207,20 @@ const EditProduct = () => {
                   />
                   <div className="invalid-feedback">Selling price must be greater than 0</div>
                 </div>
+                 <div className="col-4">
+                                  <CFormLabel htmlFor="oPrice">Default Qty</CFormLabel>
+                                  <CFormInput
+                                    type="number"
+                                    id="oPrice"
+                                    placeholder="0"
+                                    min="1"
+                                    name="oPrice"
+                                    value={state.default_qty}
+                                    onChange={handleDefaulyQtyChange}
+                                   
+                                  />
+                                  
+                                </div>
               </div>
               <div className="row mb-2">
                 <div className="col-6">
