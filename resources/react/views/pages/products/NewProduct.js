@@ -29,6 +29,7 @@ const NewProduct = () => {
     showOnHome: true,
     unit: '',
     qty: 0,
+    default_qty:0,
     oPrice: 0,
     bPrice: 0,
     media: [],
@@ -63,6 +64,7 @@ const NewProduct = () => {
         oPrice: data.oPrice,
         bPrice: data.bPrice,
         dPrice: data.oPrice,
+        default_qty :data.default_qty,
         stock: data.qty,
         show: true,
         returnable: data.returnable,
@@ -83,6 +85,18 @@ const NewProduct = () => {
       showToast('danger', 'Error occured ' + error);
     }
   }
+  const handleDefaulyQtyChange = (e) => {
+    const { value } = e.target;
+  
+    // Allow empty string to let the field appear blank when clicked
+    if (value === '' || /^[0-9]+$/.test(value)) {
+      setState((prev) => ({
+        ...prev,
+        default_qty: value === '' ? '' : parseInt(value),
+      }));
+    }
+  };
+  
 
   const handleClear = () => {
     setState({
@@ -98,6 +112,7 @@ const NewProduct = () => {
       showOnHome: true,
       qty: 0,
       oPrice: 0,
+      default_qty:0,
       bPrice: 0,
       media: [],
       sizes: [],
@@ -188,6 +203,20 @@ const NewProduct = () => {
                   />
                   <div className="invalid-feedback">Selling price must be greater than 0</div>
                 </div>
+                <div className="col-4">
+                  <CFormLabel htmlFor="oPrice">Default Qty</CFormLabel>
+                  <CFormInput
+                    type="number"
+                    id="oPrice"
+                    placeholder="0"
+                    min="1"
+                    name="oPrice"
+                    value={state.default_qty}
+                    onChange={handleDefaulyQtyChange}
+                   
+                  />
+                  
+                </div>
               </div>
               <div className="row mb-2">
                 <div className="col-6">
@@ -202,7 +231,7 @@ const NewProduct = () => {
                 <div className="col-6">
                   <CFormCheck
                     id="returnable"
-                    label="Collect empty jar/box"
+                    label="Collect empty products"
                     name="returnable"
                     checked={state.returnable}
                     onChange={handleCBChange}
