@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+
 
 class RawMaterialController extends Controller
 {
@@ -25,6 +28,75 @@ class RawMaterialController extends Controller
     
     //     return response()->json($materials, 200);
     // }
+
+
+    public function bulkUpdate(Request $request)
+    {
+        $data = $request->all();
+    
+        $failedItems = [];
+    
+        foreach ($data as $item) {
+            $rawMaterial = RawMaterial::find($item['id']);
+    
+            if (!$rawMaterial) {
+                $failedItems[] = ['id' => $item['id'], 'name' => null,'capacity'=>null,'quantity'=>null,'current_quantity'=>null];
+                continue;
+            }
+    
+            $quantity = $item['quantity'];
+    
+            // Check if quantity is negative
+            if ($quantity < 0) {
+                $failedItems[] = ['id' => $rawMaterial->id, 'name' => $rawMaterial->name,'capacity'=>$rawMaterial->capacity,'quantity'=>$quantity ,'current_quantity'=>$rawMaterial->unit_qty];
+                continue;
+            }
+    
+            // Check if adding quantity exceeds capacity
+            $newUnitQty = $rawMaterial->unit_qty + $quantity;
+    
+            if ($newUnitQty > $rawMaterial->capacity) {
+                $failedItems[] = ['id' => $rawMaterial->id, 'name' => $rawMaterial->name,'capacity'=>$rawMaterial->capacity,'quantity'=>$quantity,'current_quantity'=>$rawMaterial->unit_qty];
+                continue;
+            }
+        }
+    
+        if (!empty($failedItems)) {
+            // Return only failed items, do not update anything
+            return response()->json([
+                'message' => 'Validation failed',
+                'failed' => $failedItems
+            ], 200); // 422 Unprocessable Entity
+        }
+    
+        // If no failures, proceed to update
+        DB::beginTransaction();
+    
+        try {
+            foreach ($data as $item) {
+                $rawMaterial = RawMaterial::find($item['id']);
+                $quantity = $item['quantity'];
+    
+                $rawMaterial->unit_qty += $quantity;
+                $rawMaterial->save();
+            }
+    
+            DB::commit();
+    
+            return response()->json([
+                'message' => 'Bulk update successful'
+            ], 200);
+    
+        } catch (\Exception $e) {
+            DB::rollBack();
+    
+            return response()->json([
+                'message' => 'Bulk update failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+}
+
 
     public function index()
 {
@@ -170,23 +242,37 @@ public function criticalStock()
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'company_id'   => 'required|integer',
             'name'         => 'required|string',
-            'local_name'   =>  'required|string',
+            'local_name'   => 'required|string',
             'capacity'     => 'required|numeric',
             'unit_qty'     => 'required|numeric',
             'unit'         => 'required|string',
             'isPackaging'  => 'required|boolean',
             'isVisible'    => 'required|boolean',
-            'created_by'   => 'required|integer',
             'misc'         => 'nullable|string|max:256',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
-        $rawMaterial = RawMaterial::create($request->all());
+    
+        $data = $request->only([
+            'name',
+            'local_name',
+            'capacity',
+            'unit_qty',
+            'unit',
+            'isPackaging',
+            'isVisible',
+            'misc',
+        ]);
+    
+        // Set company_id and created_by from Auth user
+        $data['company_id'] = Auth::user()->company_id;
+        $data['created_by'] = Auth::id();
+    
+        $rawMaterial = RawMaterial::create($data);
+    
         return response()->json($rawMaterial, 201);
     }
 
@@ -229,7 +315,9 @@ public function criticalStock()
 public function update(Request $request, $id)
 {
     $rawMaterial = RawMaterial::find($id);
+    $failedItems=[];
     if (!$rawMaterial) {
+       
         return response()->json(['message' => 'Raw Material not found'], 404);
     }
 
@@ -253,21 +341,28 @@ public function update(Request $request, $id)
 
     // Use current capacity or incoming capacity from request
     $capacity = $request->has('capacity') ? $request->capacity : $rawMaterial->capacity;
+    
+    
 
     // Check unit_qty constraint
     if ($request->has('unit_qty')) {
         $newUnitQty = $rawMaterial->unit_qty + $request->unit_qty;
         if ($newUnitQty > $capacity) {
+            $failedItems[] = ['id' => $rawMaterial->id, 'name' => $rawMaterial->name,'capacity'=>$rawMaterial->capacity,'quantity'=>$request->unit_qty,'current_quantity'=>$rawMaterial->unit_qty];
             return response()->json([
-                'error' => 'Total unit quantity cannot exceed capacity.'
-            ], 422);
+                'message' => 'Validation failed',
+                'failed' => $failedItems
+            ], 200);
         }
         $data['unit_qty'] = $newUnitQty;
     }
 
     $rawMaterial->update($data);
 
-    return response()->json($rawMaterial, 200);
+    return response()->json([
+        'updated' => 'data updated',
+        
+    ], 200);
 }
 
 
