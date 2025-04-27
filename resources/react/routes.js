@@ -174,7 +174,6 @@ export default function fetchRoutes(){
   else if(user===2){
     routes = [
     { path: '/', exact: true, name: 'Home' },
-    { path: '/', exact: true, name: 'Home' },
     { path: '/dashboard', name: 'Dashboard', element: Dashboard },
     { path: '/delivery', name: 'Delivery', element: Delivery },
     { path: '/invoice', name: 'invoice', element: Invoice },

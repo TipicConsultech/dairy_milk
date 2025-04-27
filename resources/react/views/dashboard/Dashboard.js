@@ -93,7 +93,7 @@ const Dashboard = (Props) => {
 
 
 <CTableBody>
-  {stock.filter(p => p.product && p.product.showOnHome).map(p => (
+  {stock.filter(p => p.product).map(p => (
     <CTableRow key={p.id}>
       <CTableHeaderCell>{lng === 'en' ? p.name : p.localName}</CTableHeaderCell>
 
@@ -108,14 +108,14 @@ const Dashboard = (Props) => {
         className="text-center font-weight-bold text-black"
         style={{ width: '20%' }}
       >
-        {p.stock}
+        {p.max_stock}
       </CTableDataCell>
 
       <CTableDataCell
         className="text-center font-weight-bold text-black"
         style={{ width: '20%' }}
       >
-        {p.qty - p.stock}
+        {p.max_stock- p.qty}
       </CTableDataCell>
 
       <CTableDataCell
