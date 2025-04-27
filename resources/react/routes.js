@@ -22,21 +22,13 @@ const RawMaterial = React.lazy(() => import('./views/dairy/RawMaterial'))
 const NewProduct = React.lazy(() => import('./views/pages/products/NewProduct'))
 const AllProducts = React.lazy(() => import('./views/pages/products/AllProducts'))
 const EditProduct = React.lazy(() => import('./views/pages/products/EditProduct'))
-//const EditCategory = React.lazy(() => import('./views/pages/category/EditCategory'))
-//const AllCategory = React.lazy(() => import('./views/pages/category/AllCategory'))
-//const NewCategory = React.lazy(() => import('./views/pages/category/NewCategory'))
-//const BulkQuantity = React.lazy(() => import('./views/pages/products/BulkQuantity'))
+
 
 //Customers
 const NewCustomer = React.lazy(() => import('./views/pages/customer/NewCustomer'))
 const AllCustomers = React.lazy(() => import('./views/pages/customer/AllCustomers'))
 const EditCustomer = React.lazy(() => import('./views/pages/customer/EditCustomer'))
 
-//HelpModule
-const TicketFormLogin = React.lazy(() => import('./views/pages/help/TicketFormLogin'));
-const ExistingTicketTable = React.lazy(() => import('./views/pages/help/ExistingTicketTable'));
-const LoginFaq = React.lazy(() => import('./views/pages/help/loginFaq'));
-const ExistingTicketView = React.lazy(() => import('./views/pages/help/ExistingTicketView'));
 
 //Expense
 const AllExpenseType = React.lazy(() => import('./views/pages/expense/AllExpenseType'))
