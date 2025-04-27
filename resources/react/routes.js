@@ -22,27 +22,20 @@ const RawMaterial = React.lazy(() => import('./views/dairy/RawMaterial'))
 const NewProduct = React.lazy(() => import('./views/pages/products/NewProduct'))
 const AllProducts = React.lazy(() => import('./views/pages/products/AllProducts'))
 const EditProduct = React.lazy(() => import('./views/pages/products/EditProduct'))
-//const EditCategory = React.lazy(() => import('./views/pages/category/EditCategory'))
-//const AllCategory = React.lazy(() => import('./views/pages/category/AllCategory'))
-//const NewCategory = React.lazy(() => import('./views/pages/category/NewCategory'))
-//const BulkQuantity = React.lazy(() => import('./views/pages/products/BulkQuantity'))
+
 
 //Customers
 const NewCustomer = React.lazy(() => import('./views/pages/customer/NewCustomer'))
 const AllCustomers = React.lazy(() => import('./views/pages/customer/AllCustomers'))
 const EditCustomer = React.lazy(() => import('./views/pages/customer/EditCustomer'))
 
-//HelpModule
-const TicketFormLogin = React.lazy(() => import('./views/pages/help/TicketFormLogin'));
-const ExistingTicketTable = React.lazy(() => import('./views/pages/help/ExistingTicketTable'));
-const LoginFaq = React.lazy(() => import('./views/pages/help/loginFaq'));
-const ExistingTicketView = React.lazy(() => import('./views/pages/help/ExistingTicketView'));
 
 //Expense
 const AllExpenseType = React.lazy(() => import('./views/pages/expense/AllExpenseType'))
 const EditExpenseType = React.lazy(() => import('./views/pages/expense/EditExpenseType'))
 const NewExpenseType = React.lazy(() => import('./views/pages/expense/NewExpenseType'))
 const NewExpense = React.lazy(() => import('./views/pages/expense/NewExpense'))
+const expense = React.lazy(() => import('./views/pages/expense/ExpenseReport'))
 
 //Reports
 const ExpenseReport = React.lazy(() => import('./views/pages/report/ExpenseReport'))
@@ -125,7 +118,6 @@ export default function fetchRoutes(){
     { path: '/dashboard', name: 'Dashboard', element: Dashboard },
     { path: '/delivery', name: 'Delivery', element: Delivery },
     { path: '/invoice', name: 'invoice', element: Invoice },
-    { path: '/booking', name: 'Booking', element: Booking },
     { path: '/invoice-details/:id', name: 'InvoiceDetails', element: InvoiceDetails },
     { path: '/bookings', name: 'Advance Bookings', element: Orders },
     { path: '/regular', name: 'Regular Orders', element: Orders },
@@ -139,6 +131,7 @@ export default function fetchRoutes(){
     { path: '/expense/new-type', name: 'New Type', element: NewExpenseType },
     { path: '/expense/edit-type/:id', name: 'Edit Type', element: EditExpenseType },
     { path: '/expense/all-type', name: 'All Types', element: AllExpenseType },
+    { path: '/expense/reportExpense', name: 'Expense Report', element: expense },
     { path: '/expense/new', name: 'New Expense', element: NewExpense },
     { path:'/updatepassword', name: 'Update Password', element: Updatepassword },
     // { path: '/map', name: 'Map', element: JarMap },
@@ -174,7 +167,6 @@ export default function fetchRoutes(){
   else if(user===2){
     routes = [
     { path: '/', exact: true, name: 'Home' },
-    { path: '/', exact: true, name: 'Home' },
     { path: '/dashboard', name: 'Dashboard', element: Dashboard },
     { path: '/delivery', name: 'Delivery', element: Delivery },
     { path: '/invoice', name: 'invoice', element: Invoice },
@@ -190,6 +182,7 @@ export default function fetchRoutes(){
     { path: '/expense/new-type', name: 'New Type', element: NewExpenseType },
     { path: '/expense/edit-type/:id', name: 'Edit Type', element: EditExpenseType },
     { path: '/expense/all-type', name: 'All Types', element: AllExpenseType },
+    { path: '/expense/reportExpense', name: 'Expense Report', element: expense },
     { path: '/expense/new', name: 'New Expense', element: NewExpense },
     { path:'/updatepassword', name: 'Update Password', element: Updatepassword },
   

@@ -200,7 +200,7 @@ class ProductController extends Controller
     {
         $user = Auth::user();
         // $sizes = ProductSize::where('company_id', $user->company_id)->get();
-        $sizes = ProductSize::with('product:id,showOnHome') // Assuming you have a relationship defined in ProductSize
+        $sizes = ProductSize::with('product:id,show') // Assuming you have a relationship defined in ProductSize
         ->where('company_id', $user->company_id)
         ->get();
         return $sizes;
