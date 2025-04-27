@@ -43,6 +43,7 @@ const AllExpenseType = React.lazy(() => import('./views/pages/expense/AllExpense
 const EditExpenseType = React.lazy(() => import('./views/pages/expense/EditExpenseType'))
 const NewExpenseType = React.lazy(() => import('./views/pages/expense/NewExpenseType'))
 const NewExpense = React.lazy(() => import('./views/pages/expense/NewExpense'))
+const expense = React.lazy(() => import('./views/pages/expense/ExpenseReport'))
 
 //Reports
 const ExpenseReport = React.lazy(() => import('./views/pages/report/ExpenseReport'))
@@ -139,6 +140,7 @@ export default function fetchRoutes(){
     { path: '/expense/new-type', name: 'New Type', element: NewExpenseType },
     { path: '/expense/edit-type/:id', name: 'Edit Type', element: EditExpenseType },
     { path: '/expense/all-type', name: 'All Types', element: AllExpenseType },
+    { path: '/expense/reportExpense', name: 'Expense Report', element: expense },
     { path: '/expense/new', name: 'New Expense', element: NewExpense },
     { path:'/updatepassword', name: 'Update Password', element: Updatepassword },
     // { path: '/map', name: 'Map', element: JarMap },
@@ -189,6 +191,7 @@ export default function fetchRoutes(){
     { path: '/expense/new-type', name: 'New Type', element: NewExpenseType },
     { path: '/expense/edit-type/:id', name: 'Edit Type', element: EditExpenseType },
     { path: '/expense/all-type', name: 'All Types', element: AllExpenseType },
+    { path: '/expense/reportExpense', name: 'Expense Report', element: expense },
     { path: '/expense/new', name: 'New Expense', element: NewExpense },
     { path:'/updatepassword', name: 'Update Password', element: Updatepassword },
   

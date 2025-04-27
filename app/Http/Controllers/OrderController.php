@@ -82,6 +82,8 @@ class OrderController extends Controller
             $od->oPrice = $item['oPrice'];
             $od->dPrice = $item['dPrice'];
             $od->total_price = $item['total_price'] ?? 0;
+            $od->remark = $item['remark'] ?? '';
+            
             $order->items()->save($od);
             //update stock of products
             if($request->orderStatus == 1){

@@ -56,6 +56,7 @@ const Delivery = () => {
     paidAmount: 0,
     finalAmount: 0,
     paymentType: 1,
+    remark: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -99,10 +100,17 @@ const Delivery = () => {
       setSuggestions([]);
     }
   });
+  const handleRemarkChange = (index, value) => {
+    const allProductsCopy = [...allProducts];
+    allProductsCopy[index].remark = value;
+    setAllProducts([...allProductsCopy]);
+  };
+  
+  
 
   const handleSuggestionClick = (suggestion) => {
     setCustomerName(suggestion);
-    setState((pre)=>({...pre, customer_id: suggestion.id}))
+    setState((pre) => ({...pre, customer_id: suggestion.id}))
     const updatedProducts = discountedPrices([...allProducts], suggestion.discount)
     setAllProducts(updatedProducts);
     calculateTotal(updatedProducts);
@@ -120,7 +128,6 @@ const Delivery = () => {
 
   const getCustomerHistory = useCallback(async (customer_id) => {
     try {
-      //customerHistory
       const response = await getAPICall('/api/customerHistory?id=' + customer_id);
       if (response) {
         setCustomerHistory(response);
@@ -128,7 +135,7 @@ const Delivery = () => {
     } catch (error) {
       showToast('danger', 'Error occured ' + error);
     }
-  });
+  }, []);
 
   const getBookings = useCallback(async (customer_id) => {
     showSpinner();
@@ -188,8 +195,8 @@ const Delivery = () => {
     });
     setState((prev) => ({
       ...prev,
-      totalAmount: total,
-      finalAmount: total
+      totalAmount: 0,
+      finalAmount: 0
     }));
   });
   
@@ -221,8 +228,8 @@ const Delivery = () => {
   }, [])
 
   const handleChange = useCallback((e) => {
-    const { name, value } = e.target
-    setState({ ...state, [name]: value })
+    const { name, value } = e.target;
+    setState({ ...state, [name]: value });  // Update the corresponding state field
   });
 
   const handleSubmit = useCallback(async (event) => {
@@ -237,22 +244,23 @@ const Delivery = () => {
       let clonedState = { 
         ...state,
         deliveryDate: state.invoiceDate,
-        finalAmount: state.totalAmount, 
+        finalAmount: 0, 
         deliveryTime: timeNow(),
         items: [] 
       };
-      allProducts.forEach((p)=>{
-        if(p.dQty > 0 || p.eQty > 0){
+      allProducts.forEach((p) => {
+        if(p.dQty > 0 || p.eQty > 0) {
           const sz = p.sizes[0];
           let item = {
             ...p,
             product_sizes_id: sz.id,
             size_name: sz.name,
             size_local_name: sz.localName,
-            oPrice: sz.oPrice,
-            bPrice: sz.bPrice,
-            dPrice: sz.dPrice,
-            total_price: p.total ?? sz.default_qty * p.dQty
+            oPrice: 0,
+            bPrice: 0,
+            dPrice: 0,
+            total_price: 0,
+            remark: p.remark || '' // Add this line to include the remark
           };
           clonedState.items.push({...item});
         }
@@ -314,12 +322,14 @@ const Delivery = () => {
       finalAmount: 0,
       paymentType: 1,
       orderStatus: 1,
+      remark: ''
     })
     const allProductsCopy = [...allProducts];
     allProductsCopy.forEach(p=>{
       p['eQty'] = 0;
       p['dQty'] = 0;
       p.total = 0;
+      p.remark = '';
       p.sizes[0].dPrice = getDiscountedPrice(p, 0);
     });
     setAllProducts([...allProductsCopy]);
@@ -499,6 +509,9 @@ const Delivery = () => {
                   {
                     customerHistory.returnEmptyProducts.filter(p=>p.quantity>0).map(p=>(<React.Fragment key={p.id}>
                     <br/>{t("LABELS.collect")} <strong className="text-danger"> {p.quantity} </strong> {t("LABELS.empty")}  <strong className="text-danger"> {lng === 'en' ? p.product_name : p.product_local_name} </strong>
+                    {p.last_remark && 
+                        <span className="text-muted"> ({p.last_remark})</span>
+                      }
                     </React.Fragment>))
                   }
                   </>}
@@ -642,8 +655,15 @@ const Delivery = () => {
 </div>
 
 <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3 pr-5">
-  <CFormLabel htmlFor="total">{t("LABELS.total")}</CFormLabel>
+  <CFormLabel htmlFor="remark">{t("LABELS.remark")}</CFormLabel>
   <CFormInput
+    type="text"
+    placeholder="Enter Remark"
+    value={p.remark || ''}
+    onChange={(e) => handleRemarkChange(index, e.target.value)}
+  />
+</div>
+  {/* <CFormInput
     id="total"
     placeholder="0"
     name="total"
@@ -653,8 +673,9 @@ const Delivery = () => {
         : (p.sizes[0].default_qty * p.dQty) || ''
     }
     onChange={(e) => handleTotalChange(e, index)}
-  />
-</div>
+  /> */}
+
+
 
 
 

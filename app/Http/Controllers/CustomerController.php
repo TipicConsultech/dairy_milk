@@ -9,6 +9,7 @@ use App\Models\PaymentTracker;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
@@ -84,28 +85,44 @@ class CustomerController extends Controller
 
 
     public function history(Request $request)
-{
-    // Validate the input to ensure the 'id' field is present
-    $request->validate([
-        'id' => 'required|string'
-    ]);
-
-    $user = Auth::user();
-    $companyId = $user->company_id;
-    $userType = $user->type;
-
-    $id = $request->query('id'); 
-
-    $returnEmptyProducts = JarTracker::where('customer_id', $id)->get();
-    $paymentTrackerSum = PaymentTracker::where('customer_id', $id)->sum('amount');
-    $customer = Customer::find($id);
-
-    return response()->json([
-        'returnEmptyProducts' => $returnEmptyProducts,
-        'pendingPayment' => $paymentTrackerSum * -1,
-        'default_qty' => $customer->default_qty
-    ]);
-}
+    {
+        // Validate the input to ensure the 'id' field is present
+        $request->validate([
+            'id' => 'required|string'
+        ]);
+    
+        $user = Auth::user();
+        $companyId = $user->company_id;
+        $userType = $user->type;
+    
+        $id = $request->query('id'); 
+    
+        $returnEmptyProducts = JarTracker::where('customer_id', $id)->get();
+        
+        // For each product, find the last remark
+        foreach ($returnEmptyProducts as $product) {
+            // Get the last order detail with a remark for this product and customer
+            $lastRemark = DB::table('order_details')
+                ->join('orders', 'order_details.order_id', '=', 'orders.id')
+                ->where('orders.customer_id', $id)
+                ->where('order_details.product_sizes_id', $product->product_sizes_id)
+                ->whereNotNull('order_details.remark')
+                ->where('order_details.remark', '!=', '')
+                ->orderBy('orders.created_at', 'desc')
+                ->value('order_details.remark');
+                
+            $product->last_remark = $lastRemark ?: '';
+        }
+        
+        $paymentTrackerSum = PaymentTracker::where('customer_id', $id)->sum('amount');
+        $customer = Customer::find($id);
+    
+        return response()->json([
+            'returnEmptyProducts' => $returnEmptyProducts,
+            'pendingPayment' => $paymentTrackerSum * -1,
+            'default_qty' => $customer->default_qty
+        ]);
+    }
 
 
     public function creditReport(Request $request)

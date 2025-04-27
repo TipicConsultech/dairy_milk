@@ -6,6 +6,7 @@
         "new_customer": "नवीन ग्राहक",
         "new": "नवीन ग्राहक",
         "name": "नाव",
+        "remark":"टीका",
         "finalproductinventry":"अंतिम उत्पादन यादी",
         "credit": "येणे",
         "Packet":"पाकिटे/खोके",
@@ -28,10 +29,11 @@
         "clear": "क्लिअर",
         "view_QR": "QR दाखवा",
         "search": "ग्राहक शोधा",
-
+        "update":"अपडेट",
         "dashboard": "डॅशबोर्ड",
         "delivery": "डिलिव्हरी",
         "invoice": "चलन",
+        "visible":"Visible",
         "booking": "बुकिंग",
         "customers": "ग्राहक",
         "all_customers": "सर्व ग्राहक",
@@ -124,6 +126,11 @@
         "select": "निवडा",
          "g" : "ग्रा",
         "pcs": "पॅकेट",
+   
+    "filter": "निवारण करा",
+    "loading": "लोड होत आहे...",
+    "all_expenses": "सर्व खर्च",
+    "expense_report":"खर्च रिपोर्ट",
 
     "stockManagement": "साठा व्यवस्थापन",
     "tanks": "टाक्या",
@@ -272,7 +279,15 @@
         "error_occured_please_try_again_later_msg": "एरर आली, कृपया नंतर पुन्हा प्रयत्न करा",
         "select_expense_type_msg": "खर्चाचा प्रकार निवडा",
         "expense_type_added_successfully_msg": "खर्चाचा प्रकार यशस्वीरित्या जोडला",
-        "failed_to_add_expense_type_msg": "खर्चाचा प्रकार जोडण्यात अयशस्वी"
+        "failed_to_add_expense_type_msg": "खर्चाचा प्रकार जोडण्यात अयशस्वी",
+        "expense_type_updated_successfully_msg" :"खर्च प्रकार यशस्वीरित्या अद्यतनित केला",
+        "failed_to_update_expense_type_msg":"खर्च प्रकार यशस्वीरित्या अपडेट केला",
+
+        "please_select_date_range": "कृपया एक तारीख श्रेणी निवडा",
+        "expense_deleted_successfully": "खर्च यशस्वीपणे हटविला",
+        "no_expenses_found": "निवडलेल्या तारीख श्रेणीत कोणतेही खर्च आढळले नाही.",
+        "select_date_range_to_view_expenses": "खर्च पाहण्यासाठी एक तारीख श्रेणी निवडा."
+        
 
     }
    }

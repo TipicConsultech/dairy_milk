@@ -22,6 +22,7 @@ class OrderDetail extends Model
         'oPrice',
         'dPrice',
         'total_price',
+        'remark'
     ];
 
     /**
