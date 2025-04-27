@@ -48,6 +48,8 @@
      "new_expense": "Add Expense",
      "all_expenses" : "All Expenses",
      "expense_report":"Expense Report",
+     "cost":"Cost",
+     "stockInUnit":"Stock in Unit",
      "new_expense_type": "New Expense Type",
      "all_expense_types": "All Expense Types",
      "report": "Report",
