@@ -260,7 +260,7 @@ const Delivery = () => {
             bPrice: 0,
             dPrice: 0,
             total_price: 0,
-            remark: p.remark || '' // Add this line to include the remark
+            remark: p.remark || 'NA' // Add this line to include the remark
           };
           clonedState.items.push({...item});
         }
@@ -510,7 +510,7 @@ const Delivery = () => {
                     customerHistory.returnEmptyProducts.filter(p=>p.quantity>0).map(p=>(<React.Fragment key={p.id}>
                     <br/>{t("LABELS.collect")} <strong className="text-danger"> {p.quantity} </strong> {t("LABELS.empty")}  <strong className="text-danger"> {lng === 'en' ? p.product_name : p.product_local_name} </strong>
                     {p.last_remark && 
-                        <span className="text-muted"> ({p.last_remark})</span>
+                        <span className="text-muted"> - ({p.last_remark})</span>
                       }
                     </React.Fragment>))
                   }

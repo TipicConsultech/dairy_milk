@@ -83,7 +83,6 @@ class CustomerController extends Controller
 
 
 
-
     public function history(Request $request)
     {
         // Validate the input to ensure the 'id' field is present
@@ -110,10 +109,11 @@ class CustomerController extends Controller
                 ->where('order_details.remark', '!=', '')
                 ->orderBy('orders.created_at', 'desc')
                 ->value('order_details.remark');
-                
-            $product->last_remark = $lastRemark ?: '';
+    
+            // If the last remark is blank or null, show blank
+            $product->last_remark = $lastRemark ?: ''; // If $lastRemark is null or empty, assign ''
         }
-        
+    
         $paymentTrackerSum = PaymentTracker::where('customer_id', $id)->sum('amount');
         $customer = Customer::find($id);
     
@@ -123,6 +123,7 @@ class CustomerController extends Controller
             'default_qty' => $customer->default_qty
         ]);
     }
+    
 
 
     public function creditReport(Request $request)
