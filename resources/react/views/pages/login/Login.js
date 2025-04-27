@@ -24,6 +24,7 @@ import { useToast } from '../../common/toast/ToastContext';
 
 const Login = () => {
   const [validated, setValidated] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [showInstall, setShowInstall] = useState(false);
   const navigate = useNavigate();
   const userNameRef = useRef();
@@ -114,7 +115,7 @@ const Login = () => {
             <CCardGroup>
               <CCard className="p-4">
                 <CCardBody>
-                  <CForm noValidate={true} validated={validated} onSubmit={handleLogin}>
+                  <CForm noValidate={true}  onSubmit={handleLogin}>
                     <img src={logo} style={{ width: '100%', height: 'auto', maxHeight: '200px' }} className='object-fit-contain'/>
                     <p className="text-body-secondary">Sign In to your account</p>
                     <CInputGroup className="mb-3">
@@ -135,15 +136,35 @@ const Login = () => {
                         <CIcon icon={cilLockLocked} />
                       </CInputGroupText>
                       <CFormInput
-                        ref={userPwdRef}
-                        id="password"
-                        type="password"
-                        placeholder="Password"
-                        autoComplete="current-password"
-                        feedbackInvalid="Please provide password."
-                        required
-                      />
-                    </CInputGroup>
+    ref={userPwdRef}
+    id="password"
+    type={showPassword ? "text" : "password"}
+    placeholder="Password"
+    autoComplete="current-password"
+    feedbackInvalid="Please provide password."
+    required
+    valid={false}  // force to never show green tick
+  invalid={false}
+    style={{ paddingRight: '2.5rem' }} // ensures room for emoji
+  />
+
+  <button
+    type="button"
+    onClick={() => setShowPassword((prev) => !prev)}
+    style={{
+      position: 'absolute',
+      top: '50%',
+      right: '10px',
+      transform: 'translateY(-50%)',
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      zIndex: 10,
+    }}
+  >
+    {showPassword ? '🔒' : '👁️'}
+  </button>
+</CInputGroup>
 
                     <CRow>
                       <CCol xs={6}>
