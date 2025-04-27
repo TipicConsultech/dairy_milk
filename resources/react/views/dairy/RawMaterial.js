@@ -146,6 +146,7 @@ function RawMaterial() {
         else if(resp?.updated){
             setShowAlert(true);
             setQuantities({});
+            setFailedItems([]);
             searchMaterials();
         }
       } catch (e) {
@@ -227,8 +228,10 @@ function RawMaterial() {
         if(resp?.failed){
             setFailedItems(resp?.failed)
         }
-        else if(!resp.failed){
+        else if(resp?.message==="Bulk update successful"){
             setQuantities({});
+            setFailedItems([]);
+            setShowAlert(true);
         }
     }
     catch(e){
