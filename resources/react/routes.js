@@ -118,7 +118,6 @@ export default function fetchRoutes(){
     { path: '/dashboard', name: 'Dashboard', element: Dashboard },
     { path: '/delivery', name: 'Delivery', element: Delivery },
     { path: '/invoice', name: 'invoice', element: Invoice },
-    { path: '/booking', name: 'Booking', element: Booking },
     { path: '/invoice-details/:id', name: 'InvoiceDetails', element: InvoiceDetails },
     { path: '/bookings', name: 'Advance Bookings', element: Orders },
     { path: '/regular', name: 'Regular Orders', element: Orders },
