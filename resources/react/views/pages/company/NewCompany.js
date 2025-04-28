@@ -24,6 +24,7 @@ function NewCompany() {
   const user = getUserData();
   const userType = user.type;
   const logedInUserId = user.id;
+  const [preparedData, setPreparedData] = useState(null);
   const [formData, setFormData] = useState({
     companyName: '',
     companyId: '',
@@ -63,7 +64,7 @@ function NewCompany() {
 
   const getGSTAmount = () => {
     //Calculate 18 % of total
-    return Math.ceil(totalAmount() * 0.12);
+    return Math.ceil(totalAmount() * 0.18);
   }
 
   const totalAmount = () => {
@@ -71,7 +72,7 @@ function NewCompany() {
   }
 
   const getNumberOfMonths = () => {
-    // todo calculate no of month from today till validity date
+    // Calculate no of month from today till validity date
     const validityDate = new Date(formData.subscription_validity);
     const todayDate = new Date();
     const diffTime = Math.abs(validityDate - todayDate);
@@ -88,7 +89,6 @@ function NewCompany() {
     fetchRefData();
   },[])
   
-
   useEffect(() => {
     if (!window.Razorpay) {
       const script = document.createElement("script");
@@ -98,11 +98,69 @@ function NewCompany() {
     }
   }, []);
 
-  const handlePayment = async (cInfo) => {
-    
+  // New function to handle the file uploads and prepare data
+  const prepareFormData = async () => {
     try {
+      let finalData = {...formData,
+        logo: 'invoice/jalseva.jpg',
+        sign: 'invoice/empty.png',
+        paymentQRCode: 'invoice/empty.png',
+      };
+
+      if(formData.logo){
+        const logoData = new FormData();
+        logoData.append("file", formData.logo);
+        logoData.append("dest", "invoice");
+        const responseLogo = await postFormData('/api/fileUpload', logoData);
+        const logoPath = responseLogo.fileName;
+        if(logoPath){
+          finalData.logo = logoPath;
+        }
+      }
+       
+      if(formData.sign){
+        const signData = new FormData();
+        signData.append("file", formData.sign);
+        signData.append("dest", "invoice");
+        const responseSign = await postFormData('/api/fileUpload', signData);
+        const signPath = responseSign.fileName;
+        if(signPath){
+          finalData.sign = signPath;
+        }
+      }
+
+      if(formData.paymentQRCode){
+        const paymentQRCodeData = new FormData();
+        paymentQRCodeData.append("file", formData.paymentQRCode);
+        paymentQRCodeData.append("dest", "invoice");
+        const responsePaymentQRCode = await postFormData('/api/fileUpload', paymentQRCodeData);
+        const paymentQRCodePath = responsePaymentQRCode.fileName;
+        if(paymentQRCodePath){
+          finalData.paymentQRCode = paymentQRCodePath;
+        }
+      }
+
+      return finalData;
+    } catch (error) {
+      showToast('danger', 'Error uploading files: ' + error);
+      console.error('Error uploading files:', error);
+      return null;
+    }
+  };
+
+  const handlePayment = async () => {
+    try {
+      // First prepare data by uploading files
+      const preparedFormData = await prepareFormData();
+      if (!preparedFormData) {
+        showToast('danger', 'Failed to prepare form data');
+        return;
+      }
+      
+      setPreparedData(preparedFormData);
+      
       const paymentData = {
-        amount:totalAmount(),
+        amount: totalAmount(),
       };
  
       const data = await post("/api/create-order", paymentData);
@@ -123,52 +181,79 @@ function NewCompany() {
             console.log("Verify Response:", verifyResponse);
 
             if (verifyResponse?.success) {
-              // Prepare receipt data
-              const receiptData = {
-                company_id: cInfo.company_id,
-                plan_id: cInfo.subscribed_plan,
-                user_id: logedInUserId,
-                total_amount: totalAmount(),
-                valid_till: cInfo.subscription_validity,
-                transaction_id: response.razorpay_payment_id,
-                transaction_status: 'success',
-              };
-              // Send receipt data to the backend
-              const receiptResponse = await post('/api/company-receipt', receiptData);
-          
-              if (receiptResponse?.success) {
-                showToast('success','Payment Successful and Receipt Saved!');
-                let pdfData = receiptResponse.data[0];
-                if(pdfData){
-                  pdfData.payable_amount = totalAmount();
-                  pdfData.total_amount = totalAmount() - getGSTAmount();
-                  pdfData.gst = getGSTAmount();
-                  generateCompanyReceiptPDF(pdfData);
+              // Now register the company AFTER successful payment
+              try {
+                const companyResponse = await post('/api/company', preparedFormData);
+                
+                if(companyResponse?.details?.company_id) {
+                  showToast('success', 'Company Registration Successful!');
+                  
+                  // Prepare receipt data
+                  const receiptData = {
+                    company_id: companyResponse.details.company_id,
+                    plan_id: preparedFormData.subscribed_plan,
+                    user_id: logedInUserId,
+                    total_amount: totalAmount(),
+                    valid_till: preparedFormData.subscription_validity,
+                    transaction_id: response.razorpay_payment_id,
+                    transaction_status: 'success',
+                  };
+                  
+                  // Send receipt data to the backend
+                  const receiptResponse = await post('/api/company-receipt', receiptData);
+              
+                  if (receiptResponse?.success) {
+                    showToast('success', 'Payment Successful and Receipt Saved!');
+                    let pdfData = receiptResponse.data[0];
+                    if(pdfData){
+                      pdfData.payable_amount = totalAmount();
+                      pdfData.total_amount = totalAmount() - getGSTAmount();
+                      pdfData.gst = getGSTAmount();
+                      generateCompanyReceiptPDF(pdfData);
+                    }
+                  } else {
+                    showToast('info', 'Company registered, payment successful, but there was an issue saving the receipt.');
+                  }
+                } else {
+                  showToast('danger', 'Payment was successful but company registration failed.');
+                  // Log transaction for manual verification
+                  const failedRegistrationData = {
+                    transaction_id: response.razorpay_payment_id,
+                    transaction_status: 'success_but_registration_failed',
+                    payment_info: JSON.stringify({
+                      razorpay_order_id: response.razorpay_order_id,
+                      razorpay_payment_id: response.razorpay_payment_id
+                    }),
+                    company_data: JSON.stringify(preparedFormData)
+                  };
+                  
+                  await post('/api/failed-registration-log', failedRegistrationData);
                 }
-              } else {
-                showToast('info','Payment Successful, but there was an issue saving the receipt.');
+              } catch (error) {
+                showToast('danger', 'Payment was successful but company registration failed: ' + error);
+                // Log the error for manual follow-up
+                console.error('Error registering company after payment:', error);
               }
             }
             else {
-                showToast('info','Payment initiation failed');
-                const receiptData = {
-                  company_id: cInfo.company_id,
-                  plan_id: cInfo.subscribed_plan,
-                  user_id: logedInUserId,
-                  total_amount: totalAmount(),
-                  valid_till: cInfo.subscription_validity,
-                  transaction_id: 'NA',
-                  transaction_status: 'Payment gateway verification faild',
-                };
-                // Send receipt data to the backend
-                await post('/api/company-receipt', receiptData);
+              showToast('info', 'Payment verification failed');
+              const receiptData = {
+                plan_id: preparedFormData.subscribed_plan,
+                user_id: logedInUserId,
+                total_amount: totalAmount(),
+                valid_till: preparedFormData.subscription_validity,
+                transaction_id: 'NA',
+                transaction_status: 'Payment gateway verification failed',
+              };
+              // Send receipt data to the backend for tracking failed payments
+              await post('/api/failed-payment-log', receiptData);
             }
             resetForm();
           },
           prefill: {
-            companyId: cInfo.company_id,
-            companyName: cInfo.companyName,
-            companyEmail: cInfo.email_id
+            name: preparedFormData.companyName,
+            email: preparedFormData.email_id,
+            contact: preparedFormData.phone_no
           },
           theme: {
             color: "#3399cc",
@@ -180,39 +265,36 @@ function NewCompany() {
  
         razorpay.on("payment.failed", async(response) => {
           console.error("Payment Failed:", response.error);
-          const receiptData = {
-            company_id: cInfo.company_id,
-            plan_id: cInfo.subscribed_plan,
+          const failedPaymentData = {
+            plan_id: preparedFormData.subscribed_plan,
             user_id: logedInUserId,
             total_amount: totalAmount(),
-            valid_till: cInfo.subscription_validity,
-            transaction_id: response.error?.metadata.payment_id ?? 'txn_id_is_missing',
+            valid_till: preparedFormData.subscription_validity,
+            transaction_id: response.error?.metadata?.payment_id ?? 'txn_id_is_missing',
             transaction_status: response.error?.description ?? 'Failed',
           };
           // Send receipt data to the backend
-          await post('/api/company-receipt', receiptData);
+          await post('/api/failed-payment-log', failedPaymentData);
+          showToast('danger', 'Payment failed. Company registration canceled.');
         });
       } else {
-        showToast('danger','Technical issue');
-        const receiptData = {
-          company_id: cInfo.company_id,
-          plan_id: cInfo.subscribed_plan,
+        showToast('danger', 'Technical issue: Could not create payment order');
+        // Log the failed attempt
+        const failedOrderData = {
           user_id: logedInUserId,
           total_amount: totalAmount(),
-          valid_till: cInfo.subscription_validity,
+          valid_till: preparedFormData.subscription_validity,
           transaction_id: 'NA',
           transaction_status: 'Failed to create Razorpay order',
         };
-        // Send receipt data to the backend
-        await post('/api/company-receipt', receiptData);
+        await post('/api/failed-payment-log', failedOrderData);
         resetForm();
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Something went wrong");
+      showToast('danger', 'Something went wrong with payment');
     }
   };
-  
   
   const logoInputRef = useRef(null);
   const signInputRef = useRef(null);
@@ -284,79 +366,24 @@ function NewCompany() {
     if (paymentQRCodeInputRef.current) {
       paymentQRCodeInputRef.current.value = '';
     }
+    
+    setPreparedData(null);
   };
   
   const handleSubmit = async (event) => {
-    const form = event.currentTarget
-    event.preventDefault()
-    event.stopPropagation()
-    setValidated(true)
+    const form = event.currentTarget;
+    event.preventDefault();
+    event.stopPropagation();
+    setValidated(true);
+    
     if (form.checkValidity() !== true) {
       showToast('danger', 'Kindly provide data of all required fields');
       return;
     }
-    try {
-      let finalData = {...formData,
-        logo: 'invoice/jalseva.jpg',
-        sign: 'invoice/empty.png',
-        paymentQRCode: 'invoice/empty.png',
-      };
-
-      if(formData.logo){
-        const logoData = new FormData();
-        logoData.append("file", formData.logo);
-        logoData.append("dest", "invoice");
-        const responseLogo = await postFormData('/api/fileUpload', logoData);
-        const logoPath = responseLogo.fileName;
-        if(logoPath){
-          finalData.logo = logoPath;
-        }
-      }
-       
-      if(formData.sign){
-        const signData = new FormData();
-        signData.append("file", formData.sign);
-        signData.append("dest", "invoice");
-        const responseSign = await postFormData('/api/fileUpload', signData);
-        const signPath = responseSign.fileName;
-        if(signPath){
-          finalData.sign = signPath;
-        }
-      }
-
-      if(formData.paymentQRCode){
-        const paymentQRCodeData = new FormData();
-        paymentQRCodeData.append("file", formData.paymentQRCode);
-        paymentQRCodeData.append("dest", "invoice");
-        const responsePaymentQRCode = await postFormData('/api/fileUpload', paymentQRCodeData);
-        const paymentQRCodePath = responsePaymentQRCode.fileName;
-        if(paymentQRCodePath){
-          finalData.paymentQRCode = paymentQRCodePath;
-        }
-      }
-
-      if(finalData.logo != null && finalData.sign != null){
-        const responce = await post('/api/company', finalData);
-        if(responce?.details?.company_id){
-          showToast('success', 'Company Added Successfully');
-          handlePayment(responce.details);
-        };
-      }
-    } catch (error) {
-      showToast('danger', 'Error occured ' + error);
-      console.error('Error posting data:', error.response ? error.response.data : error.message);
-      if (error.data) {
-        console.log('Look at me', error.data.phone_no?.[0] ?? '');
-        setFormErrors({
-          phone_no: error.data.phone_no?.[0] ?? '',
-          email_id: error.data.email_id?.[0] ?? '',
-        });
-      }
-    }
-
     
-};
-
+    // Now directly go to payment process
+    handlePayment();
+  };
 
   return (
     <CRow>
@@ -599,12 +626,11 @@ function NewCompany() {
                 <div className='col-sm-12'>
                   <CAlert color="success">
                     <h4>Payment Details</h4>
-                    Amount (Per Month):  {getAmount(formData.subscribed_plan)}<br/>
-                    Number of months:  {getNumberOfMonths()}<br/>
-                    Total Amount:  {totalAmount() - getGSTAmount()}<br/>
-                    GST (18%):  {getGSTAmount()}<br/>
-                    <b>Final Payable Amount:</b>  {totalAmount()}
-
+                    Amount (Per Month): {getAmount(formData.subscribed_plan)}<br/>
+                    Number of months: {getNumberOfMonths()}<br/>
+                    Total Amount: {totalAmount() - getGSTAmount()}<br/>
+                    GST (18%): {getGSTAmount()}<br/>
+                    <b>Final Payable Amount:</b> {totalAmount()}
                   </CAlert>
                 </div>
               </div>
