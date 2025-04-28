@@ -128,6 +128,21 @@
         "pcs": "पॅकेट",
         "cost": "खर्च",
         "stockInUnit":"युनिटमधील स्टॉक",
+        "new_shop": "नवीन शॉप रजिस्ट्रेशन",
+        "company_name": "शॉपचे नाव", 
+        "email": "ई-मेल",
+        "bank_name": "बँकेचे नाव",
+        "account_number": "बँक अकाउंट नंबर",
+        "IFSC": "आय एफ एस सी",
+        "logo": "लोगो",
+        "sign": "सही",
+        "qr_img": "क्यू आर कोड",
+        "app_mode": "ऍप मोड",
+        "plan": "प्लॅन (+जी.एस.टि)",
+        "partner": "पार्टनर",
+        "validity": "व्हॅलिडिटी",
+        "submit_pay": "सबमिट & पे",
+        "plan_duration": "ड्युरेशन",
 
     "filter": "निवारण करा",
     "loading": "लोड होत आहे...",
@@ -224,11 +239,6 @@
   "expireDate":"कालबाह्यता तारीख",
   "lastUpdatedDate":"शेवटची अपडेट केलेली तारीख",
   "updatedby":"द्वारे प्रक्रिया केली",
-  "finalproductinventry":"अंतिम उत्पादन यादी",
-
-
-
-
   "select_milk_storage": "दूध साठवणूक निवडा",
   "enter_milk_for_product": "उत्पादनासाठी दूध प्रविष्ट करा",
   "available_qty": "उपलब्ध प्रमाण",
@@ -251,10 +261,10 @@
   "milkQtyToAdd": "जोडण्याची दूध मात्रा (लिटर)",
   "snfValue": "SNF मूल्य",
   "tsValue": "TS मूल्य",
-  "save": "सेव्ह",
+ 
   "remove": "रिकामे करा",
   "empty2":"रिकामे करा",
-  "tank": "टँक",
+ 
   "ltr": "लिटर",
   "emptyTankConfirmation": "टँक रिकामा करण्याची पुष्टी",
   "confirmEmpty": "रिकामा करण्याची पुष्टी करा"

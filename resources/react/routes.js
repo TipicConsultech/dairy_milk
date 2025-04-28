@@ -28,6 +28,7 @@ const EditProduct = React.lazy(() => import('./views/pages/products/EditProduct'
 const NewCustomer = React.lazy(() => import('./views/pages/customer/NewCustomer'))
 const AllCustomers = React.lazy(() => import('./views/pages/customer/AllCustomers'))
 const EditCustomer = React.lazy(() => import('./views/pages/customer/EditCustomer'))
+const CompanyReceipts = React.lazy(() => import('./views/pages/company/CompanyReceipt'))
 
 
 //Expense
@@ -51,6 +52,7 @@ const Updatepassword = React.lazy(() => import('./views/pages/Password/Newpasswo
 // map
 const JarMap = React.lazy(() => import('./views/pages/map/Map'))
 
+const Plans = React.lazy(() => import('./views/pages/plans/Plans'))
 // const Charts = React.lazy(() => import('./views/charts/Charts'))
 
 // const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
@@ -73,9 +75,7 @@ export default function fetchRoutes(){
   if(user===0){
     routes = [
       { path: '/', exact: true, name: 'Home' },
-      { path: '/dashboard', name: 'Dashboard', element: Dashboard },
-      { path: '/delivery', name: 'Delivery', element: Delivery },
-      { path: '/invoice', name: 'Invoice', element: Invoice },
+    
       { path: '/booking', name: 'Booking', element: Booking },
       { path: '/newCustomer', name: 'New Customer', element: Delivery },
       { path: '/company/new', name: 'New Company', element: NewCompany },
@@ -107,6 +107,8 @@ export default function fetchRoutes(){
       { path:'/updatepassword', name: 'Update Password', element: Updatepassword },
       { path:'/usermanagement/create-user', name: 'Create User', element: NewUsers },
       { path:'usermanagement/all-users', name: 'All Users', element: AllUser },
+      { path:'plans', name: 'Plans', element: Plans },
+      { path: '/company/companyReceipt', name: 'Company Receipt', element: CompanyReceipts },
 
      
       // { path: '/map', name: 'Map', element: JarMap },

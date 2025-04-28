@@ -19,9 +19,12 @@ use App\Http\Controllers\CompanyInfoController;
 use App\Http\Controllers\DeliveryItemController;
 use App\Http\Controllers\RawMaterialController;
 use App\Http\Controllers\MilkProcesingController;
+use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ProcessedIngredientsController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\ProductsTrackerController;
+use App\Http\Controllers\RazorpayController;
+use App\Http\Controllers\CompanyReceiptController;
 
 // Dairy
 // use App\Http\Controllers\MilkTankController;
@@ -95,7 +98,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('/appUsers', [AuthController::class, 'update']);
     Route::get('/appUsers', [AuthController::class, 'allUsers']);
     Route::resource('product', ProductController::class);
-
+    Route::resource('plan', PlanController::class);
     Route::resource('expenseType', ExpenseTypeController::class);
     Route::resource('expense', ExpenseController::class);
     Route::resource('order', OrderController::class);
@@ -141,6 +144,15 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     //FinalProductInventory
     Route::get('/finalProductInventory', [ProductsTrackerController::class, 'getFinalProductInventory']);
     Route::get('/searchByProductNameFinalInventry', [ProductsTrackerController::class, 'searchByProductNameFinalInventry']);
+    Route::get('/detailsForCompany', [CompanyInfoController::class,'plansAndPartners']);
+    //RazorPay API's
+    Route::post('/create-order', [RazorpayController::class, 'createOrder']);
+    Route::post('/verify-payment', [RazorpayController::class, 'verifyPayment']);
+
+
+    //receipt
+    Route::post('/company-receipt', [CompanyReceiptController::class, 'store']);
+    Route::get('/company-receipts', [CompanyReceiptController::class, 'index']);
 });
 Route::post('/createProduct', [CommonController::class, 'createProduct']);
 
