@@ -154,7 +154,7 @@ const AllCompanies = () => {
         enableStickyHeader={true}
         enableStickyFooter={true}
         enableDensityToggle={false}
-        initialState={{density: 'xs'}}
+        initialState={{density: 'sm'}}
         enableColumnResizing 
         columns={columns} 
         data={data} 

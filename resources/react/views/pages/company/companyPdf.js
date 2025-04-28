@@ -105,5 +105,5 @@ export function generateCompanyReceiptPDF(receiptData) {
     pdf.setFontSize(10);
     pdf.text("This receipt has been generated and is authorized.", 15, pdf.internal.pageSize.getHeight() - 15);
 
-    pdf.save(`${receiptData?.company?.company_name || "Company"}-${Date.now()}.pdf`);
+    pdf.save(`${receiptData?.company?.company_name || "Company"}.pdf`);
 }

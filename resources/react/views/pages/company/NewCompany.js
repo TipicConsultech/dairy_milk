@@ -162,9 +162,9 @@ function NewCompany() {
       const paymentData = {
         amount: totalAmount(),
       };
- 
+  
       const data = await post("/api/create-order", paymentData);
- 
+  
       if (data) {
         const options = {
           key: data.key,
@@ -179,7 +179,7 @@ function NewCompany() {
               razorpay_signature: response.razorpay_signature,
             });
             console.log("Verify Response:", verifyResponse);
-
+  
             if (verifyResponse?.success) {
               // Now register the company AFTER successful payment
               try {
@@ -216,23 +216,29 @@ function NewCompany() {
                   }
                 } else {
                   showToast('danger', 'Payment was successful but company registration failed.');
-                  // Log transaction for manual verification
-                  const failedRegistrationData = {
+                  // Record in company_receipt table with failure status
+                  const receiptData = {
+                    plan_id: preparedFormData.subscribed_plan,
+                    user_id: logedInUserId,
+                    total_amount: totalAmount(),
+                    valid_till: preparedFormData.subscription_validity,
                     transaction_id: response.razorpay_payment_id,
-                    transaction_status: 'success_but_registration_failed',
-                    payment_info: JSON.stringify({
-                      razorpay_order_id: response.razorpay_order_id,
-                      razorpay_payment_id: response.razorpay_payment_id
-                    }),
-                    company_data: JSON.stringify(preparedFormData)
+                    transaction_status: 'payment_success_registration_failed',
                   };
-                  
-                  await post('/api/failed-registration-log', failedRegistrationData);
+                  await post('/api/company-receipt', receiptData);
                 }
               } catch (error) {
                 showToast('danger', 'Payment was successful but company registration failed: ' + error);
-                // Log the error for manual follow-up
-                console.error('Error registering company after payment:', error);
+                // Log the error in company_receipt table
+                const receiptData = {
+                  plan_id: preparedFormData.subscribed_plan,
+                  user_id: logedInUserId,
+                  total_amount: totalAmount(),
+                  valid_till: preparedFormData.subscription_validity,
+                  transaction_id: response.razorpay_payment_id,
+                  transaction_status: 'payment_success_registration_error',
+                };
+                await post('/api/company-receipt', receiptData);
               }
             }
             else {
@@ -242,11 +248,11 @@ function NewCompany() {
                 user_id: logedInUserId,
                 total_amount: totalAmount(),
                 valid_till: preparedFormData.subscription_validity,
-                transaction_id: 'NA',
+                transaction_id: response.razorpay_payment_id || 'NA',
                 transaction_status: 'Payment gateway verification failed',
               };
-              // Send receipt data to the backend for tracking failed payments
-              await post('/api/failed-payment-log', receiptData);
+              // Record in company_receipt table
+              await post('/api/company-receipt', receiptData);
             }
             resetForm();
           },
@@ -259,13 +265,14 @@ function NewCompany() {
             color: "#3399cc",
           },
         };
- 
+  
         const razorpay = new window.Razorpay(options);
         razorpay.open();
- 
+  
         razorpay.on("payment.failed", async(response) => {
           console.error("Payment Failed:", response.error);
-          const failedPaymentData = {
+          // Record failed payment in company_receipt table
+          const receiptData = {
             plan_id: preparedFormData.subscribed_plan,
             user_id: logedInUserId,
             total_amount: totalAmount(),
@@ -273,26 +280,41 @@ function NewCompany() {
             transaction_id: response.error?.metadata?.payment_id ?? 'txn_id_is_missing',
             transaction_status: response.error?.description ?? 'Failed',
           };
-          // Send receipt data to the backend
-          await post('/api/failed-payment-log', failedPaymentData);
+          // Record in company_receipt table
+          await post('/api/company-receipt', receiptData);
           showToast('danger', 'Payment failed. Company registration canceled.');
         });
       } else {
         showToast('danger', 'Technical issue: Could not create payment order');
-        // Log the failed attempt
-        const failedOrderData = {
+        // Record in company_receipt table
+        const receiptData = {
+          plan_id: preparedFormData.subscribed_plan,
           user_id: logedInUserId,
           total_amount: totalAmount(),
           valid_till: preparedFormData.subscription_validity,
           transaction_id: 'NA',
           transaction_status: 'Failed to create Razorpay order',
         };
-        await post('/api/failed-payment-log', failedOrderData);
+        await post('/api/company-receipt', receiptData);
         resetForm();
       }
     } catch (error) {
       console.error("Error:", error);
       showToast('danger', 'Something went wrong with payment');
+      // Record error in company_receipt table
+      try {
+        const receiptData = {
+          plan_id: formData.subscribed_plan,
+          user_id: logedInUserId,
+          total_amount: totalAmount(),
+          valid_till: formData.subscription_validity,
+          transaction_id: 'NA',
+          transaction_status: 'Payment system error: ' + error.message,
+        };
+        await post('/api/company-receipt', receiptData);
+      } catch (e) {
+        console.error("Failed to record payment error:", e);
+      }
     }
   };
   

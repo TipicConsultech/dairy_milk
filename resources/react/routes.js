@@ -15,6 +15,7 @@ const Orders = React.lazy(() => import('./views/pages/invoice/Orders'))
 const InvoiceDetails = React.lazy(() => import('./views/pages/invoice/InvoiceDetails'))
 const NewCompany = React.lazy(() => import('./views/pages/company/NewCompany'))
 const AllCompanies = React.lazy(() => import('./views/pages/company/AllCompanies'))
+const EditCompany = React.lazy(() => import('./views/pages/company/EditCompany'))
 
 //Raw MAterial 
 const RawMaterial = React.lazy(() => import('./views/dairy/RawMaterial'))
@@ -79,6 +80,7 @@ export default function fetchRoutes(){
       { path: '/booking', name: 'Booking', element: Booking },
       { path: '/newCustomer', name: 'New Customer', element: Delivery },
       { path: '/company/new', name: 'New Company', element: NewCompany },
+      { path: '/company/edit/:companyId', name: 'Edit Company', element: EditCompany },
       { path: '/company/all', name: 'All Companies', element: AllCompanies },
       { path: '/invoice-details/:id', name: 'InvoiceDetails', element: InvoiceDetails },
       { path: '/bookings', name: 'Advance Bookings', element: Orders },
