@@ -12,11 +12,20 @@ import {
   CContainer,
   CSpinner,
   CAlert,
-  CBadge
+  CBadge,
+  CModal,
+  CModalHeader,
+  CModalBody,
+  CModalFooter,
+  CModalTitle
 } from '@coreui/react';
+import { useTranslation } from 'react-i18next';
 import { getAPICall, put } from '../../util/api';
 
 const LaboratoryUser = () => {
+  // Add translation hook
+  const { t, i18n } = useTranslation("global");
+
   // State management
   const [milkTanks, setMilkTanks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +33,13 @@ const LaboratoryUser = () => {
   const [notification, setNotification] = useState({ show: false, type: '', message: '' });
   const [currentUser, setCurrentUser] = useState(null);
   const [formData, setFormData] = useState({});
+
+  // Modal state for confirmation dialog
+  const [confirmModal, setConfirmModal] = useState({
+    visible: false,
+    tankId: null,
+    tankName: ''
+  });
 
   // Memoized helper functions to prevent recreating on every render
   const showNotification = useCallback((type, message) => {
@@ -55,13 +71,13 @@ const LaboratoryUser = () => {
         });
         setFormData(initialFormData);
       } else {
-        showNotification('warning', 'Failed to fetch milk tanks data');
+        showNotification('warning', t('MSG.failedToFetchMilkTanks'));
       }
     } catch (err) {
-      showNotification('warning', `Error connecting to server: ${err.message}`);
+      showNotification('warning', `${t('MSG.errorConnectingToServer')}: ${err.message}`);
       console.error('Error fetching milk tanks:', err);
     }
-  }, [showNotification]);
+  }, [showNotification, t]);
 
   const fetchInitialData = useCallback(async () => {
     try {
@@ -72,15 +88,15 @@ const LaboratoryUser = () => {
       if (userData?.company_id) {
         await fetchMilkTanks(userData.company_id);
       } else {
-        showNotification('warning', 'User information or company ID is missing');
+        showNotification('warning', t('MSG.userInfoMissing'));
       }
     } catch (err) {
-      showNotification('warning', `Error initializing data: ${err.message}`);
+      showNotification('warning', `${t('MSG.errorInitializingData')}: ${err.message}`);
       console.error('Error during initialization:', err);
     } finally {
       setLoading(false);
     }
-  }, [fetchMilkTanks, showNotification]);
+  }, [fetchMilkTanks, showNotification, t]);
 
   // Fetch data on component mount
   useEffect(() => {
@@ -108,20 +124,6 @@ const LaboratoryUser = () => {
     }));
   }, []);
 
-  const resetAllForms = useCallback(() => {
-    setFormData(prev => {
-      const resetData = {};
-      Object.keys(prev).forEach(tankId => {
-        resetData[tankId] = {
-          quantity: '',
-          snf: '',
-          ts: ''
-        };
-      });
-      return resetData;
-    });
-  }, []);
-
   const handleSaveMilkParams = useCallback(async (tankId) => {
     if (!tankId || !formData[tankId]) return;
 
@@ -130,13 +132,13 @@ const LaboratoryUser = () => {
 
       // Validate inputs
       if (!tankFormData.quantity || !tankFormData.snf || !tankFormData.ts) {
-        showNotification('warning', 'All fields are required');
+        showNotification('warning', t('MSG.allFieldsRequired'));
         return;
       }
 
       // Check for negative quantity
       if (parseFloat(tankFormData.quantity) < 0) {
-        showNotification('warning', 'Quantity cannot be negative. Please enter a positive value.');
+        showNotification('warning', t('MSG.quantityCannotBeNegative'));
         return;
       }
 
@@ -151,7 +153,7 @@ const LaboratoryUser = () => {
       const response = await put(`/api/milk-tanks/${tankId}/laboratory-update`, data);
 
       if (response.success) {
-        showNotification('success', 'Milk parameters updated successfully!');
+        showNotification('success', t('MSG.milkParamsUpdatedSuccess'));
         resetForm(tankId);
 
         // Refresh milk tanks data
@@ -159,18 +161,67 @@ const LaboratoryUser = () => {
           await fetchMilkTanks(currentUser.company_id);
         }
       } else {
-        showNotification('warning', response.message || 'Failed to update milk parameters');
+        showNotification('warning', response.message || t('MSG.failedToUpdateMilkParams'));
       }
     } catch (err) {
       // Check if this is a 422 error (likely because of negative quantity)
       if (err.message && err.message.includes('422')) {
-        showNotification('warning', 'Invalid input. Quantity must be a positive number.');
+        showNotification('warning', t('MSG.invalidInputQuantity'));
       } else {
-        showNotification('warning', `Error: ${err.message}`);
+        showNotification('warning', `${t('MSG.error')}: ${err.message}`);
       }
       console.error('Error updating milk parameters:', err);
     }
-  }, [formData, currentUser, showNotification, resetForm, fetchMilkTanks]);
+  }, [formData, currentUser, showNotification, resetForm, fetchMilkTanks, t]);
+
+  // Function to handle opening the confirmation modal
+  const handleRemoveMilkTank = useCallback((tankId, tankName) => {
+    setConfirmModal({
+      visible: true,
+      tankId,
+      tankName
+    });
+  }, []);
+
+  // Function to empty the milk tank after confirmation
+  const confirmEmptyTank = useCallback(async () => {
+    try {
+      const tankId = confirmModal.tankId;
+
+      // Call the empty tank API endpoint
+      const response = await put(`/api/milk-tanks/${tankId}/empty-tank`);
+
+      if (response.success) {
+        showNotification('success', t('MSG.tankEmptiedSuccess'));
+
+        // Close the modal
+        setConfirmModal({
+          visible: false,
+          tankId: null,
+          tankName: ''
+        });
+
+        // Refresh milk tanks data
+        if (currentUser?.company_id) {
+          await fetchMilkTanks(currentUser.company_id);
+        }
+      } else {
+        showNotification('warning', response.message || t('MSG.failedToEmptyTank'));
+      }
+    } catch (err) {
+      showNotification('warning', `${t('MSG.error')}: ${err.message}`);
+      console.error('Error emptying milk tank:', err);
+    }
+  }, [confirmModal, showNotification, currentUser, fetchMilkTanks, t]);
+
+  // Cancel the remove operation
+  const cancelEmptyTank = useCallback(() => {
+    setConfirmModal({
+      visible: false,
+      tankId: null,
+      tankName: ''
+    });
+  }, []);
 
   // Pure functions moved outside of component render
   const calculatePercentage = (current, capacity) => {
@@ -183,6 +234,29 @@ const LaboratoryUser = () => {
     if (percentage < 30) return '#dc3545'; // Red
     if (percentage < 70) return '#ffc107'; // Yellow
     return '#28a745'; // Green
+  };
+
+  // Format milk type for display
+  const formatMilkType = (type) => {
+    if (type?.toLowerCase().includes('cow')) return t('LABELS.cowMilk');
+    if (type?.toLowerCase().includes('buffalo')) return t('LABELS.buffaloMilk');
+    return type; // Return original if no match
+  };
+
+  // Format the last updated date and time
+  const formatLastUpdated = (dateString) => {
+    if (!dateString) return t('MSG.neverUpdated');
+
+    const date = new Date(dateString);
+
+    // Return formatted date and time
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    }).format(date);
   };
 
   // Loading state
@@ -236,13 +310,27 @@ const LaboratoryUser = () => {
     color: '#fd7e14'
   };
 
+  const lastUpdatedStyle = {
+    fontSize: '0.85rem',
+    color: '#6c757d',
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '10px'
+  };
+
+  const clockIconStyle = {
+    marginRight: '5px',
+    height: '14px',
+    width: '14px'
+  };
+
   // Render component
   return (
     <CContainer fluid className="p-0">
-      <CCard className="mb-2">
+      <CCard className="mb-3 shadow-sm">
         <CCardHeader style={{ backgroundColor: "#E6E6FA" }}>
           <div className="d-flex justify-content-between align-items-center flex-wrap">
-            <h5 className="mb-0">Laboratory Technician</h5>
+            <h5 className="mb-0">{t('LABELS.laboratoryUser')}</h5>
           </div>
         </CCardHeader>
 
@@ -253,23 +341,42 @@ const LaboratoryUser = () => {
           </CAlert>
         )}
 
-        <CCardBody className="p-3">
+        <CCardBody className="p-1 p-md-2">
           {/* Milk tanks display with integrated milk inputs */}
-          <CRow xs={{ cols: 1 }} md={{ cols: 2 }}>
+          <CRow xs={{ cols: 1 }} md={{ cols: 2 }} className="g-4">
             {milkTanks.length > 0 ? (
               milkTanks.map((tank) => {
                 const percentage = calculatePercentage(tank.quantity, tank.capacity);
                 const fillColor = getColorByPercentage(percentage);
                 const tankFormData = formData[tank.id] || { quantity: '', snf: '', ts: '' };
+                const displayName = formatMilkType(tank.name);
 
                 return (
-                  <CCol className="mb-3" key={tank.id}>
-                    <div className="border rounded p-3 h-100">
+                  <CCol className="mb-2" key={tank.id}>
+                    <div className="border rounded p-3 h-100 shadow-sm">
                       <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h5 className="mb-0 fw-bold">{tank.name}</h5>
-                        <CBadge color="info" shape="rounded-pill" className="px-3">
-                          {tank.quantity} / {tank.capacity} Ltr
+                        <h5 className="mb-0 fw-bold">{displayName}</h5>
+                        <CBadge color="info" shape="rounded-pill" className="px-3 py-2">
+                          {tank.quantity} / {tank.capacity} {t('LABELS.ltr')}
                         </CBadge>
+                      </div>
+
+                      {/* Last Updated Time */}
+                      <div style={lastUpdatedStyle}>
+                        <svg
+                          style={clockIconStyle}
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <span>{t('LABELS.lastUpdated')}: {formatLastUpdated(tank.updated_at)}</span>
                       </div>
 
                       {/* Tank fill progress */}
@@ -294,62 +401,71 @@ const LaboratoryUser = () => {
                       <div className="text-center mb-3">
                         <div className="d-inline-flex justify-content-center gap-3">
                           <div className="metric-badge" style={snfBadgeStyle}>
-                            SNF: {tank.snf}%
+                            {t('LABELS.snfColon')} {tank.snf}%
                           </div>
                           <div className="metric-badge" style={tsBadgeStyle}>
-                            TS: {tank.ts}%
+                            {t('LABELS.tsColon')} {tank.ts}%
                           </div>
                         </div>
-                        {/* <div className="mt-1 text-muted small">
-                          ID: {tank.company_id}
-                        </div> */}
                       </div>
 
                       {/* Input form */}
                       <CForm>
-                        <CRow className="g-2 align-items-center mb-2">
-                          <CCol xs={12} md={4}>
+                        <CRow className="g-3 mb-3">
+                          <CCol xs={12}>
                             <CFormInput
                               type="number"
                               value={tankFormData.quantity}
                               onChange={(e) => handleFormChange(tank.id, 'quantity', e.target.value)}
-                              placeholder="Quantity to Add (Ltr)"
+                              placeholder={t('LABELS.milkQtyToAdd')}
                               min="0"
+                              className="form-control-lg"
                             />
                           </CCol>
-                          <CCol xs={6} md={4}>
+                          <CCol xs={6}>
                             <div className="d-flex align-items-center">
-                              <CFormLabel className="mb-0 me-2 fw-bold text-center w-100">SNF</CFormLabel>
+                              <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '40px' }}>{t('LABELS.snf')}</CFormLabel>
                               <CFormInput
                                 type="number"
                                 step="0.01"
                                 value={tankFormData.snf}
                                 onChange={(e) => handleFormChange(tank.id, 'snf', e.target.value)}
-                                placeholder="SNF Value"
+                                placeholder={t('LABELS.snfValue')}
                               />
                             </div>
                           </CCol>
-                          <CCol xs={6} md={4}>
+                          <CCol xs={6}>
                             <div className="d-flex align-items-center">
-                              <CFormLabel className="mb-0 me-2 fw-bold text-center w-100">TS</CFormLabel>
+                              <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '40px' }}>{t('LABELS.ts')}</CFormLabel>
                               <CFormInput
                                 type="number"
                                 step="0.01"
                                 value={tankFormData.ts}
                                 onChange={(e) => handleFormChange(tank.id, 'ts', e.target.value)}
-                                placeholder="TS Value"
+                                placeholder={t('LABELS.tsValue')}
                               />
                             </div>
                           </CCol>
                         </CRow>
-                        <CRow>
-                          <CCol xs={12} className="d-flex justify-content-center mt-2">
+
+                        <CRow className="g-3">
+                          <CCol xs={6}>
                             <CButton
                               color="primary"
-                              className="px-4"
+                              className="px-4 w-100"
                               onClick={() => handleSaveMilkParams(tank.id)}
                             >
-                              Save
+                              {t('LABELS.save')}
+                            </CButton>
+                          </CCol>
+                          <CCol xs={6}>
+                            <CButton
+                              color="danger"
+                              variant="outline"
+                              className="px-4 w-100"
+                              onClick={() => handleRemoveMilkTank(tank.id, tank.name)}
+                            >
+                              {t('LABELS.empty2')} {displayName} {t('LABELS.tank')}
                             </CButton>
                           </CCol>
                         </CRow>
@@ -360,33 +476,486 @@ const LaboratoryUser = () => {
               })
             ) : (
               <CCol>
-                <div className="text-center p-3">
-                  {error ? 'Failed to load milk tanks' : 'No milk tanks available for your company'}
+                <div className="text-center p-4">
+                  {error ? t('MSG.failedToLoadMilkTanks') : t('MSG.noMilkTanksAvailable')}
                 </div>
               </CCol>
             )}
           </CRow>
-
-          {/* Reset All button */}
-          <CRow>
-            <CCol xs={12} sm={4} md={2} lg={2}>
-              <CButton
-                color="danger"
-                variant="outline"
-                className="px-4 w-100"
-                onClick={resetAllForms}
-              >
-                Reset All
-              </CButton>
-            </CCol>
-          </CRow>
         </CCardBody>
       </CCard>
+
+      {/* Confirmation Modal */}
+      <CModal
+        visible={confirmModal.visible}
+        onClose={cancelEmptyTank}
+        aria-labelledby="empty-tank-modal"
+        centered
+      >
+        <CModalHeader onClose={cancelEmptyTank}>
+          <CModalTitle id="empty-tank-modal">{t('LABELS.emptyTankConfirmation')}</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <p>{t('MSG.emptyTankWarning', { tankName: formatMilkType(confirmModal.tankName) })}</p>
+          <ul>
+            <li>{t('MSG.quantityWillBeZero')}</li>
+            <li>{t('MSG.snfWillBeZero')}</li>
+            <li>{t('MSG.tsWillBeZero')}</li>
+          </ul>
+          <p className="text-danger fw-bold">{t('MSG.thisActionCannotBeUndone')}</p>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={cancelEmptyTank}>
+            {t('LABELS.cancel')}
+          </CButton>
+          <CButton color="danger" onClick={confirmEmptyTank}>
+            {t('LABELS.confirmEmpty')}
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </CContainer>
   );
 };
 
 export default LaboratoryUser;
+
+
+
+
+//-----------------------------------------------------------
+
+// import React, { useState, useEffect, useCallback } from 'react';
+// import {
+//   CCard,
+//   CCardBody,
+//   CCardHeader,
+//   CCol,
+//   CRow,
+//   CForm,
+//   CFormInput,
+//   CFormLabel,
+//   CButton,
+//   CContainer,
+//   CSpinner,
+//   CAlert,
+//   CBadge
+// } from '@coreui/react';
+// import { getAPICall, put } from '../../util/api';
+
+// const LaboratoryUser = () => {
+//   // State management
+//   const [milkTanks, setMilkTanks] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+//   const [notification, setNotification] = useState({ show: false, type: '', message: '' });
+//   const [currentUser, setCurrentUser] = useState(null);
+//   const [formData, setFormData] = useState({});
+
+//   // Memoized helper functions to prevent recreating on every render
+//   const showNotification = useCallback((type, message) => {
+//     setNotification({ show: true, type, message });
+//     // Auto hide success messages after 3 seconds
+//     if (type === 'success') {
+//       setTimeout(() => {
+//         setNotification({ show: false, type: '', message: '' });
+//       }, 3000);
+//     }
+//   }, []);
+
+//   const fetchMilkTanks = useCallback(async (companyId) => {
+//     try {
+//       const response = await getAPICall('/api/milk-tanks');
+
+//       if (response.success) {
+//         const filteredTanks = response.data.filter(tank => tank.company_id === companyId);
+//         setMilkTanks(filteredTanks);
+
+//         // Initialize form data for all tanks
+//         const initialFormData = {};
+//         filteredTanks.forEach(tank => {
+//           initialFormData[tank.id] = {
+//             quantity: '',
+//             snf: '',
+//             ts: ''
+//           };
+//         });
+//         setFormData(initialFormData);
+//       } else {
+//         showNotification('warning', 'Failed to fetch milk tanks data');
+//       }
+//     } catch (err) {
+//       showNotification('warning', `Error connecting to server: ${err.message}`);
+//       console.error('Error fetching milk tanks:', err);
+//     }
+//   }, [showNotification]);
+
+//   const fetchInitialData = useCallback(async () => {
+//     try {
+//       setLoading(true);
+//       const userData = await getAPICall('/api/user');
+//       setCurrentUser(userData);
+
+//       if (userData?.company_id) {
+//         await fetchMilkTanks(userData.company_id);
+//       } else {
+//         showNotification('warning', 'User information or company ID is missing');
+//       }
+//     } catch (err) {
+//       showNotification('warning', `Error initializing data: ${err.message}`);
+//       console.error('Error during initialization:', err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   }, [fetchMilkTanks, showNotification]);
+
+//   // Fetch data on component mount
+//   useEffect(() => {
+//     fetchInitialData();
+//   }, [fetchInitialData]);
+
+//   const handleFormChange = useCallback((tankId, field, value) => {
+//     setFormData(prev => ({
+//       ...prev,
+//       [tankId]: {
+//         ...prev[tankId],
+//         [field]: value
+//       }
+//     }));
+//   }, []);
+
+//   const resetForm = useCallback((tankId) => {
+//     setFormData(prev => ({
+//       ...prev,
+//       [tankId]: {
+//         quantity: '',
+//         snf: '',
+//         ts: ''
+//       }
+//     }));
+//   }, []);
+
+//   const handleSaveMilkParams = useCallback(async (tankId) => {
+//     if (!tankId || !formData[tankId]) return;
+
+//     try {
+//       const tankFormData = formData[tankId];
+
+//       // Validate inputs
+//       if (!tankFormData.quantity || !tankFormData.snf || !tankFormData.ts) {
+//         showNotification('warning', 'All fields are required');
+//         return;
+//       }
+
+//       // Check for negative quantity
+//       if (parseFloat(tankFormData.quantity) < 0) {
+//         showNotification('warning', 'Quantity cannot be negative. Please enter a positive value.');
+//         return;
+//       }
+
+//       // Prepare data for API
+//       const data = {
+//         added_quantity: parseFloat(tankFormData.quantity),
+//         new_snf: parseFloat(tankFormData.snf),
+//         new_ts: parseFloat(tankFormData.ts)
+//       };
+
+//       // Call API endpoint
+//       const response = await put(`/api/milk-tanks/${tankId}/laboratory-update`, data);
+
+//       if (response.success) {
+//         showNotification('success', 'Milk parameters updated successfully!');
+//         resetForm(tankId);
+
+//         // Refresh milk tanks data
+//         if (currentUser?.company_id) {
+//           await fetchMilkTanks(currentUser.company_id);
+//         }
+//       } else {
+//         showNotification('warning', response.message || 'Failed to update milk parameters');
+//       }
+//     } catch (err) {
+//       // Check if this is a 422 error (likely because of negative quantity)
+//       if (err.message && err.message.includes('422')) {
+//         showNotification('warning', 'Invalid input. Quantity must be a positive number.');
+//       } else {
+//         showNotification('warning', `Error: ${err.message}`);
+//       }
+//       console.error('Error updating milk parameters:', err);
+//     }
+//   }, [formData, currentUser, showNotification, resetForm, fetchMilkTanks]);
+
+//   // Function to handle removal of milk tank (not implemented yet)
+//   const handleRemoveMilkTank = useCallback((tankId, tankName) => {
+//     // This function will be implemented later
+//     console.log(`Remove tank ${tankId}: ${tankName}`);
+//   }, []);
+
+//   // Pure functions moved outside of component render
+//   const calculatePercentage = (current, capacity) => {
+//     if (!current || !capacity || capacity === 0) return 0;
+//     const percentage = Math.round((current / capacity) * 100);
+//     return percentage > 100 ? 100 : percentage; // Cap at 100%
+//   };
+
+//   const getColorByPercentage = (percentage) => {
+//     if (percentage < 30) return '#dc3545'; // Red
+//     if (percentage < 70) return '#ffc107'; // Yellow
+//     return '#28a745'; // Green
+//   };
+
+//   // Format milk type for display
+//   const formatMilkType = (type) => {
+//     if (type?.toLowerCase().includes('cow')) return 'Cow Milk';
+//     if (type?.toLowerCase().includes('buffalo')) return 'Buffalo Milk';
+//     return type; // Return original if no match
+//   };
+
+//   // Format the last updated date and time
+//   const formatLastUpdated = (dateString) => {
+//     if (!dateString) return 'Never updated';
+
+//     const date = new Date(dateString);
+
+//     // Return formatted date and time
+//     return new Intl.DateTimeFormat('en-US', {
+//       month: 'short',
+//       day: 'numeric',
+//       hour: '2-digit',
+//       minute: '2-digit',
+//       hour12: true
+//     }).format(date);
+//   };
+
+//   // Loading state
+//   if (loading) {
+//     return (
+//       <CContainer className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
+//         <CSpinner color="primary" />
+//       </CContainer>
+//     );
+//   }
+
+//   // Memoized styles
+//   const tankProgressContainerStyle = {
+//     width: '100%',
+//     height: '24px',
+//     backgroundColor: '#e9ecef',
+//     borderRadius: '6px',
+//     overflow: 'hidden',
+//     position: 'relative'
+//   };
+
+//   const tankProgressTextStyle = {
+//     position: 'absolute',
+//     top: '0',
+//     left: '0',
+//     width: '100%',
+//     height: '100%',
+//     display: 'flex',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     fontWeight: 'bold',
+//     fontSize: '0.9rem'
+//   };
+
+//   const metricBadgeBaseStyle = {
+//     padding: '6px 16px',
+//     borderRadius: '4px',
+//     fontWeight: '500',
+//     display: 'inline-block'
+//   };
+
+//   const snfBadgeStyle = {
+//     ...metricBadgeBaseStyle,
+//     background: '#e9f5ff',
+//     color: '#0d6efd'
+//   };
+
+//   const tsBadgeStyle = {
+//     ...metricBadgeBaseStyle,
+//     background: '#fff4e6',
+//     color: '#fd7e14'
+//   };
+
+//   const lastUpdatedStyle = {
+//     fontSize: '0.85rem',
+//     color: '#6c757d',
+//     display: 'flex',
+//     alignItems: 'center',
+//     marginBottom: '10px'
+//   };
+
+//   const clockIconStyle = {
+//     marginRight: '5px',
+//     height: '14px',
+//     width: '14px'
+//   };
+
+//   // Render component
+//   return (
+//     <CContainer fluid className="p-0">
+//       <CCard className="mb-3 shadow-sm">
+//         <CCardHeader style={{ backgroundColor: "#E6E6FA" }}>
+//           <div className="d-flex justify-content-between align-items-center flex-wrap">
+//             <h5 className="mb-0">Lab Technician</h5>
+//           </div>
+//         </CCardHeader>
+
+//         {/* Notifications */}
+//         {notification.show && (
+//           <CAlert color={notification.type} dismissible onClose={() => setNotification({ show: false, type: '', message: '' })}>
+//             {notification.message}
+//           </CAlert>
+//         )}
+
+//         <CCardBody className="p-1 p-md-2">
+//           {/* Milk tanks display with integrated milk inputs */}
+//           <CRow xs={{ cols: 1 }} md={{ cols: 2 }} className="g-4">
+//             {milkTanks.length > 0 ? (
+//               milkTanks.map((tank) => {
+//                 const percentage = calculatePercentage(tank.quantity, tank.capacity);
+//                 const fillColor = getColorByPercentage(percentage);
+//                 const tankFormData = formData[tank.id] || { quantity: '', snf: '', ts: '' };
+//                 const displayName = formatMilkType(tank.name);
+
+//                 return (
+//                   <CCol className="mb-2" key={tank.id}>
+//                     <div className="border rounded p-3 h-100 shadow-sm">
+//                       <div className="d-flex justify-content-between align-items-center mb-3">
+//                         <h5 className="mb-0 fw-bold">{displayName}</h5>
+//                         <CBadge color="info" shape="rounded-pill" className="px-3 py-2">
+//                           {tank.quantity} / {tank.capacity} Ltr
+//                         </CBadge>
+//                       </div>
+
+//                       {/* Last Updated Time */}
+//                       <div style={lastUpdatedStyle}>
+//                         <svg
+//                           style={clockIconStyle}
+//                           xmlns="http://www.w3.org/2000/svg"
+//                           fill="none"
+//                           viewBox="0 0 24 24"
+//                           stroke="currentColor">
+//                           <path
+//                             strokeLinecap="round"
+//                             strokeLinejoin="round"
+//                             strokeWidth={2}
+//                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+//                           />
+//                         </svg>
+//                         <span>Last updated: {formatLastUpdated(tank.updated_at)}</span>
+//                       </div>
+
+//                       {/* Tank fill progress */}
+//                       <div className="position-relative mb-3">
+//                         <div style={tankProgressContainerStyle}>
+//                           <div style={{
+//                             width: `${percentage}%`,
+//                             height: '100%',
+//                             backgroundColor: fillColor,
+//                             transition: 'width 0.3s ease'
+//                           }}></div>
+//                           <div style={{
+//                             ...tankProgressTextStyle,
+//                             color: percentage > 50 ? 'white' : 'black',
+//                           }}>
+//                             {percentage}%
+//                           </div>
+//                         </div>
+//                       </div>
+
+//                       {/* Metrics display */}
+//                       <div className="text-center mb-3">
+//                         <div className="d-inline-flex justify-content-center gap-3">
+//                           <div className="metric-badge" style={snfBadgeStyle}>
+//                             SNF: {tank.snf}%
+//                           </div>
+//                           <div className="metric-badge" style={tsBadgeStyle}>
+//                             TS: {tank.ts}%
+//                           </div>
+//                         </div>
+//                       </div>
+
+//                       {/* Input form */}
+//                       <CForm>
+//                         <CRow className="g-3 mb-3">
+//                           <CCol xs={12}>
+//                             <CFormInput
+//                               type="number"
+//                               value={tankFormData.quantity}
+//                               onChange={(e) => handleFormChange(tank.id, 'quantity', e.target.value)}
+//                               placeholder="Milk Qty to Add (Ltr)"
+//                               min="0"
+//                               className="form-control-lg"
+//                             />
+//                           </CCol>
+//                           <CCol xs={6}>
+//                             <div className="d-flex align-items-center">
+//                               <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '40px' }}>SNF</CFormLabel>
+//                               <CFormInput
+//                                 type="number"
+//                                 step="0.01"
+//                                 value={tankFormData.snf}
+//                                 onChange={(e) => handleFormChange(tank.id, 'snf', e.target.value)}
+//                                 placeholder="SNF Value"
+//                               />
+//                             </div>
+//                           </CCol>
+//                           <CCol xs={6}>
+//                             <div className="d-flex align-items-center">
+//                               <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '40px' }}>TS</CFormLabel>
+//                               <CFormInput
+//                                 type="number"
+//                                 step="0.01"
+//                                 value={tankFormData.ts}
+//                                 onChange={(e) => handleFormChange(tank.id, 'ts', e.target.value)}
+//                                 placeholder="TS Value"
+//                               />
+//                             </div>
+//                           </CCol>
+//                         </CRow>
+
+//                         <CRow className="g-3">
+//                           <CCol xs={6}>
+//                             <CButton
+//                               color="primary"
+//                               className="px-4 w-100"
+//                               onClick={() => handleSaveMilkParams(tank.id)}
+//                             >
+//                               Save
+//                             </CButton>
+//                           </CCol>
+//                           <CCol xs={6}>
+//                             <CButton
+//                               color="danger"
+//                               variant="outline"
+//                               className="px-4 w-100"
+//                               onClick={() => handleRemoveMilkTank(tank.id, tank.name)}
+//                             >
+//                               Remove {displayName} Tank
+//                             </CButton>
+//                           </CCol>
+//                         </CRow>
+//                       </CForm>
+//                     </div>
+//                   </CCol>
+//                 );
+//               })
+//             ) : (
+//               <CCol>
+//                 <div className="text-center p-4">
+//                   {error ? 'Failed to load milk tanks' : 'No milk tanks available for your company'}
+//                 </div>
+//               </CCol>
+//             )}
+//           </CRow>
+//         </CCardBody>
+//       </CCard>
+//     </CContainer>
+//   );
+// };
+
+// export default LaboratoryUser;
 
 //--------------------------V2----------------------------------
 // import React, { useState } from 'react';

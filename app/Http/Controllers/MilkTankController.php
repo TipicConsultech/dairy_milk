@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller; 
+use App\Http\Controllers\Controller;
 use App\Models\MilkTank;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -69,74 +69,60 @@ class MilkTankController extends Controller
     }
 
 
-    // public function getNames()
-    // {
-    //     $names = MilkTank::select('name')->get();
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'quantity' => $names
-    //     ]);
-    // }
-
     public function getNames()
-{
-    $tanks = MilkTank::select('id','name', 'capacity', 'quantity')
-        ->get()
-        ->map(function ($tank) {
-            return [
-                'id' => $tank->id,
-                'name' => $tank->name,
-                // 'available_qty' => $tank->capacity - $tank->quantity
-                'available_qty'=> $tank->quantity
-            ];
-        });
+    {
+        $tanks = MilkTank::select('id', 'name', 'capacity', 'quantity')
+            ->get()
+            ->map(function ($tank) {
+                return [
+                    'id' => $tank->id,
+                    'name' => $tank->name,
+                    'available_qty' => $tank->quantity
+                ];
+            });
 
-    return response()->json([
-        'success' => true,
-        'quantity' => $tanks
-    ]);
-}
-
-
-public function updateMilk(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string',
-        'quantity' => 'required|numeric|min:0.01',
-    ]);
-
-    // Find the tank by name (case-insensitive)
-    $milkTank = MilkTank::where('name', 'LIKE', $request->name)->first();
-
-    if (!$milkTank) {
         return response()->json([
-            'success' => false,
-            'message' => 'Milk tank not found.'
-        ], 404);
+            'success' => true,
+            'quantity' => $tanks
+        ]);
     }
 
-    // Make sure there is enough quantity to subtract
-    if ($request->quantity > $milkTank->quantity) {
+
+    public function updateMilk(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'quantity' => 'required|numeric|min:0.01',
+        ]);
+
+        // Find the tank by name (case-insensitive)
+        $milkTank = MilkTank::where('name', 'LIKE', $request->name)->first();
+
+        if (!$milkTank) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Milk tank not found.'
+            ], 404);
+        }
+
+        // Make sure there is enough quantity to subtract
+        if ($request->quantity > $milkTank->quantity) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Requested quantity exceeds available milk.'
+            ], 400);
+        }
+
+        // Subtract from the `quantity` field
+        $milkTank->quantity -= $request->quantity;
+        $milkTank->save();
+
         return response()->json([
-            'success' => false,
-            'message' => 'Requested quantity exceeds available milk.'
-        ], 400);
+            'success' => true,
+            'message' => 'Milk quantity updated successfully.',
+            'remaining_qty' => $milkTank->quantity
+        ]);
     }
-
-    // Subtract from the `quantity` field
-    $milkTank->quantity -= $request->quantity;
-    $milkTank->save();
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Milk quantity updated successfully.',
-        'remaining_qty' => $milkTank->quantity
-    ]);
-}
-
-
-
 
     /**
      * Display the specified milk tank.
@@ -239,6 +225,66 @@ public function updateMilk(Request $request)
             return response()->json([
                 'success' => false,
                 'message' => 'Milk tank not found'
+            ], 404);
+        }
+    }
+
+    /**
+     * Empty the specified milk tank by setting quantity, SNF, and TS to zero.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function emptyTank($id): JsonResponse
+    {
+        try {
+            // Verify user authentication
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Authentication required'
+                ], 401);
+            }
+
+            $milkTank = MilkTank::findOrFail($id);
+
+            // Check if user's company_id matches the tank's company_id
+            $user = Auth::user();
+            if ($user->company_id != $milkTank->company_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You are not authorized to empty this tank'
+                ], 403);
+            }
+
+            // Store previous values for logging/response
+            $previousQuantity = $milkTank->quantity;
+            $previousSNF = $milkTank->snf;
+            $previousTS = $milkTank->ts;
+
+            // Set values to zero
+            $milkTank->quantity = 0;
+            $milkTank->snf = 0;
+            $milkTank->ts = 0;
+            $milkTank->updated_by = Auth::id();
+            $milkTank->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Milk tank emptied successfully',
+                'data' => [
+                    'milk_tank' => $milkTank,
+                    'previous_values' => [
+                        'quantity' => $previousQuantity,
+                        'snf' => $previousSNF,
+                        'ts' => $previousTS
+                    ]
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Milk tank not found or error emptying tank: ' . $e->getMessage()
             ], 404);
         }
     }

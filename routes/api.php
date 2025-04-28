@@ -23,7 +23,7 @@ use App\Http\Controllers\ProcessedIngredientsController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\ProductsTrackerController;
 
-// Dairy 
+// Dairy
 // use App\Http\Controllers\MilkTankController;
 
 
@@ -54,6 +54,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Delete a milk tank
     Route::delete('/milk-tanks/{id}', [MilkTankController::class, 'destroy']);
+
+    Route::middleware('auth:sanctum')->put('/milk-tanks/{id}/empty-tank', [MilkTankController::class, 'emptyTank']);
 });
 
 
@@ -65,9 +67,9 @@ Route::prefix('raw-materials')->group(function () {
     // Route::get('/{id}', [RawMaterialController::class, 'show']);
     Route::get('/showAll', [RawMaterialController::class, 'showAll']);
     Route::post('/store', [RawMaterialController::class, 'store']);
-    Route::put('/{id}', [RawMaterialController::class, 'update']); 
+    Route::put('/{id}', [RawMaterialController::class, 'update']);
     Route::post('/updateRawMaterial', [RawMaterialController::class, 'updateRawMaterial']);
-    Route::delete('/{id}', [RawMaterialController::class, 'destroy']); 
+    Route::delete('/{id}', [RawMaterialController::class, 'destroy']);
     // Route::get('/criticalStock', [RawMaterialController::class, 'criticalStock']);
 });
 Route::get('/criticalStock', [RawMaterialController::class, 'criticalStock']);
@@ -81,7 +83,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/mobileLogin', [AuthController::class, 'mobileLogin']);
 //Secured API's
 
-Route::get('productSizes/{id}', [ProductController::class,'showProductSize']);
+Route::get('productSizes/{id}', [ProductController::class, 'showProductSize']);
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/changePassword', [AuthController::class, 'changePassword']);
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -95,7 +97,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('order', OrderController::class);
     Route::get('/reportSales', [OrderController::class, 'Sales']);
     Route::get('/googleMapData', [OrderController::class, 'googleMapData']);
-    Route::get('/totalDeliveries', [OrderController::class, 'totalDeliverie']); 
+    Route::get('/totalDeliveries', [OrderController::class, 'totalDeliverie']);
 
     Route::post('/newStock', [ProductController::class, 'newStock'])->name('newStock');
     Route::get('/stock', [ProductController::class, 'stock'])->name('stock');
@@ -104,7 +106,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('subSubCategory', SubSubCategoryController::class);
     Route::resource('customer', CustomerController::class);
     Route::get('/searchCustomer', [CustomerController::class, 'search']);
-    
+
     Route::get('/customerHistory', [CustomerController::class, 'history']);
 
     Route::get('/customerBookings', [CustomerController::class, 'booking']);
@@ -130,13 +132,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/updateProductStock', [ProductController::class, 'updateProductStock']);
     // milk processing
     Route::post('/milkProcessingStore', [MilkProcesingController::class, 'store']);
-    //processded ingredients 
+    //processded ingredients
     Route::post('/ProcessedIngredients', [ProcessedIngredientsController::class, 'store']);
-    //FinalProductInventory  
-    Route::get('/finalProductInventory', [ProductsTrackerController::class, 'getFinalProductInventory']);  
+    //FinalProductInventory
+    Route::get('/finalProductInventory', [ProductsTrackerController::class, 'getFinalProductInventory']);
     Route::get('/searchByProductNameFinalInventry', [ProductsTrackerController::class, 'searchByProductNameFinalInventry']);
 });
-Route::post('/createProduct', [CommonController::class,'createProduct']);
+Route::post('/createProduct', [CommonController::class, 'createProduct']);
 
 
 

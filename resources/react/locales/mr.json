@@ -72,7 +72,7 @@
         "collected": "घेतले",
 
         "overview": "स्टॉकची माहिती",
-       
+
         "stock": "स्टॉक शिल्लक",
         "given": "दिले",
         "booked": "बुक झालेले",
@@ -109,12 +109,12 @@
         "createProduct": "उत्पादन तयार करा",
         "tank": "टाकी",
         "processed_milk": "प्रक्रियायुक्त दूध",
-  
+
         "enterMilk": "उत्पादनासाठी दूध प्रविष्ट करा",
         "selectProduct": "उत्पादन निवडा",
         "selectGram": "ग्राम निवडा",
         "productQty": "उत्पादनाचे प्रमाण",
-        "save": "जतन करा",
+        "save": "सेव्ह",
         "milk_for_product": "उत्पादनासाठी दूध",
         "product": "उत्पादन",
         "quantity": "संख्या",
@@ -167,16 +167,16 @@
 "milk_out": "दूध बाहेर टाका",
 "materials": "साहित्य",
 "custom_materials": "सानुकूल साहित्य",
-"save_for_later": "नंतरसाठी जतन करा",
-"save_produce": "जतन करा/उत्पादन तयार करा",
+"save_for_later": "नंतरसाठी सेव्ह",
+"save_produce": "सेव्ह/उत्पादन तयार करा",
 "processed_products": "प्रक्रियायुक्त उत्पादने",
 "total_milk": "एकूण दूध",
 "milk_removed": "बाहेर गेलेले दूध",
 "processed_milk_quantity": "प्रक्रियायुक्त दूध",
 "processing_date": "प्रक्रिया तारीख",
 "currentCapacity":"वर्तमान क्षमता",
-"Productcreate":"उत्पादन तयार करणे", 
-"Dairy_Farm_Inventory_Management":"दुग्धशाळा साठा व्यवस्थापन", 
+"Productcreate":"उत्पादन तयार करणे",
+"Dairy_Farm_Inventory_Management":"दुग्धशाळा साठा व्यवस्थापन",
 "Storage_Tanks": "साठवण टँक",
 "full":"पूर्ण",
 "available":"उपलब्ध",
@@ -226,11 +226,29 @@
   "ltrs": "लिटर",
   "ingredients_used": "वापरलेले साहित्य",
   "select_ingredient": "साहित्य निवडा",
- 
+
   "select_product": "उत्पादन निवडा",
   "product_created": "उत्पादन तयार केले:",
   "created_at": "तयार केलेल्या वेळेस:",
-  "submitt": "सबमिट करा"
+  "submitt": "सबमिट करा",
+    "laboratoryUser": "प्रयोगशाळा तंत्रज्ञ",
+  "cowMilk": "गाईचे दूध",
+  "buffaloMilk": "म्हशीचे दूध",
+  "lastUpdated": "अंतिम बदल",
+  "snfColon": "SNF:",
+  "tsColon": "TS:",
+  "snf": "SNF",
+  "ts": "TS",
+  "milkQtyToAdd": "जोडण्याची दूध मात्रा (लिटर)",
+  "snfValue": "SNF मूल्य",
+  "tsValue": "TS मूल्य",
+  "save": "सेव्ह",
+  "remove": "रिकामे करा",
+  "empty2":"रिकामे करा",
+  "tank": "टँक",
+  "ltr": "लिटर",
+  "emptyTankConfirmation": "टँक रिकामा करण्याची पुष्टी",
+  "confirmEmpty": "रिकामा करण्याची पुष्टी करा"
 
 
     },
@@ -272,7 +290,27 @@
         "error_occured_please_try_again_later_msg": "एरर आली, कृपया नंतर पुन्हा प्रयत्न करा",
         "select_expense_type_msg": "खर्चाचा प्रकार निवडा",
         "expense_type_added_successfully_msg": "खर्चाचा प्रकार यशस्वीरित्या जोडला",
-        "failed_to_add_expense_type_msg": "खर्चाचा प्रकार जोडण्यात अयशस्वी"
+        "failed_to_add_expense_type_msg": "खर्चाचा प्रकार जोडण्यात अयशस्वी",
+
+        "noMilkTanksAvailable": "तुमच्या कंपनीसाठी कोणतेही दूध टँक उपलब्ध नाहीत",
+        "failedToLoadMilkTanks": "दूध टँक लोड करण्यात अयशस्वी",
+        "neverUpdated": "कधीही बदल केले नाही",
+        "allFieldsRequired": "सर्व फील्ड आवश्यक आहेत",
+        "quantityCannotBeNegative": "मात्रा नकारात्मक असू शकत नाही. कृपया सकारात्मक मूल्य प्रविष्ट करा.",
+        "milkParamsUpdatedSuccess": "दूध मापदंड यशस्वीरित्या बदली केले!",
+        "failedToUpdateMilkParams": "दूध मापदंड बदली करण्यात अयशस्वी",
+        "invalidInputQuantity": "अवैध इनपुट. मात्रा एक सकारात्मक संख्या असणे आवश्यक आहे.",
+        "errorConnectingToServer": "सर्व्हरशी कनेक्ट करण्यात त्रुटी",
+        "failedToFetchMilkTanks": "दूध टँक डेटा आणण्यात अयशस्वी",
+        "userInfoMissing": "वापरकर्ता माहिती किंवा कंपनी आयडी गहाळ आहे",
+        "errorInitializingData": "डेटा आरंभ करताना त्रुटी",
+        "error": "त्रुटी",
+        "emptyTankWarning": "सावधान: पुष्टी केल्यानंतर टँक रिकामा होईल",
+        "quantityWillBeZero": "QUANTITY शून्य होईल: 0",
+        "snfWillBeZero": "SNF शून्य होईल: 0",
+        "tsWillBeZero": "TS शून्य होईल: 0",
+        "thisActionCannotBeUndone": "सावधान: एकदा पुष्टी केल्यानंतर ही क्रिया परत घेता येणार नाही",
+        "tankEmptiedSuccess": "टँक यशस्वीरित्या रिकामा केला"
 
     }
    }
