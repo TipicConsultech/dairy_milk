@@ -6,6 +6,7 @@
         "new_customer": "नवीन ग्राहक",
         "new": "नवीन ग्राहक",
         "name": "नाव",
+        "remark":"टीका",
         "finalproductinventry":"अंतिम उत्पादन यादी",
         "credit": "येणे",
         "Packet":"पाकिटे/खोके",
@@ -28,10 +29,11 @@
         "clear": "क्लिअर",
         "view_QR": "QR दाखवा",
         "search": "ग्राहक शोधा",
-
+        "update":"अपडेट",
         "dashboard": "डॅशबोर्ड",
         "delivery": "डिलिव्हरी",
         "invoice": "चलन",
+        "visible":"Visible",
         "booking": "बुकिंग",
         "customers": "ग्राहक",
         "all_customers": "सर्व ग्राहक",
@@ -124,6 +126,13 @@
         "select": "निवडा",
          "g" : "ग्रा",
         "pcs": "पॅकेट",
+        "cost": "खर्च",
+        "stockInUnit":"युनिटमधील स्टॉक",
+
+    "filter": "निवारण करा",
+    "loading": "लोड होत आहे...",
+    "all_expenses": "सर्व खर्च",
+    "expense_report":"खर्च रिपोर्ट",
 
     "stockManagement": "साठा व्यवस्थापन",
     "tanks": "टाक्या",
@@ -291,26 +300,14 @@
         "select_expense_type_msg": "खर्चाचा प्रकार निवडा",
         "expense_type_added_successfully_msg": "खर्चाचा प्रकार यशस्वीरित्या जोडला",
         "failed_to_add_expense_type_msg": "खर्चाचा प्रकार जोडण्यात अयशस्वी",
+        "expense_type_updated_successfully_msg" :"खर्च प्रकार यशस्वीरित्या अद्यतनित केला",
+        "failed_to_update_expense_type_msg":"खर्च प्रकार यशस्वीरित्या अपडेट केला",
 
-        "noMilkTanksAvailable": "तुमच्या कंपनीसाठी कोणतेही दूध टँक उपलब्ध नाहीत",
-        "failedToLoadMilkTanks": "दूध टँक लोड करण्यात अयशस्वी",
-        "neverUpdated": "कधीही बदल केले नाही",
-        "allFieldsRequired": "सर्व फील्ड आवश्यक आहेत",
-        "quantityCannotBeNegative": "मात्रा नकारात्मक असू शकत नाही. कृपया सकारात्मक मूल्य प्रविष्ट करा.",
-        "milkParamsUpdatedSuccess": "दूध मापदंड यशस्वीरित्या बदली केले!",
-        "failedToUpdateMilkParams": "दूध मापदंड बदली करण्यात अयशस्वी",
-        "invalidInputQuantity": "अवैध इनपुट. मात्रा एक सकारात्मक संख्या असणे आवश्यक आहे.",
-        "errorConnectingToServer": "सर्व्हरशी कनेक्ट करण्यात त्रुटी",
-        "failedToFetchMilkTanks": "दूध टँक डेटा आणण्यात अयशस्वी",
-        "userInfoMissing": "वापरकर्ता माहिती किंवा कंपनी आयडी गहाळ आहे",
-        "errorInitializingData": "डेटा आरंभ करताना त्रुटी",
-        "error": "त्रुटी",
-        "emptyTankWarning": "सावधान: पुष्टी केल्यानंतर टँक रिकामा होईल",
-        "quantityWillBeZero": "QUANTITY शून्य होईल: 0",
-        "snfWillBeZero": "SNF शून्य होईल: 0",
-        "tsWillBeZero": "TS शून्य होईल: 0",
-        "thisActionCannotBeUndone": "सावधान: एकदा पुष्टी केल्यानंतर ही क्रिया परत घेता येणार नाही",
-        "tankEmptiedSuccess": "टँक यशस्वीरित्या रिकामा केला"
+        "please_select_date_range": "कृपया एक तारीख श्रेणी निवडा",
+        "expense_deleted_successfully": "खर्च यशस्वीपणे हटविला",
+        "no_expenses_found": "निवडलेल्या तारीख श्रेणीत कोणतेही खर्च आढळले नाही.",
+        "select_date_range_to_view_expenses": "खर्च पाहण्यासाठी एक तारीख श्रेणी निवडा."
+
 
     }
    }

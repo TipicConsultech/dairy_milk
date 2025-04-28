@@ -1,8 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { getAPICall, post, postFormData, put } from '../../util/api';
-import { CBadge, CButton, CCardHeader } from '@coreui/react';
+import { 
+  CAlert, 
+  CBadge, 
+  CButton, 
+  CCardHeader, 
+  CModal, 
+  CModalHeader, 
+  CModalTitle, 
+  CModalBody, 
+  CModalFooter,
+  CForm,
+  CFormLabel,
+  CFormInput,
+  CFormCheck,
+  CFormSelect,
+  CSpinner
+} from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilArrowThickToBottom, cilArrowThickToTop, cilSettings } from '@coreui/icons';
+import { cilArrowThickToBottom, cilArrowThickToTop, cilSettings, cilWarning, cilPlus, cilX } from '@coreui/icons';
+import { getUserData } from '../../util/session';
 
 function RawMaterial() {
   const [tableData, setTableData] = useState([]);
@@ -12,8 +29,48 @@ function RawMaterial() {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
+  const [failedItems, setFailedItems] = useState([]);
+  const [showAlert, setShowAlert] = useState(false);
+  const [failAlert, setFailAlert] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  
+  // Modal and form states
+  const [showModal, setShowModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    local_name: '',
+    capacity: '',
+    unit_qty: '0',
+    unit: 'kg',
+    isPackaging: false,
+    isVisible: true,
+    misc: ''
+  });
+  const [syncLocalName, setSyncLocalName] = useState(false);
 
-  console.log(tableData);
+  const user = getUserData();
+    
+
+  useEffect(() => {
+    // Handle window resize
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Sync local_name with name when checkbox is checked
+  useEffect(() => {
+    if (syncLocalName) {
+      setFormData(prev => ({
+        ...prev,
+        local_name: prev.name
+      }));
+    }
+  }, [syncLocalName, formData.name]);
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -24,14 +81,11 @@ function RawMaterial() {
 
     setUploading(true);
     const formData = new FormData();
-    formData.append('file',selectedFile);
-    console.log(formData);
-  
+    formData.append('file', selectedFile);
+   
     try {
       const res = await postFormData('/api/uploadCSVRawMaterial', formData);
-       
       alert('File uploaded successfully!');
-  
     } catch (error) {
       console.error('Upload failed:', error);
       alert('Upload failed');
@@ -44,6 +98,24 @@ function RawMaterial() {
   useEffect(() => {
     getData();
   }, []);
+
+  useEffect(() => {
+    if (showAlert) {
+      const timer = setTimeout(() => {
+        setShowAlert(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showAlert]);
+
+  useEffect(() => {
+    if (failAlert) {
+      const timer = setTimeout(() => {
+        setFailAlert(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [failAlert]);
 
   async function getData() {
     const response = await getAPICall('/api/raw-materials');
@@ -66,15 +138,19 @@ function RawMaterial() {
       return;
     } else {
       try {
-        await put(`/api/raw-materials/${item.id}`, { "unit_qty": quantity });
-        
-        // Clear the input for this item
-        setQuantities((prev) => ({ ...prev, [item.id]: '' }));
-        // getData();
-        searchMaterials();
+        const resp = await put(`/api/raw-materials/${item.id}`, { "unit_qty": quantity });
+       
+        if(resp?.failed){
+            setFailedItems(resp?.failed)
+        }
+        else if(resp?.updated){
+            setShowAlert(true);
+            setQuantities({});
+            setFailedItems([]);
+            searchMaterials();
+        }
       } catch (e) {
-        alert("You have entered more than the maximum capacity allowed for this item.");
-        setQuantities((prev) => ({ ...prev, [item.id]: '' }));
+        // Error handling
       }
     }
   };
@@ -100,7 +176,6 @@ function RawMaterial() {
     }
   };
     
-  // Debounce effect - updates debouncedSearchTerm after 1 second
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
@@ -122,7 +197,7 @@ function RawMaterial() {
       setLoading(false);
     }
   };
-  // Fetch data when debouncedSearchTerm changes
+
   useEffect(() => {
     const fetchMaterials = async () => {
       setLoading(true);
@@ -137,75 +212,288 @@ function RawMaterial() {
     };
 
     if (debouncedSearchTerm === '') {
-      // If search is empty, fetch all data
       searchMaterials();
     } else {
-      // Fetch data filtered by search term
       searchMaterials();
     }
   }, [debouncedSearchTerm]);
+  
+  const handleBulkAdd = async() => {
+    const bulkData = Object.entries(quantities)
+      .filter(([_, qty]) => qty && qty > 0)
+      .map(([id, quantity]) => ({ id: parseInt(id), quantity: parseInt(quantity) }));
+    
+    try{
+        const resp = await post('/api/uploadBulk', bulkData);
+        if(resp?.failed){
+            setFailedItems(resp?.failed)
+        }
+        else if(resp?.message==="Bulk update successful"){
+            setQuantities({});
+            setFailedItems([]);
+            setShowAlert(true);
+        }
+    }
+    catch(e){
+      // Error handling
+    }
+  };
+
+  // Generate a shortened filename for mobile view
+  const shortenFileName = (name) => {
+    if (!name) return '';
+    if (name.length <= 6) return name;
+    const extension = name.split('.').pop();
+    return `${name.substring(0, 4)}..${extension}`;
+  };
+
+  // Check if multiple rows have quantities entered
+  const hasMultipleQuantities = Object.values(quantities).filter(qty => qty && qty > 0).length > 1;
+
+  // Form handling
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : value;
+    
+    setFormData(prev => ({
+      ...prev,
+      [name]: newValue
+    }));
+  };
+
+  const handleAddProduct = () => {
+    // Reset form data and open modal
+    setFormData({
+      name: '',
+      local_name: '',
+      capacity: '',
+      unit_qty: '0',
+      unit: 'kg',
+      isPackaging: false,
+      isVisible: true,
+      misc: ''
+    });
+    setSyncLocalName(false);
+    setShowModal(true);
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+      // Convert numeric strings to numbers
+      const payload = {
+        ...formData,
+        capacity: parseFloat(formData.capacity),
+        unit_qty: parseFloat(formData.unit_qty),
+      };
+
+      const response = await post('/api/rawMaterialAdd', payload);
+    
+      if (response) {
+        setShowModal(false);
+        setShowAlert(true);
+        getData(); // Refresh the table
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('Failed to add product');
+    } finally {
+      setSubmitting(false);
+    }
+  };
     
   return (
     <div className="p-4">
-
- <CCardHeader style={{ backgroundColor: '#d6eaff', marginBottom:'10px'}} className='p-2 rounded'>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h5 className="mb-0" >Raw Materials Inventory </h5> 
-           
-          </div>
-        </CCardHeader>
-
-      {/* <div>
-        <h3 className='mb-3'>Raw Materials Inventory</h3>
-      </div> */}
-
-      <div className='flex-1' style={{marginBottom:10}}> 
-        <div className="d-flex align-items-center gap-5">
-          <div className='flex-col col-mb4'>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by name"
-              className="form-control"
-            />
-          </div>
-          <div className='d-flex gap-3'>
-            <CButton color="primary" onClick={handleDownload}>
-              <CIcon icon={cilArrowThickToBottom} size="sm" style={{marginRight:3}}/>
-              Download Template
-            </CButton>
-            
-            <CButton
-              color={selectedFile ? "primary":"primary"} 
-              variant={selectedFile ? "solid" : "outline"}
-              onClick={() => document.getElementById('fileInput').click()}
-            >
-              {!selectedFile && (<CIcon icon={cilArrowThickToTop} size="sm" style={{marginRight:3}}/>)}
-              {selectedFile ? `${selectedFile.name}`:"CSV File"}  
-            </CButton>
-          </div>
-          <input
-            type="file"
-            id="fileInput"
-            style={{ display: 'none' }}
-            accept=".csv"
-            onChange={handleFileChange}
-          />
-
-          {selectedFile && (
-            <CButton
-              color="success"
-              disabled={uploading}
-              onClick={handleSubmit}
-            >
-              {uploading ? 'Uploading...' : 'Submit'}
-            </CButton>
-          )}
+      <CCardHeader style={{ backgroundColor: '#d6eaff', marginBottom:'10px'}} className='p-2 rounded'>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h5 className="mb-0" >Raw Materials Inventory </h5> 
         </div>
+      </CCardHeader>
+
+      {showAlert && (
+        <CAlert color="success" onDismiss={() => setShowAlert(false)}>
+          <div>✅Product Updated successfully!</div>
+        </CAlert>
+      )}
+      {failAlert && (
+        <CAlert color="warning" onDismiss={() => setFailAlert(false)} className="d-flex align-items-center mb-2">
+          <CIcon icon={cilWarning} className="flex-shrink-0 me-2" width={24} height={24} />
+          <div>You have entered more than the maximum capacity allowed for this item.</div>
+        </CAlert>
+      )}
+
+      {failedItems.map((item, index) => (
+        <CAlert key={index} color="warning" className="d-flex align-items-center mb-2">
+          <CIcon icon={cilWarning} className="flex-shrink-0 me-2" width={24} height={24} />
+          <div>
+            Looks like you're trying to add {item.quantity} to <strong>{item.name}</strong>, but only <strong>{item.capacity - item.current_quantity}</strong> more can fit (limit <strong>{item.capacity}</strong>).
+          </div>
+        </CAlert>
+      ))}
+   
+      {/* Responsive Design for Controls */}
+      <div className='mb-3'>
+        {isMobile ? (
+          /* Mobile View - Stacked Layout */
+          <>
+            {/* Row 1: Search Field */}
+            <div className="mb-2">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by name"
+                className="form-control"
+              />
+            </div>
+            
+            {/* Row 2: CSV Buttons */}
+            <div className="d-flex gap-2 mb-2">
+                
+       {userData?.type===0 &&(
+        <CButton color="primary" onClick={handleDownload} style={{ flex: '1' }}>
+        <CIcon icon={cilArrowThickToBottom} size="sm" style={{ marginRight: 3 }}/>
+        Template
+         </CButton>
+      
+       )}
+              
+
+      {userData?.type===0 && (
+         <CButton
+        color={selectedFile ? "primary" : "primary"} 
+        variant={selectedFile ? "solid" : "outline"}
+        onClick={() => document.getElementById('fileInput').click()}
+        style={{ 
+           flex: '1',
+           overflow: 'hidden', 
+           whiteSpace: 'nowrap', 
+           textOverflow: 'ellipsis', 
+           maxWidth: '150px', // limit button width
+            // 👈 add right gap (you can adjust value)
+           }}
+       >
+           {!selectedFile && (<CIcon icon={cilArrowThickToTop} size="sm" style={{ marginRight: 0 }}/>)}
+           {selectedFile ? shortenFileName(selectedFile.name) : 'CSV'}
+       </CButton>
+       )}
+
+  
+
+      
+              {selectedFile && userData?.type===0 && (
+                <CButton
+                  color="success"
+                  disabled={uploading}
+                  onClick={handleSubmit}
+                  style={{ flex: '1',
+                    marginRight: '8px'
+
+                  }}
+                >
+                  {uploading ? 'Uploading...' : 'Submit'}
+                </CButton>
+              )}
+            </div>
+            
+            {/* Row 3: Action Buttons */}
+            <div className="d-flex gap-2">
+              <CButton
+                color="success"
+                onClick={handleAddProduct}
+                style={{ flex: '1' }}
+              >
+                <CIcon icon={cilPlus} size="sm" style={{ marginRight: 3 }}/>
+                Add Product
+              </CButton>
+              
+              {hasMultipleQuantities && (
+                <CButton
+                  color="danger"
+                  onClick={handleBulkAdd}
+                  style={{ flex: '1' }}
+                >
+                  Bulk Add
+                </CButton>
+              )}
+            </div>
+          </>
+        ) : (
+          /* Desktop View - Single Row Layout with right-aligned action buttons */
+          <div className="d-flex align-items-center mb-2">
+            {/* Left side - Search and CSV buttons */}
+            <div className="d-flex gap-3 flex-grow-1">
+              {/* Search field */}
+              <div style={{ width: '300px' }}>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search by name"
+                  className="form-control"
+                />
+              </div>
+              
+              {/* CSV buttons */}
+              <CButton color="primary" onClick={handleDownload}>
+                <CIcon icon={cilArrowThickToBottom} size="sm" style={{ marginRight: 3 }}/>
+                Download Template
+              </CButton>
+              
+              <CButton
+                color={selectedFile ? "primary" : "primary"} 
+                variant={selectedFile ? "solid" : "outline"}
+                onClick={() => document.getElementById('fileInput').click()}
+              >
+                {!selectedFile && (<CIcon icon={cilArrowThickToTop} size="sm" style={{ marginRight: 3 }}/>)}
+                {selectedFile ? selectedFile.name : 'CSV File'}
+              </CButton>
+              
+              {selectedFile && (
+                <CButton
+                  color="success"
+                  disabled={uploading}
+                  onClick={handleSubmit}
+                >
+                  {uploading ? 'Uploading...' : 'Submit'}
+                </CButton>
+              )}
+            </div>
+
+            {/* Right side - Action buttons */}
+            <div className="d-flex gap-2">
+              <CButton
+                color="success"
+                onClick={handleAddProduct}
+              >
+                <CIcon icon={cilPlus} size="sm" style={{ marginRight: 3 }}/>
+                Add Product
+              </CButton>
+              
+              {hasMultipleQuantities && (
+                <CButton
+                  color="danger"
+                  onClick={handleBulkAdd}
+                >
+                  Bulk Add
+                </CButton>
+              )}
+            </div>
+          </div>
+        )}
+
+        <input
+          type="file"
+          id="fileInput"
+          style={{ display: 'none' }}
+          accept=".csv"
+          onChange={handleFileChange}
+        />
       </div>
 
-      <div className="table-container" style={{ height: '400px', overflow: 'auto' }}>
+      <div className="table-container" style={{ height: '400px', overflow: 'auto', scrollbarWidth: 'none' }}>
         <table className="table table-hover table-bordered align-middle">
           <thead className="table-light" style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#f8f9fa' }}>
             <tr>
@@ -280,12 +568,152 @@ function RawMaterial() {
         </table>
       </div>
 
-      {/* Add custom CSS for strobe animation */}
+      {/* Add Product Modal */}
+      <CModal 
+        visible={showModal} 
+        onClose={() => setShowModal(false)}
+        alignment="center"
+        size="lg"
+      >
+        <CModalHeader closeButton>
+          <CModalTitle>Add New Raw Material</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CForm onSubmit={handleFormSubmit}>
+            <div className="row mb-3">
+              <div className="col-md-6">
+                <CFormLabel htmlFor="name">Product Name*</CFormLabel>
+                <CFormInput
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                />
+                <CFormCheck 
+                  id="syncNameCheck"
+                  label="Same as local name"
+                  checked={syncLocalName}
+                  onChange={(e) => setSyncLocalName(e.target.checked)}
+                  className="mt-1"
+                />
+              </div>
+              <div className="col-md-6">
+                <CFormLabel htmlFor="local_name">Local Name</CFormLabel>
+                <CFormInput
+                  id="local_name"
+                  name="local_name"
+                  value={formData.local_name}
+                  onChange={handleInputChange}
+                  disabled={syncLocalName}
+                />
+              </div>
+            </div>
+
+            <div className="row mb-3">
+              <div className="col-md-4">
+                <CFormLabel htmlFor="capacity">Capacity*</CFormLabel>
+                <CFormInput
+                  type="number"
+                  id="capacity"
+                  name="capacity"
+                  value={formData.capacity}
+                  onChange={handleInputChange}
+                  required
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              <div className="col-md-4">
+                <CFormLabel htmlFor="unit_qty">Initial Quantity</CFormLabel>
+                <CFormInput
+                  type="number"
+                  id="unit_qty"
+                  name="unit_qty"
+                  value={formData.unit_qty}
+                  onChange={handleInputChange}
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              <div className="col-md-4">
+                <CFormLabel htmlFor="unit">Unit*</CFormLabel>
+                <CFormSelect
+                  id="unit"
+                  name="unit"
+                  value={formData.unit}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="kg">Kilogram (kg)</option>
+                  <option value="gm">Gram (g)</option>
+                  <option value="ltr">Liter (l)</option>
+                  <option value="ml">Milliliter (ml)</option>
+                </CFormSelect>
+              </div>
+            </div>
+
+            <div className="row mb-3">
+              <div className="col-md-6">
+                <div className="d-flex align-items-center mb-3">
+                  <CFormCheck 
+                    id="isPackaging"
+                    name="isPackaging"
+                    label="Is Packaging Material"
+                    checked={formData.isPackaging}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="d-flex align-items-center">
+                  <CFormCheck 
+                    id="isVisible"
+                    name="isVisible"
+                    label="Is Visible"
+                    checked={formData.isVisible}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+              <div className="col-md-6">
+                <CFormLabel htmlFor="misc">Additional Notes</CFormLabel>
+                <CFormInput
+                  id="misc"
+                  name="misc"
+                  value={formData.misc}
+                  onChange={handleInputChange}
+                  placeholder="Any additional information"
+                />
+              </div>
+            </div>
+          </CForm>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setShowModal(false)}>
+            Cancel
+          </CButton>
+          <CButton color="primary" onClick={handleFormSubmit} disabled={submitting}>
+            {submitting ? <><CSpinner size="sm" /> Saving...</> : 'Save Product'}
+          </CButton>
+        </CModalFooter>
+      </CModal>
+
+      {/* Add custom CSS */}
       <style jsx>{`
         @keyframes strobeRed {
           0% { opacity: 1; }
           50% { opacity: 0.5; }
           100% { opacity: 1; }
+        }
+        
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .table-container::-webkit-scrollbar {
+          display: none;
+        }
+        
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .table-container {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
         }
       `}</style>
     </div>

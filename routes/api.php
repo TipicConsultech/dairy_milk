@@ -76,6 +76,10 @@ Route::get('/criticalStock', [RawMaterialController::class, 'criticalStock']);
 Route::get('/csv-download', [RawMaterialController::class, 'downloadDemoCsv']);
 Route::get('/serchRawMaterials', [RawMaterialController::class, 'searchByName']);
 Route::post('/uploadCSVRawMaterial', [RawMaterialController::class, 'uploadCsvRawMaterial']);
+Route::post('/uploadBulk', [RawMaterialController::class, 'bulkUpdate']);
+//Private 
+Route::post('/rawMaterialAdd', [RawMaterialController::class, 'store'])->middleware('auth:sanctum');
+
 
 //public API's
 Route::post('/register', [AuthController::class, 'register']);

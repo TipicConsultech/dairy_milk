@@ -149,9 +149,9 @@ export default defineConfig(({ mode }) => {
         },
         // Manifest settings - these will appear in the generated manifest.webmanifest
         manifest: {
-          name: "AquaLogiX",
-          short_name: "AquaLogiX",
-          description: "An app to manage AquaLogiXs.",
+          name: "MilkFactory",
+          short_name: "MilkFactory",
+          description: "An app to manage Milk Factory.",
           theme_color: "#171717",
           background_color: "#e8ebf2",
           display: "standalone",

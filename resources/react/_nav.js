@@ -296,6 +296,11 @@ export default function fetchNavItems(t1){
             name: t("LABELS.all_expense_types"),
             to: '/expense/all-type',
           },
+          {
+            component: CNavItem,
+            name: t("LABELS.expense_report"),
+            to: '/expense/reportExpense',
+          },
         ],
       },
   
@@ -458,6 +463,11 @@ export default function fetchNavItems(t1){
             component: CNavItem,
             name: t("LABELS.all_expense_types"),
             to: '/expense/all-type',
+          },
+          {
+            component: CNavItem,
+            name: t("LABELS.expense_report"),
+            to: '/expense/reportExpense',
           },
         ],
       },

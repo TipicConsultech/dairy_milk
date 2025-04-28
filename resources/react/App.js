@@ -38,8 +38,7 @@ const Login = React.lazy(() => import('./views/pages/login/Login'))
 const Register = React.lazy(() => import('./views/pages/register/Register'))
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
-const Faq = React.lazy(() => import('./views/pages/help/faq'));
-const TicketForm = React.lazy(() => import('./views/pages/help/TicketForm'));
+
 
 const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
@@ -67,9 +66,8 @@ const App = () => {
           {/* <Route path="/" element={<Navigate to="/delivery" />} /> */}
           {/* <Route path="/delivery" element={<DeliveryRecord/>} /> */}
 
-          {/* Help and Support Routes */}
-          <Route exact path="/TicketForms" name="TicketForm" element={<TicketForm />} />
-          <Route exact path="/faq" name="faq" element={<Faq />} />
+        
+          
 
         </Routes>
       </Suspense>

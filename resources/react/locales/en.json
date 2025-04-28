@@ -10,6 +10,7 @@
      "credit": "Credit",
      "finalproductinventry":"Final Product Inventory",
      "rs": "Rs",
+     "remark":"Remark",
      "delivery_record":"Delivery View",
      "address": "Address",
      "balance": "Balance",
@@ -29,7 +30,7 @@
      "clear": "Clear",
      "view_QR": "View QR",
      "search": "Search by name",
-
+     "visible":"Visible",
      "dashboard": "Dashboard",
      "delivery": "Delivery",
      "invoice": "Invoice",
@@ -44,7 +45,11 @@
      "regular_orders": "Regular Orders",
      "all_orders": "All Orders",
      "expense": "Expense",
-     "new_expense": "New Expense",
+     "new_expense": "Add Expense",
+     "all_expenses" : "All Expenses",
+     "expense_report":"Expense Report",
+     "cost":"Cost",
+     "stockInUnit":"Stock in Unit",
      "new_expense_type": "New Expense Type",
      "all_expense_types": "All Expense Types",
      "report": "Report",
@@ -73,13 +78,18 @@
      "collected": "Collected",
 
      "overview": "Stock Overview",
-     "product": "Product",
+
      "stock": "Stock",
      "given": "Delivered",
      "booked": "Booking",
      "id": "Id",
     "actions": "Actions",
     "return_items": "Quantity",
+
+
+    "filter": "Submit",
+    "loading": "Loading...",
+
 
     "paid": "Paid",
     "delivered_by": "Delivered By",
@@ -284,30 +294,10 @@
         "network_online": "Your are offline",
 
         "new_expense_added_successfully_msg": "New expense added successfully",
-        "error_occured_please_try_again_later_msg": "Error occured, please try again later",
+
         "select_expense_type_msg": "Select Expense Type",
         "expense_type_added_successfully_msg": "ExpenseType added successfully",
-        "failed_to_add_expense_type_msg": "Failed to add expenseType",
+        "failed_to_add_expense_type_msg": "Failed to add expenseType"
 
-
-        "noMilkTanksAvailable": "No milk tanks available for your company",
-        "failedToLoadMilkTanks": "Failed to load milk tanks",
-        "neverUpdated": "Never updated",
-        "allFieldsRequired": "All fields are required",
-        "quantityCannotBeNegative": "Quantity cannot be negative. Please enter a positive value.",
-        "milkParamsUpdatedSuccess": "Milk parameters updated successfully!",
-        "failedToUpdateMilkParams": "Failed to update milk parameters",
-        "invalidInputQuantity": "Invalid input. Quantity must be a positive number.",
-        "errorConnectingToServer": "Error connecting to server",
-        "failedToFetchMilkTanks": "Failed to fetch milk tanks data",
-        "userInfoMissing": "User information or company ID is missing",
-        "errorInitializingData": "Error initializing data",
-        "error": "Error",
-        "emptyTankWarning":"Warning : Tank Will Be Empty After Confirmation",
-        "quantityWillBeZero":"QUANTITY Will Become : 0",
-        "snfWillBeZero":"SNF Will Become : 0",
-        "tsWillBeZero":"TS Will Become : 0",
-        "thisActionCannotBeUndone": " WARNINNG : This Action Cannot Be Undone Once Confirmed",
-        "tankEmptiedSuccess": "Tank Emptied Successfully"
     }
    }

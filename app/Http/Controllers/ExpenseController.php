@@ -28,7 +28,7 @@ class ExpenseController extends Controller
         $endDate = $request->query('endDate');
         
         try {
-            if($userType==0||$userType==1){
+            if($userType==0||$userType==1||$userType==2){
                     if ($startDate && $endDate) {
                         $query=Expense::where('company_id',$comapanyId)
                         ->whereBetween('expense_date', [$startDate, $endDate]);
@@ -103,7 +103,7 @@ class ExpenseController extends Controller
         $endDate = $request->query('endDate');
         
         try {
-              if($userType==0||$userType==1){
+              if($userType==0||$userType==1||$user_type==2){
                  $expense = Expense::where('id', $id)->where('company_id', $comapanyId)->first();
                  return $expense;}
 
