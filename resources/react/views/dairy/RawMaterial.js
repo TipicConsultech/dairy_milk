@@ -21,6 +21,7 @@ import CIcon from '@coreui/icons-react';
 import { cilArrowThickToBottom, cilArrowThickToTop, cilSettings, cilWarning, cilPlus, cilX } from '@coreui/icons';
 import { getUserData } from '../../util/session';
 
+
 function RawMaterial() {
   const [tableData, setTableData] = useState([]);
   const [quantities, setQuantities] = useState({});
@@ -352,7 +353,7 @@ function RawMaterial() {
             {/* Row 2: CSV Buttons */}
             <div className="d-flex gap-2 mb-2">
                 
-       {userData?.type===0 &&(
+       {user?.type===0 &&(
         <CButton color="primary" onClick={handleDownload} style={{ flex: '1' }}>
         <CIcon icon={cilArrowThickToBottom} size="sm" style={{ marginRight: 3 }}/>
         Template
@@ -361,7 +362,7 @@ function RawMaterial() {
        )}
               
 
-      {userData?.type===0 && (
+      {user?.type===0 && (
          <CButton
         color={selectedFile ? "primary" : "primary"} 
         variant={selectedFile ? "solid" : "outline"}
@@ -383,7 +384,7 @@ function RawMaterial() {
   
 
       
-              {selectedFile && userData?.type===0 && (
+              {selectedFile && user?.type===0 && (
                 <CButton
                   color="success"
                   disabled={uploading}
