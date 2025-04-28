@@ -172,6 +172,13 @@
 "salt": "Salt",
 "other": "Other",
 
+"plan_name": "Plan Name",
+    "plan_description": "About Plan",
+    "price": "Price",
+    "user_limit": "User Limit",
+    "new_plan": "New Plan",
+    "plans": "Plans",
+
 "processedMilk": "Processed Milk",
 "totalMilkQty": "Total Milk Quantity",
 "processedMilkQty": "Processed By",

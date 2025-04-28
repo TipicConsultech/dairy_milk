@@ -36,6 +36,13 @@
         "visible":"Visible",
         "booking": "बुकिंग",
         "customers": "ग्राहक",
+        "plan_name": "प्लॅन नाव",
+        "plan_description": "प्लॅन बद्दल",
+        "price": "किंमत",
+        "user_limit": "युझर लिमिट",
+        "new_plan": "नवीन प्लॅन",
+        "plans": "प्लॅन्स",
+
         "all_customers": "सर्व ग्राहक",
         "products": "प्रॉडक्ट",
         "new_product": "नवीन प्रॉडक्ट",
