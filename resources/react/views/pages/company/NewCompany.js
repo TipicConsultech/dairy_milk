@@ -40,7 +40,7 @@ function NewCompany() {
     logo: '',
     sign: '',
     paymentQRCode: '',
-    appMode: 'basic',
+    appMode: 'advance',
     subscribed_plan: 1,
     subscription_validity: new Date(today.getFullYear() + 1, today.getMonth(), today.getDate()).toISOString().split('T')[0],
     refer_by_id: logedInUserId,
@@ -373,7 +373,7 @@ function NewCompany() {
       logo: '',
       sign: '',
       paymentQRCode: '',
-      appMode: 'basic',
+      appMode: 'advance',
       subscribed_plan: 1,
       subscription_validity: new Date(today.getFullYear() + 1, today.getMonth(), today.getDate()).toISOString().split('T')[0],
       refer_by_id: logedInUserId,
@@ -482,7 +482,7 @@ function NewCompany() {
                     />
                   </div>
                 </div>
-                <div className='col-sm-4'>
+                {/* <div className='col-sm-4'>
                   <div className='mb-3'>
                   <CFormLabel htmlFor="appMode">{t("LABELS.app_mode")}</CFormLabel>
                     <CFormSelect
@@ -496,7 +496,7 @@ function NewCompany() {
                       feedbackInvalid="Select an application mode."
                     />
                   </div>
-                </div>
+                </div> */}
                </div>
               <div className='row'>
                 <div className='col-sm-4'>
