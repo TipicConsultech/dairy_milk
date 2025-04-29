@@ -71,7 +71,7 @@ const AllCompanies = () => {
     { accessorKey: 'email_id', header: 'Email' },
     { accessorKey: 'Tal', header: 'Address',
       Cell: ({ cell }) => (
-        <>{cell.row.original.land_mark},{cell.row.original.Tal},{cell.row.original.Dist}</>
+        <>{cell.row.original.land_mark}</>
       ),
      },
      { accessorKey: 'subscription_validity', header: 'Valid Till' },

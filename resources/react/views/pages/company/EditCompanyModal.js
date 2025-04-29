@@ -333,7 +333,7 @@ const EditCompanyModal = ({ visible, setVisible, companyData, onSuccess }) => {
               </div>
             </div>
           </div>
-          <CButton type="submit" color="primary">{t("LABELS.save_changes")}</CButton>
+          <CButton type="submit" color="primary">{t("LABELS.update")}</CButton>
           <CButton type="button" color="secondary" onClick={() => setVisible(false)} className="ms-2">{t("LABELS.cancel")}</CButton>
         </CForm>
       </CModalBody>
