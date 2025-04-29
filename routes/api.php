@@ -102,7 +102,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/factoryProducts/{id}', [FactoryProductController::class, 'destroy']);
     Route::get('/showAllFactoryProducts', [FactoryProductController::class, 'showAll']);
     Route::get('/searchfactoryProducts', [FactoryProductController::class, 'searchByName']);
+    Route::get('/uniqueBatchNumbers', [ProductsTrackerController::class, 'getUniqueBatchNumbers']);
+    Route::post('/productInBatch', [ProductsTrackerController::class, 'productInBatch']);
+    Route::post('/batchByProductId', [ProductsTrackerController::class, 'BatchByProductId']);
+    Route::get('/getProductsWithVisibleSizes', [ProductController::class, 'getProductsWithVisibleSizes']);
+    Route::post('/newRetailProduct', [CommonController::class, 'newRetailProduct']);
 });
+
+
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/changePassword', [AuthController::class, 'changePassword']);

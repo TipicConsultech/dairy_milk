@@ -11,9 +11,56 @@ class ProductsTrackerController extends Controller
 
 
 
+    public function getUniqueBatchNumbers()
+    {
+        $uniqueBatchNumbers = ProductsTracker::query()
+            ->where('isProcessed',0)
+            ->pluck('batch_no')      // Get all batch numbers
+            ->unique()               // Remove duplicates
+            ->filter()               // Remove null or empty
+            ->values()               // Re-index the array
+            ->toArray();             // Convert to plain array
 
+        return response()->json([
+            'status' => true,
+            'data' => $uniqueBatchNumbers,
+        ]);
+    }
 
+    public function productInBatch(Request $request)
+    {
+        $uniqueBatchNumbers = ProductsTracker::query()
+            ->where('batch_no',$request->batch)
+            ->with('factoryProduct')
+            ->get();             // Convert to plain array
 
+        return response()->json([
+            'status' => true,
+            'products' => $uniqueBatchNumbers,
+        ]);
+    }
+
+    public function BatchByProductId(Request $request)
+    {
+        $uniqueBatchNumbers = ProductsTracker::query()
+            ->where('factory_product_id', $request->id)
+            ->select('product_qty', 'batch_no','id')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id'=>$item->id,
+                    'product_qty' => $item->product_qty,
+                    'batch' => $item->batch_no,
+                ];
+            });
+    
+        return response()->json([
+            'status' => true,
+            'batch' => $uniqueBatchNumbers,
+        ]);
+    }
+    
+    
 
     /**
      * Display a listing of the resource.

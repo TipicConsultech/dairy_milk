@@ -19,6 +19,9 @@ const EditCompany = React.lazy(() => import('./views/pages/company/EditCompany')
 
 //Raw MAterial 
 const RawMaterial = React.lazy(() => import('./views/dairy/RawMaterial'))
+//Retail Product
+const CreateRetailProduct = React.lazy(() => import('./views/dairy/createRetailProduct'))
+
 //Products
 const NewProduct = React.lazy(() => import('./views/pages/products/NewProduct'))
 const AllProducts = React.lazy(() => import('./views/pages/products/AllProducts'))
@@ -148,9 +151,7 @@ export default function fetchRoutes(){
     { path: '/Reports/Reports', name: 'Reports', element: All_Reports },
     { path:'/usermanagement/create-user', name: 'Create User', element: NewUsers },
     { path:'usermanagement/all-users', name: 'All Users', element: AllUser },
-
-     
-
+    { path:'/CreateRetailProduct', name: 'Create Retail Product', element: CreateRetailProduct },
       { path: '/CreateProduct', name: 'CreateProduct', element:CreateProduct },
       { path: '/StockManagement', name: 'StockManagement', element:StockManagement },
       { path: '/ProcessedMilk', name: 'ProcessedMilk', element:ProcessedMilk },
@@ -191,6 +192,7 @@ export default function fetchRoutes(){
     { path: '/expense/reportExpense', name: 'Expense Report', element: expense },
     { path: '/expense/new', name: 'New Expense', element: NewExpense },
     { path:'/updatepassword', name: 'Update Password', element: Updatepassword },
+    { path:'/CreateRetailProduct', name: 'Create Retail Product', element: CreateRetailProduct },
   
     { path:'/usermanagement/create-user', name: 'Create User', element: NewUsers },
     { path:'usermanagement/all-users', name: 'All Users', element: AllUser },
@@ -220,6 +222,7 @@ export default function fetchRoutes(){
     { path: '/retailProductInvenrty', name: 'RetailProductInvenrty', element:RetailProductInvenrty},
     { path: '/invoice', name: 'invoice', element: Invoice },
     { path: '/invoice-details/:id', name: 'InvoiceDetails', element: InvoiceDetails },
+    { path:'/CreateRetailProduct', name: 'Create Retail Product', element: CreateRetailProduct },
       
   ]
   }

@@ -173,9 +173,14 @@ export default function fetchNavItems(t1){
           },
           {
             component: CNavItem,
+            name: t("LABELS.create_retail_product"),
+            to: '/CreateRetailProduct',
+          },
+          
+          {
+            component: CNavItem,
             name: t("LABELS.finalproductinventry"),
             to: '/finalProductInvenrty',
-            
           },
 
           {
@@ -275,6 +280,11 @@ export default function fetchNavItems(t1){
           },
           {
             component: CNavItem,
+            name: t("LABELS.create_retail_product"),
+            to: '/CreateRetailProduct',
+          },
+          {
+            component: CNavItem,
             name: t("LABELS.finalproductinventry"),
             to: '/finalProductInvenrty',
             
@@ -353,6 +363,11 @@ export default function fetchNavItems(t1){
         name: t("LABELS.create_product"),
         to: '/CreateProduct',
         icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+      },
+      {
+        component: CNavItem,
+        name: t("LABELS.create_retail_product"),
+        to: '/CreateRetailProduct',
       },
       {
         component: CNavItem,

@@ -22,6 +22,8 @@ class ProductSize extends Model
         'max_stock',
         'booked',
         'returnable',
+        'unit_multiplier',
+        'label_value',
         'show'
     ];
 

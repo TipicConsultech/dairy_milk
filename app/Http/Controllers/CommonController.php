@@ -189,4 +189,135 @@ public function createProduct(Request $request)
 }
 
 
+public function newRetailProduct(Request $request)
+{
+    $batchId = $request->batch;
+    $productSizes = $request->productSizes; // [{id: 6, name: "paneer", qty: 1900}]
+    $rawMaterials = $request->rawMaterials;
+
+    // === Step 1: Check if batch exists ===
+    $productTracker = ProductsTracker::where('id', $batchId)->first();
+
+    if (!$productTracker) {
+        return response()->json(['error' => 'Batch not found'], 404);
+    }
+
+    if ($productTracker->product_qty <= 0) {
+        return response()->json(['error' => 'Insufficient product quantity in tracker'], 400);
+    }
+
+    DB::beginTransaction();
+
+    try {
+        // === Step 2: Deduct raw materials ===
+        foreach ($rawMaterials as $material) {
+            $materialRecord = RawMaterial::find($material['id']);
+
+            if (!$materialRecord) {
+                throw new \Exception("Raw material with ID {$material['id']} not found");
+            }
+
+            $newQty = $materialRecord->unit_qty - $material['quantity'];
+
+            if ($newQty < 0) {
+                throw new \Exception("Not enough quantity of {$material['name']} (ID: {$material['id']})");
+            }
+
+            $materialRecord->unit_qty = $newQty;
+            $materialRecord->save();
+        }
+
+        // === Step 3: Calculate total real quantity from productSizes ===
+        $totalRealQty = 0;
+        $realQuantities = [];
+
+        foreach ($productSizes as $product) {
+            $productSize = ProductSize::find($product['id']);
+
+            if (!$productSize) {
+                throw new \Exception("Product size with ID {$product['id']} not found");
+            }
+
+            $realQty = $productSize->unit_multiplier * $product['qty'];
+            $totalRealQty += $realQty;
+
+            $realQuantities[] = [
+                'id' => $product['id'],
+                'realQty' => $realQty,
+                'requestedQty' => $product['qty'],
+                'productName' => $productSize->name,
+            ];
+        }
+
+        // === Step 4: Check if ProductsTracker has enough quantity ===
+        $newProductQty = $productTracker->product_qty - $totalRealQty;
+
+        if ($newProductQty < 0) {
+            throw new \Exception("Insufficient product quantity in tracker. Required: $totalRealQty, Available: {$productTracker->product_qty}");
+        }
+
+        // === Step 5: Deduct realQty from FactoryProduct ===
+        foreach ($realQuantities as $item) {
+            $factoryProduct = FactoryProduct::find($item['id']);
+
+            if (!$factoryProduct) {
+                throw new \Exception("Factory product with ID {$item['id']} not found");
+            }
+
+            $newFactoryQty = $factoryProduct->quantity - $item['realQty'];
+
+            if ($newFactoryQty < 0) {
+                throw new \Exception("Not enough stock in factory product ID {$item['id']} for deduction.");
+            }
+
+            $factoryProduct->quantity = $newFactoryQty;
+            $factoryProduct->save();
+        }
+
+        // === Step 6: Deduct from ProductsTracker ===
+        $productTracker->product_qty = $newProductQty;
+        $productTracker->save();
+
+        // === Step 7: Add request->qty to FactoryProduct and ProductSize, and build response
+        $updatedProducts = [];
+
+        foreach ($realQuantities as $item) {
+            // Update FactoryProduct
+            $factoryProduct = FactoryProduct::find($item['id']);
+            if ($factoryProduct) {
+                $factoryProduct->quantity += $item['requestedQty'];
+                $factoryProduct->save();
+            }
+
+            // Update ProductSize and track update
+            $productSize = ProductSize::find($item['id']);
+            if ($productSize) {
+                $previousQty = $productSize->qty;
+                $productSize->qty = $previousQty + $item['requestedQty'];
+                $productSize->save();
+
+                $updatedProducts[] = [
+                    'product_name' => $item['productName'],
+                    'created_quantity' => $item['requestedQty'],
+                    'previous_quantity' => $previousQty,
+                    'updated_quantity' => $productSize->qty,
+                ];
+            }
+        }
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'deducted_real_quantity' => $totalRealQty,
+            'message' => $updatedProducts,
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
+
 }

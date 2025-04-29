@@ -10,13 +10,9 @@ class Product extends Model
     use HasFactory;
     protected $fillable=[
         'name',
-        
         'localName',
-        
         'unit',
-       
         'multiSize',
-       
         'show',
         'company_id',
         'created_by',

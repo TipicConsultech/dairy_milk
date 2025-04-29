@@ -24,4 +24,9 @@ class ProductsTracker extends Model
     protected $casts = [
         'misc' => 'array',
     ];
+
+    public function factoryProduct()
+{
+    return $this->belongsTo(FactoryProduct::class, 'factory_product_id');
+}
 }

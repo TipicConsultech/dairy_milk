@@ -133,8 +133,10 @@
     "delete": "Delete",
     "status": "Status",
 
-    "create_product": "Create Product",
-    "createProduct": "Create Product",
+    "create_product": "Create Factory Product",
+    "create_retail_product":"Create Retail Product",
+    "createProduct": "Create Factory Product",
+    "createRetailProduct": "Create Retail Product",
     "laboratoryUser": "Lab Technician",
  
     "processed_milk": "Processed Milk",
