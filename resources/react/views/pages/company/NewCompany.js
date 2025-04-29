@@ -393,6 +393,7 @@ function NewCompany() {
   };
   
   const handleSubmit = async (event) => {
+  
     const form = event.currentTarget;
     event.preventDefault();
     event.stopPropagation();
