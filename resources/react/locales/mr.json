@@ -8,6 +8,8 @@
         "name": "नाव",
         "remark":"टीका",
         "finalproductinventry":"अंतिम उत्पादन यादी",
+        "inventory_management" : "स्टॉक व्यवस्थापन",
+        "retailproductinventry":"रीटेल उत्पादन यादी",
         "credit": "येणे",
         "Packet":"पाकिटे/खोके",
         "rs": "रु",

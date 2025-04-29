@@ -67,6 +67,7 @@ const DeliveryRecord=React.lazy(() => import('./views/dairy/DeliveryRecord'))
 
 const LaboratoryUser=React.lazy(() => import('./views/dairy/LaboratoryUser'))
 const FinalProductInvenrty = React.lazy(()=>import('./views/dairy/FinalProductInvenrty'))
+const RetailProductInvenrty = React.lazy(()=>import('./views/dairy/RetailProductInventory'))
 
 export default function fetchRoutes(){
   const user=getUserType();
@@ -164,6 +165,7 @@ export default function fetchRoutes(){
       { path: '/LaboratoryUser', name: 'LaboratoryUser', element:LaboratoryUser },
       { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord},
       { path: '/finalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty},
+      { path: '/retailProductInvenrty', name: 'RetailProductInvenrty', element:RetailProductInvenrty},
 
   ]
   }
@@ -204,6 +206,7 @@ export default function fetchRoutes(){
       { path: '/LaboratoryUser', name: 'LaboratoryUser', element:LaboratoryUser },
       { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord},
       { path: '/finalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty},
+      { path: '/retailProductInvenrty', name: 'RetailProductInvenrty', element:RetailProductInvenrty},
       
     
 
@@ -214,6 +217,7 @@ export default function fetchRoutes(){
     routes = [
     { path: '/CreateProduct', name: 'CreateProduct', element:CreateProduct },
     { path: '/finalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty},
+    { path: '/retailProductInvenrty', name: 'RetailProductInvenrty', element:RetailProductInvenrty},
     { path: '/invoice', name: 'invoice', element: Invoice },
     { path: '/invoice-details/:id', name: 'InvoiceDetails', element: InvoiceDetails },
       
