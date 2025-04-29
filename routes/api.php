@@ -101,7 +101,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/factoryProducts/{id}', [FactoryProductController::class, 'update']);
     Route::delete('/factoryProducts/{id}', [FactoryProductController::class, 'destroy']);
     Route::get('/showAllFactoryProducts', [FactoryProductController::class, 'showAll']);
-
+    Route::get('/searchfactoryProducts', [FactoryProductController::class, 'searchByName']);
 });
 
 Route::group(['middleware' => ['auth:sanctum']], function () {

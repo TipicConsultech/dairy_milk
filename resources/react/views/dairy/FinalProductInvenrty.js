@@ -40,7 +40,7 @@ function RawMaterial() {
 
   const getData = async () => {
     try {
-      const response = await getAPICall('/api/finalProductInventory');
+      const response = await getAPICall('/api/factoryProducts');
       setTableData(response);
     } catch (error) {
       console.error('Failed to fetch initial data:', error);
@@ -50,7 +50,7 @@ function RawMaterial() {
   const searchMaterials = async () => {
     setLoading(true);
     try {
-      const response = await getAPICall(`/api/searchByProductNameFinalInventry?search=${debouncedSearchTerm}`);
+      const response = await getAPICall(`/api/searchfactoryProducts?search=${debouncedSearchTerm}`);
       setTableData(response);
     } catch (error) {
       console.error('Error fetching materials:', error);
@@ -109,7 +109,7 @@ function RawMaterial() {
 
 <CCardHeader style={{ backgroundColor: '#d4edda', marginBottom:'10px'}} className='p-2 rounded'>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h5 className="mb-0" >Final Product Inventory </h5> 
+            <h5 className="mb-0" >Factory Product Inventory </h5> 
            
           </div>
         </CCardHeader>
@@ -155,7 +155,7 @@ function RawMaterial() {
           <thead className="table-light" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
             <tr>
               <th>Name</th>
-              <th>Packaging</th>
+              <th>Price</th>
               <th>Capacity</th>
               <th>Stock Indicator</th>
               <th>Available Stock</th>
@@ -168,11 +168,9 @@ function RawMaterial() {
               <tr key={item.id}>
                 <td>{item.name}</td>
                 <td>
-                  <span className={`badge ${item.isPackaging ? 'bg-info' : 'bg-secondary'}`}>
-                    {item.isPackaging ? 'Yes' : 'No'}
-                  </span>
+                ₹&nbsp;{item.price}
                 </td>
-                <td>{item.max_stock}&nbsp;{item.unit}</td>
+                <td>{item.capacity}&nbsp;{item.unit}</td>
                 <td>
                   <CBadge
                     style={{
@@ -193,7 +191,7 @@ function RawMaterial() {
                       : 'Sufficient'}
                   </CBadge>
                 </td>
-                <td>{item.qty}&nbsp;{item.unit}</td>
+                <td>{item.quantity}&nbsp;{item.unit}</td>
                 
                 <td>
                   <button

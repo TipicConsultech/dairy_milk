@@ -62,11 +62,60 @@ class FactoryProductController extends Controller
     }
 
     // Read (all products)
+    
+
     public function index()
     {
-        $products = FactoryProduct::where('company_id', Auth::user()->company_id)->get();
-        return response()->json($products);
+        $materials = FactoryProduct::all()
+            ->values() // reset the index
+            ->where('company_id', Auth::user()->company_id)
+            ->map(function ($item) {
+                $percentage = ($item->quantity / $item->capacity) * 100;
+    
+                if ($percentage < 20) {
+                    $item->min_qty = 1;
+                } elseif ($percentage < 60) {
+                    $item->min_qty = 2;
+                } else {
+                    $item->min_qty = 3;
+                }
+    
+                return $item;
+            });
+    
+        return response()->json($materials, 200);
     }
+
+public function searchByName(Request $request) 
+{
+    $search = $request->query('search');
+
+    $materials = FactoryProduct::query()
+        ->when($search, function ($query, $search) {
+            $search = strtolower(trim($search));
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
+                  ->orWhereRaw('LOWER(local_name) LIKE ?', ["%{$search}%"]);
+            });
+        })
+        ->where('company_id', Auth::user()->company_id)
+        ->get()
+        ->map(function ($item) {
+            $percentage = ($item->quantity / $item->capacity) * 100;
+
+            if ($percentage < 20) {
+                $item->min_qty = 1;
+            } elseif ($percentage < 60) {
+                $item->min_qty = 2;
+            } else {
+                $item->min_qty = 3;
+            }
+
+            return $item;
+        });
+
+    return response()->json($materials, 200);
+}
 
     // Read (single product)
     public function show($id)
