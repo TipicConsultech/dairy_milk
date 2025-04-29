@@ -12,6 +12,9 @@ import {
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react'
+import { CFormInput, CInputGroup, CInputGroupText } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilSearch } from '@coreui/icons'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import MainChart from './MainChart'
 import { getAPICall } from '../../util/api'
@@ -27,7 +30,7 @@ const Dashboard = (Props) => {
     monthlyPandL: Array(12).fill(0),
   })
   const [stock, setStock] = useState([])
-
+  const [searchTerm, setSearchTerm] = useState('')
   const { showToast } = useToast()
   const userData = getUserData()
   const mode = userData?.company_info?.appMode ?? 'advance'
@@ -74,56 +77,81 @@ const Dashboard = (Props) => {
           <CCardBody>
             <CRow className="justify-content-center">
               <h4 className="card-title mb-0 text-center">{t('LABELS.overview')}</h4>
-            <div className="overflow-x-auto w-full" style={{ maxHeight: '300px', overflowY: 'auto' }}>
-  <CTable className="min-w-[600px]">
-    <CTableHead style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 2 }}>
-      <CTableRow>
-        <CTableHeaderCell scope="col" style={{ width: '25%' }}>{t('LABELS.product')}</CTableHeaderCell>
-        <CTableHeaderCell scope="col" className="text-center" style={{ width: '25%' }}>
-          {t('LABELS.stock')} 
-        </CTableHeaderCell>
-        <CTableHeaderCell scope="col" className="text-center" style={{ width: '25%' }}>
-          {t('LABELS.stockInUnit')}
-        </CTableHeaderCell>
-        <CTableHeaderCell scope="col" className="text-center" style={{ width: '25%' }}>
-          {t('LABELS.cost')}
-        </CTableHeaderCell>
-      </CTableRow>
-    </CTableHead>
-
-    <CTableBody>
-      {stock
-        .filter((p) => p.returnable === 0)
-        .map((p) => {
-          // Calculate the total cost (quantity × price)
-          const totalCost = p.qty * (p.dPrice || 0);
-          
-          return (
-            <CTableRow key={p.id}>
-              <CTableHeaderCell>{lng === 'en' ? p.name : p.localName}</CTableHeaderCell>
-
-              <CTableDataCell className="text-center font-weight-bold text-black" style={{ width: '16%' }}>
-                {p.max_stock}
-              </CTableDataCell>
-
-              <CTableDataCell className="text-center font-weight-bold text-black" style={{ width: '16%' }}>
-                {p.qty}  {p.unit || '-'}
-              </CTableDataCell>
-
-              <CTableDataCell className="text-center font-weight-bold text-black" style={{ width: '16%' }}>
-                {totalCost.toFixed(2)}
-              </CTableDataCell>
-            </CTableRow>
-          )
-        })}
-    </CTableBody>
-  </CTable>
-</div>
             </CRow>
+            
+            {/* Add search input with icon */}
+            <CRow className="mb-3 mt-3">
+            <CCol md={4} className="ms-auto">
+              <CInputGroup size="sm">
+                <CFormInput
+                  placeholder={t('LABELS.search')}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <CInputGroupText>
+                  <CIcon icon={cilSearch} />
+                </CInputGroupText>
+              </CInputGroup>
+            </CCol>
+          </CRow>
+            
+            <div className="overflow-x-auto w-full" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              <CTable className="min-w-[600px]">
+                <CTableHead style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 2 }}>
+                  <CTableRow>
+                    <CTableHeaderCell scope="col" style={{ width: '25%' }}>{t('LABELS.product')}</CTableHeaderCell>
+                    <CTableHeaderCell scope="col" className="text-center" style={{ width: '25%' }}>
+                      {t('LABELS.stock')} 
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col" className="text-center" style={{ width: '25%' }}>
+                      {t('LABELS.stockInUnit')}
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col" className="text-center" style={{ width: '25%' }}>
+                      {t('LABELS.cost')}
+                    </CTableHeaderCell>
+                  </CTableRow>
+                </CTableHead>
+  
+                <CTableBody>
+                  {stock
+                    .filter((p) => p.returnable === 0)
+                    .filter((p) => {
+                      // Only filter if search term has 2 or more characters
+                      if (searchTerm.length < 2) return true;
+                      
+                      // Search in product name (based on current language)
+                      const productName = lng === 'en' ? p.name : p.localName;
+                      return productName && productName.toLowerCase().includes(searchTerm.toLowerCase());
+                    })
+                    .map((p) => {
+                      // Calculate the total cost (quantity × price)
+                      const totalCost = p.qty * (p.dPrice || 0);
+                      
+                      return (
+                        <CTableRow key={p.id}>
+                          <CTableHeaderCell>{lng === 'en' ? p.name : p.localName}</CTableHeaderCell>
+  
+                          <CTableDataCell className="text-center font-weight-bold text-black" style={{ width: '16%' }}>
+                            {p.max_stock}
+                          </CTableDataCell>
+  
+                          <CTableDataCell className="text-center font-weight-bold text-black" style={{ width: '16%' }}>
+                            {p.qty}  {p.unit || '-'}
+                          </CTableDataCell>
+  
+                          <CTableDataCell className="text-center font-weight-bold text-black" style={{ width: '16%' }}>
+                            {totalCost.toFixed(2)}
+                          </CTableDataCell>
+                        </CTableRow>
+                      )
+                    })}
+                </CTableBody>
+              </CTable>
+            </div>
           </CCardBody>
         </CCard>
       )}
-
+  
       {((user === 0 || user === 1) && mode === 'advance') && (
         <CCard className="mt-4 mb-4">
           <CCardBody>

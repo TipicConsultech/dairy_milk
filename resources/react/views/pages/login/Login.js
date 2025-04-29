@@ -58,7 +58,7 @@ const Login = () => {
   const getRedirectPathByUserType = (userType) => {
     switch (userType) {
       case 0:
-        return '/dashboard';
+        return '/company/new';
       case 1:
         return '/dashboard';
       case 2:

@@ -24,7 +24,10 @@ class CompanyInfo extends Model
     'paymentQRCode',
     'block_status',
     'company_name',
-    'appMode'
+    'appMode',
+    'subscribed_plan',
+    'subscription_validity',
+    'refer_by_id'
     ];
 
     protected $hidden = [

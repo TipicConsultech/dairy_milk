@@ -1,14 +1,29 @@
 {
     "LABELS": {
      "customer": "Customer",
-
+     "new_shop": "New Factory Registration",
+"address_label": "Address",
+"company_name": "Company Name",
+"email": "Email Id",
+"app_mode": "Application Mode",
+"bank_name": "Bank Name",
+"account_number": "Account No",
+"IFSC": "IFSC",
+    "logo": "Logo (PNG, max 2MB)",
+    "sign": "Sign (PNG, max 2MB)",
+"qr_img": "QR Code (PNG, max 2MB)",
+"plan": "Plan (+ GST)",
+    "partner": "Onboarding Partner",
+    "validity": "Valid Till",
+    "submit_pay": "Register and Pay",
+    "plan_duration": "Duration",
      "Packet":"Packets/Crate",
      "customer_name": "Customer Name",
      "new_customer": "New Customer",
      "new": "New",
      "name": "Name",
      "credit": "Credit",
-     "finalproductinventry":"Final Product Inventory",
+     
      "rs": "Rs",
      "remark":"Remark",
      "delivery_record":"Delivery View",
@@ -121,13 +136,13 @@
     "create_product": "Create Product",
     "createProduct": "Create Product",
     "laboratoryUser": "Lab Technician",
-    "tank": "Tank",
+ 
     "processed_milk": "Processed Milk",
     "enterMilk": "Enter Milk for Product",
     "selectProduct": "Select Product",
     "selectGram": "Select Gram",
     "productQty": "Product Quantity",
-    "save": "Save",
+ 
     "milk_for_product": "Milk for Product",
     "product": "Product",
     "quantity": "Quantity",
@@ -156,6 +171,13 @@
 "foodColor": "Food Color",
 "salt": "Salt",
 "other": "Other",
+
+"plan_name": "Plan Name",
+    "plan_description": "About Plan",
+    "price": "Price",
+    "user_limit": "User Limit",
+    "new_plan": "New Plan",
+    "plans": "Plans",
 
 "processedMilk": "Processed Milk",
 "totalMilkQty": "Total Milk Quantity",
@@ -194,7 +216,7 @@
 "currentCapacity": "Capacity",
 "Productcreate": "Product Creation",
 
-"Productcreate": "Create Product",
+
 "Dairy_Farm_Inventory_Management": "Dairy Farm Inventory Management",
 "Storage_Tanks": "Storage Tank",
 "full": "Full",
