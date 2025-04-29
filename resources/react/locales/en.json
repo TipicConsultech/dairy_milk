@@ -171,7 +171,7 @@
 "foodColor": "Food Color",
 "salt": "Salt",
 "other": "Other",
-
+"inventory_management" : "Inventory Management",
 "plan_name": "Plan Name",
     "plan_description": "About Plan",
     "price": "Price",
@@ -258,6 +258,7 @@
 "updatedby":"Updated By",
 "addRow": "Add Row",
 "finalproductinventry":"Final Product Inventory ",
+"retailproductinventry":"Retail Product Inventory ",
 
 "laboratoryTechnician": "Lab Technician",
 "cowMilk":"Cow Milk",
