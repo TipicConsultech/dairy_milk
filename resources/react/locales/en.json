@@ -105,7 +105,7 @@
     "filter": "Submit",
     "loading": "Loading...",
 
-
+    "update":"Update",
     "paid": "Paid",
     "delivered_by": "Delivered By",
     "share": "Share",
@@ -254,6 +254,7 @@
 "can": "Cans",
 "tetraPack": "Tetra-Packs",
 "supplier": "Supplier",
+"edit_company":"Edit Company",
 "supplierName": "Supplier Name",
 "expireDate": "Expiry Date",
 "lastUpdatedDate":"Last Updated Date",
