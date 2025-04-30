@@ -57,7 +57,7 @@ public function createProduct(Request $request)
 
         /* Generate batch number */
         if ($firstProductName) {
-            $batchPrefix = strtolower(substr($firstProductName, 0, 2)); // first 2 letters lowercase
+            $batchPrefix = strtolower(substr($firstProductName, 0, 3)); // first 2 letters lowercase
         } else {
             $batchPrefix = 'xx'; // fallback
         }

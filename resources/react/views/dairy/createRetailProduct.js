@@ -44,7 +44,7 @@ const createRetailProduct = () => {
   const [prductsData, setPrductsData] = useState([])  
   const [productUnit, setProductUnit] = useState([])
 
-  const [createdSummary, setCreatedSummary] = useState(null);
+  const [createdSummary, setCreatedSummary] = useState(null); // Will store success/error messages with product details
 
   const [selectedBatchId, setSelectedBatchId] = useState('');
   const [selectedBatch, setSelectedBatch] = useState(null); // holds the selected object
@@ -309,35 +309,39 @@ const createRetailProduct = () => {
       name: prod.name,
       qty: parseFloat(prod.quantity),
     }));
-    
-    // Create a summary string for alert
-    const createdSummary = productsData
-      .map(prod => `${prod.name} ${prod.qty} Kg`)
-      .join(', ');
 
     try {
-    
       // Call the createProduct API with properly structured data
-      await post('/api/newRetailProduct', {
+      const response = await post('/api/newRetailProduct', {
         batch: selectedBatchId,
         rawMaterials: ingredientsData,
         productSizes: productsData,
       });
 
-      alert(`${createdSummary} created successfully:`);
-
       const now = new Date();
       const formattedTime = now.toLocaleString();
       
-      const summaryText = productsData
-        .map(prod => `${prod.name} ${prod.qty} Kg`)
-        .join(', ');
+      // Handle successful response with product details
+      if (response.success && response.message) {
+        // Set created summary with the detailed product information
+        setCreatedSummary({
+          success: true,
+          products: response.message,
+          time: formattedTime
+        });
+      } else {
+        // Fallback if response structure is unexpected
+        const summaryText = productsData
+          .map((prod) => `${prod.name} with quantity of ${prod.qty}`)
+          .join(', ');
+        
+        setCreatedSummary({
+          success: true,
+          text: `${summaryText} created successfully`,
+          time: formattedTime,
+        });
+      }
       
-      setCreatedSummary({
-        text: `${summaryText} created successfully`,
-        time: formattedTime,
-      });
-
       // Reset form
       setSelectedBatchId('');
       setSelectedBatch(null);
@@ -347,7 +351,11 @@ const createRetailProduct = () => {
       fetchProducts();
     } catch (err) {
       console.error('Error in submission:', err);
-      alert('Something went wrong while creating the product.');
+      setCreatedSummary({
+        success: false,
+        text: err.message || 'Something went wrong while creating the product.',
+        time: new Date().toLocaleString()
+      });
     }
   };
 
@@ -651,11 +659,27 @@ const createRetailProduct = () => {
         </CButton>
    
         {createdSummary && (
-          <CAlert color='success' className='mt-2'>
-            <div className="">
-              <strong>Product Created:</strong>
-              <p>{createdSummary.text}</p>
-              <p className=" mt-1">Created at: {createdSummary.time}</p>
+          <CAlert color={createdSummary.success ? 'success' : 'danger'} className='mt-2'>
+            <div>
+              <strong>{createdSummary.success ? 'Product Created:' : 'Error:'}</strong>
+              {createdSummary.products ? (
+                // Display each product in the array with its details
+                <div className="mt-2">
+                  {createdSummary.products.map((product, index) => (
+                    <div key={index} className="mb-2">
+                      <p><strong>{product.product_name}</strong> created successfully</p>
+                      <ul className="mb-0">
+                        <li>Created quantity: {product.created_quantity}</li>
+                        <li>Previous quantity: {product.previous_quantity}</li>
+                        <li>Updated quantity: {product.updated_quantity}</li>
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p>{createdSummary.text}</p>
+              )}
+              <p className="mt-1 text-muted">Created at: {createdSummary.time}</p>
             </div>
           </CAlert>
         )}

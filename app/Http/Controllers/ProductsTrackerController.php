@@ -41,24 +41,27 @@ class ProductsTrackerController extends Controller
     }
 
     public function BatchByProductId(Request $request)
-    {
-        $uniqueBatchNumbers = ProductsTracker::query()
-            ->where('factory_product_id', $request->id)
-            ->select('product_qty', 'batch_no','id')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'id'=>$item->id,
-                    'product_qty' => $item->product_qty,
-                    'batch' => $item->batch_no,
-                ];
-            });
-    
-        return response()->json([
-            'status' => true,
-            'batch' => $uniqueBatchNumbers,
-        ]);
-    }
+{
+    $uniqueBatchNumbers = ProductsTracker::query()
+        ->where('factory_product_id', $request->id)
+        ->latest() // Orders by created_at descending
+        ->take(2)  // Limits to 2 results
+        ->select('product_qty', 'batch_no', 'id')
+        ->get()
+        ->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'product_qty' => $item->product_qty,
+                'batch' => $item->batch_no,
+            ];
+        });
+
+    return response()->json([
+        'status' => true,
+        'batch' => $uniqueBatchNumbers,
+    ]);
+}
+
     
     
 

@@ -23,13 +23,13 @@ return new class extends Migration
             // Add foreign keys with cascade rules if necessary
             $table->foreign('company_id')
                   ->references('company_id')->on('company_info')
-                  ->onDelete('cascade');  // Adjust the action for your needs
+                  ->onDelete('cascade');
             $table->foreign('user_id')
                   ->references('id')->on('users')
-                  ->onDelete('cascade');  // Adjust the action for your needs
+                  ->onDelete('cascade');
             $table->foreign('plan_id')
                   ->references('id')->on('plans')
-                  ->onDelete('cascade');  // Adjust the action for your needs
+                  ->onDelete('cascade');
             $table->timestamps();
         });
     }
