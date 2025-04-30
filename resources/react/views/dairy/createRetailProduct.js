@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import React, { useEffect, useState, useRef } from 'react'
 import {
   CRow,
   CCol,
@@ -50,6 +49,37 @@ const createRetailProduct = () => {
   const [selectedBatchId, setSelectedBatchId] = useState('');
   const [selectedBatch, setSelectedBatch] = useState(null); // holds the selected object
 
+  // Dropdown references and states
+  const factoryProductDropdownRef = useRef(null);
+  const ingredientsDropdownRef = useRef(null);
+  const productsDropdownRef = useRef(null);
+  
+  const [isFactoryProductDropdownOpen, setIsFactoryProductDropdownOpen] = useState(false);
+  const [isIngredientsDropdownOpen, setIsIngredientsDropdownOpen] = useState(false);
+  const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(false);
+  
+  const [factoryProductSearch, setFactoryProductSearch] = useState('');
+
+  // Handle outside clicks to close dropdowns
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (factoryProductDropdownRef.current && !factoryProductDropdownRef.current.contains(event.target)) {
+        setIsFactoryProductDropdownOpen(false);
+      }
+      if (ingredientsDropdownRef.current && !ingredientsDropdownRef.current.contains(event.target)) {
+        setIsIngredientsDropdownOpen(false);
+      }
+      if (productsDropdownRef.current && !productsDropdownRef.current.contains(event.target)) {
+        setIsProductsDropdownOpen(false);
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   useEffect(() => {
     fetchFactoryProduct()
     fetchRawMaterials()
@@ -75,25 +105,21 @@ const createRetailProduct = () => {
     }
   }
 
-  const handleFactoryProductChange = async(e) => {
-    const selected = e.target.value
-    if(selected!==""){
+  const handleFactoryProductChange = async(factoryProductId) => {
+    if(factoryProductId){
       try{
-        const resp=await post('/api/batchByProductId',{'id':selected});
+        const resp = await post('/api/batchByProductId',{'id': factoryProductId});
         setBatch(resp?.batch);
       }
       catch(e){
-
+        console.error('Error fetching batch data:', e);
       }
     }
     else{
       setBatch([]);
     }
    
-    setFactoryProductId(selected)
-    
-    const selectedTank = tankData?.find((t) => t.name === selected)
-   
+    setFactoryProductId(factoryProductId);
   }
 
   const handleMilkAmountChange = (e) => {
@@ -107,15 +133,14 @@ const createRetailProduct = () => {
     }
   }
 
-  const handleIngredientChange = (e) => {
-    const selectedName = e.target.value
-    const selectedItem = rawMaterialData.find((item) => item.name === selectedName)
+  const handleIngredientChange = (ingredient) => {
+    const selectedItem = rawMaterialData.find((item) => item.name === ingredient)
 
     if (selectedItem) {
       setNewIngredient({
         ...newIngredient,
-        id:selectedItem.id,
-        name: selectedName,
+        id: selectedItem.id,
+        name: ingredient,
         available_qty: selectedItem.available_qty,
         unit: selectedItem.unit
       })
@@ -176,9 +201,8 @@ const createRetailProduct = () => {
   };
   
   // Handle product selection
-  const handleProductSelect = e => {
-    const selectedName = e.target.value;
-    const selectedProduct = prductsData.find(p => p.name === selectedName);
+  const handleProductSelect = (productName) => {
+    const selectedProduct = prductsData.find(p => p.name === productName);
     
     if (selectedProduct) {
       // Get the sizes for this product
@@ -187,7 +211,7 @@ const createRetailProduct = () => {
       // Create the new product state with sizes
       setNewProduct({
         id: selectedProduct.id,
-        name: selectedName,
+        name: productName,
         quantity: '',
         unit: selectedProduct.unit || '',
         sizeId: sizesForProduct.length > 0 ? sizesForProduct[0].id : null,
@@ -343,14 +367,44 @@ const createRetailProduct = () => {
         <CRow className="g-3 align-items-end mb-0">
           <CCol md={4}>
             <CFormLabel ><b>Select Factory Product</b></CFormLabel>
-            <CFormSelect value={factoryProductId} onChange={handleFactoryProductChange}>
-              <option value="">Select Product</option>
-              {factoryProductData.map((p, idx) => (
-                <option key={idx} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </CFormSelect>
+            <div className="position-relative" ref={factoryProductDropdownRef}>
+              <CFormInput
+                type="text"
+                value={factoryProductSearch}
+                onChange={(e) => {
+                  setFactoryProductSearch(e.target.value);
+                  if (e.target.value) {
+                    setIsFactoryProductDropdownOpen(true);
+                  }
+                }}
+                onFocus={() => setIsFactoryProductDropdownOpen(true)}
+                placeholder="Search or select factory product"
+              />
+              
+              {isFactoryProductDropdownOpen && (
+                <div 
+                  className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
+                  style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
+                >
+                  {factoryProductData
+                    .filter(item => item.name.toLowerCase().includes(factoryProductSearch.toLowerCase()))
+                    .map((product, index) => (
+                      <div 
+                        key={index}
+                        className="p-2 cursor-pointer hover-bg-light"
+                        style={{cursor: 'pointer'}}
+                        onClick={() => {
+                          setFactoryProductSearch(product.name);
+                          handleFactoryProductChange(product.id);
+                          setIsFactoryProductDropdownOpen(false);
+                        }}
+                      >
+                        {product.name}
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
           </CCol>
 
           <CCol md={4}>
@@ -399,15 +453,44 @@ const createRetailProduct = () => {
           <CCardBody>
             <CRow className="g-2 align-items-center mb-3">
               <CCol md={4}>
-                <CFormSelect
-                  value={newIngredient.name}
-                  onChange={handleIngredientChange}
-                >
-                  <option value="">Select Ingredient</option>
-                  {ingredientOptions.map((item, index) => (
-                    <option value={item} key={index}>{item}</option>
-                  ))}
-                </CFormSelect>
+                <div className="position-relative" ref={ingredientsDropdownRef}>
+                  <CFormInput
+                    type="text"
+                    value={newIngredient.name}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewIngredient({...newIngredient, name: value});
+                      if (value) {
+                        setIsIngredientsDropdownOpen(true);
+                      }
+                    }}
+                    onFocus={() => setIsIngredientsDropdownOpen(true)}
+                    placeholder="Search or select packaging material"
+                  />
+                  
+                  {isIngredientsDropdownOpen && (
+                    <div 
+                      className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
+                      style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
+                    >
+                      {ingredientOptions
+                        .filter(item => item.toLowerCase().includes(newIngredient.name.toLowerCase()))
+                        .map((item, index) => (
+                          <div 
+                            key={index}
+                            className="p-2 cursor-pointer hover-bg-light"
+                            style={{cursor: 'pointer'}}
+                            onClick={() => {
+                              handleIngredientChange(item);
+                              setIsIngredientsDropdownOpen(false);
+                            }}
+                          >
+                            {item}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
               </CCol>
               <CCol md={3}>
                 <CFormInput
@@ -474,16 +557,50 @@ const createRetailProduct = () => {
           <CCardBody>
             <CRow className="g-2 align-items-center mb-3">
               <CCol md={4}>
-                <CFormSelect value={newProduct.name} onChange={handleProductSelect}>
-                  <option value="">Select Product</option>
-                  {productOptions.map((p,i) => <option key={i}>{p}</option>)}
-                </CFormSelect>
+                <div className="position-relative" ref={productsDropdownRef}>
+                  <CFormInput
+                    type="text"
+                    value={newProduct.name}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewProduct({...newProduct, name: value});
+                      if (value) {
+                        setIsProductsDropdownOpen(true);
+                      }
+                    }}
+                    onFocus={() => setIsProductsDropdownOpen(true)}
+                    placeholder="Search or select product"
+                  />
+                  
+                  {isProductsDropdownOpen && (
+                    <div 
+                      className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
+                      style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
+                    >
+                      {productOptions
+                        .filter(item => item.toLowerCase().includes(newProduct.name.toLowerCase()))
+                        .map((item, index) => (
+                          <div 
+                            key={index}
+                            className="p-2 cursor-pointer hover-bg-light" 
+                            style={{cursor: 'pointer'}}
+                            onClick={() => {
+                              handleProductSelect(item);
+                              setIsProductsDropdownOpen(false);
+                            }}
+                          >
+                            {item}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
               </CCol>
 
               <CCol md={3}>
                 <CFormInput
                   type="number"
-                  placeholder= "Enter Quantity"
+                  placeholder="Enter Quantity"
                   value={newProduct.quantity}
                   onChange={handleProductQty}
                   className={prodError ? 'is-invalid' : ''}
@@ -492,7 +609,6 @@ const createRetailProduct = () => {
               </CCol>
 
               <CCol md={3}>
-                {/* Modified to show size dropdown */}
                 <CFormSelect 
                   value={newProduct.sizeId || ''}
                   onChange={handleSizeChange}
