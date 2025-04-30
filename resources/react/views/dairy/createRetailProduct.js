@@ -335,7 +335,7 @@ const createRetailProduct = () => {
     <CCard className="mb-4">
       <CCardHeader style={{ backgroundColor: '#d4edda'}}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h5 className="mb-0" >{t('LABELS.create_product')}</h5>  
+          <h5 className="mb-0" >{t('LABELS.create_retail_product')}</h5>  
         </div>
       </CCardHeader>
 

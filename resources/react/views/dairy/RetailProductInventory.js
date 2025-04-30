@@ -155,7 +155,7 @@ function RawMaterial() {
           <thead className="table-light" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
             <tr>
               <th>Name</th>
-              <th>Packaging</th>
+              <th>local</th>
               <th>Capacity</th>
               <th>Stock Indicator</th>
               <th>Available Stock</th>
