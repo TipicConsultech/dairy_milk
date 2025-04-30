@@ -23,7 +23,7 @@
      "new": "New",
      "name": "Name",
      "credit": "Credit",
-     
+
      "rs": "Rs",
      "remark":"Remark",
      "delivery_record":"Delivery View",
@@ -136,13 +136,13 @@
     "create_product": "Create Product",
     "createProduct": "Create Product",
     "laboratoryUser": "Lab Technician",
- 
+
     "processed_milk": "Processed Milk",
     "enterMilk": "Enter Milk for Product",
     "selectProduct": "Select Product",
     "selectGram": "Select Gram",
     "productQty": "Product Quantity",
- 
+
     "milk_for_product": "Milk for Product",
     "product": "Product",
     "quantity": "Quantity",
@@ -319,7 +319,26 @@
 
         "select_expense_type_msg": "Select Expense Type",
         "expense_type_added_successfully_msg": "ExpenseType added successfully",
-        "failed_to_add_expense_type_msg": "Failed to add expenseType"
+        "failed_to_add_expense_type_msg": "Failed to add expenseType",
 
+            "emptyTankWarning": "Caution: Tank Emptying Operation",
+            "quantityCannotBeNegative": "Error: Quantity cannot be negative. Please enter a positive value.",
+            "milkParamsUpdatedSuccess": "Success: Milk parameters update completed!",
+            "quantityWillBeZero": "Quantity will be set to zero",
+            "snfWillBeZero": "SNF will be set to zero",
+            "tsWillBeZero": "TS will be set to zero",
+            "thisActionCannotBeUndone": "This action cannot be undone",
+            "failedToFetchMilkTanks": "Failed to retrieve milk tank data",
+            "errorConnectingToServer": "Server connection error. Please check your network",
+            "userInfoMissing": "User information or company ID not found",
+            "errorInitializingData": "Error initializing application data",
+            "allFieldsRequired": "All fields must be completed",
+            "failedToUpdateMilkParams": "Failed to update milk parameters",
+            "invalidInputQuantity": "Invalid input: Quantity must be a positive number",
+            "tankEmptiedSuccess": "Tank successfully emptied",
+            "failedToEmptyTank": "Failed to empty tank",
+            "neverUpdated": "Never updated",
+            "failedToLoadMilkTanks": "Unable to load milk tanks",
+            "noMilkTanksAvailable": "No milk tanks available for your company"
     }
    }
