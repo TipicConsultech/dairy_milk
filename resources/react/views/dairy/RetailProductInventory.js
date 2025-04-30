@@ -155,7 +155,7 @@ function RawMaterial() {
           <thead className="table-light" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
             <tr>
               <th>Name</th>
-              <th>local</th>
+              <th>Weight</th>
               <th>Capacity</th>
               <th>Stock Indicator</th>
               <th>Available Stock</th>
@@ -168,11 +168,9 @@ function RawMaterial() {
               <tr key={item.id}>
                 <td>{item.name}</td>
                 <td>
-                  <span className={`badge ${item.isPackaging ? 'bg-info' : 'bg-secondary'}`}>
-                    {item.isPackaging ? 'Yes' : 'No'}
-                  </span>
+                {item.label_value}&nbsp;{item.unit}
                 </td>
-                <td>{item.max_stock}&nbsp;{item.unit}</td>
+                <td>{item.max_stock}</td>
                 <td>
                   <CBadge
                     style={{
