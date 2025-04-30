@@ -152,20 +152,12 @@ export default function fetchNavItems(t1){
         icon: <CIcon icon={cilPrint} customClassName="nav-icon" />,
       },
       
-      
-      
-
       {
         component: CNavGroup,
-        name: t("LABELS.inventory_management"),
+        name: t("LABELS.create_Product"),
         icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
         items: [
-          {
-            component: CNavItem,
-            name: t("LABELS.rawMaterial"),
-            to: '/rawMaterial',
-            
-          },
+          
           {
             component: CNavItem,
             name: t("LABELS.create_product"),
@@ -175,6 +167,23 @@ export default function fetchNavItems(t1){
             component: CNavItem,
             name: t("LABELS.create_retail_product"),
             to: '/CreateRetailProduct',
+          },
+          
+          
+        ],
+      },
+      
+
+      {
+        component: CNavGroup,
+        name: t("LABELS.inventory_management"),
+        icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
+        items: [
+          {
+            component: CNavItem,
+            name: t("LABELS.rawMaterialinventory"),
+            to: '/rawMaterial',
+            
           },
           
           {

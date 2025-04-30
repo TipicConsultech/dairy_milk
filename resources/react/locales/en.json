@@ -110,6 +110,7 @@
     "delivered_by": "Delivered By",
     "share": "Share",
     "qr":"QR Code",
+
     "cancel_order": "Cancel order ",
     "deliver_order": "Deliver order ",
     "conformation_msg": "Do you realy want to complete the transaction ?",
@@ -180,11 +181,12 @@
     "user_limit": "User Limit",
     "new_plan": "New Plan",
     "plans": "Plans",
-
+"create_Product":"create_Product",
 "processedMilk": "Processed Milk",
 "totalMilkQty": "Total Milk Quantity",
 "processedMilkQty": "Processed By",
 "rawMaterial":"Raw Material",
+"rawMaterialinventory":"Raw Material Inventory",
 "ingredientsUsed": "Ingredients Used for Processing",
 "action": "Action",
 "addIngredient": "Add Ingredient",
@@ -260,7 +262,7 @@
 "lastUpdatedDate":"Last Updated Date",
 "updatedby":"Updated By",
 "addRow": "Add Row",
-"finalproductinventry":"Final Product Inventory ",
+"finalproductinventry":"Factory Product Inventory ",
 "retailproductinventry":"Retail Product Inventory ",
 
 "laboratoryTechnician": "Lab Technician",
