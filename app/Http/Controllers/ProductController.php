@@ -43,6 +43,19 @@ class ProductController extends Controller
     ]);
     }
 
+    public function getProductsWithVisibleSizes()
+    {
+        // Fetch products with related 'size' where size.show = true
+        $products = Product::with(['size' => function ($query) {
+            $query->where('show', true);
+        }])->get();
+
+        return response()->json([
+            'status' => true,
+            'products' => $products,
+        ]);
+    }
+
 
     public function updateProductStock(Request $request)
 {

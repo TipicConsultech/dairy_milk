@@ -23,6 +23,7 @@ use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ProcessedIngredientsController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\ProductsTrackerController;
+use App\Http\Controllers\FactoryProductController;
 use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\CompanyReceiptController;
 
@@ -91,6 +92,25 @@ Route::post('/mobileLogin', [AuthController::class, 'mobileLogin']);
 //Secured API's
 
 Route::get('productSizes/{id}', [ProductController::class, 'showProductSize']);
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/factoryProducts', [FactoryProductController::class, 'store']);
+    Route::get('/factoryProducts', [FactoryProductController::class, 'index']);
+    Route::get('/factoryProducts/{id}', [FactoryProductController::class, 'show']);
+    Route::put('/factoryProducts/{id}', [FactoryProductController::class, 'update']);
+    Route::delete('/factoryProducts/{id}', [FactoryProductController::class, 'destroy']);
+    Route::get('/showAllFactoryProducts', [FactoryProductController::class, 'showAll']);
+    Route::get('/searchfactoryProducts', [FactoryProductController::class, 'searchByName']);
+    Route::get('/uniqueBatchNumbers', [ProductsTrackerController::class, 'getUniqueBatchNumbers']);
+    Route::post('/productInBatch', [ProductsTrackerController::class, 'productInBatch']);
+    Route::post('/batchByProductId', [ProductsTrackerController::class, 'BatchByProductId']);
+    Route::get('/getProductsWithVisibleSizes', [ProductController::class, 'getProductsWithVisibleSizes']);
+    Route::post('/newRetailProduct', [CommonController::class, 'newRetailProduct']);
+});
+
+
+
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/changePassword', [AuthController::class, 'changePassword']);
     Route::post('/logout', [AuthController::class, 'logout']);

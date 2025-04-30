@@ -10,7 +10,7 @@ class ProductsTracker extends Model
     protected $table = 'products_tracker';
     use HasFactory;
     protected $fillable = [
-        'product_id',
+        'factory_product_id',
         'processed_id',
         'packaging_id',
         'product_qty',
@@ -24,4 +24,9 @@ class ProductsTracker extends Model
     protected $casts = [
         'misc' => 'array',
     ];
+
+    public function factoryProduct()
+{
+    return $this->belongsTo(FactoryProduct::class, 'factory_product_id');
+}
 }

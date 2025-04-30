@@ -29,6 +29,7 @@ import {
   cilReportSlash,
   cilFile,
   cibPostgresql,
+  cilStorage,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem } from '@coreui/react'
 import { getUserData } from './util/session';
@@ -152,25 +153,57 @@ export default function fetchNavItems(t1){
       },
       
       {
-        component: CNavItem,
-        name: t("LABELS.rawMaterial"),
-        to: '/rawMaterial',
-        icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+        component: CNavGroup,
+        name: t("LABELS.create_Product"),
+        icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
+        items: [
+          
+          {
+            component: CNavItem,
+            name: t("LABELS.create_product"),
+            to: '/CreateProduct',
+          },
+          {
+            component: CNavItem,
+            name: t("LABELS.create_retail_product"),
+            to: '/CreateRetailProduct',
+          },
+          
+          
+        ],
+      },
+      
+
+      {
+        component: CNavGroup,
+        name: t("LABELS.inventory_management"),
+        icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
+        items: [
+          {
+            component: CNavItem,
+            name: t("LABELS.rawMaterialinventory"),
+            to: '/rawMaterial',
+            
+          },
+          
+          {
+            component: CNavItem,
+            name: t("LABELS.finalproductinventry"),
+            to: '/finalProductInvenrty',
+          },
+
+          {
+            component: CNavItem,
+            name: t("LABELS.retailproductinventry"),
+            to: '/retailProductInvenrty',
+            
+          },
+          
+        ],
       },
       
       
-      {
-        component: CNavItem,
-        name: t("LABELS.create_product"),
-        to: '/CreateProduct',
-        icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
-      },
-      {
-        component: CNavItem,
-        name: t("LABELS.finalproductinventry"),
-        to: '/finalProductInvenrty',
-        icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
-      },
+      
       {
         component: CNavGroup,
         name: t("LABELS.products"),
@@ -239,25 +272,43 @@ export default function fetchNavItems(t1){
       },
       
       {
-        component: CNavItem,
-        name: t("LABELS.rawMaterial"),
-        to: '/rawMaterial',
-        icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+        component: CNavGroup,
+        name: t("LABELS.inventory_management"),
+        icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
+        items: [
+          {
+            component: CNavItem,
+            name: t("LABELS.rawMaterial"),
+            to: '/rawMaterial',
+            
+          },
+          {
+            component: CNavItem,
+            name: t("LABELS.create_product"),
+            to: '/CreateProduct',
+          },
+          {
+            component: CNavItem,
+            name: t("LABELS.create_retail_product"),
+            to: '/CreateRetailProduct',
+          },
+          {
+            component: CNavItem,
+            name: t("LABELS.finalproductinventry"),
+            to: '/finalProductInvenrty',
+            
+          },
+
+          {
+            component: CNavItem,
+            name: t("LABELS.retailproductinventry"),
+            to: '/retailProductInvenrty',
+            
+          },
+          
+        ],
       },
       
-      
-      {
-        component: CNavItem,
-        name: t("LABELS.create_product"),
-        to: '/CreateProduct',
-        icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
-      },
-      {
-        component: CNavItem,
-        name: t("LABELS.finalproductinventry"),
-        to: '/finalProductInvenrty',
-        icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
-      },
       {
         component: CNavGroup,
         name: t("LABELS.products"),
@@ -324,8 +375,19 @@ export default function fetchNavItems(t1){
       },
       {
         component: CNavItem,
+        name: t("LABELS.create_retail_product"),
+        to: '/CreateRetailProduct',
+      },
+      {
+        component: CNavItem,
         name: t("LABELS.finalproductinventry"),
         to: '/finalProductInvenrty',
+        icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+      },
+      {
+        component: CNavItem,
+        name: t("LABELS.retailproductinventry"),
+        to: '/retailProductInvenrty',
         icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
       },
 ]

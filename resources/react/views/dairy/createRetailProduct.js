@@ -16,22 +16,23 @@ import CIcon from '@coreui/icons-react'
 import { cilPlus, cilTrash } from '@coreui/icons'
 import { useTranslation } from 'react-i18next'
 
-const MilkForm = () => {
+const createRetailProduct = () => {
   const { t, i18n } = useTranslation("global")
   const lng = i18n.language;
             
-  const [milkType, setMilkType] = useState('')
+  const [factoryProductId, setFactoryProductId] = useState(null)
+  
   const [milkAmount, setMilkAmount] = useState('')
   const [availableQty, setAvailableQty] = useState(null)
-  const [tankData, setTankData] = useState([])
+  const [factoryProductData, setFactoryProductData] = useState([])
   const [error, setError] = useState('')
-
+  const [batch, setBatch] = useState([])
+  
   const [ingredientOptions, setIngredientOptions] = useState([])
   const [newIngredient, setNewIngredient] = useState({id:'', name: '', quantity: '', available_qty: '', unit: '' })
   const [newProducts, setNewProducts] = useState({ name: '', unit: '' })
 
   const [ingredients, setIngredients] = useState([])
-  console.log(ingredients);
   
   const [rawMaterialData, setRawMaterialData] = useState([])     // Full objects from API
 
@@ -42,25 +43,34 @@ const MilkForm = () => {
 
   const [prductsData, setPrductsData] = useState([])  
   const [productUnit, setProductUnit] = useState([])
-  const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(false);
-  const productsDropdownRef = useRef(null);
 
-  // Add this ref for ingredients dropdown
+  const [createdSummary, setCreatedSummary] = useState(null); // Will store success/error messages with product details
+
+  const [selectedBatchId, setSelectedBatchId] = useState('');
+  const [selectedBatch, setSelectedBatch] = useState(null); // holds the selected object
+
+  // Dropdown references and states
+  const factoryProductDropdownRef = useRef(null);
   const ingredientsDropdownRef = useRef(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const productsDropdownRef = useRef(null);
+  
+  const [isFactoryProductDropdownOpen, setIsFactoryProductDropdownOpen] = useState(false);
+  const [isIngredientsDropdownOpen, setIsIngredientsDropdownOpen] = useState(false);
+  const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(false);
+  
+  const [factoryProductSearch, setFactoryProductSearch] = useState('');
 
-  const [createdSummary, setCreatedSummary] = useState(null);
-
+  // Handle outside clicks to close dropdowns
   useEffect(() => {
     function handleClickOutside(event) {
-      // Handle products dropdown
+      if (factoryProductDropdownRef.current && !factoryProductDropdownRef.current.contains(event.target)) {
+        setIsFactoryProductDropdownOpen(false);
+      }
+      if (ingredientsDropdownRef.current && !ingredientsDropdownRef.current.contains(event.target)) {
+        setIsIngredientsDropdownOpen(false);
+      }
       if (productsDropdownRef.current && !productsDropdownRef.current.contains(event.target)) {
         setIsProductsDropdownOpen(false);
-      }
-      
-      // Handle ingredients dropdown
-      if (ingredientsDropdownRef.current && !ingredientsDropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
       }
     }
     
@@ -71,15 +81,15 @@ const MilkForm = () => {
   }, []);
 
   useEffect(() => {
-    fetchTankData()
+    fetchFactoryProduct()
     fetchRawMaterials()
     fetchProducts()
   }, [])
 
-  const fetchTankData = async () => {
+  const fetchFactoryProduct = async () => {
     try {
-      const res = await getAPICall('/api/milk-tanks-byname/names')
-      setTankData(res.quantity)
+      const res = await getAPICall('/api/showAllFactoryProducts')
+      setFactoryProductData(res?.products)
     } catch (err) {
       console.error('Error fetching tank data:', err)
     }
@@ -95,17 +105,21 @@ const MilkForm = () => {
     }
   }
 
-  const handleMilkTypeChange = (e) => {
-    const selected = e.target.value
-    setMilkType(selected)
-    setMilkAmount('')
-    setError('')
-    const selectedTank = tankData.find((t) => t.name === selected)
-    if (selectedTank) {
-      setAvailableQty(selectedTank.available_qty)
-    } else {
-      setAvailableQty(null)
+  const handleFactoryProductChange = async(factoryProductId) => {
+    if(factoryProductId){
+      try{
+        const resp = await post('/api/batchByProductId',{'id': factoryProductId});
+        setBatch(resp?.batch);
+      }
+      catch(e){
+        console.error('Error fetching batch data:', e);
+      }
     }
+    else{
+      setBatch([]);
+    }
+   
+    setFactoryProductId(factoryProductId);
   }
 
   const handleMilkAmountChange = (e) => {
@@ -119,15 +133,14 @@ const MilkForm = () => {
     }
   }
 
-  const handleIngredientChange = (e) => {
-    const selectedName = e.target.value
-    const selectedItem = rawMaterialData.find((item) => item.name === selectedName)
+  const handleIngredientChange = (ingredient) => {
+    const selectedItem = rawMaterialData.find((item) => item.name === ingredient)
 
     if (selectedItem) {
       setNewIngredient({
         ...newIngredient,
-        id:selectedItem.id,
-        name: selectedName,
+        id: selectedItem.id,
+        name: ingredient,
         available_qty: selectedItem.available_qty,
         unit: selectedItem.unit
       })
@@ -164,62 +177,111 @@ const MilkForm = () => {
     updated.splice(index, 1)
     setIngredients(updated)
   }
-  
+
   const [productOptions, setProductOptions] = useState([]);
-  const [newProduct, setNewProduct] = useState({ name:'', quantity:'', unit:'' });
+  const [newProduct, setNewProduct] = useState({ name:'', quantity:'', unit:'', sizeId: null, sizeOptions: [] });
   const [products, setProducts] = useState([]);
   const [prodError, setProdError] = useState('');
   const [productAvailQty, setProductAvailQty] = useState(null);
   
-  // ---------- fetch once ----------
+  // Fetch products with sizes
   const fetchProducts = async () => {
     try {
-      const res = await getAPICall('/api/showAllFactoryProducts');
-  
-      // convert { id, name, qty } -> { id, name, quantity }
-      const normalized = res.products.map(p => ({
-        ...p,
-        id:p.id,
-        quantity: p.qty,           // rename here
-        unit:p.unit,
-      }));
-      console.log(res.products);
-  
-      setPrductsData(normalized);
-      setProductOptions(normalized.map(p => p.name));
+      const res = await getAPICall('/api/getProductsWithVisibleSizes');
+      console.log("API Response:", res.products);
+      
+      // Store the full product data including sizes
+      setPrductsData(res.products);
+      
+      // Extract just the product names for the dropdown
+      setProductOptions(res.products.map(p => p.name));
     } catch (err) {
       console.error('Error fetching products:', err);
     }
   };
   
-  // ---------- handlers ----------
-  const handleProductSelect = e => {
-    const sel = e.target.value;
-    const item = prductsData.find(p => p.name === sel);
-  
-    if (item) {
-      setNewProduct({ id:item.id , name: sel, quantity:'', unit: item.unit || '' });
-      setProductAvailQty(item.quantity);          // use renamed field
+  // Handle product selection
+  const handleProductSelect = (productName) => {
+    const selectedProduct = prductsData.find(p => p.name === productName);
+    
+    if (selectedProduct) {
+      // Get the sizes for this product
+      const sizesForProduct = selectedProduct.size || [];
+      
+      // Create the new product state with sizes
+      setNewProduct({
+        id: selectedProduct.id,
+        name: productName,
+        quantity: '',
+        unit: selectedProduct.unit || '',
+        sizeId: sizesForProduct.length > 0 ? sizesForProduct[0].id : null,
+        sizeOptions: sizesForProduct
+      });
+      
+      // If there are sizes, set the available quantity based on first size
+      if (sizesForProduct.length > 0) {
+        setProductAvailQty(sizesForProduct[0].qty);
+      } else {
+        setProductAvailQty(null);
+      }
     } else {
-      setNewProduct({ name:'', quantity:'', unit:'' });
+      setNewProduct({ name:'', quantity:'', unit:'', sizeId: null, sizeOptions: [] });
       setProductAvailQty(null);
     }
+    
+    setProdError('');
+  };
+  
+  // Handle size selection change
+  const handleSizeChange = e => {
+    const sizeId = parseInt(e.target.value);
+    
+    // Find the size in the current product's size options
+    const selectedSize = newProduct.sizeOptions.find(size => size.id === sizeId);
+    
+    if (selectedSize) {
+      setNewProduct(prev => ({
+        ...prev,
+        sizeId: sizeId,
+        unit: selectedSize.unit
+      }));
+      
+      // Update available quantity based on selected size
+      setProductAvailQty(selectedSize.qty);
+    }
+    
+    // Clear any previous errors
     setProdError('');
   };
   
   const handleProductQty = e => {
     const val = e.target.value;
     setNewProduct(p => ({ ...p, quantity: val }));
-  
-    if (productAvailQty !== null && parseFloat(val) > productAvailQty) {
-      setProdError('Entered quantity exceeds available stock.');
-    } else setProdError('');
+
+    if (productAvailQty !== null && parseFloat(val) < 0) {
+      setProdError('Entered quantity not supported');
+    } else {
+      setProdError('');
+    }
   };
   
   const addProduct = () => {
-    if (newProduct.name && newProduct.quantity && !prodError) {
-      setProducts(prev => [...prev, newProduct]);
-      setNewProduct({ name:'', quantity:'', unit:'' });
+    if (newProduct.name && newProduct.quantity && newProduct.sizeId && !prodError) {
+      // Find the selected size for display purposes
+      const selectedSize = newProduct.sizeOptions.find(size => size.id === newProduct.sizeId);
+      const sizeDisplay = selectedSize ? `${selectedSize.label_value} ${selectedSize.unit}` : '';
+      
+      // Add product with size information
+      setProducts(prev => [...prev, {
+        ...newProduct,
+        sizeDisplay: sizeDisplay
+      }]);
+      
+      // Log the product JSON format as requested
+      console.log("product:", { id: newProduct.sizeId, qty: parseFloat(newProduct.quantity) });
+      
+      // Reset the form fields
+      setNewProduct({ name:'', quantity:'', unit:'', sizeId: null, sizeOptions: [] });
       setProductAvailQty(null);
     }
   };
@@ -229,79 +291,71 @@ const MilkForm = () => {
   };
 
   const handleSubmit = async () => {
-    if (!milkType || !milkAmount || parseFloat(milkAmount) > availableQty) {
-        alert('Please enter valid quantity within available limit.');
-        return;
+    if (!selectedBatchId) {
+      alert('Please select a batch first.');
+      return;
     }
-
-    const selectedTank = tankData.find(t => t.name === milkType);
-    if (!selectedTank) {
-        alert('Selected milk tank not found.');
-        return;
-    }
-
-    // Prepare milk tank data as an object with `id` and `quantity`
-    const milkTankData = {
-        id: selectedTank.id,
-        quantity: parseFloat(milkAmount), // Assuming you want to update the quantity with the milkAmount
-    };
 
     // Ensure ingredients and products are in the correct format
     const ingredientsData = ingredients.map(ing => ({
-        id: ing.id, // Ensure this is added
-        name: ing.name,
-        quantity: parseFloat(ing.quantity),
+      id: ing.id,
+      name: ing.name,
+      quantity: parseFloat(ing.quantity),
     }));
-    console.log(ingredientsData);
     
+    // Format products with size IDs
     const productsData = products.map(prod => ({
-        id: prod.id,
-        name:prod.name,
-        qty: parseFloat(prod.quantity),
+      id: prod.sizeId,
+      name: prod.name,
+      qty: parseFloat(prod.quantity),
     }));
-    console.log(productsData);
-    
-    // Create a summary string for alert
-    const createdSummary = productsData
-      .map(prod => `${prod.name} ${prod.qty} Kg`)
-      .join(', ');
 
     try {
-        // 1️⃣ Call the createProduct API with properly structured data
-        await post('/api/createProduct', {
-            milkTank: milkTankData, // Send milkTank as an object with id and quantity
-            rawMaterials: ingredientsData, // Ensure rawMaterials contains id
-            productSizes: productsData, // Format the products as required
-        });
+      // Call the createProduct API with properly structured data
+      const response = await post('/api/newRetailProduct', {
+        batch: selectedBatchId,
+        rawMaterials: ingredientsData,
+        productSizes: productsData,
+      });
 
-        // alert(`Product ${productsData?.prod?.name} created and stocks updated successfully.`);
-        alert(`${createdSummary} created successfully:`);
-
-        const now = new Date();
-        const formattedTime = now.toLocaleString(); // gives date + time in readable format
-         
-        const summaryText = productsData
-          .map(prod => `${prod.name} ${prod.qty} Kg`)
-          .join(', ');
-         
+      const now = new Date();
+      const formattedTime = now.toLocaleString();
+      
+      // Handle successful response with product details
+      if (response.success && response.message) {
+        // Set created summary with the detailed product information
         setCreatedSummary({
+          success: true,
+          products: response.message,
+          time: formattedTime
+        });
+      } else {
+        // Fallback if response structure is unexpected
+        const summaryText = productsData
+          .map((prod) => `${prod.name} with quantity of ${prod.qty}`)
+          .join(', ');
+        
+        setCreatedSummary({
+          success: true,
           text: `${summaryText} created successfully`,
           time: formattedTime,
         });
-
-        // Reset form
-        setMilkAmount('');
-        setMilkType('');
-        setAvailableQty(null);
-        setError('');
-        setIngredients([]);
-        setProducts([]);
-        fetchTankData();
-        fetchRawMaterials();
-        fetchProducts();
+      }
+      
+      // Reset form
+      setSelectedBatchId('');
+      setSelectedBatch(null);
+      setIngredients([]);
+      setProducts([]);
+      fetchRawMaterials();
+      fetchProducts();
     } catch (err) {
-        console.error('Error in submission:', err);
-        alert('Something went wrong while creating the product.');
+      console.error('Error in submission:', err);
+      setCreatedSummary({
+        success: false,
+        text: err.message || 'Something went wrong while creating the product.',
+        time: new Date().toLocaleString()
+      });
     }
   };
 
@@ -313,51 +367,94 @@ const MilkForm = () => {
     <CCard className="mb-4">
       <CCardHeader style={{ backgroundColor: '#d4edda'}}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h5 className="mb-0" >{t('LABELS.create_product')}</h5>  
+          <h5 className="mb-0" >{t('LABELS.create_retail_product')}</h5>  
         </div>
       </CCardHeader>
 
       <CCardBody>
         <CRow className="g-3 align-items-end mb-0">
           <CCol md={4}>
-            <CFormLabel ><b>Select Milk Storage</b></CFormLabel>
-            <CFormSelect value={milkType} onChange={handleMilkTypeChange}>
-              <option value="">Select Tank</option>
-              {tankData.map((tank, idx) => (
-                <option key={idx} value={tank.name}>
-                  {tank.name}
+            <CFormLabel ><b>Select Factory Product</b></CFormLabel>
+            <div className="position-relative" ref={factoryProductDropdownRef}>
+              <CFormInput
+                type="text"
+                value={factoryProductSearch}
+                onChange={(e) => {
+                  setFactoryProductSearch(e.target.value);
+                  if (e.target.value) {
+                    setIsFactoryProductDropdownOpen(true);
+                  }
+                }}
+                onFocus={() => setIsFactoryProductDropdownOpen(true)}
+                placeholder="Search or select factory product"
+              />
+              
+              {isFactoryProductDropdownOpen && (
+                <div 
+                  className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
+                  style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
+                >
+                  {factoryProductData
+                    .filter(item => item.name.toLowerCase().includes(factoryProductSearch.toLowerCase()))
+                    .map((product, index) => (
+                      <div 
+                        key={index}
+                        className="p-2 cursor-pointer hover-bg-light"
+                        style={{cursor: 'pointer'}}
+                        onClick={() => {
+                          setFactoryProductSearch(product.name);
+                          handleFactoryProductChange(product.id);
+                          setIsFactoryProductDropdownOpen(false);
+                        }}
+                      >
+                        {product.name}
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          </CCol>
+
+          <CCol md={4}>
+            <CFormLabel><b>Select Batch No</b></CFormLabel>
+            <CFormSelect
+              value={selectedBatchId}
+              onChange={(e) => {
+                const selectedId = parseInt(e.target.value);
+                setSelectedBatchId(selectedId);
+                
+                // Find the full object from batchData
+                const selected = batch.find(item => item.id === selectedId);
+                setSelectedBatch(selected || null); // store selected object
+              }}
+            >
+              <option value="">Select Batch</option>
+              {batch.map((p, idx) => (
+                <option key={idx} value={p.id}>
+                  {p.batch}
                 </option>
               ))}
             </CFormSelect>
           </CCol>
-
-          <CCol md={4}>
-            <CFormLabel><b>Enter Milk for Product</b></CFormLabel>
+          
+          <CCol md={2}>
+            <CFormLabel><b>Total Qty (Kg/ltr)</b></CFormLabel>
             <CFormInput
               type="number"
-              value={milkAmount}
-              onChange={handleMilkAmountChange}
-              placeholder={
-                availableQty !== null ? `Available Quantity: ${availableQty} Ltrs` : 'Enter Milk for Product'
-              }
-              className={error ? 'is-invalid' : ''}
+              placeholder="quantity"
+              value={selectedBatch?.product_qty}
+              disabled
             />
-            {error && <div className="text-danger mt-1">{error}</div>}
           </CCol>
 
-          <CCol md={2}>
-            <div><b>Ltrs</b></div>
-          </CCol>
-
-          <CCol md={2}>
-          </CCol>
+          <CCol md={2}></CCol>
         </CRow>
 
         {/* Ingredients */}
         <CCard className="mb-4 mt-3">
           <CCardHeader style={{ backgroundColor: '#E6E6FA'}}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h5 className="mb-0" >Ingredients Used </h5> 
+              <h5 className="mb-0">Packaging Material</h5> 
             </div>
           </CCardHeader>
 
@@ -371,18 +468,17 @@ const MilkForm = () => {
                     onChange={(e) => {
                       const value = e.target.value;
                       setNewIngredient({...newIngredient, name: value});
-                      // Keep the dropdown open when typing
                       if (value) {
-                        setIsDropdownOpen(true);
+                        setIsIngredientsDropdownOpen(true);
                       }
                     }}
-                    onFocus={() => setIsDropdownOpen(true)}
-                    placeholder="Search or select ingredient"
+                    onFocus={() => setIsIngredientsDropdownOpen(true)}
+                    placeholder="Search or select packaging material"
                   />
                   
-                  {isDropdownOpen && (
+                  {isIngredientsDropdownOpen && (
                     <div 
-                      className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm z-index-dropdown"
+                      className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
                       style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
                     >
                       {ingredientOptions
@@ -393,20 +489,8 @@ const MilkForm = () => {
                             className="p-2 cursor-pointer hover-bg-light"
                             style={{cursor: 'pointer'}}
                             onClick={() => {
-                              // Simulate the original handleIngredientChange logic
-                              const selectedItem = rawMaterialData.find((material) => material.name === item);
-                              if (selectedItem) {
-                                setNewIngredient({
-                                  ...newIngredient,
-                                  id: selectedItem.id,
-                                  name: item,
-                                  available_qty: selectedItem.available_qty,
-                                  unit: selectedItem.unit
-                                });
-                                setRawMaterialavailableQty(selectedItem.available_qty);
-                              }
-                              setIsDropdownOpen(false);
-                              setIngError('');
+                              handleIngredientChange(item);
+                              setIsIngredientsDropdownOpen(false);
                             }}
                           >
                             {item}
@@ -474,7 +558,7 @@ const MilkForm = () => {
         <CCard className="mb-4 mt-3">
           <CCardHeader style={{ backgroundColor: '#f8d7da'}}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h5 className="mb-0" >Products</h5> 
+              <h5 className="mb-0">Retail Products Creation</h5> 
             </div>
           </CCardHeader>
 
@@ -506,22 +590,11 @@ const MilkForm = () => {
                         .map((item, index) => (
                           <div 
                             key={index}
-                            className="p-2 cursor-pointer hover-bg-light"
+                            className="p-2 cursor-pointer hover-bg-light" 
                             style={{cursor: 'pointer'}}
                             onClick={() => {
-                              // Handle product selection using your existing logic
-                              const selectedItem = prductsData.find(p => p.name === item);
-                              if (selectedItem) {
-                                setNewProduct({ 
-                                  id: selectedItem.id, 
-                                  name: item, 
-                                  quantity: '', 
-                                  unit: selectedItem.unit || '' 
-                                });
-                                setProductAvailQty(selectedItem.quantity);
-                              }
+                              handleProductSelect(item);
                               setIsProductsDropdownOpen(false);
-                              setProdError('');
                             }}
                           >
                             {item}
@@ -535,7 +608,7 @@ const MilkForm = () => {
               <CCol md={3}>
                 <CFormInput
                   type="number"
-                  placeholder={productAvailQty!==null?`Available Quantity: ${productAvailQty}`:'Quantity'}
+                  placeholder="Enter Quantity"
                   value={newProduct.quantity}
                   onChange={handleProductQty}
                   className={prodError ? 'is-invalid' : ''}
@@ -544,25 +617,35 @@ const MilkForm = () => {
               </CCol>
 
               <CCol md={3}>
-                <CFormInput type="text" value={newProduct.unit} placeholder="Unit" disabled />
+                <CFormSelect 
+                  value={newProduct.sizeId || ''}
+                  onChange={handleSizeChange}
+                  disabled={!newProduct.sizeOptions || newProduct.sizeOptions.length === 0}
+                >
+                  {newProduct.sizeOptions && newProduct.sizeOptions.map((size, i) => (
+                    <option key={i} value={size.id}>
+                      {size.label_value} {size.unit}
+                    </option>
+                  ))}
+                </CFormSelect>
               </CCol>
 
               <CCol md={2}>
                 <CButton color="success" variant="outline"
                   onClick={addProduct}
-                  disabled={!!prodError || !newProduct.name || !newProduct.quantity}>
+                  disabled={!!prodError || !newProduct.name || !newProduct.quantity || !newProduct.sizeId}>
                   <CIcon icon={cilPlus}/>
                 </CButton>
               </CCol>
             </CRow>
 
-            {products.map((p,idx)=>(
+            {products.map((p,idx) => (
               <CRow className="g-3 align-items-center mb-2" key={idx}>
                 <CCol md={4}><CFormInput value={p.name} readOnly/></CCol>
                 <CCol md={3}><CFormInput value={p.quantity} readOnly/></CCol>
-                <CCol md={1}>{p.unit}</CCol>
+                <CCol md={3}>{p.sizeDisplay}</CCol>
                 <CCol md={2}>
-                  <CButton color="danger" variant="outline" onClick={()=>removeProduct(idx)}>
+                  <CButton color="danger" variant="outline" onClick={() => removeProduct(idx)}>
                     <CIcon icon={cilTrash}/>
                   </CButton>
                 </CCol>
@@ -571,16 +654,32 @@ const MilkForm = () => {
           </CCardBody>
         </CCard>
 
-        <CButton color="primary" onClick={handleSubmit} disabled={!!error || !milkAmount}>
+        <CButton color="primary" onClick={handleSubmit} disabled={!selectedBatchId || ingredients.length === 0 || products.length === 0}>
           Submit
         </CButton>
-
+   
         {createdSummary && (
-          <CAlert color='success' className='mt-2'>
-            <div className="">
-              <strong>Product Created:</strong>
-              <p>{createdSummary.text}</p>
-              <p className=" mt-1">Created at: {createdSummary.time}</p>
+          <CAlert color={createdSummary.success ? 'success' : 'danger'} className='mt-2'>
+            <div>
+              <strong>{createdSummary.success ? 'Product Created:' : 'Error:'}</strong>
+              {createdSummary.products ? (
+                // Display each product in the array with its details
+                <div className="mt-2">
+                  {createdSummary.products.map((product, index) => (
+                    <div key={index} className="mb-2">
+                      <p><strong>{product.product_name}</strong> created successfully</p>
+                      <ul className="mb-0">
+                        <li>Created quantity: {product.created_quantity}</li>
+                        <li>Previous quantity: {product.previous_quantity}</li>
+                        <li>Updated quantity: {product.updated_quantity}</li>
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p>{createdSummary.text}</p>
+              )}
+              <p className="mt-1 text-muted">Created at: {createdSummary.time}</p>
             </div>
           </CAlert>
         )}
@@ -589,4 +688,4 @@ const MilkForm = () => {
   )
 }
 
-export default MilkForm
+export default createRetailProduct

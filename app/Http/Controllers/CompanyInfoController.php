@@ -108,9 +108,46 @@ class CompanyInfoController extends Controller
     public function update(Request $request, $id)
     {
         $companyInfo = CompanyInfo::where('company_id', $id)->firstOrFail();
-        $companyInfo->update($request->all());
-        return $companyInfo;
+    
+        $request->validate([
+            'company_name' => 'required|string|max:255',
+            'land_mark' => 'required|string|max:255',
+            'Tal' => 'nullable|string|max:255',
+            'Dist' => 'nullable|string|max:255',
+            'Pincode' => 'nullable|integer',
+            'phone_no' => ['required', 'digits:10', Rule::unique('company_info', 'phone_no')->ignore($companyInfo->company_id, 'company_id')],
+            'email_id' => ['required', 'email', Rule::unique('company_info', 'email_id')->ignore($companyInfo->company_id, 'company_id')],
+            'bank_name' => 'nullable|string|max:255',
+            'account_no' => 'nullable|string|max:255',
+            'IFSC' => 'nullable|string|max:255',
+            'logo' => 'nullable|string',
+            'sign' => 'nullable|string',
+            'paymentQRCode' => 'nullable|string',
+            'appMode' => 'nullable|string',
+            
+        ]);
+    
+        // Now assign values manually
+        $companyInfo->company_name = $request->input('company_name');
+        $companyInfo->land_mark = $request->input('land_mark');
+        $companyInfo->tal = $request->input('Tal') ?? '';
+        $companyInfo->dist = $request->input('Dist') ?? '';
+        $companyInfo->pincode = $request->input('Pincode') ?? -1;
+        $companyInfo->phone_no = $request->input('phone_no');
+        $companyInfo->email_id = $request->input('email_id');
+        $companyInfo->bank_name = $request->input('bank_name') ?? '';
+        $companyInfo->account_no = $request->input('account_no') ?? '';
+        $companyInfo->ifsc_code = $request->input('IFSC') ?? '';
+        $companyInfo->logo = $request->input('logo') ?? '';
+        $companyInfo->sign = $request->input('sign') ?? '';
+        $companyInfo->paymentQRCode = $request->input('paymentQRCode') ?? '';
+        $companyInfo->appMode = $request->input('appMode') ?? '';
+        
+        $companyInfo->save();
+    
+        return response()->json(['message' => 'Company info updated successfully', 'details' => $companyInfo], 200);
     }
+    
 
     /**
      * Remove the specified resource from storage.

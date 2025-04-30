@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../common/toast/ToastContext';
 import { getUserData } from '../../../util/session';
 import NewUserModal from '../../common/NewUserModal';
+import EditCompanyModal from './EditCompanyModal';
 
 const AllCompanies = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const AllCompanies = () => {
   const [blockCompany, setBlockCompany] = useState();
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [userModalVisible, setUserModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedRow, setSelectedRow] = useState({});
   const { showToast } = useToast();
   const user = getUserData();
@@ -53,7 +55,8 @@ const AllCompanies = () => {
   };
 
   const handleEdit = (p) => {
-    navigate('/company/edit/' + p.company_id);
+    setSelectedRow(p);
+    setEditModalVisible(true);
   };
 
   const handleUserCreation = (p) => {
@@ -68,7 +71,7 @@ const AllCompanies = () => {
     { accessorKey: 'email_id', header: 'Email' },
     { accessorKey: 'Tal', header: 'Address',
       Cell: ({ cell }) => (
-        <>{cell.row.original.land_mark},{cell.row.original.Tal},{cell.row.original.Dist}</>
+        <>{cell.row.original.land_mark}</>
       ),
      },
      { accessorKey: 'subscription_validity', header: 'Valid Till' },
@@ -117,6 +120,14 @@ const AllCompanies = () => {
         <div>
           <CBadge
             role="button"
+            color="info"
+            onClick={() => handleEdit(cell.row.original)}
+          >
+            Edit
+          </CBadge>
+          &nbsp;
+          <CBadge
+            role="button"
             color="danger"
             onClick={() => handleBlock(cell.row.original)}
           >
@@ -144,6 +155,12 @@ const AllCompanies = () => {
         visible={userModalVisible}
         setVisible={setUserModalVisible}
         data={selectedRow}
+      />
+      <EditCompanyModal
+        visible={editModalVisible}
+        setVisible={setEditModalVisible}
+        companyData={selectedRow}
+        onSuccess={fetchCompanies}
       />
       <MantineReactTable 
       defaultColumn={{

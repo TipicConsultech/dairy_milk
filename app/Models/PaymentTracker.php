@@ -9,6 +9,7 @@ class PaymentTracker extends Model
 {
     use HasFactory;
     protected $fillable=[
+        'factory_product_id',
         'customer_id',
         'amount',
         'isCredit',
