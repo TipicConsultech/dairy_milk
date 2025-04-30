@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import React, { useEffect, useState,useRef } from 'react'
 import {
   CRow,
   CCol,
@@ -47,9 +46,23 @@ const MilkForm = () => {
 
   const [prductsData, setPrductsData] = useState([])  
   const [productUnit, setProductUnit] = useState([])
+  const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(false);
+const productsDropdownRef = useRef(null);
 
   const [createdSummary, setCreatedSummary] = useState(null);
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (productsDropdownRef.current && !productsDropdownRef.current.contains(event.target)) {
+        setIsProductsDropdownOpen(false);
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     fetchTankData()
@@ -169,6 +182,21 @@ const MilkForm = () => {
   const [products, setProducts]     = useState([]);
   const [prodError, setProdError]   = useState('');
   const [productAvailQty, setProductAvailQty] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   // const [prductsData, setPrductsData] = useState([]);   // ← you used this elsewhere
   
   // ---------- fetch once ----------
@@ -385,7 +413,58 @@ useEffect(() => {
 
             <CRow className="g-2 align-items-center mb-3">
               <CCol md={4}>
-                <CFormSelect
+              <div className="position-relative">
+  <CFormInput
+    type="text"
+    value={newIngredient.name}
+    onChange={(e) => {
+      const value = e.target.value;
+      setNewIngredient({...newIngredient, name: value});
+      // Keep the dropdown open when typing
+      if (value) {
+        setIsDropdownOpen(true);
+      }
+    }}
+    onFocus={() => setIsDropdownOpen(true)}
+    placeholder="Search or select ingredient"
+  />
+  
+  {isDropdownOpen && (
+    <div 
+      className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm z-index-dropdown"
+      style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
+    >
+      {ingredientOptions
+        .filter(item => item.toLowerCase().includes(newIngredient.name.toLowerCase()))
+        .map((item, index) => (
+          <div 
+            key={index}
+            className="p-2 cursor-pointer hover-bg-light"
+            style={{cursor: 'pointer'}}
+            onClick={() => {
+              // Simulate the original handleIngredientChange logic
+              const selectedItem = rawMaterialData.find((material) => material.name === item);
+              if (selectedItem) {
+                setNewIngredient({
+                  ...newIngredient,
+                  id: selectedItem.id,
+                  name: item,
+                  available_qty: selectedItem.available_qty,
+                  unit: selectedItem.unit
+                });
+                setRawMaterialavailableQty(selectedItem.available_qty);
+              }
+              setIsDropdownOpen(false);
+              setIngError('');
+            }}
+          >
+            {item}
+          </div>
+        ))}
+    </div>
+  )}
+</div>
+                {/* <CFormSelect
                   value={newIngredient.name}
                   onChange={handleIngredientChange}
                 >
@@ -393,7 +472,7 @@ useEffect(() => {
                   {ingredientOptions.map((item, index) => (
                     <option value={item} key={index}>{item}</option>
                   ))}
-                </CFormSelect>
+                </CFormSelect> */}
               </CCol>
               <CCol md={3}>
                 <CFormInput
@@ -467,10 +546,55 @@ useEffect(() => {
 
     <CRow className="g-2 align-items-center mb-3">
       <CCol md={4}>
-        <CFormSelect value={newProduct.name} onChange={handleProductSelect}>
-          <option value="">Select Product</option>
-          {productOptions.map((p,i)=><option key={i}>{p}</option>)}
-        </CFormSelect>
+      <div className="position-relative" ref={productsDropdownRef}>
+  <CFormInput
+    type="text"
+    value={newProduct.name}
+    onChange={(e) => {
+      const value = e.target.value;
+      setNewProduct({...newProduct, name: value});
+      if (value) {
+        setIsProductsDropdownOpen(true);
+      }
+    }}
+    onFocus={() => setIsProductsDropdownOpen(true)}
+    placeholder="Search or select product"
+  />
+  
+  {isProductsDropdownOpen && (
+    <div 
+      className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
+      style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
+    >
+      {productOptions
+        .filter(item => item.toLowerCase().includes(newProduct.name.toLowerCase()))
+        .map((item, index) => (
+          <div 
+            key={index}
+            className="p-2 cursor-pointer hover-bg-light"
+            style={{cursor: 'pointer'}}
+            onClick={() => {
+              // Handle product selection using your existing logic
+              const selectedItem = prductsData.find(p => p.name === item);
+              if (selectedItem) {
+                setNewProduct({ 
+                  id: selectedItem.id, 
+                  name: item, 
+                  quantity: '', 
+                  unit: selectedItem.unit || '' 
+                });
+                setProductAvailQty(selectedItem.quantity);
+              }
+              setIsProductsDropdownOpen(false);
+              setProdError('');
+            }}
+          >
+            {item}
+          </div>
+        ))}
+    </div>
+  )}
+</div>
       </CCol>
 
       <CCol md={3}>
