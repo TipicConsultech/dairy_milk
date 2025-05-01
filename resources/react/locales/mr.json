@@ -146,7 +146,7 @@
         "cost": "खर्च",
         "stockInUnit":"युनिटमधील स्टॉक",
         "new_shop": "नवीन शॉप रजिस्ट्रेशन",
-        "company_name": "शॉपचे नाव", 
+        "company_name": "शॉपचे नाव",
         "email": "ई-मेल",
         "bank_name": "बँकेचे नाव",
         "account_number": "बँक अकाउंट नंबर",
@@ -278,10 +278,10 @@
   "milkQtyToAdd": "जोडण्याची दूध मात्रा (लिटर)",
   "snfValue": "SNF मूल्य",
   "tsValue": "TS मूल्य",
- 
+
   "remove": "रिकामे करा",
   "empty2":"रिकामे करा",
- 
+
   "ltr": "लिटर",
   "emptyTankConfirmation": "टँक रिकामा करण्याची पुष्टी",
   "confirmEmpty": "रिकामा करण्याची पुष्टी करा"
@@ -333,7 +333,27 @@
         "please_select_date_range": "कृपया एक तारीख श्रेणी निवडा",
         "expense_deleted_successfully": "खर्च यशस्वीपणे हटविला",
         "no_expenses_found": "निवडलेल्या तारीख श्रेणीत कोणतेही खर्च आढळले नाही.",
-        "select_date_range_to_view_expenses": "खर्च पाहण्यासाठी एक तारीख श्रेणी निवडा."
+        "select_date_range_to_view_expenses": "खर्च पाहण्यासाठी एक तारीख श्रेणी निवडा.",
+
+        "emptyTankWarning": "टँक रिकामी करण्यापूर्वी सूचना",
+        "quantityWillBeZero": "Quantity शून्य होईल",
+        "snfWillBeZero": "SNF शून्य होईल",
+        "tsWillBeZero": "TS शून्य होईल",
+        "thisActionCannotBeUndone": "ही क्रिया पूर्ववत केली जाऊ शकत नाही",
+        "milkParamsUpdatedSuccess":"दूध मापदंड यशस्वीरीत्या सुरक्षित झाले!",
+        "quantityCannotBeNegative":"नकारात्मक मात्रा अमान्य आहे",
+        "failedToFetchMilkTanks": "दूध टँक डेटा प्राप्त करण्यात अयशस्वी",
+        "errorConnectingToServer": "सर्व्हरशी कनेक्शन त्रुटी. कृपया आपले नेटवर्क तपासा",
+        "userInfoMissing": "वापरकर्ता माहिती किंवा कंपनी आयडी आढळली नाही",
+        "errorInitializingData": "अॅप्लिकेशन डेटा आरंभ करताना त्रुटी",
+        "allFieldsRequired": "सर्व फील्ड भरणे आवश्यक आहे",
+        "failedToUpdateMilkParams": "दूध मापदंड बदल करण्यात अयशस्वी",
+        "invalidInputQuantity": "अवैध इनपुट: मात्रा धनात्मक संख्या असणे आवश्यक आहे",
+        "tankEmptiedSuccess": "टँक यशस्वीरित्या रिकामा केला",
+        "failedToEmptyTank": "टँक रिकामा करण्यात अयशस्वी",
+        "neverUpdated": "कधीही बदल केलेले नाही",
+        "failedToLoadMilkTanks": "दूध टँक लोड करण्यात असक्षम",
+        "noMilkTanksAvailable": "तुमच्या कंपनीसाठी कोणतेही दूध टँक उपलब्ध नाहीत"
 
 
     }
