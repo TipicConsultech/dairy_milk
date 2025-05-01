@@ -22,6 +22,19 @@ class ProductController extends Controller
      * 
      * 
      */
+
+     public function getRetailProduct($id)
+     {
+        $product = ProductSize::find($id);
+    
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+    
+        return response()->json([
+            'data' => $product
+        ]);
+    }
     public function showAll()
     {
         $products = ProductSize::select('id','name','qty','unit')
@@ -361,4 +374,41 @@ class ProductController extends Controller
         Product::destroy($id);
         return ProductSize::where('product_id',$id)->delete();
     }
+
+    public function updateProductSize(Request $request, $id)
+{
+    $productSize = ProductSize::find($id);
+
+    if (!$productSize) {
+        return response()->json(['message' => 'ProductSize not found'], 404);
+    }
+
+    $validated = $request->validate([
+        'product_id' => 'required|integer|exists:products,id',
+        'name' => 'required|string',
+        'localName' => 'nullable|string',
+        'bPrice' => 'required|numeric',
+        'oPrice' => 'required|numeric',
+        'dPrice' => 'required|numeric',
+        'unit' => 'required|string',
+        'label_value' => 'nullable|numeric',
+        'unit_multiplier' => 'nullable|numeric',
+        'qty' => 'required|numeric',
+        'default_qty' => 'nullable|numeric',
+        'max_stock' => 'nullable|numeric',
+        'booked' => 'nullable|numeric',
+        'company_id' => 'nullable|integer',
+        'created_by' => 'nullable|integer',
+        'updated_by' => 'nullable|integer',
+        'returnable' => 'boolean',
+        'show' => 'boolean',
+    ]);
+
+    $productSize->update($validated);
+
+    return response()->json([
+        'message' => 'ProductSize updated successfully',
+        'data' => $productSize
+    ]);
+}
 }

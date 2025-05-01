@@ -306,7 +306,7 @@ function RawMaterial() {
   };
     
   return (
-    <div className="p-4">
+    <div className="p-0">
       <CCardHeader style={{ backgroundColor: '#d6eaff', marginBottom:'10px'}} className='p-2 rounded'>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h5 className="mb-0" >Raw Materials Inventory </h5> 
@@ -353,7 +353,7 @@ function RawMaterial() {
             {/* Row 2: CSV Buttons */}
             <div className="d-flex gap-2 mb-2">
                 
-       {user?.type===0 &&(
+       {user?.type===1 &&(
         <CButton color="primary" onClick={handleDownload} style={{ flex: '1' }}>
         <CIcon icon={cilArrowThickToBottom} size="sm" style={{ marginRight: 3 }}/>
         Template
@@ -362,7 +362,7 @@ function RawMaterial() {
        )}
               
 
-      {user?.type===0 && (
+      {user?.type===1 && (
          <CButton
         color={selectedFile ? "primary" : "primary"} 
         variant={selectedFile ? "solid" : "outline"}
@@ -384,7 +384,7 @@ function RawMaterial() {
   
 
       
-              {selectedFile && user?.type===0 && (
+              {selectedFile && user?.type===1 && (
                 <CButton
                   color="success"
                   disabled={uploading}

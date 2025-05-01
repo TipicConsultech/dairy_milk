@@ -53,7 +53,7 @@ class OrderController extends Controller
         $user = Auth::user();
         $profit = 0;
         foreach($request->items as $item){
-            $profit += $item['total_price'] - (($item['dQty'] ?? 0) * ($item['bPrice'] ?? 0));
+            $profit += $item['total_price'] - (($item['dqty'] ?? 0) * ($item['bPrice'] ?? 0));
         }
         // Create order
         $order = Order::create(
@@ -89,30 +89,30 @@ class OrderController extends Controller
             if($request->orderStatus == 1){
                 $productSize = ProductSize::find($item['product_sizes_id']);
                 if($productSize){
-                    $changeStockQty =  ($item['eQty'] ?? 0) - ($item['dQty'] ?? 0);
-                    $productSize->update(['stock'=> $productSize->stock + $changeStockQty]);
+                   
+                    $productSize->update(['qty'=> $productSize->qty -$item['dQty'] ?? 0]);
                 }
                 //is product returnable
                 $returnable = $item['returnable'] ?? $item['sizes'][0]['returnable'];
                 //update jar tracker
-                if($returnable){
-                    $returnQty = ($item['dQty'] ?? 0) - ($item['eQty'] ?? 0);
-                    $jarTracker = JarTracker::where('customer_id', $request['customer_id'])->where('product_sizes_id', $item['product_sizes_id'])->first();
-                    if($jarTracker){
-                        $jarTracker->quantity += $returnQty;
-                        $jarTracker->save();
-                    }else{
-                        JarTracker::create([
-                            'product_name' => $item['name'],
-                            'product_sizes_id' => $item['product_sizes_id'],
-                            'product_local_name' => $item['localName'],
-                            'customer_id' => $request['customer_id'],
-                            'quantity' => $returnQty,
-                            'created_by' => $user->id,
-                            'updated_by' => $user->id,
-                            ]);
-                    }
-                }
+                // if($returnable){
+                //     $returnQty = ($item['dQty'] ?? 0) - ($item['eQty'] ?? 0);
+                //     $jarTracker = JarTracker::where('customer_id', $request['customer_id'])->where('product_sizes_id', $item['product_sizes_id'])->first();
+                //     if($jarTracker){
+                //         $jarTracker->quantity += $returnQty;
+                //         $jarTracker->save();
+                //     }else{
+                //         JarTracker::create([
+                //             'product_name' => $item['name'],
+                //             'product_sizes_id' => $item['product_sizes_id'],
+                //             'product_local_name' => $item['localName'],
+                //             'customer_id' => $request['customer_id'],
+                //             'quantity' => $returnQty,
+                //             'created_by' => $user->id,
+                //             'updated_by' => $user->id,
+                //             ]);
+                //     }
+                // }
             }
             //update booked stock of products
             if($order->orderStatus == 2){

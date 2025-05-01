@@ -105,7 +105,7 @@ function RawMaterial() {
   }, [debouncedSearchTerm]);
 
   return (
-    <div className="p-4">
+    <div className="p-0">
 
 <CCardHeader style={{ backgroundColor: '#d4edda', marginBottom:'10px'}} className='p-2 rounded'>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

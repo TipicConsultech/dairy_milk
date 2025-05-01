@@ -125,8 +125,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/reportSales', [OrderController::class, 'Sales']);
     Route::get('/googleMapData', [OrderController::class, 'googleMapData']);
     Route::get('/totalDeliveries', [OrderController::class, 'totalDeliverie']);
-
+    Route::get('/getCombinedProducts', [CommonController::class, 'getCombinedProducts']);
     Route::post('/newStock', [ProductController::class, 'newStock'])->name('newStock');
+    Route::get('/retailProduct/{id}', [ProductController::class, 'getRetailProduct']);
+    Route::put('/updateProductSize/{id}', [ProductController::class, 'updateProductSize']);
     Route::get('/stock', [ProductController::class, 'stock'])->name('stock');
     Route::get('/factoryProductStock', [FactoryProductController::class, 'stock'])->name('stock');
     Route::resource('category', CategoryController::class);

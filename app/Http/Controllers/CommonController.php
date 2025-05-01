@@ -13,9 +13,80 @@ use App\Models\FactoryProduct;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Collection;
 
 class CommonController extends Controller
 {
+
+
+
+    public function getCombinedProducts()
+    {
+        $retail = ProductSize::select(
+            'id',
+            'name',
+            'localName as local_name',
+            'unit',
+            'qty as quantity',
+            'dPrice as price',
+            'show as is_visible'
+        )
+        ->get()
+        ->map(function ($item) {
+            $item->source_type = 'retail';
+            // $item->is_visible = true;
+            return $item;
+        });
+    
+        $factory = FactoryProduct::select(
+            'id',
+            'name',
+            'local_name',
+            'unit',
+            'quantity',
+            'price',
+            'is_visible'
+        )
+        ->get()
+        ->map(function ($item) {
+            $item->source_type = 'factory';
+            return $item;
+        });
+
+        $retailArray = $retail->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+                'local_name' => $item->local_name,
+                'unit' => $item->unit,
+                'quantity' => $item->quantity,
+                'price' => $item->price,
+                'is_visible' => (bool) $item->is_visible,
+                'source_type' => 'retail',
+            ];
+        });
+        
+        $factoryArray = $factory->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+                'local_name' => $item->local_name,
+                'unit' => $item->unit,
+                'quantity' => $item->quantity,
+                'price' => $item->price,
+                'is_visible' => $item->is_visible,
+                'source_type' => 'factory',
+            ];
+        });
+    
+        $combined = $retailArray->merge($factoryArray)->values();
+    
+        return response()->json([
+            'data' => $combined
+        ]);
+    }
+    
+
 
 public function createProduct(Request $request)
 {
