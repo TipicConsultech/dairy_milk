@@ -10,12 +10,10 @@ import {
   CButton,
   CCardHeader,
   CAlert,
-  CInputGroup,
-  CInputGroupText,
 } from '@coreui/react'
 import { getAPICall, post } from '../../util/api'
 import CIcon from '@coreui/icons-react'
-import { cilPlus, cilTrash, cilCaretBottom, cilX } from '@coreui/icons'
+import { cilPlus, cilTrash, cilChevronBottom, cilX } from '@coreui/icons'
 import { useTranslation } from 'react-i18next'
 
 const createRetailProduct = () => {
@@ -398,7 +396,7 @@ const createRetailProduct = () => {
           <CCol md={4}>
             <CFormLabel ><b>Select Factory Product</b></CFormLabel>
             <div className="position-relative" ref={factoryProductDropdownRef}>
-              <CInputGroup>
+              <div className="position-relative">
                 <CFormInput
                   type="text"
                   value={factoryProductSearch}
@@ -410,11 +408,21 @@ const createRetailProduct = () => {
                   }}
                   onFocus={() => setIsFactoryProductDropdownOpen(true)}
                   placeholder="Search or select factory product"
+                  style={{ paddingRight: '30px' }}
                 />
-                <CInputGroupText style={{ cursor: 'pointer' }} onClick={() => factoryProductSearch ? clearFactoryProduct() : setIsFactoryProductDropdownOpen(!isFactoryProductDropdownOpen)}>
-                  {factoryProductSearch ? <CIcon icon={cilX} /> : <CIcon icon={cilCaretBottom} />}
-                </CInputGroupText>
-              </CInputGroup>
+                <div 
+                  style={{ 
+                    position: 'absolute',
+                    top: '50%',
+                    right: '10px',
+                    transform: 'translateY(-50%)',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => factoryProductSearch ? clearFactoryProduct() : setIsFactoryProductDropdownOpen(!isFactoryProductDropdownOpen)}
+                >
+                  {factoryProductSearch ? <CIcon icon={cilX} /> : <CIcon icon={cilChevronBottom} />}
+                </div>
+              </div>
               
               {isFactoryProductDropdownOpen && (
                 <div 
@@ -489,24 +497,32 @@ const createRetailProduct = () => {
             <CRow className="g-2 align-items-center mb-3">
               <CCol md={4}>
                 <div className="position-relative" ref={ingredientsDropdownRef}>
-                  <CInputGroup>
-                    <CFormInput
-                      type="text"
-                      value={newIngredient.name}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setNewIngredient({...newIngredient, name: value});
-                        if (value) {
-                          setIsIngredientsDropdownOpen(true);
-                        }
-                      }}
-                      onFocus={() => setIsIngredientsDropdownOpen(true)}
-                      placeholder="Search or select packaging material"
-                    />
-                    <CInputGroupText style={{ cursor: 'pointer' }} onClick={() => newIngredient.name ? clearIngredient() : setIsIngredientsDropdownOpen(!isIngredientsDropdownOpen)}>
-                      {newIngredient.name ? <CIcon icon={cilX} /> : <CIcon icon={cilCaretBottom} />}
-                    </CInputGroupText>
-                  </CInputGroup>
+                  <CFormInput
+                    type="text"
+                    value={newIngredient.name}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewIngredient({...newIngredient, name: value});
+                      if (value) {
+                        setIsIngredientsDropdownOpen(true);
+                      }
+                    }}
+                    onFocus={() => setIsIngredientsDropdownOpen(true)}
+                    placeholder="Search or select packaging material"
+                    style={{ paddingRight: '30px' }}
+                  />
+                  <div 
+                    style={{ 
+                      position: 'absolute',
+                      top: '50%',
+                      right: '10px',
+                      transform: 'translateY(-50%)',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => newIngredient.name ? clearIngredient() : setIsIngredientsDropdownOpen(!isIngredientsDropdownOpen)}
+                  >
+                    {newIngredient.name ? <CIcon icon={cilX} /> : <CIcon icon={cilChevronBottom} />}
+                  </div>
                   
                   {isIngredientsDropdownOpen && (
                     <div 
@@ -598,24 +614,32 @@ const createRetailProduct = () => {
             <CRow className="g-2 align-items-center mb-3">
               <CCol md={4}>
                 <div className="position-relative" ref={productsDropdownRef}>
-                  <CInputGroup>
-                    <CFormInput
-                      type="text"
-                      value={newProduct.name}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setNewProduct({...newProduct, name: value});
-                        if (value) {
-                          setIsProductsDropdownOpen(true);
-                        }
-                      }}
-                      onFocus={() => setIsProductsDropdownOpen(true)}
-                      placeholder="Search or select product"
-                    />
-                    <CInputGroupText style={{ cursor: 'pointer' }} onClick={() => newProduct.name ? clearProduct() : setIsProductsDropdownOpen(!isProductsDropdownOpen)}>
-                      {newProduct.name ? <CIcon icon={cilX} /> : <CIcon icon={cilCaretBottom} />}
-                    </CInputGroupText>
-                  </CInputGroup>
+                  <CFormInput
+                    type="text"
+                    value={newProduct.name}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewProduct({...newProduct, name: value});
+                      if (value) {
+                        setIsProductsDropdownOpen(true);
+                      }
+                    }}
+                    onFocus={() => setIsProductsDropdownOpen(true)}
+                    placeholder="Search or select product"
+                    style={{ paddingRight: '30px' }}
+                  />
+                  <div 
+                    style={{ 
+                      position: 'absolute',
+                      top: '50%',
+                      right: '10px',
+                      transform: 'translateY(-50%)',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => newProduct.name ? clearProduct() : setIsProductsDropdownOpen(!isProductsDropdownOpen)}
+                  >
+                    {newProduct.name ? <CIcon icon={cilX} /> : <CIcon icon={cilChevronBottom} />}
+                  </div>
                   
                   {isProductsDropdownOpen && (
                     <div 
