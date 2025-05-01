@@ -13,7 +13,7 @@ import {
 } from '@coreui/react'
 import { getAPICall, post } from '../../util/api'
 import CIcon from '@coreui/icons-react'
-import { cilPlus, cilTrash } from '@coreui/icons'
+import { cilPlus, cilTrash, cilChevronBottom, cilX } from '@coreui/icons'
 import { useTranslation } from 'react-i18next'
 
 const MilkForm = () => {
@@ -31,7 +31,6 @@ const MilkForm = () => {
   const [newProducts, setNewProducts] = useState({ name: '', unit: '' })
 
   const [ingredients, setIngredients] = useState([])
-  console.log(ingredients);
   
   const [rawMaterialData, setRawMaterialData] = useState([])     // Full objects from API
 
@@ -108,6 +107,13 @@ const MilkForm = () => {
     }
   }
 
+  const clearMilkType = () => {
+    setMilkType('')
+    setMilkAmount('')
+    setAvailableQty(null)
+    setError('')
+  }
+
   const handleMilkAmountChange = (e) => {
     const value = e.target.value
     setMilkAmount(value)
@@ -140,6 +146,12 @@ const MilkForm = () => {
     setIngError('')
   }
 
+  const clearIngredient = () => {
+    setNewIngredient({ id: '', name: '', quantity: '', available_qty: '', unit: '' })
+    setRawMaterialavailableQty(null)
+    setIngError('')
+  }
+
   const handleIngredientQtyChange = (e) => {
     const value = e.target.value
     setNewIngredient({ ...newIngredient, quantity: value })
@@ -154,7 +166,7 @@ const MilkForm = () => {
   const addIngredient = () => {
     if (newIngredient.name && newIngredient.quantity && !ingError) {
       setIngredients([...ingredients, { ...newIngredient }])
-      setNewIngredient({ name: '', quantity: '', available_qty: '', unit: '' })
+      setNewIngredient({ id: '', name: '', quantity: '', available_qty: '', unit: '' })
       setRawMaterialavailableQty(null)
     }
   }
@@ -183,7 +195,6 @@ const MilkForm = () => {
         quantity: p.qty,           // rename here
         unit:p.unit,
       }));
-      console.log(res.products);
   
       setPrductsData(normalized);
       setProductOptions(normalized.map(p => p.name));
@@ -206,6 +217,12 @@ const MilkForm = () => {
     }
     setProdError('');
   };
+
+  const clearProduct = () => {
+    setNewProduct({ id: '', name: '', quantity: '', unit: '' });
+    setProductAvailQty(null);
+    setProdError('');
+  };
   
   const handleProductQty = e => {
     const val = e.target.value;
@@ -219,7 +236,7 @@ const MilkForm = () => {
   const addProduct = () => {
     if (newProduct.name && newProduct.quantity && !prodError) {
       setProducts(prev => [...prev, newProduct]);
-      setNewProduct({ name:'', quantity:'', unit:'' });
+      setNewProduct({ id: '', name:'', quantity:'', unit:'' });
       setProductAvailQty(null);
     }
   };
@@ -252,14 +269,12 @@ const MilkForm = () => {
         name: ing.name,
         quantity: parseFloat(ing.quantity),
     }));
-    console.log(ingredientsData);
     
     const productsData = products.map(prod => ({
         id: prod.id,
-        name:prod.name,
+        name: prod.name,
         qty: parseFloat(prod.quantity),
     }));
-    console.log(productsData);
     
     // Create a summary string for alert
     const createdSummary = productsData
@@ -309,6 +324,29 @@ const MilkForm = () => {
     setCreatedSummary(null); // Clear it on load or refresh
   }, []);
 
+  // Custom dropdown styles
+  const dropdownIconStyle = {
+    position: 'absolute',
+    right: '10px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    pointerEvents: 'none',
+    zIndex: 1
+  };
+
+  const clearButtonStyle = {
+    position: 'absolute',
+    right: '10px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    cursor: 'pointer',
+    zIndex: 1
+  };
+
+  const inputContainerStyle = {
+    position: 'relative'
+  };
+
   return (
     <CCard className="mb-4">
       <CCardHeader style={{ backgroundColor: '#d4edda'}}>
@@ -320,15 +358,26 @@ const MilkForm = () => {
       <CCardBody>
         <CRow className="g-3 align-items-end mb-0">
           <CCol md={4}>
-            <CFormLabel ><b>Select Milk Storage</b></CFormLabel>
-            <CFormSelect value={milkType} onChange={handleMilkTypeChange}>
-              <option value="">Select Tank</option>
-              {tankData.map((tank, idx) => (
-                <option key={idx} value={tank.name}>
-                  {tank.name}
-                </option>
-              ))}
-            </CFormSelect>
+            <CFormLabel><b>Select Milk Storage</b></CFormLabel>
+            <div style={inputContainerStyle}>
+              <CFormSelect value={milkType} onChange={handleMilkTypeChange} style={{ appearance: 'none', WebkitAppearance: 'none', MozAppearance: 'none', backgroundImage: 'none' }}>
+                <option value="">Select Tank</option>
+                {tankData.map((tank, idx) => (
+                  <option key={idx} value={tank.name}>
+                    {tank.name}
+                  </option>
+                ))}
+              </CFormSelect>
+              {!milkType ? (
+                <div style={dropdownIconStyle}>
+                  <CIcon icon={cilChevronBottom} size="sm" />
+                </div>
+              ) : (
+                <div style={clearButtonStyle} onClick={clearMilkType}>
+                  <CIcon icon={cilX} size="sm" />
+                </div>
+              )}
+            </div>
           </CCol>
 
           <CCol md={4}>
@@ -364,7 +413,7 @@ const MilkForm = () => {
           <CCardBody>
             <CRow className="g-2 align-items-center mb-3">
               <CCol md={4}>
-                <div className="position-relative" ref={ingredientsDropdownRef}>
+                <div className="position-relative" ref={ingredientsDropdownRef} style={inputContainerStyle}>
                   <CFormInput
                     type="text"
                     value={newIngredient.name}
@@ -379,6 +428,16 @@ const MilkForm = () => {
                     onFocus={() => setIsDropdownOpen(true)}
                     placeholder="Search or select ingredient"
                   />
+                  
+                  {!newIngredient.name ? (
+                    <div style={dropdownIconStyle}>
+                      <CIcon icon={cilChevronBottom} size="sm" />
+                    </div>
+                  ) : (
+                    <div style={clearButtonStyle} onClick={clearIngredient}>
+                      <CIcon icon={cilX} size="sm" />
+                    </div>
+                  )}
                   
                   {isDropdownOpen && (
                     <div 
@@ -481,7 +540,7 @@ const MilkForm = () => {
           <CCardBody>
             <CRow className="g-2 align-items-center mb-3">
               <CCol md={4}>
-                <div className="position-relative" ref={productsDropdownRef}>
+                <div className="position-relative" ref={productsDropdownRef} style={inputContainerStyle}>
                   <CFormInput
                     type="text"
                     value={newProduct.name}
@@ -495,6 +554,16 @@ const MilkForm = () => {
                     onFocus={() => setIsProductsDropdownOpen(true)}
                     placeholder="Search or select product"
                   />
+                  
+                  {!newProduct.name ? (
+                    <div style={dropdownIconStyle}>
+                      <CIcon icon={cilChevronBottom} size="sm" />
+                    </div>
+                  ) : (
+                    <div style={clearButtonStyle} onClick={clearProduct}>
+                      <CIcon icon={cilX} size="sm" />
+                    </div>
+                  )}
                   
                   {isProductsDropdownOpen && (
                     <div 

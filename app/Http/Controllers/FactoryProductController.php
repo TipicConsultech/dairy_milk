@@ -159,4 +159,14 @@ public function searchByName(Request $request)
 
         return response()->json(['message' => 'Factory Product deleted successfully']);
     }
+
+    public function stock(Request $request)
+    {
+        $user = Auth::user();
+        // $sizes = ProductSize::where('company_id', $user->company_id)->get();
+        $sizes = FactoryProduct::where('company_id', $user->company_id)
+        ->where("is_visible",1)
+        ->get();
+        return $sizes;
+    }
 }

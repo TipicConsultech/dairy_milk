@@ -101,7 +101,7 @@ class ProductController extends Controller
         // Fetch only products, media, and sizes that belong to the user's company
         $products = Product::where('company_id', $user->company_id)->get();
         $medias = ProductMedia::where('company_id', $user->company_id)->get();
-        $sizes = ProductSize::where('company_id', $user->company_id)->get();
+        $sizes = ProductSize::where('company_id', $user->company_id)->where('returnable',0)->get();
     
         $newProducts = array();
         foreach ($products as $product) {

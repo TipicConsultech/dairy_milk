@@ -128,12 +128,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('/newStock', [ProductController::class, 'newStock'])->name('newStock');
     Route::get('/stock', [ProductController::class, 'stock'])->name('stock');
+    Route::get('/factoryProductStock', [FactoryProductController::class, 'stock'])->name('stock');
     Route::resource('category', CategoryController::class);
     Route::resource('subCategory', SubCategoryController::class);
     Route::resource('subSubCategory', SubSubCategoryController::class);
     Route::resource('customer', CustomerController::class);
     Route::get('/searchCustomer', [CustomerController::class, 'search']);
-
+    Route::get('/getRawMaterialsByParam/{isPackaging}', [RawMaterialController::class, 'getRawMaterialsByParam']);
     Route::get('/customerHistory', [CustomerController::class, 'history']);
 
     Route::get('/customerBookings', [CustomerController::class, 'booking']);

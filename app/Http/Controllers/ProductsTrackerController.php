@@ -72,6 +72,7 @@ class ProductsTrackerController extends Controller
     {
         $materials = ProductSize::all()   // ProductSize
             ->sortByDesc('max_stock') // show visible first
+            ->where('returnable',0)
             ->values() // reset the index
     
             ->map(function ($item) {
@@ -105,6 +106,7 @@ class ProductsTrackerController extends Controller
             });
         })
         ->orderByDesc('max_stock') // Show packaging materials first
+        ->where('returnable',0)
         ->get()
         ->map(function ($item) {
             $percentage = ($item->qty / $item->max_stock) * 100;

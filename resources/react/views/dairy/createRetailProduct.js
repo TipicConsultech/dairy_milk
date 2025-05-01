@@ -10,10 +10,12 @@ import {
   CButton,
   CCardHeader,
   CAlert,
+  CInputGroup,
+  CInputGroupText,
 } from '@coreui/react'
 import { getAPICall, post } from '../../util/api'
 import CIcon from '@coreui/icons-react'
-import { cilPlus, cilTrash } from '@coreui/icons'
+import { cilPlus, cilTrash, cilCaretBottom, cilX } from '@coreui/icons'
 import { useTranslation } from 'react-i18next'
 
 const createRetailProduct = () => {
@@ -97,7 +99,7 @@ const createRetailProduct = () => {
 
   const fetchRawMaterials = async () => {
     try {
-      const res = await getAPICall('/api/raw-materials/showAll')
+      const res = await getAPICall('/api/getRawMaterialsByParam/1')
       setRawMaterialData(res.quantity)
       setIngredientOptions(res.quantity.map(item => item.name))
     } catch (err) {
@@ -120,6 +122,14 @@ const createRetailProduct = () => {
     }
    
     setFactoryProductId(factoryProductId);
+  }
+
+  const clearFactoryProduct = () => {
+    setFactoryProductSearch('');
+    setFactoryProductId(null);
+    setBatch([]);
+    setSelectedBatchId('');
+    setSelectedBatch(null);
   }
 
   const handleMilkAmountChange = (e) => {
@@ -151,6 +161,12 @@ const createRetailProduct = () => {
     }
 
     setIngError('')
+  }
+
+  const clearIngredient = () => {
+    setNewIngredient({ id: '', name: '', quantity: '', available_qty: '', unit: '' });
+    setRawMaterialavailableQty(null);
+    setIngError('');
   }
 
   const handleIngredientQtyChange = (e) => {
@@ -231,6 +247,12 @@ const createRetailProduct = () => {
     
     setProdError('');
   };
+
+  const clearProduct = () => {
+    setNewProduct({ name:'', quantity:'', unit:'', sizeId: null, sizeOptions: [] });
+    setProductAvailQty(null);
+    setProdError('');
+  }
   
   // Handle size selection change
   const handleSizeChange = e => {
@@ -376,18 +398,23 @@ const createRetailProduct = () => {
           <CCol md={4}>
             <CFormLabel ><b>Select Factory Product</b></CFormLabel>
             <div className="position-relative" ref={factoryProductDropdownRef}>
-              <CFormInput
-                type="text"
-                value={factoryProductSearch}
-                onChange={(e) => {
-                  setFactoryProductSearch(e.target.value);
-                  if (e.target.value) {
-                    setIsFactoryProductDropdownOpen(true);
-                  }
-                }}
-                onFocus={() => setIsFactoryProductDropdownOpen(true)}
-                placeholder="Search or select factory product"
-              />
+              <CInputGroup>
+                <CFormInput
+                  type="text"
+                  value={factoryProductSearch}
+                  onChange={(e) => {
+                    setFactoryProductSearch(e.target.value);
+                    if (e.target.value) {
+                      setIsFactoryProductDropdownOpen(true);
+                    }
+                  }}
+                  onFocus={() => setIsFactoryProductDropdownOpen(true)}
+                  placeholder="Search or select factory product"
+                />
+                <CInputGroupText style={{ cursor: 'pointer' }} onClick={() => factoryProductSearch ? clearFactoryProduct() : setIsFactoryProductDropdownOpen(!isFactoryProductDropdownOpen)}>
+                  {factoryProductSearch ? <CIcon icon={cilX} /> : <CIcon icon={cilCaretBottom} />}
+                </CInputGroupText>
+              </CInputGroup>
               
               {isFactoryProductDropdownOpen && (
                 <div 
@@ -462,19 +489,24 @@ const createRetailProduct = () => {
             <CRow className="g-2 align-items-center mb-3">
               <CCol md={4}>
                 <div className="position-relative" ref={ingredientsDropdownRef}>
-                  <CFormInput
-                    type="text"
-                    value={newIngredient.name}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setNewIngredient({...newIngredient, name: value});
-                      if (value) {
-                        setIsIngredientsDropdownOpen(true);
-                      }
-                    }}
-                    onFocus={() => setIsIngredientsDropdownOpen(true)}
-                    placeholder="Search or select packaging material"
-                  />
+                  <CInputGroup>
+                    <CFormInput
+                      type="text"
+                      value={newIngredient.name}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setNewIngredient({...newIngredient, name: value});
+                        if (value) {
+                          setIsIngredientsDropdownOpen(true);
+                        }
+                      }}
+                      onFocus={() => setIsIngredientsDropdownOpen(true)}
+                      placeholder="Search or select packaging material"
+                    />
+                    <CInputGroupText style={{ cursor: 'pointer' }} onClick={() => newIngredient.name ? clearIngredient() : setIsIngredientsDropdownOpen(!isIngredientsDropdownOpen)}>
+                      {newIngredient.name ? <CIcon icon={cilX} /> : <CIcon icon={cilCaretBottom} />}
+                    </CInputGroupText>
+                  </CInputGroup>
                   
                   {isIngredientsDropdownOpen && (
                     <div 
@@ -566,19 +598,24 @@ const createRetailProduct = () => {
             <CRow className="g-2 align-items-center mb-3">
               <CCol md={4}>
                 <div className="position-relative" ref={productsDropdownRef}>
-                  <CFormInput
-                    type="text"
-                    value={newProduct.name}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setNewProduct({...newProduct, name: value});
-                      if (value) {
-                        setIsProductsDropdownOpen(true);
-                      }
-                    }}
-                    onFocus={() => setIsProductsDropdownOpen(true)}
-                    placeholder="Search or select product"
-                  />
+                  <CInputGroup>
+                    <CFormInput
+                      type="text"
+                      value={newProduct.name}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setNewProduct({...newProduct, name: value});
+                        if (value) {
+                          setIsProductsDropdownOpen(true);
+                        }
+                      }}
+                      onFocus={() => setIsProductsDropdownOpen(true)}
+                      placeholder="Search or select product"
+                    />
+                    <CInputGroupText style={{ cursor: 'pointer' }} onClick={() => newProduct.name ? clearProduct() : setIsProductsDropdownOpen(!isProductsDropdownOpen)}>
+                      {newProduct.name ? <CIcon icon={cilX} /> : <CIcon icon={cilCaretBottom} />}
+                    </CInputGroupText>
+                  </CInputGroup>
                   
                   {isProductsDropdownOpen && (
                     <div 

@@ -91,7 +91,7 @@
      "delivery_time": "Delivery Time",
      "time": "Time",
      "collected": "Collected",
-
+     "crate_deliver":"Crate Delivery",
      "overview": "Stock Overview",
 
      "stock": "Stock",
@@ -134,8 +134,9 @@
     "delete": "Delete",
     "status": "Status",
 
-    "create_product": "Create Factory Product",
-    "create_retail_product":"Create Retail Product",
+    "create_product": "Create Product",
+    "create_factory_product":"Factory Product",
+    "create_retail_product":"Retail Product",
     "createProduct": "Create Factory Product",
     "createRetailProduct": "Create Retail Product",
     "laboratoryUser": "Lab Technician",
@@ -186,7 +187,7 @@
 "totalMilkQty": "Total Milk Quantity",
 "processedMilkQty": "Processed By",
 "rawMaterial":"Raw Material",
-"rawMaterialinventory":"Raw Material Inventory",
+"rawMaterialinventory":"Raw Materials ",
 "ingredientsUsed": "Ingredients Used for Processing",
 "action": "Action",
 "addIngredient": "Add Ingredient",
@@ -218,6 +219,8 @@
 "processed_milk_quantity": "Processed Milk",
 "processing_date": "Processing Date",
 "currentCapacity": "Capacity",
+"available_stock": "Available Stock",
+
 "Productcreate": "Product Creation",
 
 
@@ -262,8 +265,8 @@
 "lastUpdatedDate":"Last Updated Date",
 "updatedby":"Updated By",
 "addRow": "Add Row",
-"finalproductinventry":"Factory Product Inventory ",
-"retailproductinventry":"Retail Product Inventory ",
+"finalproductinventry":"Factory Products ",
+"retailproductinventry":"Retail Products",
 
 "laboratoryTechnician": "Lab Technician",
 "cowMilk":"Cow Milk",
@@ -326,6 +329,7 @@
         "select_expense_type_msg": "Select Expense Type",
         "expense_type_added_successfully_msg": "ExpenseType added successfully",
         "failed_to_add_expense_type_msg": "Failed to add expenseType"
+
 
     }
    }

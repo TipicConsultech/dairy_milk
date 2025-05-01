@@ -60,7 +60,7 @@ const Dashboard = (Props) => {
   useEffect(() => {
     try {
       const fetchStock = async () => {
-        const response = await getAPICall('/api/stock')
+        const response = await getAPICall('/api/factoryProductStock')
         setStock(response)
       }
       fetchStock()
@@ -101,10 +101,10 @@ const Dashboard = (Props) => {
                   <CTableRow>
                     <CTableHeaderCell scope="col" style={{ width: '25%' }}>{t('LABELS.product')}</CTableHeaderCell>
                     <CTableHeaderCell scope="col" className="text-center" style={{ width: '25%' }}>
-                      {t('LABELS.stock')} 
+                      {t('LABELS.currentCapacity')} 
                     </CTableHeaderCell>
                     <CTableHeaderCell scope="col" className="text-center" style={{ width: '25%' }}>
-                      {t('LABELS.stockInUnit')}
+                      {t('LABELS.available_stock')}
                     </CTableHeaderCell>
                     <CTableHeaderCell scope="col" className="text-center" style={{ width: '25%' }}>
                       {t('LABELS.cost')}
@@ -114,29 +114,29 @@ const Dashboard = (Props) => {
   
                 <CTableBody>
                   {stock
-                    .filter((p) => p.returnable === 0)
+                  
                     .filter((p) => {
                       // Only filter if search term has 2 or more characters
                       if (searchTerm.length < 2) return true;
                       
                       // Search in product name (based on current language)
-                      const productName = lng === 'en' ? p.name : p.localName;
+                      const productName = lng === 'en' ? p.name : p.local_name;
                       return productName && productName.toLowerCase().includes(searchTerm.toLowerCase());
                     })
                     .map((p) => {
                       // Calculate the total cost (quantity × price)
-                      const totalCost = p.qty * (p.dPrice || 0);
+                      const totalCost = p.quantity * (p.price || 0);
                       
                       return (
                         <CTableRow key={p.id}>
-                          <CTableHeaderCell>{lng === 'en' ? p.name : p.localName}</CTableHeaderCell>
+                          <CTableHeaderCell>{lng === 'en' ? p.name : p.local_name}</CTableHeaderCell>
   
                           <CTableDataCell className="text-center font-weight-bold text-black" style={{ width: '16%' }}>
-                            {p.max_stock}
+                            {p.capacity}
                           </CTableDataCell>
   
                           <CTableDataCell className="text-center font-weight-bold text-black" style={{ width: '16%' }}>
-                            {p.qty}  {p.unit || '-'}
+                            {p.quantity}  {p.unit || '-'}
                           </CTableDataCell>
   
                           <CTableDataCell className="text-center font-weight-bold text-black" style={{ width: '16%' }}>

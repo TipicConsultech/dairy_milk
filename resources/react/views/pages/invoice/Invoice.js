@@ -171,14 +171,17 @@ const Invoice = () => {
   }
 
   const getDiscountedPrice = (p, discount) =>{
-    const value = p.sizes[0].oPrice;
+    const value = p.sizes[0]?.oPrice ?? 0;
     const price = value - (value * (discount || (customerName.discount ?? 0)) /100);    
     return Math.round(price);
   }
 
   const discountedPrices = (products, discount) =>{
     products.forEach(p=>{
-      p.sizes[0].dPrice = getDiscountedPrice(p, discount)
+      if(p.sizes.length>0){
+        p.sizes[0].dPrice = getDiscountedPrice(p, discount)
+      }
+     
     })
     return products;
   }
@@ -199,7 +202,7 @@ const Invoice = () => {
     showSpinner();
     const response = await getAPICall('/api/product')
     hideSpinner();
-    setAllProducts(discountedPrices([...response.filter((p) => p.show == 1)]));
+    setAllProducts(discountedPrices([...response.filter((p) => p.show == 1 )]));
     const options = ['Select Product']
     options.push(
       ...response
@@ -212,6 +215,10 @@ const Invoice = () => {
           }
         }),
     )
+    console.log("Test");
+  
+    console.log(JSON.stringify(options));
+    
     setProducts(options)
   }
 

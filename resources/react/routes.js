@@ -218,8 +218,8 @@ export default function fetchRoutes(){
   else if(user===3){
     routes = [
     { path: '/CreateProduct', name: 'CreateProduct', element:CreateProduct },
-    { path: '/finalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty},
-    { path: '/retailProductInvenrty', name: 'RetailProductInvenrty', element:RetailProductInvenrty},
+    // { path: '/finalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty},
+    // { path: '/retailProductInvenrty', name: 'RetailProductInvenrty', element:RetailProductInvenrty},
     { path: '/invoice', name: 'invoice', element: Invoice },
     { path: '/invoice-details/:id', name: 'InvoiceDetails', element: InvoiceDetails },
     { path:'/CreateRetailProduct', name: 'Create Retail Product', element: CreateRetailProduct },
