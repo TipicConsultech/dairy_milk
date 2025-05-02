@@ -353,8 +353,9 @@
         "failedToEmptyTank": "टँक रिकामा करण्यात अयशस्वी",
         "neverUpdated": "कधीही बदल केलेले नाही",
         "failedToLoadMilkTanks": "दूध टँक लोड करण्यात असक्षम",
-        "noMilkTanksAvailable": "तुमच्या कंपनीसाठी कोणतेही दूध टँक उपलब्ध नाहीत"
-
+        "noMilkTanksAvailable": "तुमच्या कंपनीसाठी कोणतेही दूध टँक उपलब्ध नाहीत",
+        "delivery_tracker_saved_successfully": "डिलिव्हरी ट्रॅकर यशस्वीरित्या जतन करण्यात आला आहे",
+        "error_saving_delivery_tracker": "डिलिव्हरी ट्रॅकर जतन करताना त्रुटी आली"
 
     }
    }
