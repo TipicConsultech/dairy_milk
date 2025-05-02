@@ -134,7 +134,7 @@
     "delete": "Delete",
     "status": "Status",
 
-    "create_product": "Create Product",
+    "create_product": "Create Factory Product",
     "create_factory_product":"Factory Product",
     "create_retail_product":"Retail Product",
     "createProduct": "Create Factory Product",

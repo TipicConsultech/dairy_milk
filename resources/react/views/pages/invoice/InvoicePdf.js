@@ -3,7 +3,7 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { getUserData } from '../../../util/session';
 
-export function generatePDF(grandTotal, invoiceNo, customerName, formData,remainingAmount,totalAmountWords) {
+export function generatePDF(grandTotal, invoiceNo, customerName, formData, remainingAmount, totalAmountWords, isWhatsAppShare = false, callback = null) {
     // PDF generation logic
     const pdf = new jsPDF({
         orientation: "portrait",
@@ -28,13 +28,13 @@ export function generatePDF(grandTotal, invoiceNo, customerName, formData,remain
     const status = formData.status;
     const INVOICE = formData.InvoiceStatus;
     const headingX = pdf.internal.pageSize.getWidth() / 2;
-    
+
     // Set font to bold and increase size by 1.5 times
-    pdf.setFont( "bold");
+    pdf.setFont("bold");
     // "helvetica"
-    
+
     pdf.setFontSize(17);
-    
+
     // Set color based on status
     if (status === 0) {
         pdf.setTextColor(255, 0, 0); // Red
@@ -43,9 +43,9 @@ export function generatePDF(grandTotal, invoiceNo, customerName, formData,remain
     } else if (status === 2) {
         pdf.setTextColor(255, 165, 0); // Yellow
     }
-    
+
     pdf.text(`${INVOICE}`, headingX, 10, { align: "center" });
-    
+
     // Reset the font size to original after use if needed
     pdf.setFontSize(10);
     pdf.setFont("normal");
@@ -87,7 +87,7 @@ export function generatePDF(grandTotal, invoiceNo, customerName, formData,remain
         body: [
             ...formData.products.map((product, index) => [
                 index + 1,
-                product.product_name ,
+                product.product_name,
                 product.dPrice + (product.product_unit?.length > 0 ? ` per ${product.product_unit}`: ' /-'),
                 product.dQty + (product.product_unit?.length > 0 ? ` ${product.product_unit}`: ''),
                 product.total_price+" /-"
@@ -185,13 +185,25 @@ export function generatePDF(grandTotal, invoiceNo, customerName, formData,remain
     const textY = pageHeight - 5;
     pdf.text(additionalMessage, textXAdditional, textY);
 
-    pdf.save(`${invoiceNo}-${customerName}-${new Date().getTime()}.pdf`);
+    const fileName = `${invoiceNo}-${customerName}-${new Date().getTime()}.pdf`;
+
+    // Create a blob URL for the PDF
+    const pdfBlob = pdf.output('blob');
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+    // Always save the PDF
+    pdf.save(fileName);
+
+    // If this is for WhatsApp sharing, call the callback with the URL
+    if (isWhatsAppShare && callback) {
+        callback(pdfUrl);
+    }
 }
 
 function InvoicePdf() {
     return (
         <div>
-           
+
         </div>
     );
 }
