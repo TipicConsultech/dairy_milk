@@ -22,7 +22,7 @@ import { useToast } from '../../common/toast/ToastContext'
 import NewCustomerModal from '../../common/NewCustomerModal'
 import { useSpinner } from '../../common/spinner/SpinnerProvider'
 let debounceTimer;
-const Invoice = () => {
+const FactoryInvoice = () => {
   const [validated, setValidated] = useState(false)
   const [errorMessage, setErrorMessage] = useState()
   const [products, setProducts] = useState()
@@ -206,7 +206,7 @@ const Invoice = () => {
     const options = ['Select Product']
     options.push(
       ...response
-        .filter((p) => p.show == 1 && p.sizes[0].isFactory == 0)
+        .filter((p) => p.show == 1 && p.sizes[0].isFactory == 1)
         .map((p) => {
           return {
             label: p.name,
@@ -713,4 +713,4 @@ const Invoice = () => {
   )
 }
 
-export default Invoice
+export default FactoryInvoice

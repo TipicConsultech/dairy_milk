@@ -265,17 +265,18 @@ public function newRetailProduct(Request $request)
     $batchId = $request->batch;
     $productSizes = $request->productSizes; // [{id: 6, name: "paneer", qty: 1900}]
     $rawMaterials = $request->rawMaterials;
+    $factoryProductId = $request->factoryProductId;
 
     // === Step 1: Check if batch exists ===
-    $productTracker = ProductsTracker::where('id', $batchId)->first();
+    // $productTracker = ProductsTracker::where('id', $batchId)->first();
 
-    if (!$productTracker) {
-        return response()->json(['error' => 'Batch not found'], 404);
-    }
+    // if (!$productTracker) {
+    //     return response()->json(['error' => 'Batch not found'], 404);
+    // }
 
-    if ($productTracker->product_qty <= 0) {
-        return response()->json(['error' => 'Insufficient product quantity in tracker'], 400);
-    }
+    // if ($productTracker->product_qty <= 0) {
+    //     return response()->json(['error' => 'Insufficient product quantity in tracker'], 400);
+    // }
 
     DB::beginTransaction();
 
@@ -317,48 +318,52 @@ public function newRetailProduct(Request $request)
                 'realQty' => $realQty,
                 'requestedQty' => $product['qty'],
                 'productName' => $productSize->name,
+
             ];
         }
 
         // === Step 4: Check if ProductsTracker has enough quantity ===
-        $newProductQty = $productTracker->product_qty - $totalRealQty;
+        //$newProductQty = $productTracker->product_qty - $totalRealQty;
 
-        if ($newProductQty < 0) {
-            throw new \Exception("Insufficient product quantity in tracker. Required: $totalRealQty, Available: {$productTracker->product_qty}");
-        }
+        // if ($newProductQty < 0) {
+        //     throw new \Exception("Insufficient product quantity in tracker. Required: $totalRealQty, Available: {$productTracker->product_qty}");
+        // }
 
         // === Step 5: Deduct realQty from FactoryProduct ===
-        foreach ($realQuantities as $item) {
-            $factoryProduct = FactoryProduct::find($item['id']);
+        // foreach ($realQuantities as $item) {
+            $factoryProduct = FactoryProduct::find($factoryProductId);
+
+            //echo $product['id'];
+            // echo $productSize;
 
             if (!$factoryProduct) {
-                throw new \Exception("Factory product with ID {$item['id']} not found");
+                throw new \Exception("Factory product with ID {$factoryProductId} not found");
             }
 
-            $newFactoryQty = $factoryProduct->quantity - $item['realQty'];
+            $newFactoryQty = $factoryProduct->quantity - $totalRealQty;
 
             if ($newFactoryQty < 0) {
-                throw new \Exception("Not enough stock in factory product ID {$item['id']} for deduction.");
+                throw new \Exception("Not enough stock in factory product ID {$factoryProductId} for deduction.");
             }
 
             $factoryProduct->quantity = $newFactoryQty;
             $factoryProduct->save();
-        }
+        // }
 
         // === Step 6: Deduct from ProductsTracker ===
-        $productTracker->product_qty = $newProductQty;
-        $productTracker->save();
+        // $productTracker->product_qty = $newProductQty;
+        // $productTracker->save();
 
         // === Step 7: Add request->qty to FactoryProduct and ProductSize, and build response
         $updatedProducts = [];
 
         foreach ($realQuantities as $item) {
             // Update FactoryProduct
-            $factoryProduct = FactoryProduct::find($item['id']);
-            if ($factoryProduct) {
-                $factoryProduct->quantity += $item['requestedQty'];
-                $factoryProduct->save();
-            }
+            // $factoryProduct = FactoryProduct::find($item['id']);
+            // if ($factoryProduct) {
+            //     $factoryProduct->quantity += $item['requestedQty'];
+            //     $factoryProduct->save();
+            // }
 
             // Update ProductSize and track update
             $productSize = ProductSize::find($item['id']);

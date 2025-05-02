@@ -67,7 +67,7 @@ function RawMaterial() {
 
   const handleAddClick = async (item) => {
     
-    navigate(`/invoice?id=${item.id}`);
+    navigate(`/factory-invoice?id=${item.id}`);
   };
 
   const handleDownload = async () => {

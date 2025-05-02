@@ -16,7 +16,7 @@ import CIcon from '@coreui/icons-react'
 import { cilPlus, cilTrash, cilChevronBottom, cilX } from '@coreui/icons'
 import { useTranslation } from 'react-i18next'
 
-const createRetailProduct = () => {
+const CreateBulkProduct = () => {
   const { t, i18n } = useTranslation("global")
   const lng = i18n.language;
             
@@ -208,7 +208,7 @@ const createRetailProduct = () => {
       setPrductsData(res.products);
       
       // Extract just the product names for the dropdown
-      setProductOptions(res.products.filter(x=>x.size[0].isFactory == 0).map(p => p.name));
+      setProductOptions(res.products.filter(x=>x.size[0].isFactory == 1).map(p => p.name));
     } catch (err) {
       console.error('Error fetching products:', err);
     }
@@ -388,7 +388,7 @@ const createRetailProduct = () => {
     <CCard className="mb-4">
       <CCardHeader style={{ backgroundColor: '#d4edda'}}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h5 className="mb-0" >{t('LABELS.create_retail_product')}</h5>  
+          <h5 className="mb-0" >Bulk Product</h5>  
         </div>
       </CCardHeader>
 
@@ -607,7 +607,7 @@ const createRetailProduct = () => {
         <CCard className="mb-4 mt-3">
           <CCardHeader style={{ backgroundColor: '#f8d7da'}}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h5 className="mb-0">Retail Products Creation</h5> 
+              <h5 className="mb-0">Bulk Products Creation</h5> 
             </div>
           </CCardHeader>
 
@@ -750,4 +750,4 @@ const createRetailProduct = () => {
   )
 }
 
-export default createRetailProduct
+export default CreateBulkProduct

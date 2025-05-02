@@ -10,6 +10,7 @@ const AllUser = React.lazy(() => import('./views/pages/register/AllUser'))
 //Invoice
 const Delivery = React.lazy(() => import('./views/pages/invoice/Delivery'))
 const Invoice = React.lazy(() => import('./views/pages/invoice/Invoice'))
+const FactoryInvoice = React.lazy(() => import('./views/pages/invoice/FactoryInvoice'))
 const Booking = React.lazy(() => import('./views/pages/invoice/Booking'))
 const Orders = React.lazy(() => import('./views/pages/invoice/Orders'))
 const InvoiceDetails = React.lazy(() => import('./views/pages/invoice/InvoiceDetails'))
@@ -21,6 +22,7 @@ const EditCompany = React.lazy(() => import('./views/pages/company/EditCompany')
 const RawMaterial = React.lazy(() => import('./views/dairy/RawMaterial'))
 //Retail Product
 const CreateRetailProduct = React.lazy(() => import('./views/dairy/createRetailProduct'))
+const CreateBulkProduct = React.lazy(() => import('./views/dairy/CreateBulkProduct'))
 
 //Products
 const NewProduct = React.lazy(() => import('./views/pages/products/NewProduct'))
@@ -126,6 +128,7 @@ export default function fetchRoutes(){
     { path: '/dashboard', name: 'Dashboard', element: Dashboard },
     { path: '/delivery', name: 'Delivery', element: Delivery },
     { path: '/invoice', name: 'invoice', element: Invoice },
+    { path: '/factory-invoice', name: 'FactoryInvoice', element: FactoryInvoice },
     { path: '/invoice-details/:id', name: 'InvoiceDetails', element: InvoiceDetails },
     { path: '/bookings', name: 'Advance Bookings', element: Orders },
     { path: '/regular', name: 'Regular Orders', element: Orders },
@@ -152,6 +155,7 @@ export default function fetchRoutes(){
     { path:'/usermanagement/create-user', name: 'Create User', element: NewUsers },
     { path:'usermanagement/all-users', name: 'All Users', element: AllUser },
     { path:'/CreateRetailProduct', name: 'Create Retail Product', element: CreateRetailProduct },
+    { path:'/CreateBulkProduct', name: 'Create Bulk Product', element: CreateBulkProduct },
       { path: '/CreateProduct', name: 'CreateProduct', element:CreateProduct },
       { path: '/StockManagement', name: 'StockManagement', element:StockManagement },
       { path: '/ProcessedMilk', name: 'ProcessedMilk', element:ProcessedMilk },
@@ -177,6 +181,7 @@ export default function fetchRoutes(){
     { path: '/dashboard', name: 'Dashboard', element: Dashboard },
     { path: '/delivery', name: 'Delivery', element: Delivery },
     { path: '/invoice', name: 'invoice', element: Invoice },
+    { path: '/factory-invoice', name: 'FactoryInvoice', element: FactoryInvoice },
     { path: '/booking', name: 'Booking', element: Booking },
     { path: '/invoice-details/:id', name: 'InvoiceDetails', element: InvoiceDetails },
   
@@ -193,6 +198,7 @@ export default function fetchRoutes(){
     { path: '/expense/new', name: 'New Expense', element: NewExpense },
     { path:'/updatepassword', name: 'Update Password', element: Updatepassword },
     { path:'/CreateRetailProduct', name: 'Create Retail Product', element: CreateRetailProduct },
+    { path:'/CreateBulkProduct', name: 'Create Bulk Product', element: CreateBulkProduct },
   
     { path:'/usermanagement/create-user', name: 'Create User', element: NewUsers },
     { path:'usermanagement/all-users', name: 'All Users', element: AllUser },
@@ -221,8 +227,10 @@ export default function fetchRoutes(){
     // { path: '/finalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty},
     // { path: '/retailProductInvenrty', name: 'RetailProductInvenrty', element:RetailProductInvenrty},
     { path: '/invoice', name: 'invoice', element: Invoice },
+    { path: '/factory-invoice', name: 'FactoryInvoice', element: FactoryInvoice },
     { path: '/invoice-details/:id', name: 'InvoiceDetails', element: InvoiceDetails },
     { path:'/CreateRetailProduct', name: 'Create Retail Product', element: CreateRetailProduct },
+    { path:'/CreateBulkProduct', name: 'Create Bulk Product', element: CreateBulkProduct },
       
   ]
   }
