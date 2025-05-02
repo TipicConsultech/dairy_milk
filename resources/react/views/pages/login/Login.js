@@ -166,16 +166,23 @@ const Login = () => {
   </button>
 </CInputGroup>
 
-                    <CRow>
-                      <CCol xs={6}>
-                        <CButton color="primary" type="submit" className="px-4">
-                          Login
-                        </CButton>
-                      </CCol>
-                      <CCol xs={6} className="text-right">
-                        
-                      </CCol>
-                    </CRow>
+<CRow className="justify-content-center">
+  <CCol xs={12} className="text-center mb-2">
+    <CButton color="primary" type="submit" className="px-4">
+      Login
+    </CButton>
+  </CCol>
+  <CCol xs={12} className="text-center">
+    <CButton
+      color="link"
+      className="px-0"
+      onClick={() => navigate('/sendEmailForResetLink')}
+    >
+      Forgot&nbsp;password?
+    </CButton>
+  </CCol>
+</CRow>
+
                   </CForm>
                 </CCardBody>
               </CCard>

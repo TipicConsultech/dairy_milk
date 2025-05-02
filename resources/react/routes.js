@@ -53,7 +53,8 @@ const PnLReport = React.lazy(() => import('./views/pages/report/PnLReport'))
 const All_Reports=React.lazy(() => import('./views/pages/report/AllReports'))
 
 //Password Newpassword
-const Updatepassword = React.lazy(() => import('./views/pages/Password/Newpassword'))
+const Resetpassword = React.lazy(() => import('./views/pages/Password/Newpassword'))
+const Updatepassword = React.lazy(() => import('./views/pages/Password/updatePassword'))
 
 // map
 const JarMap = React.lazy(() => import('./views/pages/map/Map'))
@@ -112,7 +113,8 @@ export default function fetchRoutes(){
       { path: 'Reports/pnl_Report', name: 'Profit and Loss Report', element: PnLReport },
       { path: '/Reports/Reports', name: 'Reports', element: All_Reports },
       // { path: 'products/updateqty', name: 'Update Bulk Quantity', element: BulkQuantity },
-      { path:'/updatepassword', name: 'Update Password', element: Updatepassword },
+      { path:'/resetPassword', name: 'Update Password', element: Resetpassword },
+      { path: '/updatepassword', name: 'Reset Password', element: Updatepassword },  
       { path:'/usermanagement/create-user', name: 'Create User', element: NewUsers },
       { path:'usermanagement/all-users', name: 'All Users', element: AllUser },
       { path:'plans', name: 'Plans', element: Plans },
@@ -144,7 +146,9 @@ export default function fetchRoutes(){
     { path: '/expense/all-type', name: 'All Types', element: AllExpenseType },
     { path: '/expense/reportExpense', name: 'Expense Report', element: expense },
     { path: '/expense/new', name: 'New Expense', element: NewExpense },
-    { path:'/updatepassword', name: 'Update Password', element: Updatepassword },
+    { path:'/resetPassword', name: 'Update Password', element: Resetpassword },
+    { path: '/updatepassword', name: 'Reset Password', element: Updatepassword },
+
     // { path: '/map', name: 'Map', element: JarMap },
     { path: '/Reports/Customer_Report', name: 'Customer Report', element: CustomerReport },
     { path: '/Reports/creditReport', name: 'Credit Report', element: CreditReport },
@@ -196,7 +200,9 @@ export default function fetchRoutes(){
     { path: '/expense/all-type', name: 'All Types', element: AllExpenseType },
     { path: '/expense/reportExpense', name: 'Expense Report', element: expense },
     { path: '/expense/new', name: 'New Expense', element: NewExpense },
-    { path:'/updatepassword', name: 'Update Password', element: Updatepassword },
+    { path:'/resetPassword', name: 'Update Password', element: Resetpassword },
+    { path: '/updatepassword', name: 'Reset Password', element: Updatepassword },
+
     { path:'/CreateRetailProduct', name: 'Create Retail Product', element: CreateRetailProduct },
     { path:'/CreateBulkProduct', name: 'Create Bulk Product', element: CreateBulkProduct },
   
@@ -231,13 +237,18 @@ export default function fetchRoutes(){
     { path: '/invoice-details/:id', name: 'InvoiceDetails', element: InvoiceDetails },
     { path:'/CreateRetailProduct', name: 'Create Retail Product', element: CreateRetailProduct },
     { path:'/CreateBulkProduct', name: 'Create Bulk Product', element: CreateBulkProduct },
-      
+    { path:'/resetPassword', name: 'Update Password', element: Resetpassword },
+    { path: '/updatepassword', name: 'Reset Password', element: Updatepassword },
+
   ]
   }
   //Delivery Team
   else if(user===4){
     routes = [
-    { path: '/delivery', name: 'Delivery', element: Delivery },  
+    { path: '/delivery', name: 'Delivery', element: Delivery },
+    { path:'/resetPassword', name: 'Update Password', element: Resetpassword },
+    { path: '/updatepassword', name: 'Reset Password', element: Updatepassword },
+  
   ]
   }
   //Lab Technician
@@ -245,7 +256,9 @@ export default function fetchRoutes(){
     routes = [
     
       { path: '/LaboratoryUser', name: 'LaboratoryUser', element:LaboratoryUser },
-      
+      { path:'/resetPassword', name: 'Update Password', element: Resetpassword },
+      { path: '/updatepassword', name: 'Reset Password', element: Updatepassword },
+  
 
   ]
   }

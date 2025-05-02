@@ -26,7 +26,7 @@ use App\Http\Controllers\ProductsTrackerController;
 use App\Http\Controllers\FactoryProductController;
 use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\CompanyReceiptController;
-
+use App\Http\Controllers\MailController;
 // Dairy
 // use App\Http\Controllers\MilkTankController;
 
@@ -36,6 +36,11 @@ use App\Http\Controllers\CompanyReceiptController;
 // error_reporting(E_ALL);
 
 //-
+
+Route::post('/reset-password-link', [MailController::class, 'sendEmail']);
+Route::post('/newPassword',[MailController::class, 'resetPassword']);
+
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });

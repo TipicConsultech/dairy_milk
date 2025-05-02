@@ -155,10 +155,12 @@ function RawMaterial() {
           <thead className="table-light" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
             <tr>
               <th>Name</th>
-              <th>Weight</th>
-              <th>Capacity</th>
-              <th>Stock Indicator</th>
               <th>Available Stock</th>
+              <th>Stock Indicator</th>
+              {/* <th>Weight</th> */}
+              <th>Capacity</th>
+             
+              
              
               <th style={{ width: '100px' }}>Action</th>
             </tr>
@@ -167,10 +169,11 @@ function RawMaterial() {
             {tableData.map((item) => (
               <tr key={item.id}>
                 <td>{item.name}</td>
-                <td>
+                <td>{item.qty}&nbsp;units</td>
+                {/* <td>
                 {item.label_value}&nbsp;{item.unit}
-                </td>
-                <td>{item.max_stock}</td>
+                </td> */}
+                
                 <td>
                   <CBadge
                     style={{
@@ -191,7 +194,7 @@ function RawMaterial() {
                       : 'Sufficient'}
                   </CBadge>
                 </td>
-                <td>{item.qty}&nbsp;{item.unit}</td>
+                <td>{item.max_stock}</td>
                 
                 <td>
                   <button
