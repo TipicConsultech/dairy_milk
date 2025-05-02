@@ -125,7 +125,7 @@
         "createProduct": "फॅक्टरी उत्पादन",
        "createRetailProduct": "रिटेल उत्पादन ",
         "create_retail_product":"रिटेल उत्पादन ",
-      
+
         "tank": "टाकी",
         "processed_milk": "प्रक्रियायुक्त दूध",
 
@@ -280,11 +280,13 @@
   "tsValue": "TS मूल्य",
 
   "remove": "रिकामे करा",
-  "empty2":"रिकामे करा",
+  "empty2":"रिकामी करा",
 
   "ltr": "लिटर",
   "emptyTankConfirmation": "टँक रिकामा करण्याची पुष्टी",
-  "confirmEmpty": "रिकामा करण्याची पुष्टी करा"
+  "confirmEmpty": "रिकामा करण्याची पुष्टी करा",
+  "cow":"गाई",
+  "buffalo":"म्हैस"
 
 
     },

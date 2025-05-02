@@ -285,7 +285,9 @@
   "tank": "Tank",
   "ltr": "Ltr",
   "emptyTankConfirmation":"Empty Tank Confirmation",
-  "confirmEmpty":"Confim Empty"
+  "confirmEmpty":"Confim Empty",
+  "cow":"Cow",
+  "buffalo":"Buffalo"
 
 
 
