@@ -351,6 +351,8 @@
             "failedToEmptyTank": "Failed to empty tank",
             "neverUpdated": "Never updated",
             "failedToLoadMilkTanks": "Unable to load milk tanks",
-            "noMilkTanksAvailable": "No milk tanks available for your company"
+            "noMilkTanksAvailable": "No milk tanks available for your company",
+            "delivery_tracker_saved_successfully":"Delivery tracker saved successfully",
+            "error_saving_delivery_tracker":"Error saving delivery tracker"
     }
    }

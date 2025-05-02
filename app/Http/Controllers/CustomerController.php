@@ -97,21 +97,10 @@ class CustomerController extends Controller
         $id = $request->query('id'); 
     
         $returnEmptyProducts = JarTracker::where('customer_id', $id)->get();
-        
-        // For each product, find the last remark
-        foreach ($returnEmptyProducts as $product) {
-            // Get the last order detail with a remark for this product and customer
-            $lastRemark = DB::table('order_details')
-                ->join('orders', 'order_details.order_id', '=', 'orders.id')
-                ->where('orders.customer_id', $id)
-                ->where('order_details.product_sizes_id', $product->product_sizes_id)
-                ->whereNotNull('order_details.remark')
-                ->where('order_details.remark', '!=', '')
-                ->orderBy('orders.created_at', 'desc')
-                ->value('order_details.remark');
     
-            // If the last remark is blank or null, show blank
-            $product->last_remark = $lastRemark ?: ''; // If $lastRemark is null or empty, assign ''
+        // Assign last_remark directly from JarTracker's remark field
+        foreach ($returnEmptyProducts as $product) {
+            $product->last_remark = $product->remark ?? '';  // use '' if null
         }
     
         $paymentTrackerSum = PaymentTracker::where('customer_id', $id)->sum('amount');

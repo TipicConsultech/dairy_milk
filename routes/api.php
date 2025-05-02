@@ -142,6 +142,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/customerBookings', [CustomerController::class, 'booking']);
     Route::get('/creditReport', [CustomerController::class, 'creditReport']);
     Route::resource('/jarTracker', JarTrackerController::class);
+    Route::get('/lastRemark/{customer_id}/{product_name}', [JarTrackerController::class, 'getLastRemark']);
+    Route::get('/jarTracker/check', [JarTrackerController::class, 'check']);
+
+
     Route::post('/product/updateQty', [ProductController::class, 'updateQty']);
     Route::post('/fileUpload', [FileUpload::class, 'fileUpload']);
     Route::get('/monthlyReport', [OrderController::class, 'getMonthlyReport']);
