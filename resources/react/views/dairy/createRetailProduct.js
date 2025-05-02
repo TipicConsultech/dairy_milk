@@ -718,8 +718,8 @@ const createRetailProduct = () => {
           </CCardBody>
         </CCard>
 
-        <CButton color="primary" onClick={handleSubmit} disabled={!selectedBatchId || ingredients.length === 0 || products.length === 0}>
-          Submit
+        <CButton color="primary" onClick={handleSubmit} disabled={!selectedBatchId || products.length === 0}>
+        Submit
         </CButton>
    
         {createdSummary && (
