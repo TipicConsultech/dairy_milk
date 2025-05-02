@@ -81,19 +81,21 @@ const Dashboard = (Props) => {
             
             {/* Add search input with icon */}
             <CRow className="mb-3 mt-3">
-            <CCol md={4} className="ms-auto">
-              <CInputGroup size="sm">
-                <CFormInput
-                  placeholder={t('LABELS.search')}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <CInputGroupText>
-                  <CIcon icon={cilSearch} />
-                </CInputGroupText>
-              </CInputGroup>
-            </CCol>
-          </CRow>
+  <CCol md={4} className="ms-auto">
+    <CInputGroup size="sm">
+      <CFormInput
+        style={{ borderColor: '#007BFF', color: '#0d6efd' }} // blue border & text
+        placeholder={t('LABELS.search')}
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <CInputGroupText style={{ backgroundColor: '#0d6efd', color: 'white' }}>
+        <CIcon icon={cilSearch} />
+      </CInputGroupText>
+    </CInputGroup>
+  </CCol>
+</CRow>
+
             
             <div className="overflow-x-auto w-full" style={{ maxHeight: '300px', overflowY: 'auto' }}>
               <CTable className="min-w-[600px]">

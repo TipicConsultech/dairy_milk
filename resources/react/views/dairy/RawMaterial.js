@@ -407,14 +407,18 @@ function RawMaterial() {
                 style={{ flex: '1' }}
               >
                 <CIcon icon={cilPlus} size="sm" style={{ marginRight: 3 }}/>
-                Add Product
+                Add Material
               </CButton>
               
               {hasMultipleQuantities && (
                 <CButton
                   color="danger"
                   onClick={handleBulkAdd}
-                  style={{ flex: '1' }}
+                  style={{ flex: '1',
+                    animation: 'strobeRed 0.5s infinite',
+                    backgroundColor: '#ff0000',
+                    color: 'white',
+                   }}
                 >
                   Bulk Add
                 </CButton>
