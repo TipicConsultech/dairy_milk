@@ -465,7 +465,7 @@ const LaboratoryUser = () => {
                               className="px-4 w-100"
                               onClick={() => handleRemoveMilkTank(tank.id, tank.name)}
                             >
-                              {t('LABELS.empty2')} {displayName} {t('LABELS.tank')}
+                              {t('LABELS.empty2')} {tank.name?.toLowerCase().includes('cow') ? t('LABELS.cow') : t('LABELS.buffalo')} {t('LABELS.tank')}
                             </CButton>
                           </CCol>
                         </CRow>

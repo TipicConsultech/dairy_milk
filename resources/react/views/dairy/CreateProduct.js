@@ -264,12 +264,13 @@ const MilkForm = () => {
     };
 
     // Ensure ingredients and products are in the correct format
-    const ingredientsData = ingredients.map(ing => ({
-        id: ing.id, // Ensure this is added
-        name: ing.name,
-        quantity: parseFloat(ing.quantity),
-    }));
-    
+    const ingredientsData = ingredients.length > 0
+  ? ingredients.map(ing => ({
+      id: ing.id,
+      name: ing.name,
+      quantity: parseFloat(ing.quantity),
+    }))
+  : [];
     const productsData = products.map(prod => ({
         id: prod.id,
         name: prod.name,
@@ -290,7 +291,7 @@ const MilkForm = () => {
         });
 
         // alert(`Product ${productsData?.prod?.name} created and stocks updated successfully.`);
-        alert(`${createdSummary} created successfully:`);
+      
 
         const now = new Date();
         const formattedTime = now.toLocaleString(); // gives date + time in readable format
@@ -316,7 +317,7 @@ const MilkForm = () => {
         fetchProducts();
     } catch (err) {
         console.error('Error in submission:', err);
-        alert('Something went wrong while creating the product.');
+        alert('Kindly Select Appropriate Product/Weight And Click + Button');
     }
   };
 
@@ -481,7 +482,7 @@ const MilkForm = () => {
                   placeholder={
                     rawMaterialavailableQty !== null
                       ? `Available Quantity: ${rawMaterialavailableQty}`
-                      : 'Quantity'
+                      : 'Available Quantity'
                   }
                   value={newIngredient.quantity}
                   onChange={handleIngredientQtyChange}
@@ -604,7 +605,7 @@ const MilkForm = () => {
               <CCol md={3}>
                 <CFormInput
                   type="number"
-                  placeholder={productAvailQty!==null?`Available Quantity: ${productAvailQty}`:'Quantity'}
+                  placeholder={productAvailQty!==null?`Available Quantity: ${productAvailQty}`:'Available Quantity'}
                   value={newProduct.quantity}
                   onChange={handleProductQty}
                   className={prodError ? 'is-invalid' : ''}
