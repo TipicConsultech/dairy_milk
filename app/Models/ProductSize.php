@@ -10,6 +10,7 @@ class ProductSize extends Model
     protected $table = 'product_sizes';
     use HasFactory;
     protected $fillable=[
+        'id',
         'product_id',
         'name',
         'localName',
@@ -24,7 +25,8 @@ class ProductSize extends Model
         'returnable',
         'unit_multiplier',
         'label_value',
-        'show'
+        'show',
+        'isFactory'
     ];
 
     /**

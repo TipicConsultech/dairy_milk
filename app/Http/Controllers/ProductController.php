@@ -114,7 +114,7 @@ class ProductController extends Controller
         // Fetch only products, media, and sizes that belong to the user's company
         $products = Product::where('company_id', $user->company_id)->get();
         $medias = ProductMedia::where('company_id', $user->company_id)->get();
-        $sizes = ProductSize::where('company_id', $user->company_id)->where('returnable',0)->get();
+        $sizes = ProductSize::where('company_id', $user->company_id)->get();
     
         $newProducts = array();
         foreach ($products as $product) {
@@ -177,6 +177,7 @@ class ProductController extends Controller
         $sz->max_stock = $size['stock'] ?? null;
 
         $sz->returnable = $size['returnable'];
+        $sz->isFactory = $size['isFactory'];
         if (isset($size['dPrice'])) { // Only add if dPrice exists
             $sz->dPrice = $size['dPrice'];
         }

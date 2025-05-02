@@ -144,12 +144,26 @@ export default function fetchNavItems(t1){
           },
         ],
       },
-  
+
       {
-        component: CNavItem,
+        component: CNavGroup,
         name: t("LABELS.invoice"),
-        to: '/invoice',
-        icon: <CIcon icon={cilPrint} customClassName="nav-icon" />,
+        icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+        items: [
+          
+          {
+            component: CNavItem,
+            name: "Factory Invoice(B2B)",
+           to: '/factory-invoice',
+          },
+          {
+            component: CNavItem,
+            name: "Retails Invoice",
+            to: '/invoice',
+          },
+          
+          
+        ],
       },
       
       {
@@ -167,6 +181,11 @@ export default function fetchNavItems(t1){
             component: CNavItem,
             name: t("LABELS.create_retail_product"),
             to: '/CreateRetailProduct',
+          },
+          {
+            component: CNavItem,
+            name: t("LABELS.create_bulk_product"),
+            to: '/CreateBulkProduct',
           },
           
           
@@ -265,10 +284,24 @@ export default function fetchNavItems(t1){
     
   
       {
-        component: CNavItem,
+        component: CNavGroup,
         name: t("LABELS.invoice"),
-        to: '/invoice',
-        icon: <CIcon icon={cilPrint} customClassName="nav-icon" />,
+        icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+        items: [
+          
+          {
+            component: CNavItem,
+            name: "Factory Invoice(B2B)",
+           to: '/factory-invoice',
+          },
+          {
+            component: CNavItem,
+            name: "Retails Invoice",
+            to: '/invoice',
+          },
+          
+          
+        ],
       },
       
       {

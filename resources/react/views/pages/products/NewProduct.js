@@ -34,6 +34,7 @@ const NewProduct = () => {
     bPrice: 0,
     media: [],
     sizes: [],
+    isFactory: false
   })
 
   const handleChange = (e) => {
@@ -67,6 +68,7 @@ const NewProduct = () => {
         default_qty :data.default_qty,
         stock: data.qty,
         show: true,
+        isFactory: data.isFactory,
         returnable: data.returnable,
       })
       delete data.oPrice
@@ -234,6 +236,15 @@ const NewProduct = () => {
                     label="Collect empty products"
                     name="returnable"
                     checked={state.returnable}
+                    onChange={handleCBChange}
+                  />
+                </div>
+                <div className="col-6">
+                  <CFormCheck
+                    id="isFactory"
+                    label="Is this product for bulk order?"
+                    name="isFactory"
+                    checked={state.isFactory}
                     onChange={handleCBChange}
                   />
                 </div>
