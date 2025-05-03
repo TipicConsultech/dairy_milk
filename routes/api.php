@@ -36,6 +36,10 @@ use App\Http\Controllers\MailController;
 // error_reporting(E_ALL);
 
 //-
+use App\Http\Controllers\DailyTallyController;
+
+Route::get('/daily-tallies', [DailyTallyController::class, 'index']);
+
 
 Route::post('/reset-password-link', [MailController::class, 'sendEmail']);
 Route::post('/newPassword',[MailController::class, 'resetPassword']);
@@ -112,6 +116,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/batchByProductId', [ProductsTrackerController::class, 'BatchByProductId']);
     Route::get('/getProductsWithVisibleSizes', [ProductController::class, 'getProductsWithVisibleSizes']);
     Route::post('/newRetailProduct', [CommonController::class, 'newRetailProduct']);
+    Route::post('/createProduct', [CommonController::class, 'createProduct']);
 });
 
 
@@ -186,7 +191,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/company-receipt', [CompanyReceiptController::class, 'store']);
     Route::get('/company-receipts', [CompanyReceiptController::class, 'index']);
 });
-Route::post('/createProduct', [CommonController::class, 'createProduct']);
+
 
 
 
