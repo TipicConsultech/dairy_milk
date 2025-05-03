@@ -14,7 +14,7 @@ function RawMaterial() {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -66,7 +66,6 @@ function RawMaterial() {
   };
 
   const handleAddClick = async (item) => {
-    
     navigate(`/factory-invoice?id=${item.id}`);
   };
 
@@ -107,23 +106,24 @@ function RawMaterial() {
   return (
     <div className="p-0">
 
-<CCardHeader style={{ backgroundColor: '#d4edda', marginBottom:'10px'}} className='p-2 rounded'>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h5 className="mb-0" >Factory Product Inventory </h5> 
-           
-          </div>
-        </CCardHeader>
+      <CCardHeader style={{ backgroundColor: '#d4edda', marginBottom:'10px'}} className='p-2 rounded'>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h5 className="mb-0" >Factory Product Inventory </h5>
+        </div>
+      </CCardHeader>
 
       {/* <h3 className="mb-3">Final Product Inventory</h3> */}
 
-      <div className="d-flex align-items-center col-4 gap-4 mb-3">
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by name"
-          className="form-control"
-        />
+      <div className="d-flex align-items-center mb-3 w-100">
+        <div className="col-12 col-md-8 col-lg-6">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by name"
+            className="form-control"
+          />
+        </div>
         {/* <CButton color="primary" onClick={handleDownload}>
           <CIcon icon={cilArrowThickToBottom} size="sm" className="me-2" />
           Download Template
@@ -150,7 +150,7 @@ function RawMaterial() {
         )} */}
       </div>
 
-      <div className="table-container" style={{ height: '400px', overflow: 'auto' }}>
+      <div className="table-container" style={{ height: '600px', overflow: 'auto' }}>
         <table className="table table-hover table-bordered align-middle">
           <thead className="table-light" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
             <tr>
@@ -159,7 +159,6 @@ function RawMaterial() {
               <th>Capacity</th>
               <th>Stock Indicator</th>
               <th>Available Stock</th>
-             
               <th style={{ width: '100px' }}>Action</th>
             </tr>
           </thead>
@@ -192,7 +191,6 @@ function RawMaterial() {
                   </CBadge>
                 </td>
                 <td>{item.quantity}&nbsp;{item.unit}</td>
-                
                 <td>
                   <button
                     className="btn btn-outline-success btn-sm w-100"

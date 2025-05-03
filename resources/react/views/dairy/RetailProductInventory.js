@@ -14,7 +14,7 @@ function RawMaterial() {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -66,7 +66,7 @@ function RawMaterial() {
   };
 
   const handleAddClick = async (item) => {
-    
+
     navigate(`/invoice?id=${item.id}`);
   };
 
@@ -109,20 +109,21 @@ function RawMaterial() {
 
 <CCardHeader style={{ backgroundColor: '#d4edda', marginBottom:'10px'}} className='p-2 rounded'>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h5 className="mb-0" >Retail Product Inventory </h5> 
-           
+            <h5 className="mb-0" >Retail Product Inventory </h5>
+
           </div>
         </CCardHeader>
 
       {/* <h3 className="mb-3">Final Product Inventory</h3> */}
 
-      <div className="d-flex align-items-center col-4 gap-4 mb-3">
+      <div className="d-flex align-items-center mb-3">
         <input
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search by name"
-          className="form-control"
+          className="form-control w-100"
+          style={{ maxWidth: '500px', width: '100%' }}
         />
         {/* <CButton color="primary" onClick={handleDownload}>
           <CIcon icon={cilArrowThickToBottom} size="sm" className="me-2" />
@@ -150,7 +151,7 @@ function RawMaterial() {
         )} */}
       </div>
 
-      <div className="table-container" style={{ height: '400px', overflow: 'auto' }}>
+      <div className="table-container" style={{ height: '600px', overflow: 'auto' }}>
         <table className="table table-hover table-bordered align-middle">
           <thead className="table-light" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
             <tr>
@@ -159,9 +160,9 @@ function RawMaterial() {
               <th>Stock Indicator</th>
               {/* <th>Weight</th> */}
               <th>Capacity</th>
-             
-              
-             
+
+
+
               <th style={{ width: '100px' }}>Action</th>
             </tr>
           </thead>
@@ -173,7 +174,7 @@ function RawMaterial() {
                 {/* <td>
                 {item.label_value}&nbsp;{item.unit}
                 </td> */}
-                
+
                 <td>
                   <CBadge
                     style={{
@@ -195,7 +196,7 @@ function RawMaterial() {
                   </CBadge>
                 </td>
                 <td>{item.max_stock}</td>
-                
+
                 <td>
                   <button
                     className="btn btn-outline-success btn-sm w-100"
@@ -215,6 +216,11 @@ function RawMaterial() {
           0% { opacity: 1; }
           50% { opacity: 0.5; }
           100% { opacity: 1; }
+        }
+        @media (max-width: 768px) {
+          input.form-control {
+            max-width: 100%;
+          }
         }
       `}</style>
     </div>

@@ -228,7 +228,7 @@ const MilkForm = () => {
     const val = e.target.value;
     setNewProduct(p => ({ ...p, quantity: val }));
   
-    if (productAvailQty !== null && parseFloat(val) > productAvailQty) {
+    if (productAvailQty !== null && parseFloat(val) < productAvailQty) {
       setProdError('Entered quantity exceeds available stock.');
     } else setProdError('');
   };
