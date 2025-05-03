@@ -25,7 +25,7 @@ const NewProduct = () => {
     desc: '',
     multiSize: false,
     show: true,
-    returnable: true,
+    returnable: false,
     showOnHome: true,
     unit: '',
     qty: 0,
@@ -69,7 +69,7 @@ const NewProduct = () => {
         stock: data.qty,
         show: true,
         isFactory: data.isFactory,
-        returnable: data.returnable,
+        returnable: false,
       })
       delete data.oPrice
       delete data.bPrice
@@ -110,7 +110,7 @@ const NewProduct = () => {
       desc: '',
       multiSize: false,
       show: true,
-      returnable: true,
+      returnable: false,
       showOnHome: true,
       qty: 0,
       oPrice: 0,
@@ -230,15 +230,15 @@ const NewProduct = () => {
                     onChange={handleCBChange}
                   />
                 </div>
-                <div className="col-6">
+                {/* <div className="col-6">
                   <CFormCheck
                     id="returnable"
-                    label="Collect empty products"
+                    label="Returnable"
                     name="returnable"
                     checked={state.returnable}
                     onChange={handleCBChange}
                   />
-                </div>
+                </div> */}
                 <div className="col-6">
                   <CFormCheck
                     id="isFactory"

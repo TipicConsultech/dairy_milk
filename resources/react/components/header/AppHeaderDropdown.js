@@ -9,7 +9,7 @@ import {
   CDropdownMenu,
   CDropdownToggle,
 } from '@coreui/react'
-import { cilLockLocked, cilMobile, cilSettings, cilUser } from '@coreui/icons'
+import { cilLockLocked,cilApplications, cilMobile, cilSettings, cilUser } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
 import avatar8 from './../../assets/images/user.webp';
@@ -43,9 +43,14 @@ const AppHeaderDropdown = () => {
         <CDropdownHeader className="bg-body-secondary fw-semibold my-2">Settings</CDropdownHeader>
         
         <CDropdownItem >
-          <Link style={{ textDecoration: 'none', color: 'inherit' }} to="/updatepassword"><CIcon icon={cilSettings} className="me-2" />Password </Link>
+          <Link style={{ textDecoration: 'none', color: 'inherit' }} to="/resetPassword"><CIcon icon={cilSettings} className="me-2" />Password </Link>
         </CDropdownItem>
-
+        <Link to="/sendEmailForResetLink" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <CDropdownItem>
+            <CIcon icon={cilApplications} className="me-2" />
+            Forget Password
+          </CDropdownItem>
+        </Link>
         <CDropdownDivider />
         <CDropdownItem onClick={handleLogout}>
           {/* <button onClick={handleLogout}> */}

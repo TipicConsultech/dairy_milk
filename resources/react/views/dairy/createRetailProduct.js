@@ -317,11 +317,13 @@ const createRetailProduct = () => {
     }
 
     // Ensure ingredients and products are in the correct format
-    const ingredientsData = ingredients.map(ing => ({
-      id: ing.id,
-      name: ing.name,
-      quantity: parseFloat(ing.quantity),
-    }));
+    const ingredientsData = ingredients.length > 0
+    ? ingredients.map(ing => ({
+        id: ing.id,
+        name: ing.name,
+        quantity: parseFloat(ing.quantity),
+      }))
+    : [];
     
     // Format products with size IDs
     const productsData = products.map(prod => ({
@@ -716,8 +718,8 @@ const createRetailProduct = () => {
           </CCardBody>
         </CCard>
 
-        <CButton color="primary" onClick={handleSubmit} disabled={!selectedBatchId || ingredients.length === 0 || products.length === 0}>
-          Submit
+        <CButton color="primary" onClick={handleSubmit} disabled={!selectedBatchId || products.length === 0}>
+        Submit
         </CButton>
    
         {createdSummary && (

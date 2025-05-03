@@ -172,7 +172,7 @@ const Delivery = () => {
       setAllProducts(
         discountedPrices(
           response.filter(
-            (p) => p.show === 1 && p.sizes.length > 0 && p.sizes[0].returnable === 1
+            (p) => p.show === 1 && p.sizes.length > 0 && p.sizes[0].returnable == 1
           )
         )
       );
@@ -239,57 +239,61 @@ const Delivery = () => {
       event.stopPropagation()
       if (isSubmitting) return; // Prevent multiple submissions
       setIsSubmitting(true);
-      //Valdation
-      let isInvalid = false
-      let clonedState = { 
-        ...state,
-        deliveryDate: state.invoiceDate,
-        finalAmount: 0, 
-        deliveryTime: timeNow(),
-        items: [] 
-      };
-      allProducts.forEach((p) => {
-        if(p.dQty > 0 || p.eQty > 0) {
-          const sz = p.sizes[0];
-          let item = {
-            ...p,
-            product_sizes_id: sz.id,
-            size_name: sz.name,
-            size_local_name: sz.localName,
-            oPrice: 0,
-            bPrice: 0,
-            dPrice: 0,
-            total_price: 0,
-            remark: p.remark || 'NA' // Add this line to include the remark
-          };
-          clonedState.items.push({...item});
-        }
-      })
-
-      //Cusetomer name
-      const eligibleToSubmit = clonedState.customer_id > 0 && (clonedState.paidAmount > 0 || clonedState.items.length)
-
-      if (!isInvalid && eligibleToSubmit) {
-        showSpinner();
-        const res = await post('/api/order', { ...clonedState })
-        if (res) {
-          if(res.id){
-            handleClear()
-            showToast('success', t("MSG.order_is_delivered_msg"));
-          }else{
-            showToast('danger', t("MSG.error_occured_msg"));
-          }
-        }
-      } else {
-        showToast('warning',t("MSG.provide_valid_data_msg"));
-        setState(clonedState)
-        setValidated(true)
+      
+      // Validation
+      if (!state.customer_id) {
+        showToast('warning', t("MSG.please_select_customer"));
+        setValidated(true);
+        setIsSubmitting(false);
+        return;
       }
+
+      // Collect JarTracker data from products that have quantities
+      const jarTrackerEntries = allProducts
+      .filter(p => (p.dQty > 0 || p.eQty > 0))
+      .map(p => {
+        const netQuantity = (p.dQty || 0) - (p.eQty || 0); // dQty - eQty
+        const remarkParts = [];
+    
+        if (p.dQty > 0) remarkParts.push(`Delivered ${p.dQty}`);
+        if (p.eQty > 0) remarkParts.push(`Returned ${p.eQty}`);
+        if (p.remark) remarkParts.push(p.remark);
+    
+        return {
+          customer_id: state.customer_id,
+          product_sizes_id: p.sizes[0].id,
+          product_name: p.name,
+          product_local_name: p.localName,
+          quantity: netQuantity,
+          remark: remarkParts.join(' | '),
+        };
+      });
+    
+
+      if (jarTrackerEntries.length === 0) {
+        showToast('warning', t("MSG.please_add_at_least_one_product"));
+        setIsSubmitting(false);
+        return;
+      }
+
+      showSpinner();
+      
+      // Submit each JarTracker entry
+      const savePromises = jarTrackerEntries.map(entry => 
+        post('/api/jarTracker', entry)
+      );
+      
+      await Promise.all(savePromises);
+      
+      showToast('success', t("MSG.delivery_tracker_saved_successfully"));
+      handleClear();
+      
     } catch (error) {
-      showToast('danger', t("MSG.error_placing_the_order_msg"));
+      showToast('danger', t("MSG.error_saving_delivery_tracker") + ': ' + error);
+    } finally {
+      hideSpinner();
+      setIsSubmitting(false);
     }
-    hideSpinner();
-    setIsSubmitting(false);
   });
 
   const handleTotalChange = (e, index) => {
@@ -340,6 +344,7 @@ const Delivery = () => {
     setDeliveryModalVisible(false);
     setValidated(false);
   });
+
   const handleQuantityChange = useCallback((index, qty, key) => {
     const allProductsCopy = [...allProducts];
     allProductsCopy[index][key] = qty;

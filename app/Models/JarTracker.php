@@ -13,8 +13,8 @@ class JarTracker extends Model
         'product_sizes_id',
         'product_name',
         'product_local_name',
-            'crates_quantity',
-            'packets',
+            'quantity',
+            'remark',
         'created_by',
         'updated_by'
     ];

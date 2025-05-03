@@ -74,7 +74,8 @@ const Invoice = () => {
     finalAmount: 0,
     paymentType: 1,
   })
-
+  const [showAlert, setShowAlert] = useState(false);
+  const [message, setMessage] = useState('');
   async function getProductFromParam(){
     try{
       const data=await getAPICall(`/api/productSizes/${id}`);
@@ -97,7 +98,7 @@ const Invoice = () => {
             id:'0',
             dQty: 0,
             eQty: 0,
-            qty: 0,
+            qty: data.qty,
             total_price: 0,
             returnable: data.returnable,
             unit:data.unit
@@ -110,11 +111,11 @@ const Invoice = () => {
     }
   }
 
-  useEffect(()=>{
-    if(id){
-      getProductFromParam();
-    }
-  },[id]);
+  // useEffect(()=>{
+  //   if(id){
+  //     getProductFromParam();
+  //   }
+  // },[id]);
   
   const { showToast } = useToast();
   const [customerName, setCustomerName] = useState({});
@@ -206,20 +207,46 @@ const Invoice = () => {
     const options = ['Select Product']
     options.push(
       ...response
-        .filter((p) => p.show == 1 && p.sizes[0].isFactory == 0)
+        .filter((p) => p.show == 1 && p.sizes[0].isFactory != 1)
         .map((p) => {
           return {
-            label: p.name,
-            value: p.id,
-            disabled: p.show === 0,
+            label: p.sizes[0].name,
+            value: p.sizes[0].id,
+            disabled: p.sizes[0].show === 0,
           }
         }),
     )
-    console.log("Test");
-  
-    console.log(JSON.stringify(options));
-    
     setProducts(options)
+    //Default selected product
+
+    let data = response.filter((p) => p.show == 1 && p.sizes[0].id == id)[0].sizes[0];
+    // alert(JSON.stringify(data));
+    setState(prev => ({
+      ...prev,
+      items: [
+        {
+          product_id: data.product_id.toString(),
+          product_sizes_id: data.id,
+          product_name: data.name, // you can populate this if available in response
+          name: data.name,
+          product_name: data.name,
+          product_local_name: data.localName,
+          localName:data.localName,
+          size_name: data.name,
+          size_local_name: data.localName,
+          oPrice: data.oPrice,
+          bPrice: data.bPrice,
+          dPrice: data.dPrice,
+          id:'0',
+          dQty: 0,
+          eQty: 0,
+          qty: data.qty,
+          total_price: 0,
+          returnable: data.returnable,
+          unit:data.unit
+        },
+      ]
+    }));
   }
 
   const handleAddProductRow = () => {
@@ -353,12 +380,17 @@ const Invoice = () => {
         showSpinner();
         const res = await post('/api/order', { ...clonedState })
         if (res) {
-          handleClear()
+         
           if(res.id){
             showToast('success','Order is delivered.');
             navigate('/invoice-details/'+res.id);
-          }else{
-            showToast('danger','Error occured');
+            setShowAlert(false);
+            setMessage('');
+            handleClear()
+          }if(res.error_message){
+            
+            setShowAlert(true);
+            setMessage(res.error_message);
           }
         }
       } else {
@@ -407,8 +439,14 @@ const Invoice = () => {
       paymentType: 1,
     })
   }
+
   return (
     <CRow>
+       {showAlert && (
+              <CAlert color="danger" onDismiss={() => setShowAlert(false)}>
+                <div>{message}</div>
+              </CAlert>
+            )}
       <NewCustomerModal onSuccess={onCustomerAdded} visible={showCustomerModal} setVisible={setShowCustomerModal}/>
       <CCol xs={12}>
         <CCard className="mb-4">
@@ -575,7 +613,7 @@ const Invoice = () => {
                     <div className="mb-1">
                       <CFormSelect
                         aria-label="Select Product"
-                        value={oitem.product_id}
+                        value={oitem.product_sizes_id}
                         options={products}
                         onChange={() => handleProductChange(event, index)}
                         invalid={oitem.notSelected == true}
@@ -586,14 +624,15 @@ const Invoice = () => {
                   </div>
                  
                   <div className="col-2">
-                    <CFormInput
-                      type="number"
-                      value={oitem.dQty}
-                      invalid={oitem.invalidQty == true}
-                      required
-                      feedbackInvalid={`Max ${oitem.stockQty}`}
-                      onChange={() => handleQtyChange(event, index)}
-                    />
+                  <CFormInput
+                    type="number"
+                    value={oitem.dQty > 0 ? oitem.dQty : ''}
+                    placeholder={`Available Stock :${oitem.qty}`}
+                    invalid={oitem.invalidQty === true}
+                    required
+                    feedbackInvalid={`Max ${oitem.qty}`}
+                    onChange={(event) => handleQtyChange(event, index)}
+                  />
                   </div>
                   <div className="col-2 pt-2">
                     <p>{oitem.dPrice + (oitem.unit ? ' / ' + oitem.unit : '')}</p>
