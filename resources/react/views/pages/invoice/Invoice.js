@@ -447,7 +447,7 @@ const Invoice = () => {
                 <div>{message}</div>
               </CAlert>
             )}
-      <NewCustomerModal onSuccess={onCustomerAdded} visible={showCustomerModal} setVisible={setShowCustomerModal}/>
+       <NewCustomerModal hint={customerName.name} onSuccess={onCustomerAdded} visible={showCustomerModal} setVisible={setShowCustomerModal}/>
       <CCol xs={12}>
         <CCard className="mb-4">
           <CCardHeader>

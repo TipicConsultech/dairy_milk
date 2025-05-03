@@ -39,14 +39,14 @@ class ResetPasswordEmail extends Mailable
     {
         return new Content(
             view: 'emails.mail',
-            with: [
-                'url' => url('http://127.0.0.1:8000/#/updatepassword?token=' . $this->token),
-                'token' => $this->token,
-            ],
             // with: [
-            //     'url' => url('https://samarth-nursery.tipic.co.in/#/updatepassword?token=' . $this->token),
+            //     'url' => url('http://127.0.0.1:8000/#/updatepassword?token=' . $this->token),
             //     'token' => $this->token,
             // ],
+            with: [
+                'url' => url('https://meghmalhar.tipic.co.in/#/updatepassword?token=' . $this->token),
+                'token' => $this->token,
+            ],
         );
     }
 

@@ -70,6 +70,7 @@ const ProcessedMilk=React.lazy(() => import('./views/dairy/ProcessedMilk'))
 const MilkProcessing=React.lazy(() => import('./views/dairy/MilkProcsssing'))
 const DairyFarmInventory=React.lazy(() => import('./views/dairy/DairyFarmInventory'))
 const DeliveryRecord=React.lazy(() => import('./views/dairy/DeliveryRecord'))
+const DailyTallies=React.lazy(() => import('./views/dairy/DailyTallies'))
 
 const LaboratoryUser=React.lazy(() => import('./views/dairy/LaboratoryUser'))
 const FinalProductInvenrty = React.lazy(()=>import('./views/dairy/FinalProductInvenrty'))
@@ -165,6 +166,7 @@ export default function fetchRoutes(){
       { path: '/ProcessedMilk', name: 'ProcessedMilk', element:ProcessedMilk },
       { path: '/MilkProcessing', name: 'MilkProcessing', element:MilkProcessing },
       { path: '/DairyFarmInventory', name: 'DairyFarmInventory', element:DairyFarmInventory } ,
+      { path: '/dailyTallies', name: 'Daily Tallies', element:DailyTallies } ,
       
     
     
