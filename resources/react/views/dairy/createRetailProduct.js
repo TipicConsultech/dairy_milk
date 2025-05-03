@@ -565,7 +565,7 @@ const createRetailProduct = () => {
                 />
                 {ingError && <div className="text-danger mt-1">{ingError}</div>}
               </CCol>
-              <CCol md={3}>
+              {/* <CCol md={3}>
                 <CFormInput
                   type="text"
                   placeholder="Unit"
@@ -583,10 +583,51 @@ const createRetailProduct = () => {
                 >
                   <CIcon icon={cilPlus} />
                 </CButton>
-              </CCol>
+              </CCol> */}
+              {/* Desktop View: separate columns */}
+<CCol md={3} className="d-none d-md-block">
+  <CFormInput
+    type="text"
+    placeholder="Unit"
+    value={newIngredient.unit}
+    disabled
+  />
+</CCol>
+
+<CCol md={2} className="d-none d-md-block">
+  <CButton
+    color="success"
+    variant="outline"
+    onClick={addIngredient}
+    disabled={!!ingError || !newIngredient.name || !newIngredient.quantity}
+  >
+    <CIcon icon={cilPlus} />
+  </CButton>
+</CCol>
+
+{/* Mobile View: unit and + button in the same row */}
+<CCol xs={12} className="d-flex d-md-none justify-content-between align-items-center gap-3">
+  <CFormInput
+    type="text"
+    placeholder="Unit"
+    value={newIngredient.unit}
+    disabled
+    className="w-80"
+  />
+  <CButton
+    color="success"
+    variant="outline"
+    onClick={addIngredient}
+    disabled={!!ingError || !newIngredient.name || !newIngredient.quantity}
+    className="w-auto"
+  >
+    <CIcon icon={cilPlus} />
+  </CButton>
+</CCol>
+
             </CRow>
 
-            {ingredients.map((ing, idx) => (
+            {/* {ingredients.map((ing, idx) => (
               <CRow className="g-3 align-items-center mb-2" key={idx}>
                 <CCol md={4}>
                   <CFormInput value={ing.name} readOnly />
@@ -601,7 +642,33 @@ const createRetailProduct = () => {
                   </CButton>
                 </CCol>
               </CRow>
-            ))}
+            ))} */}
+            {ingredients.map((ing, idx) => (
+  <CRow className="g-3 align-items-center mb-2" key={idx}>
+    {/* Ingredient Name: Full width on mobile, 4 columns on desktop */}
+    <CCol xs={12} md={4}>
+      <CFormInput value={ing.name} readOnly />
+    </CCol>
+
+    {/* Quantity: Half width on mobile, 3 columns on desktop */}
+    <CCol xs={6} md={3}>
+      <CFormInput value={ing.quantity} readOnly />
+    </CCol>
+
+    {/* Unit: Quarter width on mobile, 1 column on desktop */}
+    <CCol xs={3} md={1} className="d-flex align-items-center">
+      {ing.unit}
+    </CCol>
+
+    {/* Delete Button: Quarter width on mobile, 2 columns on desktop */}
+    <CCol xs={3} md={2} className="d-flex justify-content-end">
+      <CButton color="danger" variant="outline" onClick={() => removeIngredient(idx)}>
+        <CIcon icon={cilTrash} />
+      </CButton>
+    </CCol>
+  </CRow>
+))}
+
           </CCardBody>
         </CCard>
 
@@ -680,7 +747,7 @@ const createRetailProduct = () => {
                 {prodError && <div className="text-danger mt-1">{prodError}</div>}
               </CCol>
 
-              <CCol md={3}>
+              {/* <CCol md={3}>
                 <CFormSelect 
                   value={newProduct.sizeId || ''}
                   onChange={handleSizeChange}
@@ -700,10 +767,62 @@ const createRetailProduct = () => {
                   disabled={!!prodError || !newProduct.name || !newProduct.quantity || !newProduct.sizeId}>
                   <CIcon icon={cilPlus}/>
                 </CButton>
-              </CCol>
+              </CCol> */}
+              {/* Desktop View: Separate columns */}
+<CCol md={3} className="d-none d-md-block">
+  <CFormSelect 
+    value={newProduct.sizeId || ''}
+    onChange={handleSizeChange}
+    disabled={!newProduct.sizeOptions || newProduct.sizeOptions.length === 0}
+  >
+    {newProduct.sizeOptions && newProduct.sizeOptions.map((size, i) => (
+      <option key={i} value={size.id}>
+        {size.label_value} {size.unit}
+      </option>
+    ))}
+  </CFormSelect>
+</CCol>
+
+<CCol md={2} className="d-none d-md-block">
+  <CButton
+    color="success"
+    variant="outline"
+    onClick={addProduct}
+    disabled={!!prodError || !newProduct.name || !newProduct.quantity || !newProduct.sizeId}
+  >
+    <CIcon icon={cilPlus} />
+  </CButton>
+</CCol>
+
+{/* Mobile View: Unit dropdown and + button in one row */}
+<CCol xs={12} className="d-flex d-md-none justify-content-between align-items-center gap-3">
+  <CFormSelect 
+    value={newProduct.sizeId || ''}
+    onChange={handleSizeChange}
+    disabled={!newProduct.sizeOptions || newProduct.sizeOptions.length === 0}
+    className="w-80"
+  >
+    {newProduct.sizeOptions && newProduct.sizeOptions.map((size, i) => (
+      <option key={i} value={size.id}>
+        {size.label_value} {size.unit}
+      </option>
+    ))}
+  </CFormSelect>
+
+  <CButton
+    color="success"
+    variant="outline"
+    onClick={addProduct}
+    disabled={!!prodError || !newProduct.name || !newProduct.quantity || !newProduct.sizeId}
+    className="w-auto"
+  >
+    <CIcon icon={cilPlus} />
+  </CButton>
+</CCol>
+
             </CRow>
 
-            {products.map((p,idx) => (
+            {/* {products.map((p,idx) => (
               <CRow className="g-3 align-items-center mb-2" key={idx}>
                 <CCol md={4}><CFormInput value={p.name} readOnly/></CCol>
                 <CCol md={3}><CFormInput value={p.quantity} readOnly/></CCol>
@@ -714,7 +833,33 @@ const createRetailProduct = () => {
                   </CButton>
                 </CCol>
               </CRow>
-            ))}
+            ))} */}
+            {products.map((p, idx) => (
+  <CRow className="g-3 align-items-center mb-2" key={idx}>
+    {/* Product Name: full width on mobile, 4 cols on desktop */}
+    <CCol xs={12} md={4}>
+      <CFormInput value={p.name} readOnly />
+    </CCol>
+
+    {/* Quantity: half on mobile, 3 cols on desktop */}
+    <CCol xs={6} md={3}>
+      <CFormInput value={p.quantity} readOnly />
+    </CCol>
+
+    {/* Unit Display: quarter on mobile, 3 cols on desktop */}
+    <CCol xs={3} md={3} className="d-flex align-items-center">
+      {p.sizeDisplay}
+    </CCol>
+
+    {/* Delete Button: quarter on mobile, 2 cols on desktop */}
+    <CCol xs={3} md={2} className="d-flex justify-content-end">
+      <CButton color="danger" variant="outline" onClick={() => removeProduct(idx)}>
+        <CIcon icon={cilTrash} />
+      </CButton>
+    </CCol>
+  </CRow>
+))}
+
           </CCardBody>
         </CCard>
 

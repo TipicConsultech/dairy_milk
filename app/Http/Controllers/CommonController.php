@@ -913,7 +913,7 @@ public function newRetailProduct(Request $request)
                         'product_name'        => $item['productName'],
                         'product_local_name'  => $item['localName'],
                         'quantity'            => $item['requestedQty'],
-                        'unit'                => $item['unit'],
+                        'unit'                => 'pcs',
                         'batch_no'            => $batchNo,
                     ]);
                 }
