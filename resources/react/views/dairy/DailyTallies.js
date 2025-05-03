@@ -555,8 +555,9 @@ function DailyProductLog() {
         ) : (
           <>
             {/* Tables */}
-            {renderTable(filteredRetailData, 'Retail Product Log', '#f8d7da')}
             {renderTable(filteredFactoryData, 'Factory Product Log', '#E6E6FA')}
+            {renderTable(filteredRetailData, 'Retail Product Log', '#f8d7da')}
+            
 
             {/* Summary Card */}
             <CCard>
@@ -567,6 +568,18 @@ function DailyProductLog() {
               </CCardHeader>
               <CCardBody>
                 <CRow>
+                <CCol md={6}>
+                    <div className="border rounded p-3 h-100">
+                      <h6 className="mb-3 text-primary">Factory Summary</h6>
+                      <p className="mb-2">
+                        <strong>Total Entries:</strong> {filteredFactoryData.length}
+                      </p>
+                      <p className="mb-2">
+                        <strong>Unique Products:</strong> {new Set(filteredFactoryData.map(item => item.product_name)).size}
+                      </p>
+                     
+                    </div>
+                  </CCol>
                   <CCol md={6}>
                     <div className="border rounded p-3 h-100">
                       <h6 className="mb-3 text-danger">Retail Summary</h6>
@@ -579,18 +592,7 @@ function DailyProductLog() {
                       
                     </div>
                   </CCol>
-                  <CCol md={6}>
-                    <div className="border rounded p-3 h-100">
-                      <h6 className="mb-3 text-primary">Factory Summary</h6>
-                      <p className="mb-2">
-                        <strong>Total Entries:</strong> {filteredFactoryData.length}
-                      </p>
-                      <p className="mb-2">
-                        <strong>Unique Products:</strong> {new Set(filteredFactoryData.map(item => item.product_name)).size}
-                      </p>
-                     
-                    </div>
-                  </CCol>
+                 
                 </CRow>
               </CCardBody>
             </CCard>
