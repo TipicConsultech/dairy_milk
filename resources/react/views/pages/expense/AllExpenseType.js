@@ -31,7 +31,7 @@ const AllExpenseType = () => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const { showToast } = useToast();
   const { t } = useTranslation("global");
-  
+
   // New expense type form state
   const [newExpenseModalVisible, setNewExpenseModalVisible] = useState(false);
   const [editExpenseModalVisible, setEditExpenseModalVisible] = useState(false);
@@ -98,15 +98,17 @@ const AllExpenseType = () => {
 
   const handleFormChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     if (type === 'checkbox') {
       setExpenseTypeForm({ ...expenseTypeForm, [name]: checked ? 1 : 0 });
-    } else if (name === 'name' || name === 'localName') {
+    } else if (name === 'name') {
+      // Only restrict the main name field to alphanumeric characters
       const regex = /^[a-zA-Z0-9 ]*$/;
       if (regex.test(value)) {
         setExpenseTypeForm({ ...expenseTypeForm, [name]: value });
       }
     } else {
+      // Allow all characters for localName and other fields
       setExpenseTypeForm({ ...expenseTypeForm, [name]: value });
     }
   };
@@ -117,11 +119,11 @@ const AllExpenseType = () => {
       event.stopPropagation();
     }
     setValidated(true);
-  
+
     if (!expenseTypeForm.name) {
       return;
     }
-  
+
     try {
       // Create a clean object for submission
       const submissionData = {
@@ -132,7 +134,7 @@ const AllExpenseType = () => {
         // Add the slug functionality here
         slug: expenseTypeForm.name.replace(/[^\w]/g, '_'), // This will generate a slug
       };
-  
+
       const resp = await post('/api/expenseType', submissionData);
       if (resp) {
         showToast('success', t("MSG.expense_type_added_successfully_msg") || 'Expense type added successfully');
@@ -145,7 +147,7 @@ const AllExpenseType = () => {
       showToast('danger', 'Error occurred: ' + error);
     }
   };
-  
+
 
   const handleSubmitEditExpenseType = async (event) => {
     if (event) {
@@ -227,10 +229,10 @@ const AllExpenseType = () => {
         onYes={onDelete}
         resource={'Delete expense type - ' + deleteResource?.name}
       />
-      
+
       {/* New Expense Type Modal */}
-      <CModal 
-        visible={newExpenseModalVisible} 
+      <CModal
+        visible={newExpenseModalVisible}
         onClose={() => setNewExpenseModalVisible(false)}
         size="lg"
       >
@@ -265,7 +267,6 @@ const AllExpenseType = () => {
                     name="localName"
                     value={expenseTypeForm.localName}
                     onChange={handleFormChange}
-                    feedbackInvalid={t("MSG.only_alphabets_and_spaces_allowed_msg") || "Only alphabets, numbers and spaces are allowed."}
                   />
                 </div>
               </div>
@@ -288,7 +289,7 @@ const AllExpenseType = () => {
             <div className="row">
               <div className="col-sm-6">
                 <div className="mb-3">
-                  <CFormCheck 
+                  <CFormCheck
                     id="show"
                     label={t("LABELS.visible") || "Visible"}
                     name="show"
@@ -301,14 +302,14 @@ const AllExpenseType = () => {
           </CForm>
         </CModalBody>
         <CModalFooter>
-          <CButton 
-            color="secondary" 
+          <CButton
+            color="secondary"
             onClick={() => setNewExpenseModalVisible(false)}
           >
             {t("LABELS.cancel") || "Cancel"}
           </CButton>
-          <CButton 
-            color="primary" 
+          <CButton
+            color="primary"
             onClick={handleSubmitNewExpenseType}
           >
             {t("LABELS.submit") || "Submit"}
@@ -317,8 +318,8 @@ const AllExpenseType = () => {
       </CModal>
 
       {/* Edit Expense Type Modal */}
-      <CModal 
-        visible={editExpenseModalVisible} 
+      <CModal
+        visible={editExpenseModalVisible}
         onClose={() => setEditExpenseModalVisible(false)}
         size="lg"
       >
@@ -353,7 +354,6 @@ const AllExpenseType = () => {
                     name="localName"
                     value={expenseTypeForm.localName}
                     onChange={handleFormChange}
-                    feedbackInvalid={t("MSG.only_alphabets_and_spaces_allowed_msg") || "Only alphabets, numbers and spaces are allowed."}
                   />
                 </div>
               </div>
@@ -376,7 +376,7 @@ const AllExpenseType = () => {
             <div className="row">
               <div className="col-sm-6">
                 <div className="mb-3">
-                  <CFormCheck 
+                  <CFormCheck
                     id="edit-show"
                     label={t("LABELS.visible") || "Visible"}
                     name="show"
@@ -389,14 +389,14 @@ const AllExpenseType = () => {
           </CForm>
         </CModalBody>
         <CModalFooter>
-          <CButton 
-            color="secondary" 
+          <CButton
+            color="secondary"
             onClick={() => setEditExpenseModalVisible(false)}
           >
             {t("LABELS.cancel") || "Cancel"}
           </CButton>
-          <CButton 
-            color="primary" 
+          <CButton
+            color="primary"
             onClick={handleSubmitEditExpenseType}
           >
             {t("LABELS.update") || "Update"}
@@ -408,18 +408,18 @@ const AllExpenseType = () => {
         <CCard className="mb-4">
           <CCardHeader className="d-flex justify-content-between align-items-center">
             <strong>{t("LABELS.all_expense_types") || "All Expense Types"}</strong>
-            <CButton 
-              color="success" 
+            <CButton
+              color="success"
               onClick={handleNewExpenseTypeClick}
             >
               {t("LABELS.new_expense_type") || "New Expense Type"}
             </CButton>
           </CCardHeader>
           <CCardBody>
-            <MantineReactTable 
-              columns={columns} 
-              data={expenseType} 
-              enableFullScreenToggle={false} 
+            <MantineReactTable
+              columns={columns}
+              data={expenseType}
+              enableFullScreenToggle={false}
             />
           </CCardBody>
         </CCard>

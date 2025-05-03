@@ -462,7 +462,7 @@ const LaboratoryUser = () => {
                             <CButton
                               color="danger"
                               variant="outline"
-                              className="px-4 w-100"
+                              className="w-100 px-1"
                               onClick={() => handleRemoveMilkTank(tank.id, tank.name)}
                             >
                               {t('LABELS.empty2')} {tank.name?.toLowerCase().includes('cow') ? t('LABELS.cow') : t('LABELS.buffalo')} {t('LABELS.tank')}
