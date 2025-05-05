@@ -70,6 +70,29 @@ class ProductController extends Controller
     }
 
 
+    public function getProductsByProductType()
+    {
+        //  where product_type is 1 show only 
+        $products = ProductSize::where('product_type', 1)->get();
+    
+        return response()->json([
+            'status' => true,
+            'products' => $products,
+        ]);
+    }
+
+    public function getProductsByProductTypeForRetail()
+    {
+        //  where product_type is 1 show only 
+        $products = ProductSize::where('product_type', 2)->get();
+    
+        return response()->json([
+            'status' => true,
+            'products' => $products,
+        ]);
+    }
+
+
     public function updateProductStock(Request $request)
 {
     $request->validate([
