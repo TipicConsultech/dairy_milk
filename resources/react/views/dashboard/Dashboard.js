@@ -60,7 +60,8 @@ const Dashboard = (Props) => {
   useEffect(() => {
     try {
       const fetchStock = async () => {
-        const response = await getAPICall('/api/factoryProductStock')
+         const params = new URLSearchParams({type: 1 })
+        const response = await getAPICall(`/api/finalProductInventory?${params.toString()}`);
         setStock(response)
       }
       fetchStock()
@@ -126,18 +127,18 @@ const Dashboard = (Props) => {
                     })
                     .map((p) => {
                       // Calculate the total cost (quantity × price)
-                      const totalCost = p.quantity * (p.price || 0);
+                      const totalCost = p.qty * (p.dPrice || 0);
                       
                       return (
                         <CTableRow key={p.id}>
                           <CTableHeaderCell>{lng === 'en' ? p.name : p.local_name}</CTableHeaderCell>
   
                           <CTableDataCell className="text-center font-weight-bold text-black" style={{ width: '16%' }}>
-                            {p.capacity}
+                            {p.max_stock}
                           </CTableDataCell>
   
                           <CTableDataCell className="text-center font-weight-bold text-black" style={{ width: '16%' }}>
-                            {p.quantity}  {p.unit || '-'}
+                            {p.qty}  {p.unit || '-'}
                           </CTableDataCell>
   
                           <CTableDataCell className="text-center font-weight-bold text-black" style={{ width: '16%' }}>
