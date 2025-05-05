@@ -11,6 +11,7 @@ class DailyTally extends Model
 
     protected $fillable = [
         'company_id',
+        'milk_tank_id',
         'tally_date',
         'product_type',
         'product_id',

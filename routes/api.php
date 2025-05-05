@@ -27,6 +27,7 @@ use App\Http\Controllers\FactoryProductController;
 use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\CompanyReceiptController;
 use App\Http\Controllers\MailController;
+use App\Http\Controllers\MilkTanksTrackerController;
 // Dairy
 // use App\Http\Controllers\MilkTankController;
 
@@ -39,6 +40,8 @@ use App\Http\Controllers\MailController;
 use App\Http\Controllers\DailyTallyController;
 
 Route::get('/daily-tallies', [DailyTallyController::class, 'index']);
+
+Route::get('/milk-tanks/trackers/grouped', [MilkTanksTrackerController::class, 'getGroupedQuantities']);
 
 
 Route::post('/reset-password-link', [MailController::class, 'sendEmail']);

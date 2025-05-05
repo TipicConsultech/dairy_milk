@@ -13,16 +13,17 @@ return new class extends Migration {
         Schema::create('milk_tanks_tracker', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('milk_tank_id');
-            $table->string('milk_tank_name')->nullable();
-            $table->double('quantity')->nullable();
-            $table->unsignedBigInteger('created_by')->nullable();
-            $table->unsignedBigInteger('updated_by')->nullable();
-            $table->timestamp('created_at')->nullable();
-            $table->timestamp('updated_at')->nullable();
-
-            // Foreign key constraint
-            $table->foreign('milk_tank_id')->references('id')->on('milk_tanks');
+            $table->double('opening_balance')->default(0);
+            $table->double('added_quantity')->default(0); // ✅ default value
+            $table->double('updated_quantity')->default(0); // ✅ default value
+            $table->double('snf')->nullable();
+            $table->double('ts')->nullable(); 
+            $table->integer('updated_by')->nullable();
+            $table->timestamps();
+        
+            $table->foreign('milk_tank_id')->references('id')->on('milk_tanks')->onDelete('cascade');
         });
+        
     }
 
     /**
