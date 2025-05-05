@@ -88,7 +88,7 @@ const createRetailProduct = () => {
 
   const fetchFactoryProduct = async () => {
     try {
-      const res = await getAPICall('/api/showAllFactoryProducts')
+      const res = await getAPICall('/api/getProductsByProductType')    // showAllFactoryProducts
       setFactoryProductData(res?.products)
     } catch (err) {
       console.error('Error fetching tank data:', err)
@@ -199,52 +199,89 @@ const createRetailProduct = () => {
   const [productAvailQty, setProductAvailQty] = useState(null);
   
   // Fetch products with sizes
+  // const fetchProducts = async () => {
+  //   try {
+  //     const res = await getAPICall('/api/getProductsByProductTypeForRetail');    //getProductsWithVisibleSizes
+  //     console.log("API Response:", res.products);
+      
+  //     // Store the full product data including sizes
+  //     setPrductsData(res.products);
+      
+  //     // Extract just the product names for the dropdown
+  //     setProductOptions(res.products.filter(x=>x.size[0].isFactory == 0).map(p => p.name));
+  //   } catch (err) {
+  //     console.error('Error fetching products:', err);
+  //   }
+  // };
   const fetchProducts = async () => {
     try {
-      const res = await getAPICall('/api/getProductsWithVisibleSizes');
+      const res = await getAPICall('/api/getProductsByProductTypeForRetail');
       console.log("API Response:", res.products);
-      
-      // Store the full product data including sizes
-      setPrductsData(res.products);
-      
-      // Extract just the product names for the dropdown
-      setProductOptions(res.products.filter(x=>x.size[0].isFactory == 0).map(p => p.name));
+  
+      const filtered = res.products.filter(p => p.isFactory === 0);
+  
+      setPrductsData(filtered);
+  
+      // Use full object instead of just name for easy access on selection
+      setProductOptions(filtered.map(p => ({
+        id: p.id,
+        name: p.name,
+        localName: p.localName,
+        label_value: p.label_value,
+        unit: p.unit,
+        qty: p.qty,
+        sizeId: p.id, // or actual size ID if different
+      })));
     } catch (err) {
       console.error('Error fetching products:', err);
     }
   };
   
+  
   // Handle product selection
-  const handleProductSelect = (productName) => {
-    const selectedProduct = prductsData.find(p => p.name === productName);
+  // const handleProductSelect = (productName) => {
+  //   const selectedProduct = prductsData.find(p => p.name === productName);
     
-    if (selectedProduct) {
-      // Get the sizes for this product
-      const sizesForProduct = selectedProduct.size || [];
+  //   if (selectedProduct) {
+  //     // Get the sizes for this product
+  //     const sizesForProduct = selectedProduct.size || [];
       
-      // Create the new product state with sizes
-      setNewProduct({
-        id: selectedProduct.id,
-        name: productName,
-        quantity: '',
-        unit: selectedProduct.unit || '',
-        sizeId: sizesForProduct.length > 0 ? sizesForProduct[0].id : null,
-        sizeOptions: sizesForProduct
-      });
+  //     // Create the new product state with sizes
+  //     setNewProduct({
+  //       id: selectedProduct.id,
+  //       name: productName,
+  //       quantity: '',
+  //       unit: selectedProduct.unit || '',
+  //       sizeId: sizesForProduct.length > 0 ? sizesForProduct[0].id : null,
+  //       sizeOptions: sizesForProduct
+  //     });
       
-      // If there are sizes, set the available quantity based on first size
-      if (sizesForProduct.length > 0) {
-        setProductAvailQty(sizesForProduct[0].qty);
-      } else {
-        setProductAvailQty(null);
-      }
-    } else {
-      setNewProduct({ name:'', quantity:'', unit:'', sizeId: null, sizeOptions: [] });
-      setProductAvailQty(null);
-    }
+  //     // If there are sizes, set the available quantity based on first size
+  //     if (sizesForProduct.length > 0) {
+  //       setProductAvailQty(sizesForProduct[0].qty);
+  //     } else {
+  //       setProductAvailQty(null);
+  //     }
+  //   } else {
+  //     setNewProduct({ name:'', quantity:'', unit:'', sizeId: null, sizeOptions: [] });
+  //     setProductAvailQty(null);
+  //   }
     
-    setProdError('');
+  //   setProdError('');
+  // };
+  const handleProductSelect = (product) => {
+    setNewProduct({
+      ...newProduct,
+      name: product.name,
+      sizeOptions: [{
+        id: product.sizeId,
+        label_value: product.label_value,
+        unit: product.unit,
+      }],
+      sizeId: product.sizeId,
+    });
   };
+  
 
   const clearProduct = () => {
     setNewProduct({ name:'', quantity:'', unit:'', sizeId: null, sizeOptions: [] });
@@ -565,7 +602,7 @@ const createRetailProduct = () => {
                 />
                 {ingError && <div className="text-danger mt-1">{ingError}</div>}
               </CCol>
-              <CCol md={3}>
+              {/* <CCol md={3}>
                 <CFormInput
                   type="text"
                   placeholder="Unit"
@@ -583,10 +620,51 @@ const createRetailProduct = () => {
                 >
                   <CIcon icon={cilPlus} />
                 </CButton>
-              </CCol>
+              </CCol> */}
+              {/* Desktop View: separate columns */}
+<CCol md={3} className="d-none d-md-block">
+  <CFormInput
+    type="text"
+    placeholder="Unit"
+    value={newIngredient.unit}
+    disabled
+  />
+</CCol>
+
+<CCol md={2} className="d-none d-md-block">
+  <CButton
+    color="success"
+    variant="outline"
+    onClick={addIngredient}
+    disabled={!!ingError || !newIngredient.name || !newIngredient.quantity}
+  >
+    <CIcon icon={cilPlus} />
+  </CButton>
+</CCol>
+
+{/* Mobile View: unit and + button in the same row */}
+<CCol xs={12} className="d-flex d-md-none justify-content-between align-items-center gap-3">
+  <CFormInput
+    type="text"
+    placeholder="Unit"
+    value={newIngredient.unit}
+    disabled
+    className="w-80"
+  />
+  <CButton
+    color="success"
+    variant="outline"
+    onClick={addIngredient}
+    disabled={!!ingError || !newIngredient.name || !newIngredient.quantity}
+    className="w-auto"
+  >
+    <CIcon icon={cilPlus} />
+  </CButton>
+</CCol>
+
             </CRow>
 
-            {ingredients.map((ing, idx) => (
+            {/* {ingredients.map((ing, idx) => (
               <CRow className="g-3 align-items-center mb-2" key={idx}>
                 <CCol md={4}>
                   <CFormInput value={ing.name} readOnly />
@@ -601,7 +679,33 @@ const createRetailProduct = () => {
                   </CButton>
                 </CCol>
               </CRow>
-            ))}
+            ))} */}
+            {ingredients.map((ing, idx) => (
+  <CRow className="g-3 align-items-center mb-2" key={idx}>
+    {/* Ingredient Name: Full width on mobile, 4 columns on desktop */}
+    <CCol xs={12} md={4}>
+      <CFormInput value={ing.name} readOnly />
+    </CCol>
+
+    {/* Quantity: Half width on mobile, 3 columns on desktop */}
+    <CCol xs={6} md={3}>
+      <CFormInput value={ing.quantity} readOnly />
+    </CCol>
+
+    {/* Unit: Quarter width on mobile, 1 column on desktop */}
+    <CCol xs={3} md={1} className="d-flex align-items-center">
+      {ing.unit}
+    </CCol>
+
+    {/* Delete Button: Quarter width on mobile, 2 columns on desktop */}
+    <CCol xs={3} md={2} className="d-flex justify-content-end">
+      <CButton color="danger" variant="outline" onClick={() => removeIngredient(idx)}>
+        <CIcon icon={cilTrash} />
+      </CButton>
+    </CCol>
+  </CRow>
+))}
+
           </CCardBody>
         </CCard>
 
@@ -649,7 +753,7 @@ const createRetailProduct = () => {
                       className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
                       style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
                     >
-                      {productOptions
+                      {/* {productOptions
                         .filter(item => item.toLowerCase().includes(newProduct.name.toLowerCase()))
                         .map((item, index) => (
                           <div 
@@ -663,7 +767,23 @@ const createRetailProduct = () => {
                           >
                             {item}
                           </div>
-                        ))}
+                        ))} */}
+                        {productOptions
+  .filter(item => item.name.toLowerCase().includes(newProduct.name.toLowerCase()))
+  .map((item, index) => (
+    <div
+      key={index}
+      className="p-2 cursor-pointer hover-bg-light"
+      style={{ cursor: 'pointer' }}
+      onClick={() => {
+        handleProductSelect(item);
+        setIsProductsDropdownOpen(false);
+      }}
+    >
+      {item.name} ({item.label_value} {item.unit})
+    </div>
+))}
+
                     </div>
                   )}
                 </div>
@@ -680,7 +800,7 @@ const createRetailProduct = () => {
                 {prodError && <div className="text-danger mt-1">{prodError}</div>}
               </CCol>
 
-              <CCol md={3}>
+              {/* <CCol md={3}>
                 <CFormSelect 
                   value={newProduct.sizeId || ''}
                   onChange={handleSizeChange}
@@ -700,10 +820,62 @@ const createRetailProduct = () => {
                   disabled={!!prodError || !newProduct.name || !newProduct.quantity || !newProduct.sizeId}>
                   <CIcon icon={cilPlus}/>
                 </CButton>
-              </CCol>
+              </CCol> */}
+              {/* Desktop View: Separate columns */}
+<CCol md={3} className="d-none d-md-block">
+  <CFormSelect 
+    value={newProduct.sizeId || ''}
+    onChange={handleSizeChange}
+    disabled={!newProduct.sizeOptions || newProduct.sizeOptions.length === 0}
+  >
+    {newProduct.sizeOptions && newProduct.sizeOptions.map((size, i) => (
+      <option key={i} value={size.id}>
+        {size.label_value} {size.unit}
+      </option>
+    ))}
+  </CFormSelect>
+</CCol>
+
+<CCol md={2} className="d-none d-md-block">
+  <CButton
+    color="success"
+    variant="outline"
+    onClick={addProduct}
+    disabled={!!prodError || !newProduct.name || !newProduct.quantity || !newProduct.sizeId}
+  >
+    <CIcon icon={cilPlus} />
+  </CButton>
+</CCol>
+
+{/* Mobile View: Unit dropdown and + button in one row */}
+<CCol xs={12} className="d-flex d-md-none justify-content-between align-items-center gap-3">
+  <CFormSelect 
+    value={newProduct.sizeId || ''}
+    onChange={handleSizeChange}
+    disabled={!newProduct.sizeOptions || newProduct.sizeOptions.length === 0}
+    className="w-80"
+  >
+    {newProduct.sizeOptions && newProduct.sizeOptions.map((size, i) => (
+      <option key={i} value={size.id}>
+        {size.label_value} {size.unit}
+      </option>
+    ))}
+  </CFormSelect>
+
+  <CButton
+    color="success"
+    variant="outline"
+    onClick={addProduct}
+    disabled={!!prodError || !newProduct.name || !newProduct.quantity || !newProduct.sizeId}
+    className="w-auto"
+  >
+    <CIcon icon={cilPlus} />
+  </CButton>
+</CCol>
+
             </CRow>
 
-            {products.map((p,idx) => (
+            {/* {products.map((p,idx) => (
               <CRow className="g-3 align-items-center mb-2" key={idx}>
                 <CCol md={4}><CFormInput value={p.name} readOnly/></CCol>
                 <CCol md={3}><CFormInput value={p.quantity} readOnly/></CCol>
@@ -714,7 +886,33 @@ const createRetailProduct = () => {
                   </CButton>
                 </CCol>
               </CRow>
-            ))}
+            ))} */}
+            {products.map((p, idx) => (
+  <CRow className="g-3 align-items-center mb-2" key={idx}>
+    {/* Product Name: full width on mobile, 4 cols on desktop */}
+    <CCol xs={12} md={4}>
+      <CFormInput value={p.name} readOnly />
+    </CCol>
+
+    {/* Quantity: half on mobile, 3 cols on desktop */}
+    <CCol xs={6} md={3}>
+      <CFormInput value={p.quantity} readOnly />
+    </CCol>
+
+    {/* Unit Display: quarter on mobile, 3 cols on desktop */}
+    <CCol xs={3} md={3} className="d-flex align-items-center">
+      {p.sizeDisplay}
+    </CCol>
+
+    {/* Delete Button: quarter on mobile, 2 cols on desktop */}
+    <CCol xs={3} md={2} className="d-flex justify-content-end">
+      <CButton color="danger" variant="outline" onClick={() => removeProduct(idx)}>
+        <CIcon icon={cilTrash} />
+      </CButton>
+    </CCol>
+  </CRow>
+))}
+
           </CCardBody>
         </CCard>
 

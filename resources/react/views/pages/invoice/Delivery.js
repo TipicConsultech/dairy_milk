@@ -105,8 +105,8 @@ const Delivery = () => {
     allProductsCopy[index].remark = value;
     setAllProducts([...allProductsCopy]);
   };
-  
-  
+
+
 
   const handleSuggestionClick = (suggestion) => {
     setCustomerName(suggestion);
@@ -161,7 +161,7 @@ const Delivery = () => {
 
   const getDiscountedPrice = useCallback((p, discount) => {
     const value = p.sizes[0].oPrice;
-    const price = value - (value * (discount || (customerName.discount ?? 0)) /100);    
+    const price = value - (value * (discount || (customerName.discount ?? 0)) /100);
     return Math.round(price);
   });
 
@@ -176,7 +176,7 @@ const Delivery = () => {
           )
         )
       );
-      
+
     } catch (error) {
       showToast('danger', 'Error occured ' + error);
     } finally{
@@ -190,7 +190,7 @@ const Delivery = () => {
       const rowTotal = item.total !== undefined && item.total !== null
         ? parseFloat(item.total)
         : (item.dQty ?? 0) * item.sizes[0].dPrice;
-  
+
       total += rowTotal;
     });
     setState((prev) => ({
@@ -199,8 +199,8 @@ const Delivery = () => {
       finalAmount: 0
     }));
   });
-  
-  
+
+
 
   //Disabled location fetching
   // useEffect(()=>{
@@ -215,7 +215,7 @@ const Delivery = () => {
   //     console.log("Your current position is:",`Lat: ${crd.latitude}`,`Long: ${crd.longitude}`,`${crd.accuracy} meters`);
   //     setState((pre)=>({...pre, lat: crd.latitude, long: crd.longitude}))
   //   }
-  
+
   //   function errors(err) {
   //     console.warn(`ERROR(${err.code}): ${err.message}`);
   //   }
@@ -239,7 +239,7 @@ const Delivery = () => {
       event.stopPropagation()
       if (isSubmitting) return; // Prevent multiple submissions
       setIsSubmitting(true);
-      
+
       // Validation
       if (!state.customer_id) {
         showToast('warning', t("MSG.please_select_customer"));
@@ -254,11 +254,11 @@ const Delivery = () => {
       .map(p => {
         const netQuantity = (p.dQty || 0) - (p.eQty || 0); // dQty - eQty
         const remarkParts = [];
-    
+
         if (p.dQty > 0) remarkParts.push(`Delivered ${p.dQty}`);
         if (p.eQty > 0) remarkParts.push(`Returned ${p.eQty}`);
         if (p.remark) remarkParts.push(p.remark);
-    
+
         return {
           customer_id: state.customer_id,
           product_sizes_id: p.sizes[0].id,
@@ -268,7 +268,7 @@ const Delivery = () => {
           remark: remarkParts.join(' | '),
         };
       });
-    
+
 
       if (jarTrackerEntries.length === 0) {
         showToast('warning', t("MSG.please_add_at_least_one_product"));
@@ -277,17 +277,17 @@ const Delivery = () => {
       }
 
       showSpinner();
-      
+
       // Submit each JarTracker entry
-      const savePromises = jarTrackerEntries.map(entry => 
+      const savePromises = jarTrackerEntries.map(entry =>
         post('/api/jarTracker', entry)
       );
-      
+
       await Promise.all(savePromises);
-      
+
       showToast('success', t("MSG.delivery_tracker_saved_successfully"));
       handleClear();
-      
+
     } catch (error) {
       showToast('danger', t("MSG.error_saving_delivery_tracker") + ': ' + error);
     } finally {
@@ -303,9 +303,9 @@ const Delivery = () => {
     setAllProducts(updatedProducts);
     calculateTotal(updatedProducts); // <-- ADD THIS
   };
-  
-  
-  
+
+
+
 
   const handleClear = useCallback(async () => {
     setState({
@@ -362,25 +362,25 @@ const Delivery = () => {
   const handleQuantityChangeRate = useCallback((index, qty, key) => {
     const allProductsCopy = [...allProducts];
     allProductsCopy[index][key] = qty;
-  
+
     // Reset manual total when qty changes
     allProductsCopy[index].total = allProductsCopy[index].sizes[0].default_qty * allProductsCopy[index].dQty;
-  
+
     setAllProducts([...allProductsCopy]);
     calculateTotal(allProductsCopy);
   });
-  
+
   const handlePriceChangeRate = useCallback((index, price) => {
     const allProductsCopy = [...allProducts];
     allProductsCopy[index].sizes[0].dPrice = price;
-  
+
     // Reset manual total when price changes
     allProductsCopy[index].total = price * allProductsCopy[index].dQty;
-  
+
     setAllProducts([...allProductsCopy]);
     calculateTotal(allProductsCopy);
   });
-  
+
 
   const handleDelete = useCallback((order) => {
     setOrder(order);
@@ -460,9 +460,9 @@ const Delivery = () => {
                   autoComplete='off'
                   required
                 />
-                <CIcon 
-                    icon={cilSearch} 
-                    style={{ cursor: 'pointer', position: 'absolute', marginRight: '10px', right: '10px', top: '10px' }} 
+                <CIcon
+                    icon={cilSearch}
+                    style={{ cursor: 'pointer', position: 'absolute', marginRight: '10px', right: '10px', top: '10px' }}
                     onClick={() => setShowAllCustomerModal(true)}
                   />
                 {customerName.name?.length > 0 && (
@@ -514,7 +514,7 @@ const Delivery = () => {
                   {
                     customerHistory.returnEmptyProducts.filter(p=>p.quantity>0).map(p=>(<React.Fragment key={p.id}>
                     <br/>{t("LABELS.collect")} <strong className="text-danger"> {p.quantity} </strong> {t("LABELS.empty")}  <strong className="text-danger"> {lng === 'en' ? p.product_name : p.product_local_name} </strong>
-                    {p.last_remark && 
+                    {p.last_remark &&
                         <span className="text-muted"> - ({p.last_remark})</span>
                       }
                     </React.Fragment>))
@@ -606,9 +606,9 @@ const Delivery = () => {
                         {lng === 'en' ? p.name : p.localName}
                       </CFormLabel>
                       <div className="input-group">
-                      <button 
-                        className="btn btn-danger" 
-                        type="button" 
+                      <button
+                        className="btn btn-danger"
+                        type="button"
                         onClick={() => {
                           handleQuantityChange(index, Math.max(0, (p.dQty ?? 1) - 1),'dQty')
                         }}
@@ -626,9 +626,9 @@ const Delivery = () => {
                         }}
                         min="0"
                       />
-                      <button 
-                        className="btn btn-success" 
-                        type="button" 
+                      <button
+                        className="btn btn-success"
+                        type="button"
                         onClick={() => {
                           handleQuantityChangeRate(index, Math.max(0, (p.dQty ?? 0) + 1),'dQty')
                         }}
@@ -663,7 +663,7 @@ const Delivery = () => {
   <CFormLabel htmlFor="remark">{t("LABELS.remark")}</CFormLabel>
   <CFormInput
     type="text"
-    placeholder="Enter Remark"
+    placeholder={t("LABELS.enterRemark")}
     value={p.remark || ''}
     onChange={(e) => handleRemarkChange(index, e.target.value)}
   />
@@ -687,9 +687,9 @@ const Delivery = () => {
                     {p.sizes[0].returnable === 1 && <div className="col-6 mb-3 pr-5" >
                       <CFormLabel htmlFor="product">{t("LABELS.empty")} {lng === 'en' ? p.name : p.localName}</CFormLabel>
                       <div className="input-group">
-                        <button 
-                          className="btn btn-danger" 
-                          type="button" 
+                        <button
+                          className="btn btn-danger"
+                          type="button"
                           onClick={() => handleQuantityChange(index, Math.max(0, (p.eQty ?? 0) - 1),'eQty')}
                         >
                           -
@@ -705,9 +705,9 @@ const Delivery = () => {
                           }}
                           min="0"
                         />
-                        <button 
-                          className="btn btn-success" 
-                          type="button" 
+                        <button
+                          className="btn btn-success"
+                          type="button"
                           onClick={() => handleQuantityChange(index, Math.min(parseInt(p.eQty ?? '0') + 1, (customerHistory?.returnEmptyProducts?.find((itm)=> itm.product_sizes_id === p.sizes[0].id)?.quantity ?? 0)),'eQty')}
                         >
                           +
@@ -721,9 +721,9 @@ const Delivery = () => {
             <div className="side-by-side">
               <CButton type="submit" color="success">{t("LABELS.submit")}</CButton>
               &nbsp; &nbsp;
-              <CButton className='mr-20' type="button" onClick={handleClear} color="danger">{t("LABELS.clear")}</CButton> 
+              <CButton className='mr-20' type="button" onClick={handleClear} color="danger">{t("LABELS.clear")}</CButton>
             </div>
-           
+
           </CForm>
         </CCardBody>
       </CCard>

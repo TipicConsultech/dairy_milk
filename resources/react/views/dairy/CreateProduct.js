@@ -186,7 +186,7 @@ const MilkForm = () => {
   // ---------- fetch once ----------
   const fetchProducts = async () => {
     try {
-      const res = await getAPICall('/api/showAllFactoryProducts');
+      const res = await getAPICall('/api/getProductsByProductType');
   
       // convert { id, name, qty } -> { id, name, quantity }
       const normalized = res.products.map(p => ({
@@ -228,7 +228,7 @@ const MilkForm = () => {
     const val = e.target.value;
     setNewProduct(p => ({ ...p, quantity: val }));
   
-    if (productAvailQty !== null && parseFloat(val) > productAvailQty) {
+    if (productAvailQty !== null && parseFloat(val) < productAvailQty) {
       setProdError('Entered quantity exceeds available stock.');
     } else setProdError('');
   };
@@ -350,6 +350,7 @@ const MilkForm = () => {
 
   return (
     <CCard className="mb-4">
+     
       <CCardHeader style={{ backgroundColor: '#d4edda'}}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h5 className="mb-0" >{t('LABELS.create_product')}</h5>  
@@ -490,7 +491,7 @@ const MilkForm = () => {
                 />
                 {ingError && <div className="text-danger mt-1">{ingError}</div>}
               </CCol>
-              <CCol md={3}>
+              {/* <CCol md={3}>
                 <CFormInput
                   type="text"
                   placeholder="Unit"
@@ -508,10 +509,51 @@ const MilkForm = () => {
                 >
                   <CIcon icon={cilPlus} />
                 </CButton>
-              </CCol>
+              </CCol> */}
+{/* Desktop View */}
+<CCol md={3} className="d-none d-md-block">
+  <CFormInput
+    type="text"
+    placeholder="Unit"
+    value={newIngredient.unit}
+    disabled
+  />
+</CCol>
+
+<CCol md={2} className="d-none d-md-block">
+  <CButton
+    color="success"
+    variant="outline"
+    onClick={addIngredient}
+    disabled={!!ingError || !newIngredient.name || !newIngredient.quantity}
+  >
+    <CIcon icon={cilPlus} />
+  </CButton>
+</CCol>
+
+{/* Mobile View */}
+<CCol xs={12} className="d-flex d-md-none justify-content-between align-items-center gap-3">
+  <CFormInput
+    type="text"
+    placeholder="Unit"
+    value={newIngredient.unit}
+    disabled
+    className="w-80"
+  />
+  <CButton
+    color="success"
+    variant="outline"
+    onClick={addIngredient}
+    disabled={!!ingError || !newIngredient.name || !newIngredient.quantity}
+    className="w-auto"
+  >
+    <CIcon icon={cilPlus} />
+  </CButton>
+</CCol>
+
             </CRow>
 
-            {ingredients.map((ing, idx) => (
+            {/* {ingredients.map((ing, idx) => (
               <CRow className="g-3 align-items-center mb-2" key={idx}>
                 <CCol md={4}>
                   <CFormInput value={ing.name} readOnly />
@@ -526,7 +568,35 @@ const MilkForm = () => {
                   </CButton>
                 </CCol>
               </CRow>
-            ))}
+            ))} */}
+            {ingredients.map((ing, idx) => (
+  <CRow className="g-3 align-items-center mb-2" key={idx}>
+
+    {/* Name: full width on mobile, 4 cols on desktop */}
+    <CCol xs={12} md={4}>
+      <CFormInput value={ing.name} readOnly />
+    </CCol>
+
+    {/* Quantity: half width on mobile, 3 cols on desktop */}
+    <CCol xs={6} md={3}>
+      <CFormInput value={ing.quantity} readOnly />
+    </CCol>
+
+    {/* Unit: 3 cols on mobile, 1 on desktop */}
+    <CCol xs={3} md={1} className="d-flex align-items-center">
+      {ing.unit}
+    </CCol>
+
+    {/* Delete Button: 3 cols on mobile, 2 on desktop */}
+    <CCol xs={3} md={2} className="d-flex justify-content-end">
+      <CButton color="danger" variant="outline" onClick={() => removeIngredient(idx)}>
+        <CIcon icon={cilTrash} />
+      </CButton>
+    </CCol>
+
+  </CRow>
+))}
+
           </CCardBody>
         </CCard>
 
@@ -613,7 +683,7 @@ const MilkForm = () => {
                 {prodError && <div className="text-danger mt-1">{prodError}</div>}
               </CCol>
 
-              <CCol md={3}>
+              {/* <CCol md={3}>
                 <CFormInput type="text" value={newProduct.unit} placeholder="Unit" disabled />
               </CCol>
 
@@ -623,10 +693,51 @@ const MilkForm = () => {
                   disabled={!!prodError || !newProduct.name || !newProduct.quantity}>
                   <CIcon icon={cilPlus}/>
                 </CButton>
-              </CCol>
+              </CCol> */}
+              {/* Desktop View: unit and + button in separate columns */}
+<CCol md={3} className="d-none d-md-block">
+  <CFormInput
+    type="text"
+    value={newProduct.unit}
+    placeholder="Unit"
+    disabled
+  />
+</CCol>
+
+<CCol md={2} className="d-none d-md-block">
+  <CButton
+    color="success"
+    variant="outline"
+    onClick={addProduct}
+    disabled={!!prodError || !newProduct.name || !newProduct.quantity}
+  >
+    <CIcon icon={cilPlus} />
+  </CButton>
+</CCol>
+
+{/* Mobile View: unit and + button in the same row */}
+<CCol xs={12} className="d-flex d-md-none justify-content-between align-items-center gap-3">
+  <CFormInput
+    type="text"
+    value={newProduct.unit}
+    placeholder="Unit"
+    disabled
+    className="w-80"
+  />
+  <CButton
+    color="success"
+    variant="outline"
+    onClick={addProduct}
+    disabled={!!prodError || !newProduct.name || !newProduct.quantity}
+    className="w-auto"
+  >
+    <CIcon icon={cilPlus} />
+  </CButton>
+</CCol>
+
             </CRow>
 
-            {products.map((p,idx)=>(
+            {/* {products.map((p,idx)=>(
               <CRow className="g-3 align-items-center mb-2" key={idx}>
                 <CCol md={4}><CFormInput value={p.name} readOnly/></CCol>
                 <CCol md={3}><CFormInput value={p.quantity} readOnly/></CCol>
@@ -637,7 +748,35 @@ const MilkForm = () => {
                   </CButton>
                 </CCol>
               </CRow>
-            ))}
+            ))} */}
+            {products.map((p, idx) => (
+  <CRow className="g-3 align-items-center mb-2" key={idx}>
+
+    {/* Product Name: full width on mobile, 4 cols on desktop */}
+    <CCol xs={12} md={4}>
+      <CFormInput value={p.name} readOnly />
+    </CCol>
+
+    {/* Quantity: half on mobile, 3 cols on desktop */}
+    <CCol xs={6} md={3}>
+      <CFormInput value={p.quantity} readOnly />
+    </CCol>
+
+    {/* Unit: quarter on mobile, 1 col on desktop */}
+    <CCol xs={3} md={1} className="d-flex align-items-center">
+      {p.unit}
+    </CCol>
+
+    {/* Delete Button: quarter on mobile, 2 cols on desktop */}
+    <CCol xs={3} md={2} className="d-flex justify-content-end">
+      <CButton color="danger" variant="outline" onClick={() => removeProduct(idx)}>
+        <CIcon icon={cilTrash} />
+      </CButton>
+    </CCol>
+
+  </CRow>
+))}
+
           </CCardBody>
         </CCard>
 
