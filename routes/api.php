@@ -114,9 +114,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/uniqueBatchNumbers', [ProductsTrackerController::class, 'getUniqueBatchNumbers']);
     Route::post('/productInBatch', [ProductsTrackerController::class, 'productInBatch']);
     Route::post('/batchByProductId', [ProductsTrackerController::class, 'BatchByProductId']);
-    Route::get('/getProductsWithVisibleSizes', [ProductController::class, 'getProductsWithVisibleSizes']);
+    Route::get('/getProductsWithVisibleSizes', [ProductController::class, 'getProductsWithVisibleSizes']); // TODO - Need to remove not used
     Route::post('/newRetailProduct', [CommonController::class, 'newRetailProduct']);
-    Route::post('/createProduct', [CommonController::class, 'createProduct']);
+    Route::post('/createProduct', [CommonController::class, 'createProduct']); 
+    Route::get('/getProductsByProductType', [ProductController::class, 'getProductsByProductType']);  
+    Route::get('/getProductsByProductTypeForRetail', [ProductController::class, 'getProductsByProductTypeForRetail']);
 });
 
 

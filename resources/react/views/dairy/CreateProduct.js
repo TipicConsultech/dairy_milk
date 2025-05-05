@@ -186,7 +186,7 @@ const MilkForm = () => {
   // ---------- fetch once ----------
   const fetchProducts = async () => {
     try {
-      const res = await getAPICall('/api/showAllFactoryProducts');
+      const res = await getAPICall('/api/getProductsByProductType');
   
       // convert { id, name, qty } -> { id, name, quantity }
       const normalized = res.products.map(p => ({

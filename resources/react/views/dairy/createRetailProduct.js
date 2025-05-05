@@ -88,7 +88,7 @@ const createRetailProduct = () => {
 
   const fetchFactoryProduct = async () => {
     try {
-      const res = await getAPICall('/api/showAllFactoryProducts')
+      const res = await getAPICall('/api/getProductsByProductType')    // showAllFactoryProducts
       setFactoryProductData(res?.products)
     } catch (err) {
       console.error('Error fetching tank data:', err)
@@ -199,52 +199,89 @@ const createRetailProduct = () => {
   const [productAvailQty, setProductAvailQty] = useState(null);
   
   // Fetch products with sizes
+  // const fetchProducts = async () => {
+  //   try {
+  //     const res = await getAPICall('/api/getProductsByProductTypeForRetail');    //getProductsWithVisibleSizes
+  //     console.log("API Response:", res.products);
+      
+  //     // Store the full product data including sizes
+  //     setPrductsData(res.products);
+      
+  //     // Extract just the product names for the dropdown
+  //     setProductOptions(res.products.filter(x=>x.size[0].isFactory == 0).map(p => p.name));
+  //   } catch (err) {
+  //     console.error('Error fetching products:', err);
+  //   }
+  // };
   const fetchProducts = async () => {
     try {
-      const res = await getAPICall('/api/getProductsWithVisibleSizes');
+      const res = await getAPICall('/api/getProductsByProductTypeForRetail');
       console.log("API Response:", res.products);
-      
-      // Store the full product data including sizes
-      setPrductsData(res.products);
-      
-      // Extract just the product names for the dropdown
-      setProductOptions(res.products.filter(x=>x.size[0].isFactory == 0).map(p => p.name));
+  
+      const filtered = res.products.filter(p => p.isFactory === 0);
+  
+      setPrductsData(filtered);
+  
+      // Use full object instead of just name for easy access on selection
+      setProductOptions(filtered.map(p => ({
+        id: p.id,
+        name: p.name,
+        localName: p.localName,
+        label_value: p.label_value,
+        unit: p.unit,
+        qty: p.qty,
+        sizeId: p.id, // or actual size ID if different
+      })));
     } catch (err) {
       console.error('Error fetching products:', err);
     }
   };
   
+  
   // Handle product selection
-  const handleProductSelect = (productName) => {
-    const selectedProduct = prductsData.find(p => p.name === productName);
+  // const handleProductSelect = (productName) => {
+  //   const selectedProduct = prductsData.find(p => p.name === productName);
     
-    if (selectedProduct) {
-      // Get the sizes for this product
-      const sizesForProduct = selectedProduct.size || [];
+  //   if (selectedProduct) {
+  //     // Get the sizes for this product
+  //     const sizesForProduct = selectedProduct.size || [];
       
-      // Create the new product state with sizes
-      setNewProduct({
-        id: selectedProduct.id,
-        name: productName,
-        quantity: '',
-        unit: selectedProduct.unit || '',
-        sizeId: sizesForProduct.length > 0 ? sizesForProduct[0].id : null,
-        sizeOptions: sizesForProduct
-      });
+  //     // Create the new product state with sizes
+  //     setNewProduct({
+  //       id: selectedProduct.id,
+  //       name: productName,
+  //       quantity: '',
+  //       unit: selectedProduct.unit || '',
+  //       sizeId: sizesForProduct.length > 0 ? sizesForProduct[0].id : null,
+  //       sizeOptions: sizesForProduct
+  //     });
       
-      // If there are sizes, set the available quantity based on first size
-      if (sizesForProduct.length > 0) {
-        setProductAvailQty(sizesForProduct[0].qty);
-      } else {
-        setProductAvailQty(null);
-      }
-    } else {
-      setNewProduct({ name:'', quantity:'', unit:'', sizeId: null, sizeOptions: [] });
-      setProductAvailQty(null);
-    }
+  //     // If there are sizes, set the available quantity based on first size
+  //     if (sizesForProduct.length > 0) {
+  //       setProductAvailQty(sizesForProduct[0].qty);
+  //     } else {
+  //       setProductAvailQty(null);
+  //     }
+  //   } else {
+  //     setNewProduct({ name:'', quantity:'', unit:'', sizeId: null, sizeOptions: [] });
+  //     setProductAvailQty(null);
+  //   }
     
-    setProdError('');
+  //   setProdError('');
+  // };
+  const handleProductSelect = (product) => {
+    setNewProduct({
+      ...newProduct,
+      name: product.name,
+      sizeOptions: [{
+        id: product.sizeId,
+        label_value: product.label_value,
+        unit: product.unit,
+      }],
+      sizeId: product.sizeId,
+    });
   };
+  
 
   const clearProduct = () => {
     setNewProduct({ name:'', quantity:'', unit:'', sizeId: null, sizeOptions: [] });
@@ -716,7 +753,7 @@ const createRetailProduct = () => {
                       className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
                       style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
                     >
-                      {productOptions
+                      {/* {productOptions
                         .filter(item => item.toLowerCase().includes(newProduct.name.toLowerCase()))
                         .map((item, index) => (
                           <div 
@@ -730,7 +767,23 @@ const createRetailProduct = () => {
                           >
                             {item}
                           </div>
-                        ))}
+                        ))} */}
+                        {productOptions
+  .filter(item => item.name.toLowerCase().includes(newProduct.name.toLowerCase()))
+  .map((item, index) => (
+    <div
+      key={index}
+      className="p-2 cursor-pointer hover-bg-light"
+      style={{ cursor: 'pointer' }}
+      onClick={() => {
+        handleProductSelect(item);
+        setIsProductsDropdownOpen(false);
+      }}
+    >
+      {item.name} ({item.label_value} {item.unit})
+    </div>
+))}
+
                     </div>
                   )}
                 </div>
