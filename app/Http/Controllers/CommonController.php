@@ -641,7 +641,7 @@ public function createProduct(Request $request)
             ]);
         }
 
-        $tank->quantity -= $tankReq['quantity'];
+        $tank->quantity -= $payload['milkTank']['quantity'];
         $tank->save();
 
         if (!empty($payload['productSizes'])) {
@@ -664,50 +664,37 @@ public function createProduct(Request $request)
                     ]);
                 }
 
-                $tracker = ProductsTracker::create([
-                    'factory_product_id' => $size->id,
-                    'processed_id'       => $processing->id,
-                    'packaging_id'       => $packagingId,
-                    'product_qty'        => $ps['qty'],
-                    'milkUsed'           => $payload['milkTank']['quantity'],
-                    'batch_no'           => $batchNo,
-                    'misc'               => null,
-                    'created_by'         => $userId ,
-                    'updated_by'         => $userId ,
-                ]);
-                \Log::info("Created product tracker with ID: {$tracker->id}");
-                
-                
-                $user = Auth::user();
-                
-                try {
-                    if ($user && isset($user->company_id)) {
-                        $tally = DailyTally::create([
-                            'company_id'          => $user->company_id,
-                            'tally_date'          => now()->toDateString(),
-                            'product_type'        => 'factory',
-                            'product_id'          => $size->id,
-                            'product_name'        => $size->name,
-                            'product_local_name'  => $size->local_name ?? null,
-                            'quantity'            => $ps['qty'],
-                            'unit'                => $size->unit ?? null,
-                            'batch_no'            => $batchNo,
-                        ]);
-                        \Log::info("Created daily tally with ID: {$tally->id}");
-                    } else {
-                        \Log::warning("Could not create DailyTally: No company_id available");
-                    }
-                } catch (\Exception $e) {
-                    // Log the error but don't fail the whole transaction
-                    \Log::error("Failed to create DailyTally: {$e->getMessage()}");
+                // Insert processed_id from ProcessedIngredients into ProductsTracker
+                foreach ($processedIngredients as $processed_id) {
+                    ProductsTracker::create([
+                        'product_size_id' => $size->id,
+                        'processed_id'    => $processed_id, // Correct foreign key here
+                        'packaging_id'    => $packagingId,
+                        'product_qty'     => $ps['qty'],
+                        'milkUsed'        => $payload['milkTank']['quantity'],
+                        'batch_no'        => $batchNo,
+                        'misc'            => null,
+                        'created_by'      => $userId,
+                        'updated_by'      => $userId,
+                    ]);
+                }
+
+                if ($companyId) {
+                    DailyTally::create([
+                        'company_id'         => $companyId,
+                        'tally_date'         => now()->toDateString(),
+                        'product_type'       => 'factory',
+                        'product_id'         => $size->id,
+                        'product_name'       => $size->name,
+                        'product_local_name' => $size->localName ?? null,
+                        'quantity'           => $ps['qty'],
+                        'unit'               => $size->unit ?? null,
+                        'batch_no'           => $batchNo,
+                    ]);
                 }
             }
-        } else {
-            \Log::info("No product sizes to process");
         }
 
-        /* ───── 6. COMMIT & RESPOND ───── */
-        \Log::info("5. Committing transaction");
         DB::commit();
 
         return response()->json([
@@ -1068,184 +1055,34 @@ public function createProduct(Request $request)
 
     
 // }
-// public function newRetailProduct(Request $request)
-// {
-//     // Get request parameters
-//     $batchId = $request->batch;
-//     $productSizes = $request->productSizes; // [{id: 6, name: "paneer", qty: 1900}]
-//     $rawMaterials = $request->rawMaterials;
-//     $factoryProductId = $request->factoryProductId;
-//     $milkTankId = $request->milk_tank_id;
-
-//     // Get authenticated user
-//     $user = auth()->user();
-//     if (!$user) {
-//         return response()->json(['error' => 'Authentication required'], 401);
-//     }
-
-//     // Note: Commented out batch check as it appears to be unused in your original code
-//     // === Step 1: Check if batch exists ===
-//     // $productTracker = ProductsTracker::where('id', $batchId)->first();
-//     // if (!$productTracker) {
-//     //     return response()->json(['error' => 'Batch not found'], 404);
-//     // }
-//     // if ($productTracker->product_qty <= 0) {
-//     //     return response()->json(['error' => 'Insufficient product quantity in tracker'], 400);
-//     // }
-
-//     DB::beginTransaction();
-
-//     try {
-//         // === Step 2: Deduct raw materials ===
-//         foreach ($rawMaterials as $material) {
-//             $materialRecord = RawMaterial::find($material['id']);
-
-//             if (!$materialRecord) {
-//                 throw new \Exception("Raw material with ID {$material['id']} not found");
-//             }
-
-//             $newQty = $materialRecord->unit_qty - $material['quantity'];
-
-//             if ($newQty < 0) {
-//                 throw new \Exception("Not enough quantity of {$material['name']} (ID: {$material['id']})");
-//             }
-
-//             $materialRecord->unit_qty = $newQty;
-//             $materialRecord->save();
-//         }
-
-//         // === Step 3: Calculate total real quantity from productSizes ===
-//         $totalRealQty = 0;
-//         $realQuantities = [];
-
-//         foreach ($productSizes as $product) {
-//             $productSize = ProductSize::find($product['id']);
-
-//             if (!$productSize) {
-//                 throw new \Exception("Product size with ID {$product['id']} not found");
-//             }
-
-//             // Make sure unit_multiplier exists; if not, default to 1
-//             $unitMultiplier = $productSize->unit_multiplier ?? 1;
-//             $realQty = $unitMultiplier * $product['qty'];
-//             $totalRealQty += $realQty;
-
-//             $realQuantities[] = [
-//                 'id' => $product['id'],
-//                 'realQty' => $realQty,
-//                 'requestedQty' => $product['qty'],
-//                 'productName' => $productSize->name,
-//                 'localName' => $productSize->localName ?? $productSize->local_name ?? null,
-//                 'unit' => $productSize->unit ?? null
-//             ];
-//         }
-
-//         // === Step 4: Deduct realQty from FactoryProduct ===
-//         $factoryProduct = FactoryProduct::find($factoryProductId);
-
-//         if (!$factoryProduct) {
-//             throw new \Exception("Factory product with ID {$factoryProductId} not found");
-//         }
-
-//         $newFactoryQty = $factoryProduct->quantity - $totalRealQty;
-
-//         if ($newFactoryQty < 0) {
-//             throw new \Exception("Not enough stock in factory product ID {$factoryProductId} for deduction.");
-//         }
-
-//         $factoryProduct->quantity = $newFactoryQty;
-//         $factoryProduct->save();
-
-//         // === Step 5: Add request->qty to ProductSize, and build response
-//         $updatedProducts = [];
-//         $batchNo = 'retail-' . now()->format('Y-m-d-H-i-s'); // Generate a batch number for retail products
-
-//         foreach ($realQuantities as $item) {
-//             // Update ProductSize and track update
-//             $productSize = ProductSize::find($item['id']);
-//             if ($productSize) {
-//                 $previousQty = $productSize->qty;
-//                 $productSize->qty = $previousQty + $item['requestedQty'];
-//                 $productSize->save();
-
-//                 $updatedProducts[] = [
-//                     'product_name' => $item['productName'],
-//                     'created_quantity' => $item['requestedQty'],
-//                     'previous_quantity' => $previousQty,
-//                     'updated_quantity' => $productSize->qty,
-//                 ];
-//                 \Log::info('milk_tank_id used in DailyTally', ['milk_tank_id' => $milkTankId]);
-
-//                 // Create DailyTally record for each product
-//                 if (isset($user->company_id)) {
-//                     DailyTally::create([
-//                         'company_id'          => $user->company_id,
-//                         'milk_tank_id'         =>$milkTankId,
-//                         'tally_date'          => now()->toDateString(),
-//                         'product_type'        => 'retail',
-//                         'product_id'          => $productSize->id,
-//                         'product_name'        => $item['productName'],
-//                         'product_local_name'  => $item['localName'],
-//                         'quantity'            => $item['requestedQty'],
-//                         'unit'                => 'pcs',
-//                         'batch_no'            => $batchNo,
-//                     ]);
-//                 }
-//             }
-//         }
-
-//         DB::commit();
-
-//         return response()->json([
-//             'success' => true,
-//             'deducted_real_quantity' => $totalRealQty,
-//             'message' => $updatedProducts,
-//             'batch_no' => $batchNo
-//         ]);
-
-//     } catch (\Exception $e) {
-//         DB::rollBack();
-//         \Log::error("Error in newRetailProduct: " . $e->getMessage());
-//         return response()->json(['error' => $e->getMessage()], 500);
-//     }
-// }
 public function newRetailProduct(Request $request)
 {
+    // Get request parameters
     $batchId = $request->batch;
-    $productSizes = $request->productSizes;
+    $productSizes = $request->productSizes; // [{id: 6, name: "paneer", qty: 1900}]
     $rawMaterials = $request->rawMaterials;
     $factoryProductId = $request->factoryProductId;
 
+    // Get authenticated user
     $user = auth()->user();
     if (!$user) {
         return response()->json(['error' => 'Authentication required'], 401);
     }
 
+    // Note: Commented out batch check as it appears to be unused in your original code
+    // === Step 1: Check if batch exists ===
+    // $productTracker = ProductsTracker::where('id', $batchId)->first();
+    // if (!$productTracker) {
+    //     return response()->json(['error' => 'Batch not found'], 404);
+    // }
+    // if ($productTracker->product_qty <= 0) {
+    //     return response()->json(['error' => 'Insufficient product quantity in tracker'], 400);
+    // }
+
     DB::beginTransaction();
 
     try {
-        // Step 1: Get milkTankId via product_tracker -> milk_processing
-        $productTracker = ProductsTracker::find($batchId);
-        if (!$productTracker) {
-            throw new \Exception("Product tracker (batch) with ID {$batchId} not found");
-        }
-
-        $processedId = $productTracker->processed_id;
-
-        $milkProcessing = \DB::table('milk_processing')->where('id', $processedId)->first();
-        if (!$milkProcessing) {
-            throw new \Exception("Milk processing record not found for processed_id {$processedId}");
-        }
-
-        $milkTankId = $milkProcessing->milkTank_id;
-
-        \Log::info('milk_tank_id fetched via product_tracker', [
-            'batch_id' => $batchId,
-            'processed_id' => $processedId,
-            'milk_tank_id' => $milkTankId
-        ]);
-
-        // Step 2: Deduct raw materials
+        // === Step 2: Deduct raw materials ===
         foreach ($rawMaterials as $material) {
             $materialRecord = RawMaterial::find($material['id']);
 
@@ -1254,6 +1091,7 @@ public function newRetailProduct(Request $request)
             }
 
             $newQty = $materialRecord->unit_qty - $material['quantity'];
+
             if ($newQty < 0) {
                 throw new \Exception("Not enough quantity of {$material['name']} (ID: {$material['id']})");
             }
@@ -1262,7 +1100,7 @@ public function newRetailProduct(Request $request)
             $materialRecord->save();
         }
 
-        // Step 3: Calculate totalRealQty
+        // === Step 3: Calculate total real quantity from productSizes ===
         $totalRealQty = 0;
         $realQuantities = [];
 
@@ -1273,6 +1111,7 @@ public function newRetailProduct(Request $request)
                 throw new \Exception("Product size with ID {$product['id']} not found");
             }
 
+            // Make sure unit_multiplier exists; if not, default to 1
             $unitMultiplier = $productSize->unit_multiplier ?? 1;
             $realQty = $unitMultiplier * $product['qty'];
             $totalRealQty += $realQty;
@@ -1288,7 +1127,7 @@ public function newRetailProduct(Request $request)
         }
 
         // === Step 4: Deduct realQty from FactoryProduct ===
-        $factoryProduct = FactoryProduct::find($factoryProductId);
+        $factoryProduct = ProductSize::find($factoryProductId);
 
         if (!$factoryProduct) {
             throw new \Exception("Factory product with ID {$factoryProductId} not found");
@@ -1296,18 +1135,19 @@ public function newRetailProduct(Request $request)
 
         $newFactoryQty = $factoryProduct->quantity - $totalRealQty;
 
-        if ($newFactoryQty < 0) {
-            throw new \Exception("Not enough stock in factory product ID {$factoryProductId} for deduction.");
-        }
+        // if ($newFactoryQty < 0) {
+        //     throw new \Exception("Not enough stock in factory product ID {$factoryProductId} for deduction.");
+        // }
 
         $factoryProduct->qty = $newFactoryQty;
         $factoryProduct->save();
 
-        // Step 5: Save in ProductSize + DailyTally
+        // === Step 5: Add request->qty to ProductSize, and build response
         $updatedProducts = [];
-        $batchNo = $productTracker->batch_no ?? ('retail-' . now()->format('Y-m-d-H-i-s'));
+        $batchNo = 'retail-' . now()->format('Y-m-d-H-i-s'); // Generate a batch number for retail products
 
         foreach ($realQuantities as $item) {
+            // Update ProductSize and track update
             $productSize = ProductSize::find($item['id']);
             if ($productSize) {
                 $previousQty = $productSize->qty;
@@ -1321,18 +1161,20 @@ public function newRetailProduct(Request $request)
                     'updated_quantity' => $productSize->qty,
                 ];
 
-                DailyTally::create([
-                    'company_id'         => $user->company_id,
-                    'milk_tank_id'       => $milkTankId,
-                    'tally_date'         => now()->toDateString(),
-                    'product_type'       => 'retail',
-                    'product_id'         => $productSize->id,
-                    'product_name'       => $item['productName'],
-                    'product_local_name' => $item['localName'],
-                    'quantity'           => $item['requestedQty'],
-                    'unit'               => 'pcs',
-                    'batch_no'           => $batchNo,
-                ]);
+                // Create DailyTally record for each product
+                if (isset($user->company_id)) {
+                    DailyTally::create([
+                        'company_id'          => $user->company_id,
+                        'tally_date'          => now()->toDateString(),
+                        'product_type'        => 'retail',
+                        'product_id'          => $productSize->id,
+                        'product_name'        => $item['productName'],
+                        'product_local_name'  => $item['localName'],
+                        'quantity'            => $item['requestedQty'],
+                        'unit'                => 'pcs',
+                        'batch_no'            => $batchNo,
+                    ]);
+                }
             }
         }
 
@@ -1351,6 +1193,5 @@ public function newRetailProduct(Request $request)
         return response()->json(['error' => $e->getMessage()], 500);
     }
 }
-
 
 }
