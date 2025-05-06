@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import './Invoice.css'
 import {
   CAlert,
@@ -15,6 +15,7 @@ import {
   CRow,
 } from '@coreui/react'
 import { cilDelete, cilPlus } from '@coreui/icons'
+import { cilChevronBottom, cilX } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import { getAPICall, post } from '../../../util/api'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
@@ -34,7 +35,11 @@ const Invoice = () => {
   const [showCustomerModal, setShowCustomerModal] = useState(false)
   const navigate = useNavigate();
   const location = useLocation();
-
+   // New refs and state for product dropdown
+   const productsDropdownRef = useRef(null);
+   const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(false);
+   const [productOptions, setProductOptions] = useState([]);
+   const [currentEditIndex, setCurrentEditIndex] = useState(null);
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get('id');
 
@@ -204,67 +209,66 @@ const Invoice = () => {
 
   const fetchProduct = async () => {
     showSpinner();
-    try {
-      const response = await getAPICall('/api/product')
-      setAllProducts(discountedPrices([...response.filter((p) => p.show == 1 )]));
-
-      // Make sure we use the translation function for the select product option
-      const options = [{
-        label: t('LABELS.selectProduct'),
-        value: ""
-      }]
-
-      options.push(
-        ...response
-          .filter((p) => p.show == 1 )
-          .map((p) => {
-            return {
-              label: p.sizes[0].name,
-              value: p.sizes[0].id,
-              disabled: p.sizes[0].show === 0,
-            }
-          }),
-      )
-      setProducts(options)
-
-      // Default selected product
-      if (id) {
-        let productData = response.filter((p) => p.show == 1 && p.sizes[0].id == id);
-        if (productData.length > 0) {
-          let data = productData[0].sizes[0];
-          setState(prev => ({
-            ...prev,
-            items: [
-              {
-                product_id: data.product_id.toString(),
-                product_sizes_id: data.id,
-                product_name: data.name,
-                name: data.name,
-                product_local_name: data.localName,
-                localName: data.localName,
-                size_name: data.name,
-                size_local_name: data.localName,
-                oPrice: data.oPrice,
-                bPrice: data.bPrice,
-                dPrice: data.dPrice,
-                id: '0',
-                dQty: 0,
-                eQty: 0,
-                qty: data.qty,
-                total_price: 0,
-                returnable: data.returnable,
-                unit: data.unit
-              },
-            ]
-          }));
-        }
+    const response = await getAPICall('/api/product')
+    hideSpinner();
+    setAllProducts(discountedPrices([...response.filter((p) => p.show == 1 )]));
+    
+    // Extract product names for dropdown options
+    const productNames = response
+      .filter((p) => p.show == 1)
+      .map((p) => p.sizes[0].name);
+    
+    setProductOptions(productNames);
+    
+    // Legacy options setup (keep for compatibility)
+    const options = ['Select Product']
+    options.push(
+      ...response
+        .filter((p) => p.show == 1 )
+        .map((p) => {
+          return {
+            label: p.sizes[0].name,
+            value: p.sizes[0].id,
+            disabled: p.sizes[0].show === 0,
+          }
+        }),
+    )
+    setProducts(options)
+    
+    // Default selected product
+    if (id) {
+      let data = response.filter((p) => p.show == 1 && p.sizes[0].id == id)[0]?.sizes[0];
+      if (data) {
+        setState(prev => ({
+          ...prev,
+          items: [
+            {
+              product_id: data.product_id.toString(),
+              product_sizes_id: data.id,
+              product_name: data.name,
+              name: data.name,
+              product_name: data.name,
+              product_local_name: data.localName,
+              localName:data.localName,
+              size_name: data.name,
+              size_local_name: data.localName,
+              oPrice: data.oPrice,
+              bPrice: data.bPrice,
+              dPrice: data.dPrice,
+              id:'0',
+              dQty: 0,
+              eQty: 0,
+              qty: data.qty,
+              total_price: 0,
+              returnable: data.returnable,
+              unit:data.unit
+            },
+          ]
+        }));
       }
-    } catch (error) {
-      showToast('danger', t('MSG.errorFetchingProducts') + ': ' + error);
-    } finally {
-      hideSpinner();
     }
   }
+ 
 
   const handleAddProductRow = () => {
     setState((prev) => {
@@ -337,6 +341,59 @@ const Invoice = () => {
     }
   }
 
+  const handleProductSearchChange = (e, index) => {
+    const value = e.target.value;
+    
+    // Update the product name in the current item
+    setState(prev => {
+      const old = { ...prev };
+      old.items[index].product_name = value;
+      return { ...old };
+    });
+    
+    // Keep track of which item we're editing
+    setCurrentEditIndex(index);
+    
+    // Show dropdown when typing
+    if (value) {
+      setIsProductsDropdownOpen(true);
+    }
+  };
+
+  // Handle product selection from dropdown
+  const handleProductSelectFromDropdown = (selectedProductName, index) => {
+    const p = allProducts.find((p) => p.sizes[0].name === selectedProductName);
+    if (p && p.sizes[0]) {
+      setState((prev) => {
+        const old = { ...prev }
+        old.items[index].product_id = p.id;
+        old.items[index].id = p.id;
+        old.items[index].product_sizes_id = p.sizes[0].id;
+        old.items[index].name = p.sizes[0].name;
+        old.items[index].product_name = p.sizes[0].name;
+        old.items[index].localName = p.sizes[0].localName;
+        old.items[index].unit = p.unit;
+        old.items[index].size_name = p.sizes[0].name;
+        old.items[index].size_local_name = p.sizes[0].localName;
+        old.items[index].product_local_name = p.localName;
+        old.items[index].oPrice = p.sizes[0].oPrice;
+        old.items[index].dQty = 0;
+        old.items[index].eQty = 0;
+        old.items[index].dPrice = p.sizes[0].dPrice;
+        old.items[index].bPrice = p.sizes[0].bPrice;
+        old.items[index].returnable = p.sizes[0].returnable;
+        old.items[index].total_price = p.sizes[0].dPrice * old.items[index].dQty;
+        old.totalAmount = calculateTotal(old.items);
+        calculateFinalAmount(old);
+        return { ...old }
+      });
+      
+      // Close dropdown after selection
+      setIsProductsDropdownOpen(false);
+    }
+  };
+
+  // Legacy handler (keep for compatibility)
   const handleProductChange = (e, index) => {
     const { value } = e.target
     const p = allProducts.find((p) => p.id == value)
@@ -366,6 +423,32 @@ const Invoice = () => {
       })
     }
   }
+
+  const clearProductSelection = (index) => {
+    setState((prev) => {
+      const old = { ...prev };
+      old.items[index].product_id = undefined;
+      old.items[index].product_sizes_id = 0;
+      old.items[index].product_name = '';
+      old.items[index].name = '';
+      old.items[index].localName = '';
+      old.items[index].unit = '';
+      old.items[index].size_name = '';
+      old.items[index].size_local_name = '';
+      old.items[index].product_local_name = '';
+      old.items[index].oPrice = 0;
+      old.items[index].dQty = 0;
+      old.items[index].eQty = 0;
+      old.items[index].dPrice = 0;
+      old.items[index].bPrice = 0;
+      old.items[index].returnable = 0;
+      old.items[index].total_price = 0;
+      old.totalAmount = calculateTotal(old.items);
+      calculateFinalAmount(old);
+      return { ...old };
+    });
+  };
+
 
   const handleQtyChange = (e, index) => {
     const { value } = e.target
@@ -457,6 +540,28 @@ const Invoice = () => {
     setCustomerName({});
   }
 
+  const dropdownIconStyle = {
+    position: 'absolute',
+    right: '10px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    pointerEvents: 'none',
+    zIndex: 1
+  };
+
+  const clearButtonStyle = {
+    position: 'absolute',
+    right: '10px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    cursor: 'pointer',
+    zIndex: 1
+  };
+
+  const inputContainerStyle = {
+    position: 'relative'
+  };
+
   return (
     <CRow>
        {showAlert && (
@@ -535,88 +640,171 @@ const Invoice = () => {
                 </div>
               </div>
             </div>
-              {/* Products table - responsive headers */}
-              <div className="row d-none d-md-flex">
-                <div className="col-4">
-                  <div className="mb-1">
-                    <b>{t('LABELS.product')}</b>
-                  </div>
-                </div>
-                <div className="col-2">
-                  <div className="mb-1">
-                    <b>{t('LABELS.quantity')}</b>
-                  </div>
-                </div>
-                <div className="col-2">
-                  <div className="mb-1">
-                    <b>{t('LABELS.price')}</b>
-                  </div>
-                </div>
-                <div className="col-2">
-                  <div className="mb-1">
-                    <b>{t('LABELS.totalRs')}</b>
-                  </div>
-                </div>
-                <div className="col-2">
-                  <div className="mb-1">
-                    <b>{t('LABELS.action')}</b>
-                  </div>
-                </div>
-              </div>
+             {/* Products table - fully responsive for all screen sizes */}
+<div className="products-table">
+  {/* Table headers - visible on md screens and up */}
+  <div className="row d-none d-md-flex py-2 border-bottom">
+    <div className="col-md-4">
+      <div className="fw-bold">{t('LABELS.product')}</div>
+    </div>
+    <div className="col-md-2">
+      <div className="fw-bold">{t('LABELS.quantity')}</div>
+    </div>
+    <div className="col-md-2">
+      <div className="fw-bold">{t('LABELS.price')}</div>
+    </div>
+    <div className="col-md-2">
+      <div className="fw-bold">{t('LABELS.totalRs')}</div>
+    </div>
+    <div className="col-md-2">
+      <div className="fw-bold">{t('LABELS.action')}</div>
+    </div>
+  </div>
 
-              {/* Product items - made responsive */}
-              {state.items?.map((oitem, index) => (
-                <div key={index} className="row mb-3 border-bottom pb-2">
-                  <div className="col-md-4 col-12 mb-2">
-                    <div className="d-md-none mb-1"><b>{t('LABELS.product')}</b></div>
-                    <CFormSelect
-                      aria-label={t('LABELS.selectProduct')}
-                      value={oitem.product_sizes_id}
-                      options={products}
-                      onChange={(event) => handleProductChange(event, index)}
-                      invalid={oitem.notSelected == true}
-                      required
-                      feedbackInvalid={t('MSG.selectProduct')}
-                    />
+  {/* Product items with improved responsiveness */}
+  {state.items?.map((oitem, index) => (
+    <div key={index} className="row py-3 border-bottom align-items-center">
+      {/* Product field - full width on xs/sm, 4 columns on md+ */}
+      <div className="col-12 col-md-4 mb-3 mb-md-0">
+        <div className="d-md-none fw-bold mb-2">{t('LABELS.product')}</div>
+        <div className="product-search-container" ref={productsDropdownRef}>
+          <CFormInput
+            type="text"
+            value={oitem.product_name || ''}
+            onChange={(e) => handleProductSearchChange(e, index)}
+            onFocus={() => {
+              setCurrentEditIndex(index);
+              setIsProductsDropdownOpen(true);
+            }}
+            placeholder="Search or select product"
+            required
+            invalid={oitem.notSelected === true}
+            feedbackInvalid="Select product."
+            className="product-search-input"
+          />
+          
+          {!oitem.product_name ? (
+            <div className="dropdown-icon">
+              <CIcon icon={cilChevronBottom} size="sm" />
+            </div>
+          ) : (
+            <div className="clear-button" onClick={() => clearProductSelection(index)}>
+              <CIcon icon={cilX} size="sm" />
+            </div>
+          )}
+          
+          {isProductsDropdownOpen && currentEditIndex === index && (
+            <div className="products-dropdown">
+              {productOptions
+                .filter(item => 
+                  item.toLowerCase().includes((oitem.product_name || '').toLowerCase())
+                )
+                .map((item, idx) => (
+                  <div 
+                    key={idx}
+                    className="dropdown-item"
+                    onClick={() => handleProductSelectFromDropdown(item, index)}
+                  >
+                    {item}
                   </div>
+                ))}
+            </div>
+          )}
+        </div>
+      </div>
 
-                  <div className="col-md-2 col-6 mb-2">
-                    <div className="d-md-none mb-1"><b>{t('LABELS.quantity')}</b></div>
-                    <CFormInput
-                      type="number"
-                      value={oitem.dQty > 0 ? oitem.dQty : ''}
-                      placeholder={`${t('LABELS.stock')}: ${oitem.qty}`}
-                      invalid={oitem.invalidQty === true}
-                      required
-                      feedbackInvalid={`${t('LABELS.max')} ${oitem.qty}`}
-                      onChange={(event) => handleQtyChange(event, index)}
-                    />
-                  </div>
-                  <div className="col-md-2 col-6 mb-2">
-                    <div className="d-md-none mb-1"><b>{t('LABELS.price')}</b></div>
-                    <p className="mt-md-2 mb-0">{oitem.dPrice + (oitem.unit ? ' / ' + oitem.unit : '')}</p>
-                  </div>
-                  <div className="col-md-2 col-6 mb-2">
-                    <div className="d-md-none mb-1"><b>{t('LABELS.totalRs')}</b></div>
-                    <p className="mt-md-2 mb-0">{oitem.total_price}</p>
-                  </div>
-                  <div className="col-md-2 col-6 mb-2 text-md-start text-end">
-                    <div className="d-md-none mb-1"><b>{t('LABELS.action')}</b></div>
-                    <div>
-                      {state.items.length > 1 && (
-                        <CButton color="" onClick={() => handleRemoveProductRow(index)}>
-                          <CIcon icon={cilDelete} size="xl" style={{ '--ci-primary-color': 'red' }} />
-                        </CButton>
-                      )}
-                      {index === state.items.length - 1 && (
-                        <CButton onClick={handleAddProductRow} color="">
-                          <CIcon icon={cilPlus} size="xl" style={{ '--ci-primary-color': 'green' }} />
-                        </CButton>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
+      {/* Quantity field - half width on xs/sm, 2 columns on md+ */}
+      <div className="col-6 col-md-2 mb-3 mb-md-0">
+        <div className="d-md-none fw-bold mb-2">{t('LABELS.quantity')}</div>
+        <CFormInput
+          type="number"
+          value={oitem.dQty > 0 ? oitem.dQty : ''}
+          placeholder={`${t('LABELS.stock')}: ${oitem.qty}`}
+          invalid={oitem.invalidQty === true}
+          required
+          feedbackInvalid={`${t('LABELS.max')} ${oitem.qty}`}
+          onChange={(event) => handleQtyChange(event, index)}
+        />
+      </div>
+
+      {/* Price field - half width on xs/sm, 2 columns on md+ */}
+      <div className="col-6 col-md-2 mb-3 mb-md-0">
+        <div className="d-md-none fw-bold mb-2">{t('LABELS.price')}</div>
+        <p className="mb-0">{oitem.dPrice + (oitem.unit ? ' / ' + oitem.unit : '')}</p>
+      </div>
+
+      {/* Total price field - half width on xs/sm, 2 columns on md+ */}
+      <div className="col-6 col-md-2 mb-3 mb-md-0">
+        <div className="d-md-none fw-bold mb-2">{t('LABELS.totalRs')}</div>
+        <p className="mb-0 fw-bold">{oitem.total_price}</p>
+      </div>
+
+      {/* Action buttons - half width on xs/sm, 2 columns on md+ */}
+      <div className="col-6 col-md-2 text-end text-md-start">
+        <div className="d-md-none fw-bold mb-2">{t('LABELS.action')}</div>
+        <div className="d-flex justify-content-end justify-content-md-start">
+          {state.items.length > 1 && (
+            <CButton color="" className="me-2 p-1" onClick={() => handleRemoveProductRow(index)}>
+              <CIcon icon={cilDelete} size="lg" style={{ '--ci-primary-color': 'red' }} />
+            </CButton>
+          )}
+          {index === state.items.length - 1 && (
+            <CButton color="" className="p-1" onClick={handleAddProductRow}>
+              <CIcon icon={cilPlus} size="lg" style={{ '--ci-primary-color': 'green' }} />
+            </CButton>
+          )}
+        </div>
+      </div>
+    </div>
+  ))}
+
+  {/* Add CSS for the components */}
+  <style jsx>{`
+    .product-search-container {
+      position: relative;
+    }
+    
+    .dropdown-icon, .clear-button {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+    }
+    
+    .products-dropdown {
+      position: absolute;
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      background: white;
+      border: 1px solid #dee2e6;
+      border-radius: 0.25rem;
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+      margin-top: 4px;
+    }
+    
+    .dropdown-item {
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+    
+    .dropdown-item:hover {
+      background-color: #f8f9fa;
+    }
+    
+    @media (max-width: 767px) {
+      .products-table {
+        margin-bottom: 1rem;
+      }
+      
+      .products-table .row {
+        margin-bottom: 0.5rem;
+      }
+    }
+  `}</style>
+</div>
 
               {/* Payment info - made responsive */}
               <div className="row mt-4">

@@ -375,7 +375,7 @@ function DailyProductLog() {
                 </div>
               )}
             </div>
-            <CButton
+            {/* <CButton
               color="light"
               variant="outline"
               size="sm"
@@ -383,7 +383,7 @@ function DailyProductLog() {
               title={t('LABELS.refreshData')}
             >
               <CIcon icon={cilSync} size="sm" />
-            </CButton>
+            </CButton> */}
           </div>
         </div>
       </CCardHeader>
@@ -413,7 +413,7 @@ function DailyProductLog() {
                   <CCol md={6}>
                     <CCard className="h-100 border-primary">
                       <CCardHeader style={{ backgroundColor: '#e2efff' }}>
-                        <h6 className="mb-0">{t('LABELS.cowTank')}</h6>
+                        <h6 className="mb-0 text-primary">{t('LABELS.cowTank')}</h6>
                       </CCardHeader>
                       <CCardBody>
                         <table className="table table-bordered mb-0">
@@ -438,7 +438,7 @@ function DailyProductLog() {
                   <CCol md={6}>
                     <CCard className="h-100 border-info">
                       <CCardHeader style={{ backgroundColor: '#e0f7fa' }}>
-                        <h6 className="mb-0">{t('LABELS.buffaloTank')}</h6>
+                        <h6 className="mb-0 text-info">{t('LABELS.buffaloTank')}</h6>
                       </CCardHeader>
                       <CCardBody>
                         <table className="table table-bordered mb-0">
@@ -472,7 +472,7 @@ function DailyProductLog() {
               <CCardBody>
                 <CRow>
                   <CCol md={6}>
-                    <h6 className="mb-3">{t('LABELS.cowProducts')}</h6>
+                    <h6 className="mb-3 text-primary">{t('LABELS.cowProducts')}</h6>
                     <div className="mb-3" style={{ height: '250px', overflow: 'auto' }}>
                       <CCard className="h-100 border">
                         <CCardHeader style={{ backgroundColor: '#E6E6FA', position: 'sticky', top: 0, zIndex: 2 }}>
@@ -537,7 +537,7 @@ function DailyProductLog() {
                     </div>
                   </CCol>
                   <CCol md={6}>
-                    <h6 className="mb-3">{t('LABELS.buffaloProducts')}</h6>
+                    <h6 className="mb-3 text-info">{t('LABELS.buffaloProducts')}</h6>
                     <div className="mb-3" style={{ height: '250px', overflow: 'auto' }}>
                       <CCard className="h-100 border">
                         <CCardHeader style={{ backgroundColor: '#E6E6FA', position: 'sticky', top: 0, zIndex: 2 }}>
