@@ -665,23 +665,56 @@ public function createProduct(Request $request)
                 }
 
                 // Insert processed_id from ProcessedIngredients into ProductsTracker
-                foreach ($processedIngredients as $processed_id) {
-                    ProductsTracker::create([
-                        'product_size_id' => $size->id,
-                        'processed_id'    => $processed_id, // Correct foreign key here
-                        'packaging_id'    => $packagingId,
-                        'product_qty'     => $ps['qty'],
-                        'milkUsed'        => $payload['milkTank']['quantity'],
-                        'batch_no'        => $batchNo,
-                        'misc'            => null,
-                        'created_by'      => $userId,
-                        'updated_by'      => $userId,
-                    ]);
-                }
+                // foreach ($processedIngredients as $processed_id) {
+                //     ProductsTracker::create([
+                //         'product_size_id' => $size->id,
+                //         'processed_id'    => $processed_id, // Correct foreign key here
+                //         'packaging_id'    => $packagingId,
+                //         'product_qty'     => $ps['qty'],
+                //         'milkUsed'        => $payload['milkTank']['quantity'],
+                //         'batch_no'        => $batchNo,
+                //         'misc'            => null,
+                //         'created_by'      => $userId,
+                //         'updated_by'      => $userId,
+                //     ]);
+                // }
+
+                 // Insert processed_id into ProductsTracker
+        if (!empty($processedIngredients)) {
+            foreach ($processedIngredients as $processed_id) {
+                ProductsTracker::create([
+                    'product_size_id' => $size->id,
+                    'processed_id'    => $processed_id,
+                    'packaging_id'    => $packagingId,
+                    'product_qty'     => $ps['qty'],
+                    'milkUsed'        => $payload['milkTank']['quantity'],
+                    'batch_no'        => $batchNo,
+                    'misc'            => null,
+                    'created_by'      => $userId,
+                    'updated_by'      => $userId,
+                ]);
+            }
+        } else {
+            // No ingredients selected, insert with processed_id = 0
+            ProductsTracker::create([
+                'product_size_id' => $size->id,
+                'processed_id'    => 0,
+                'packaging_id'    => $packagingId,
+                'product_qty'     => $ps['qty'],
+                'milkUsed'        => $payload['milkTank']['quantity'],
+                'batch_no'        => $batchNo,
+                'misc'            => null,
+                'created_by'      => $userId,
+                'updated_by'      => $userId,
+            ]);
+        }
+
+        $milk_tank_id =$payload['milkTank']['id'];
 
                 if ($companyId) {
                     DailyTally::create([
                         'company_id'         => $companyId,
+                        'milk_tank_id'       => $milk_tank_id,
                         'tally_date'         => now()->toDateString(),
                         'product_type'       => 'factory',
                         'product_id'         => $size->id,
