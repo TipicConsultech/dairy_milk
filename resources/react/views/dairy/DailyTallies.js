@@ -491,7 +491,7 @@ function DailyProductLog() {
                                 {filteredCowFactory.map((item, index) => (
                                   <tr key={index}>
                                     <td>{item.product_name}</td>
-                                    <td>{item.quantity} {item.unit}</td>
+                                    <td>{item.quantity} packets</td>
                                   </tr>
                                 ))}
                               </tbody>
@@ -522,7 +522,7 @@ function DailyProductLog() {
                                 {filteredCowRetail.map((item, index) => (
                                   <tr key={index}>
                                     <td>{item.product_name}</td>
-                                    <td>{item.quantity} {item.unit}</td>
+                                    <td>{item.quantity} packets</td>
                                   </tr>
                                 ))}
                               </tbody>
@@ -556,7 +556,7 @@ function DailyProductLog() {
                                 {filteredBuffaloFactory.map((item, index) => (
                                   <tr key={index}>
                                     <td>{item.product_name}</td>
-                                    <td>{item.quantity} {item.unit}</td>
+                                    <td>{item.quantity} packets</td>
                                   </tr>
                                 ))}
                               </tbody>
@@ -587,7 +587,7 @@ function DailyProductLog() {
                                 {filteredBuffaloRetail.map((item, index) => (
                                   <tr key={index}>
                                     <td>{item.product_name}</td>
-                                    <td>{item.quantity} {item.unit}</td>
+                                    <td>{item.quantity} packets</td>
                                   </tr>
                                 ))}
                               </tbody>
