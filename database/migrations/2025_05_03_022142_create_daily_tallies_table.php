@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->integer('company_id');
             $table->foreign('company_id')->references('company_id')->on('company_info')->onDelete('cascade');
+            $table->unsignedBigInteger('milk_tank_id');
+            $table->foreign('milk_tank_id')->references('id')->on('milk_tanks')->onDelete('cascade');
             $table->date('tally_date');
             $table->string('product_type'); // 'retail' or 'factory'
             $table->unsignedBigInteger('product_id');

@@ -40,7 +40,8 @@ function RawMaterial() {
 
   const getData = async () => {
     try {
-      const response = await getAPICall('/api/factoryProducts');
+      const params = new URLSearchParams({type: 1 })
+      const response = await getAPICall(`/api/finalProductInventory?${params.toString()}`);
       setTableData(response);
     } catch (error) {
       console.error('Failed to fetch initial data:', error);
@@ -49,8 +50,9 @@ function RawMaterial() {
 
   const searchMaterials = async () => {
     setLoading(true);
+    const params = new URLSearchParams({ search: debouncedSearchTerm, type: 1 });
     try {
-      const response = await getAPICall(`/api/searchfactoryProducts?search=${debouncedSearchTerm}`);
+      const response = await getAPICall(`/api/searchByProductNameFinalInventry?${params}`);
       setTableData(response);
     } catch (error) {
       console.error('Error fetching materials:', error);
@@ -66,7 +68,7 @@ function RawMaterial() {
   };
 
   const handleAddClick = async (item) => {
-    navigate(`/factory-invoice?id=${item.id}`);
+    navigate(`/invoice?id=${item.id}`);
   };
 
   const handleDownload = async () => {
@@ -167,9 +169,9 @@ function RawMaterial() {
               <tr key={item.id}>
                 <td>{item.name}</td>
                 <td>
-                ₹&nbsp;{item.price}
+                ₹&nbsp;{item.dPrice}
                 </td>
-                <td>{item.capacity}&nbsp;{item.unit}</td>
+                <td>{item.max_stock}&nbsp;{item.unit}</td>
                 <td>
                   <CBadge
                     style={{
@@ -190,7 +192,7 @@ function RawMaterial() {
                       : 'Sufficient'}
                   </CBadge>
                 </td>
-                <td>{item.quantity}&nbsp;{item.unit}</td>
+                <td>{item.qty}&nbsp;{item.unit}</td>
                 <td>
                   <button
                     className="btn btn-outline-success btn-sm w-100"
