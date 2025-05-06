@@ -106,7 +106,7 @@ export default function fetchNavItems(t1){
       },
       {
         component: CNavItem,
-        name: t("LABELS.dailyProductLog"),
+        name: t('LABELS.dailyTallyReport'),
         to: '/dailyTallies',
         icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
       },

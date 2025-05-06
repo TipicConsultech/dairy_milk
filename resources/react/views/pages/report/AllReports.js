@@ -3,7 +3,9 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Year, Custom, Months, Quarter, Week } from './Dates';
 import { getAPICall } from '../../../util/api';
 import All_Tables from './AllTables';
-import { Button,Dropdown } from '/resources/react/views/pages/report/ButtonDropdowns';
+import { Button, Dropdown } from '/resources/react/views/pages/report/ButtonDropdowns';
+// Add this line if ButtonDropdowns.js needs to be modified to accept className prop
+// If modification isn't possible, we'll use the global CSS approach
 import { MantineProvider } from '@mantine/core';
 import { useToast } from '../../common/toast/ToastContext';
 
@@ -16,14 +18,14 @@ function All_Reports() {
   const [activeTab1, setActiveTab] = useState('Year');
   const [stateWeek, setStateWeek] = useState({ start_date: '', end_date: '' });
   const { showToast } = useToast();
-  
+
   const ReportOptions = [
     { label: 'Sales', value: '1' },
     { label: 'Expense', value: '2' },
     { label: 'Profit & Loss', value: '3' },
   ];
 
-  //for Sales Report 
+  //for Sales Report
   const [salesData, setSalesData] = useState({
     data: [],
     totalSales: 0,
@@ -36,7 +38,7 @@ function All_Reports() {
     data: [],
     totalExpense: 0
   });
-  const [expenseType, setExpenseType] = useState({})
+  const [expenseType, setExpenseType] = useState({});
 
   //Profit & Loss
   const [pnlData, setPnLData] = useState({
@@ -47,9 +49,7 @@ function All_Reports() {
   });
 
   const handleTabChange = (value) => {
-   
     setActiveTab(value);
-  
   };
 
   const fetchReportData = async() => {
@@ -120,7 +120,7 @@ function All_Reports() {
               totalRemaining: Math.round(totalRemaining)
             }
           })
-          
+
         } else {
           showToast('danger', 'Failed to fetch records');
         }
@@ -164,7 +164,6 @@ function All_Reports() {
         } else {
           showToast('danger', 'Failed to fetch records');
         }
-
       }
 
       if (selectedOption === '3') {
@@ -174,7 +173,7 @@ function All_Reports() {
       showToast('danger', 'Error occured ' + error);
     }
   };
- 
+
   const calculatePnL = (rawExpenseData, rawSalesData) => {
     try {
       const combinedData = [...rawExpenseData, ...rawSalesData]
@@ -191,10 +190,8 @@ function All_Reports() {
           acc[date].totalSales += entry.totalAmount
         }
         if (entry.total_price) {
-         
           acc[date].totalExpenses += entry.total_price;
         }
-        ;
         return acc
       }, {})
 
@@ -203,12 +200,12 @@ function All_Reports() {
         ...data,
         profitOrLoss: data.totalSales - data.totalExpenses,
       }));
-  
+
       // Calculate total sales, expenses, and profit/loss
       const totalSales = pnlData.reduce((acc, current) => acc + current.totalSales, 0);
       const totalExpenses = pnlData.reduce((acc, current) => acc + current.totalExpenses, 0);
       const totalProfitOrLoss = pnlData.reduce((acc, current) => acc + current.profitOrLoss, 0);
-  
+
       // Set the PnL data
       setPnLData(prev => ({
         ...prev,
@@ -218,183 +215,304 @@ function All_Reports() {
         totalProfitOrLoss: totalProfitOrLoss,
       }));
     } catch (error) {
-      showToast('danger',error.message);
+      showToast('danger', error.message);
     }
   }
-  
+
   return (
     <>
-     <MantineProvider withGlobalStyles withNormalizeCSS>
-      <CTabs activeItemKey={activeTab1} onChange={handleTabChange}>
-        <CTabList variant="tabs">
-          <CTab itemKey="Year">Year</CTab>
-          <CTab itemKey="Quarter">Quarter</CTab>
-          <CTab itemKey="Month">Month</CTab>
-          <CTab itemKey="Week">Week</CTab>
-          <CTab itemKey="Custom" default>Custom</CTab>
-        </CTabList>
-  <CTabContent>
+      <MantineProvider withGlobalStyles withNormalizeCSS>
+        <div className="responsive-container">
+          <CTabs activeItemKey={activeTab1} onChange={handleTabChange}>
+            <CTabList variant="tabs" className="flex-wrap">
+              <CTab itemKey="Year">Year</CTab>
+              <CTab itemKey="Quarter">Quarter</CTab>
+              <CTab itemKey="Month">Month</CTab>
+              <CTab itemKey="Week">Week</CTab>
+              <CTab itemKey="Custom" default>Custom</CTab>
+            </CTabList>
+            <CTabContent>
+              {/* Custom Tab */}
+              <CTabPanel className="p-3" itemKey="Custom">
+                {/* For larger screens (original layout) */}
+                <div className="d-none d-md-flex mb-3 justify-content-between">
+                  <div className="d-flex mx-1">
+                    <Custom setStateCustom={setStateCustom} />
+                    <div className="flex-fill mx-2 mt-1 col-sm-3">
+                      <h1></h1>
+                      <br/>
+                      <Dropdown
+                        setSelectedOption={setSelectedOption}
+                        ReportOptions={ReportOptions}
+                        selectedOption={selectedOption}
+                        className="larger-dropdown"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex-fill px-0 mt-1">
+                    <h1></h1>
+                    <br/>
+                    <Button fetchReportData={fetchReportData} />
+                  </div>
+                </div>
 
-  <CTabPanel className="p-3" itemKey="Custom">
+                {/* For smaller screens (mobile-friendly layout) */}
+                <div className="d-md-none mb-3">
+                  <div className="row gy-3">
+                    <div className="col-12">
+                      <Custom setStateCustom={setStateCustom} />
+                    </div>
+                    <div className="col-6">
+                      <Dropdown
+                        setSelectedOption={setSelectedOption}
+                        ReportOptions={ReportOptions}
+                        selectedOption={selectedOption}
+                      />
+                    </div>
+                    <div className="col-6 d-flex justify-content-start">
+                      <Button fetchReportData={fetchReportData} />
+                    </div>
+                  </div>
+                </div>
 
-  <div className="d-flex mb-3 justify-content-between ">
-  <div className="d-flex mx-1">
-    <Custom setStateCustom={setStateCustom} />
+                <div className="mt-3">
+                  <All_Tables
+                    selectedOption={selectedOption}
+                    salesData={salesData}
+                    expenseData={expenseData}
+                    pnlData={pnlData}
+                    expenseType={expenseType}
+                  />
+                </div>
+              </CTabPanel>
 
-    <div className="flex-fill mx-2 mt-1 col-sm-3">
-      <h1></h1>
-      <br/>
-     
-    
-    <Dropdown
-      setSelectedOption={setSelectedOption}
-      ReportOptions={ReportOptions}
-      selectedOption={selectedOption}
-    />
-    </div>
-  </div>
+              {/* Week Tab */}
+              <CTabPanel className="p-3" itemKey="Week">
+                {/* For larger screens (original layout) */}
+                <div className="d-none d-md-flex mb-3 m">
+                  <Week setStateWeek={setStateWeek}/>
+                  <div className='mx-1'>
+                    <Dropdown
+                      setSelectedOption={setSelectedOption}
+                      ReportOptions={ReportOptions}
+                      selectedOption={selectedOption}
+                    />
+                  </div>
+                  <div className='mx-1'>
+                    <Button fetchReportData={fetchReportData}/>
+                  </div>
+                </div>
 
-  <div className="flex-fill px-0 mt-1  ">
-  <h1></h1>
-  <br/>
-  <Button fetchReportData={fetchReportData} />
-  </div>
-  </div>
+                {/* For smaller screens (mobile-friendly layout) */}
+                <div className="d-md-none mb-3">
+                  <div className="row gy-3">
+                    <div className="col-12">
+                      <Week setStateWeek={setStateWeek} />
+                    </div>
+                    <div className="col-6">
+                      <Dropdown
+                        setSelectedOption={setSelectedOption}
+                        ReportOptions={ReportOptions}
+                        selectedOption={selectedOption}
+                      />
+                    </div>
+                    <div className="col-6 d-flex justify-content-start">
+                      <Button fetchReportData={fetchReportData} />
+                    </div>
+                  </div>
+                </div>
 
-<div className="mt-3">
-  <All_Tables
-    selectedOption={selectedOption}
-    salesData={salesData}
-    expenseData={expenseData}
-    pnlData={pnlData}
-    expenseType={expenseType}
-  />
-</div>
+                <div className="mt-3">
+                  <All_Tables
+                    selectedOption={selectedOption}
+                    salesData={salesData}
+                    expenseData={expenseData}
+                    pnlData={pnlData}
+                    expenseType={expenseType}
+                  />
+                </div>
+              </CTabPanel>
 
-</CTabPanel>
- <CTabPanel className="p-3" itemKey="Week">
-   
-    <div className="d-flex mb-3 m">
+              {/* Month Tab */}
+              <CTabPanel className="p-3" itemKey="Month">
+                {/* For larger screens (original layout) */}
+                <div className="d-none d-md-flex mb-3 justify-content-between">
+                  <div className="flex-fill mx-1">
+                    <Months setStateMonth={setStateMonth} />
+                  </div>
+                  <div className="flex-fill mx-1">
+                    <Dropdown
+                      setSelectedOption={setSelectedOption}
+                      ReportOptions={ReportOptions}
+                      selectedOption={selectedOption}
+                    />
+                  </div>
+                  <div className="flex-fill mx-1">
+                    <Button fetchReportData={fetchReportData} />
+                  </div>
+                </div>
 
-    <Week setStateWeek={setStateWeek}/>
-      <div className='mx-1 '>
-      <Dropdown
-          setSelectedOption={setSelectedOption}
-          ReportOptions={ReportOptions}
-          selectedOption={selectedOption}
-          fetchReportData={fetchReportData}
-        />
+                {/* For smaller screens (mobile-friendly layout) */}
+                <div className="d-md-none mb-3">
+                  <div className="row gy-3">
+                    <div className="col-12">
+                      <Months setStateMonth={setStateMonth} />
+                    </div>
+                    <div className="col-6">
+                      <Dropdown
+                        setSelectedOption={setSelectedOption}
+                        ReportOptions={ReportOptions}
+                        selectedOption={selectedOption}
+                      />
+                    </div>
+                    <div className="col-6 d-flex justify-content-start">
+                      <Button fetchReportData={fetchReportData} />
+                    </div>
+                  </div>
+                </div>
 
-      </div>
-        
-        <div className='mx-1 '>
+                <div className="mt-3">
+                  <All_Tables
+                    selectedOption={selectedOption}
+                    salesData={salesData}
+                    expenseData={expenseData}
+                    pnlData={pnlData}
+                    expenseType={expenseType}
+                  />
+                </div>
+              </CTabPanel>
 
-<Button fetchReportData={fetchReportData}/>
+              {/* Quarter Tab */}
+              <CTabPanel className="p-3" itemKey="Quarter">
+                {/* For larger screens (original layout) */}
+                <div className="d-none d-md-flex mb-3 col-md-10">
+                  <Quarter setStateQuarter={setStateQuarter} />
+                  <Dropdown
+                    setSelectedOption={setSelectedOption}
+                    ReportOptions={ReportOptions}
+                    selectedOption={selectedOption}
+                  />
+                  <div className='px-2'>
+                    <Button fetchReportData={fetchReportData}/>
+                  </div>
+                </div>
+
+                {/* For smaller screens (mobile-friendly layout) */}
+                <div className="d-md-none mb-3">
+                  <div className="row gy-3">
+                    <div className="col-12">
+                      <Quarter setStateQuarter={setStateQuarter} />
+                    </div>
+                    <div className="col-6">
+                      <Dropdown
+                        setSelectedOption={setSelectedOption}
+                        ReportOptions={ReportOptions}
+                        selectedOption={selectedOption}
+                      />
+                    </div>
+                    <div className="col-6 d-flex justify-content-start">
+                      <Button fetchReportData={fetchReportData} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3">
+                  <All_Tables
+                    selectedOption={selectedOption}
+                    salesData={salesData}
+                    expenseData={expenseData}
+                    pnlData={pnlData}
+                    expenseType={expenseType}
+                  />
+                </div>
+              </CTabPanel>
+
+              {/* Year Tab */}
+              <CTabPanel className="p-3" itemKey="Year">
+                {/* For larger screens (original layout) */}
+                <div className="d-none d-md-flex mb-3 m">
+                  <Year setStateYear={setStateYear} />
+                  <div className='mx-1 mt-2'>
+                    <Dropdown
+                      setSelectedOption={setSelectedOption}
+                      ReportOptions={ReportOptions}
+                      selectedOption={selectedOption}
+                    />
+                  </div>
+                  <div className='mx-1 mt-2'>
+                    <Button fetchReportData={fetchReportData}/>
+                  </div>
+                </div>
+
+                {/* For smaller screens (mobile-friendly layout) */}
+                <div className="d-md-none mb-3">
+                  <div className="row gy-3">
+                    <div className="col-12">
+                      <Year setStateYear={setStateYear} />
+                    </div>
+                    <div className="col-6">
+                      <Dropdown
+                        setSelectedOption={setSelectedOption}
+                        ReportOptions={ReportOptions}
+                        selectedOption={selectedOption}
+                      />
+                    </div>
+                    <div className="col-6 d-flex justify-content-start">
+                      <Button fetchReportData={fetchReportData} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3">
+                  <All_Tables
+                    selectedOption={selectedOption}
+                    salesData={salesData}
+                    expenseData={expenseData}
+                    pnlData={pnlData}
+                    expenseType={expenseType}
+                  />
+                </div>
+              </CTabPanel>
+            </CTabContent>
+          </CTabs>
         </div>
-         
-      </div>
-      <div className="mt-3">
-      
-        <All_Tables
-          selectedOption={selectedOption}
-          salesData={salesData}
-          expenseData={expenseData}
-          pnlData={pnlData}
-          expenseType={expenseType}
-        />
-      </div>
-             
-</CTabPanel>
+      </MantineProvider>
 
-<CTabPanel className="p-3" itemKey="Month">
-<div className="d-flex mb-3 justify-content-between">
-  <div className="flex-fill mx-1">
-    <Months setStateMonth={setStateMonth} />
-  </div>
-  <div className="flex-fill mx-1">
-    <Dropdown
-      setSelectedOption={setSelectedOption}
-      ReportOptions={ReportOptions}
-      selectedOption={selectedOption}
-    />
-  </div>
-  <div className="flex-fill mx-1">
-    <Button fetchReportData={fetchReportData} />
-  </div>
-</div>
+      {/* Add responsive styles */}
+      <style jsx>{`
+        .responsive-container {
+          width: 100%;
+          max-width: 100%;
+          overflow-x: hidden;
+        }
 
-      <div className="mt-3">
-        <All_Tables
-          selectedOption={selectedOption}
-          salesData={salesData}
-          expenseData={expenseData}
-          pnlData={pnlData}
-          expenseType={expenseType}
-        />
-      </div>
-</CTabPanel>
+        @media (max-width: 768px) {
+          .responsive-container {
+            padding: 0 5px;
+          }
+        }
 
- <CTabPanel className="p-3" itemKey="Quarter">
-           
-     <div className="d-flex mb-3 col-md-10">
-     <Quarter  setStateQuarter={setStateQuarter} />
-        <Dropdown
-          setSelectedOption={setSelectedOption}
-          ReportOptions={ReportOptions}
-          selectedOption={selectedOption}
-          fetchReportData={fetchReportData}
-        />
-        <div className='px-2'>
-        <Button fetchReportData={fetchReportData}/>
-        </div>
-        
-         
-      </div>
-      <div className="mt-3">
-        <All_Tables
-          selectedOption={selectedOption}
-          salesData={salesData}
-          expenseData={expenseData}
-          pnlData={pnlData}
-          expenseType={expenseType}
-        />
-      </div>
-  </CTabPanel>
+        /* Larger dropdown styling */
+        :global(.larger-dropdown select) {
+          min-width: 200px !important;
+          font-size: 1.1rem !important;
+          height: auto !important;
+          padding: 8px 12px !important;
+        }
 
-  <CTabPanel className="p-3" itemKey="Year">
-      <div className="d-flex mb-3 m">
+        /* For the button itself to be larger */
+        :global(.larger-dropdown .dropdown-toggle) {
+          min-width: 200px !important;
+          font-size: 1.1rem !important;
+          padding: 8px 12px !important;
+        }
 
-      <Year setStateYear={setStateYear} />
-      <div className='mx-1 mt-2'>
-      <Dropdown
-          setSelectedOption={setSelectedOption}
-          ReportOptions={ReportOptions}
-          selectedOption={selectedOption}
-          fetchReportData={fetchReportData}
-        />
-
-      </div>
-        
-        <div className='mx-1 mt-2'>
-
-<Button fetchReportData={fetchReportData}/>
-        </div>
-         
-      </div>
-      <div className="mt-3">
-        <All_Tables
-          selectedOption={selectedOption}
-          salesData={salesData}
-          expenseData={expenseData}
-          pnlData={pnlData}
-          expenseType={expenseType}
-        />
-      </div>
-    </CTabPanel>
-   </CTabContent>
-  </CTabs>
-  </MantineProvider>
-      
+        /* For dropdown menu items to be larger */
+        :global(.larger-dropdown .dropdown-menu .dropdown-item) {
+          font-size: 1.1rem !important;
+          padding: 8px 12px !important;
+        }
+      `}</style>
     </>
   );
 }

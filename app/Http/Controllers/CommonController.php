@@ -586,7 +586,7 @@ public function createProduct(Request $request)
         $user = auth()->user();
         $userId = $user?->id;
         $companyId = $user?->company_id;
-
+        
         $processing = MilkProcesing::create([
             'batch_no'         => $batchNo,
             'milkTank_id'      => $payload['milkTank']['id'],

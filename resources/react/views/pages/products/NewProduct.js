@@ -29,7 +29,7 @@ const NewProduct = () => {
     showOnHome: true,
     unit: '',
     qty: 0,
-    default_qty:0,
+    default_qty: 0,
     oPrice: 0,
     bPrice: 0,
     unit_multiplier	:0,
@@ -56,7 +56,7 @@ const NewProduct = () => {
       return
     }
 
-    let data = { ...state, sizes:[] }
+    let data = { ...state, sizes: [] }
     data.slug = data.name.replace(/[^\w]/g, '_')
     if (!state.multiSize) {
       data.sizes.push({
@@ -66,7 +66,6 @@ const NewProduct = () => {
         oPrice: data.oPrice,
         bPrice: data.bPrice,
         dPrice: data.oPrice,
-        unit_multiplier:data.unit_multiplier,
         default_qty :data.default_qty,
         stock: data.qty,
         show: true,
@@ -80,7 +79,7 @@ const NewProduct = () => {
     try {
       const resp = await post('/api/product', data)
       if (resp) {
-        showToast('success','Product added successfully');
+        showToast('success', 'Product added successfully');
         handleClear()
       } else {
         showToast('danger', 'Error occured, please try again later.');
@@ -91,7 +90,7 @@ const NewProduct = () => {
   }
   const handleDefaulyQtyChange = (e) => {
     const { value } = e.target;
-  
+
     // Allow empty string to let the field appear blank when clicked
     if (value === '' || /^[0-9]+$/.test(value)) {
       setState((prev) => ({
@@ -100,7 +99,7 @@ const NewProduct = () => {
       }));
     }
   };
-  
+
 
   const handleClear = () => {
     setState({
@@ -116,7 +115,7 @@ const NewProduct = () => {
       showOnHome: true,
       qty: 0,
       oPrice: 0,
-      default_qty:0,
+      default_qty: 0,
       bPrice: 0,
       unit_multiplier:0,
       media: [],
@@ -134,7 +133,7 @@ const NewProduct = () => {
           <CCardBody>
             <CForm className="needs-validation" noValidate onSubmit={handleSubmit}>
               <div className="row mb-2">
-                <div className="col-6">
+                <div className="col-md-6 col-12 mb-2 mb-md-0">
                     <CFormLabel htmlFor="pname">Product Name</CFormLabel>
                     <CFormInput
                       type="text"
@@ -149,7 +148,7 @@ const NewProduct = () => {
                     />
                     <div className="invalid-feedback">Product name is required</div>
                 </div>
-                <div className="col-6">
+                <div className="col-md-6 col-12">
                   <CFormLabel htmlFor="plname">Local Name</CFormLabel>
                   <CFormInput
                     type="text"
@@ -166,7 +165,7 @@ const NewProduct = () => {
                 </div>
               </div>
               <div className="row mb-2">
-                <div className="col-4">
+                <div className="col-md-4 col-12 mb-2 mb-md-0">
                   <CFormLabel htmlFor="qty">Product Quantity</CFormLabel>
                   <CFormInput
                     type="number"
@@ -195,7 +194,7 @@ const NewProduct = () => {
                   <div className="invalid-feedback">Base price must be greater than 0</div>
                 </div> */}
                 <div className="col-4">
-                  <CFormLabel htmlFor="oPrice">Selling Price </CFormLabel>
+                  <CFormLabel htmlFor="oPrice">Selling Price</CFormLabel>
                   <CFormInput
                     type="number"
                     id="oPrice"
@@ -208,19 +207,17 @@ const NewProduct = () => {
                   />
                   <div className="invalid-feedback">Selling price must be greater than 0</div>
                 </div>
-                <div className="col-4">
-                  <CFormLabel htmlFor="oPrice">Default Qty</CFormLabel>
+                <div className="col-md-4 col-12">
+                  <CFormLabel htmlFor="default_qty">Default Qty</CFormLabel>
                   <CFormInput
                     type="number"
-                    id="oPrice"
+                    id="default_qty"
                     placeholder="0"
                     min="1"
-                    name="oPrice"
+                    name="default_qty"
                     value={state.default_qty}
                     onChange={handleDefaulyQtyChange}
-                   
                   />
-                  
                 </div>
               </div>
               <div className="row mb-2">
@@ -262,8 +259,7 @@ const NewProduct = () => {
                     onChange={handleCBChange}
                   />
                 </div> */}
-                <div className="col-4">
-                <CFormLabel htmlFor="oPrice">Unit</CFormLabel>
+                <div className="col-9">
                     <CFormInput
                       type="text"
                       id="unit"
@@ -275,23 +271,22 @@ const NewProduct = () => {
                 </div>
                 <div className="col-4">
                 <CFormLabel htmlFor="oPrice">Unit Multiplier</CFormLabel>
-  <CFormInput
-    type="number"
-    id="unit_multiplier"
-    placeholder="Unit Multiplier"
-    name="unit_multiplier"
-    value={state.unit_multiplier}
-    step="any"
-    onChange={handleChange}
-  />
-</div>
+                  <CFormInput
+                    type="number"
+                    id="unit_multiplier"
+                    placeholder="Unit Multiplier"
+                    name="unit_multiplier"
+                    value={state.unit_multiplier}
+                    step="any"
+                    onChange={handleChange}
+                  />
+                </div>
               </div>
               <div className="mb-3">
-                <CButton color="success" type="submit">
+                <CButton color="success" type="submit" className="me-2 mb-2 mb-md-0">
                   Submit
                 </CButton>
-                &nbsp;
-                <CButton color="secondary" onClick={handleClear}>
+                <CButton color="secondary" onClick={handleClear} className="mb-2 mb-md-0">
                   Clear
                 </CButton>
               </div>
