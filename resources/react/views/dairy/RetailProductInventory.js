@@ -40,7 +40,8 @@ function RawMaterial() {
 
   const getData = async () => {
     try {
-      const response = await getAPICall('/api/finalProductInventory');
+      const params = new URLSearchParams({type: 2 })
+      const response = await getAPICall(`/api/finalProductInventory?${params.toString()}`);
       setTableData(response);
     } catch (error) {
       console.error('Failed to fetch initial data:', error);
@@ -49,8 +50,10 @@ function RawMaterial() {
 
   const searchMaterials = async () => {
     setLoading(true);
+    const params = new URLSearchParams({ search: debouncedSearchTerm, type: 2 });
     try {
-      const response = await getAPICall(`/api/searchByProductNameFinalInventry?search=${debouncedSearchTerm}`);
+     
+      const response = await getAPICall(`/api/searchByProductNameFinalInventry?${params.toString()}`);
       setTableData(response);
     } catch (error) {
       console.error('Error fetching materials:', error);

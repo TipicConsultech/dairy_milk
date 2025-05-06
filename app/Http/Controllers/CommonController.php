@@ -260,9 +260,299 @@ class CommonController extends Controller
 //     }
 // }
 
+
+
+// ---------------------------------------------------------------------- 
+// public function createProduct(Request $request)
+// {
+//     /* ───────────── 1. VALIDATE SHAPE ───────────── */
+//     $payload = $request->validate([
+//         'rawMaterials'                => ['nullable', 'array'],
+//         'rawMaterials.*.id'           => ['nullable', 'integer', 'distinct'],
+//         'rawMaterials.*.quantity'     => ['nullable', 'numeric', 'min:0.01'],
+
+//         'milkTank'                    => ['required', 'array'],
+//         'milkTank.id'                 => ['required', 'integer'],
+//         'milkTank.quantity'           => ['required', 'numeric', 'min:0.01'],
+
+//         'productSizes'                => ['sometimes', 'array', 'min:1'],
+//         'productSizes.*.id'           => ['integer', 'distinct'],
+//         'productSizes.*.qty'          => ['numeric', 'min:0.01'],
+//         'productSizes.*.packaging_id' => ['integer', 'nullable'],
+
+//         'misc'                        => ['sometimes', 'array'],
+//     ]);
+
+//     // Start debug log
+//     \Log::info("createProduct called with payload: " . json_encode($payload));
+
+//     DB::beginTransaction();
+
+//     try {
+//         /* ───── 2. CREATE milk_processing ROW ───── */
+//         \Log::info("1. Starting milk processing creation");
+
+//         $firstProductName = null;
+//         if (!empty($payload['productSizes'])) {
+//             $firstProduct = FactoryProduct::find($payload['productSizes'][0]['id']);
+//             if ($firstProduct) {
+//                 $firstProductName = $firstProduct->name;
+//                 \Log::info("Found first product: {$firstProductName}");
+//             }
+//         }
+
+//         $batchPrefix = $firstProductName ? strtolower(substr($firstProductName, 0, 3)) : 'xx';
+//         $istNow = now()->setTimezone('Asia/Kolkata');
+//         $batchNo = $batchPrefix . '-' . $istNow->format('Y-m-d H-i-s');
+//         $misc = isset($payload['misc']) ? json_encode($payload['misc']) : null;
+
+//         // Get user before using it
+//         $user = auth()->user();
+//         if (!$user) {
+//             \Log::warning("No authenticated user found!");
+//         }
+//         $userId = $user ? $user->id : null;
+//         $CompanyId = $user ? $user-> company_id : null;
+//         \Log::info("Using user ID: {$userId}");
+
+//         $processing = MilkProcesing::create([
+//             'batch_no'         => $batchNo,
+//             'milkTank_id'      => $payload['milkTank']['id'],
+//             'rowMilk_qty'      => $payload['milkTank']['quantity'],
+//             'isProductCreated' => !empty($payload['productSizes']),
+//             'misc'             => $misc,
+//             'created_by'       => $userId,
+//             'updated_by'       => $userId,
+//         ]);
+//         \Log::info("Created milk processing with ID: {$processing->id}");
+
+//         /* ───── 3. RAW‑MATERIAL DEDUCTIONS + processed_ingredients ───── */
+//         \Log::info("2. Processing raw materials");
+//         if (!empty($payload['rawMaterials']) && is_array($payload['rawMaterials'])) {
+//             foreach ($payload['rawMaterials'] as $item) {
+//                 $material = RawMaterial::lockForUpdate()->find($item['id']);
+//                 if (!$material) {
+//                     throw ValidationException::withMessages([
+//                         'rawMaterials' => "Raw‑material ID {$item['id']} not found."
+//                     ]);
+//                 }
+//                 if ($material->unit_qty < $item['quantity']) {
+//                     throw ValidationException::withMessages([
+//                         'rawMaterials' => "Not enough stock for \"{$material->name}\". " .
+//                                           "Available: {$material->unit_qty}, " .
+//                                           "requested: {$item['quantity']}."
+//                     ]);
+//                 }
+
+//                 $material->unit_qty -= $item['quantity'];
+//                 $material->save();
+//                 \Log::info("Updated raw material {$material->id}, new qty: {$material->unit_qty}");
+
+//                 $ingredient = ProcessedIngredients::create([
+//                     'processing_id' => $processing->id,
+//                     'ingredient_id' => $material->id,
+//                     'quantity'      => $item['quantity'],
+//                     'misc'          => null,
+//                     'created_by'    => $userId,
+//                     'updated_by'    => $userId,
+//                 ]);
+//                 \Log::info("Created processed ingredient with ID: {$ingredient->id}");
+//             }
+//         } else {
+//             \Log::info("No raw materials to process");
+//         }
+
+//         /* ───── 4. MILK‑TANK DEDUCTION ───── */
+//         \Log::info("3. Processing milk tank");
+//         $tankReq = $payload['milkTank'];
+//         $tank = MilkTank::lockForUpdate()->find($tankReq['id']);
+//         if (!$tank) {
+//             throw ValidationException::withMessages([
+//                 'milkTank' => "Milk‑tank ID {$tankReq['id']} not found."
+//             ]);
+//         }
+//         if ($tank->quantity < $tankReq['quantity']) {
+//             throw ValidationException::withMessages([
+//                 'milkTank' => "Not enough milk in \"{$tank->name}\". " .
+//                               "Available: {$tank->quantity}, " .
+//                               "requested: {$tankReq['quantity']}."
+//             ]);
+//         }
+
+//         $tank->quantity -= $tankReq['quantity'];
+//         $tank->save();
+//         \Log::info("Updated milk tank {$tank->id}, new qty: {$tank->quantity}");
+
+//         /* ───── 5. PRODUCT‑SIZE ADDITIONS + products_tracker ───── */
+//         \Log::info("4. Processing product sizes");
+//         // if (!empty($payload['productSizes'])) {
+//         //     foreach ($payload['productSizes'] as $ps) {
+//         //         $size = FactoryProduct::lockForUpdate()->find($ps['id']);   // ProductSize
+//         //         if (!$size) {
+//         //             throw ValidationException::withMessages([
+//         //                 'productSizes' => "Product‑size ID {$ps['id']} not found."
+//         //             ]);
+//         //         }
+
+//         //         $oldQty = $size->quantity;
+//         //         $size->quantity += $ps['qty'];
+//         //         $size->save();
+//         //         \Log::info("Updated factory product {$size->id} from qty {$oldQty} to {$size->quantity}");
+
+//         //         $packagingId = $ps['packaging_id'] ?? null;
+//         //         if ($packagingId && !RawMaterial::find($packagingId)) {
+//         //             throw ValidationException::withMessages([
+//         //                 'productSizes' => "Packaging raw‑material ID {$packagingId} not found."
+//         //             ]);
+//         //         }
+
+//         //         $tracker = ProductsTracker::create([
+//         //             'product_size_id' => $size->id,
+//         //             'processed_id'       => $processing->id,
+//         //             'packaging_id'       => $packagingId,
+//         //             'product_qty'        => $ps['qty'],
+//         //             'milkUsed'           => $payload['milkTank']['quantity'],
+//         //             'batch_no'           => $batchNo,
+//         //             'misc'               => null,
+//         //             'created_by'         => $userId ,
+//         //             'updated_by'         => $userId ,
+//         //         ]);
+//         //         \Log::info("Created product tracker with ID: {$tracker->id}");
+                
+                
+//         //         $user = Auth::user();
+                
+//         //         try {
+//         //             if ($user && isset($user->company_id)) {
+//         //                 $tally = DailyTally::create([
+//         //                     'company_id'          => $user->company_id,
+//         //                     'tally_date'          => now()->toDateString(),
+//         //                     'product_type'        => 'factory',
+//         //                     'product_id'          => $size->id,
+//         //                     'product_name'        => $size->name,
+//         //                     'product_local_name'  => $size->local_name ?? null,
+//         //                     'quantity'            => $ps['qty'],
+//         //                     'unit'                => $size->unit ?? null,
+//         //                     'batch_no'            => $batchNo,
+//         //                 ]);
+//         //                 \Log::info("Created daily tally with ID: {$tally->id}");
+//         //             } else {
+//         //                 \Log::warning("Could not create DailyTally: No company_id available");
+//         //             }
+//         //         } catch (\Exception $e) {
+//         //             // Log the error but don't fail the whole transaction
+//         //             \Log::error("Failed to create DailyTally: {$e->getMessage()}");
+//         //         }
+//         //     }
+//         // }
+
+//         $processing = ProcessedIngredients::find($payload['processed_id'] ?? null);
+// if (!$processing) {
+//     throw ValidationException::withMessages([
+//         'processed_id' => "Processed Ingredient ID not found."
+//     ]);
+// }
+
+//         if (!empty($payload['productSizes'])) {
+//             foreach ($payload['productSizes'] as $ps) {
+//                 // ✅ Fetch ProductSize by ID (correct model)
+//                 $size = ProductSize::find($ps['id']);
+//                 if (!$size) {
+//                     throw ValidationException::withMessages([
+//                         'productSizes' => "Product‑size ID {$ps['id']} not found."
+//                     ]);
+//                 }
+        
+//                 // ✅ Update the quantity
+//                 $oldQty = $size->qty;
+//                 $size->qty += $ps['qty'];
+//                 $size->save();
+//                 \Log::info("Updated product size {$size->id} from qty {$oldQty} to {$size->qty}");
+        
+//                 // ✅ Validate packaging ID
+//                 $packagingId = $ps['packaging_id'] ?? null;
+//                 if ($packagingId && !RawMaterial::find($packagingId)) {
+//                     throw ValidationException::withMessages([
+//                         'productSizes' => "Packaging raw‑material ID {$packagingId} not found."
+//                     ]);
+//                 }
+        
+//                 // ✅ Create product tracker (referencing correct product_size_id)
+//                 $tracker = ProductsTracker::create([
+//                     'product_size_id' => $size->id,
+//                     'processed_id'    => $processing->id,
+//                     'packaging_id'    => $packagingId,
+//                     'product_qty'     => $ps['qty'],
+//                     'milkUsed'        => $payload['milkTank']['quantity'],
+//                     'batch_no'        => $batchNo,
+//                     'misc'            => null,
+//                     'created_by'      => $userId,
+//                     'updated_by'      => $userId,
+//                 ]);
+//                 \Log::info("Created product tracker with ID: {$tracker->id}");
+        
+//                 // ✅ Create Daily Tally
+//                 $user = Auth::user();
+//                 try {
+//                     if ($user && isset($user->company_id)) {
+//                         $tally = DailyTally::create([
+//                             'company_id'         => $user->company_id,
+//                             'tally_date'         => now()->toDateString(),
+//                             'product_type'       => 'factory',
+//                             'product_id'         => $size->id,
+//                             'product_name'       => $size->name,
+//                             'product_local_name' => $size->localName ?? null,
+//                             'quantity'           => $ps['qty'],
+//                             'unit'               => $size->unit ?? null,
+//                             'batch_no'           => $batchNo,
+//                         ]);
+//                         \Log::info("Created daily tally with ID: {$tally->id}");
+//                     } else {
+//                         \Log::warning("Could not create DailyTally: No company_id available");
+//                     }
+//                 } catch (\Exception $e) {
+//                     \Log::error("Failed to create DailyTally: {$e->getMessage()}");
+//                 }
+//             }
+//         }
+        
+        
+        
+//         else {
+//             \Log::info("No product sizes to process");
+//         }
+
+//         /* ───── 6. COMMIT & RESPOND ───── */
+//         \Log::info("5. Committing transaction");
+//         DB::commit();
+//         \Log::info("Transaction committed successfully");
+
+//         return response()->json([
+//             'status'  => 'success',
+//             'message' => 'Inventory updated; batch, ingredients and product tracking logged.',
+//             'batch'   => $processing->only(['id', 'batch_no']),
+//         ], 200);
+
+//     } catch (\Throwable $e) {
+//         DB::rollBack();
+//         \Log::error("Error occurred during product creation: " . $e->getMessage());
+//         \Log::error("Stack trace: " . $e->getTraceAsString());
+
+//         if ($e instanceof ValidationException) {
+//             throw $e;
+//         }
+
+//         return response()->json([
+//             'status'  => 'error',
+//             'message' => 'Could not complete transaction.',
+//             'error'   => $e->getMessage(),
+//         ], 500);
+//     }
+// }
+
+
 public function createProduct(Request $request)
 {
-    /* ───────────── 1. VALIDATE SHAPE ───────────── */
     $payload = $request->validate([
         'rawMaterials'                => ['nullable', 'array'],
         'rawMaterials.*.id'           => ['nullable', 'integer', 'distinct'],
@@ -280,37 +570,22 @@ public function createProduct(Request $request)
         'misc'                        => ['sometimes', 'array'],
     ]);
 
-    // Start debug log
-    \Log::info("createProduct called with payload: " . json_encode($payload));
-
     DB::beginTransaction();
 
     try {
-        /* ───── 2. CREATE milk_processing ROW ───── */
-        \Log::info("1. Starting milk processing creation");
-
         $firstProductName = null;
         if (!empty($payload['productSizes'])) {
-            $firstProduct = FactoryProduct::find($payload['productSizes'][0]['id']);
-            if ($firstProduct) {
-                $firstProductName = $firstProduct->name;
-                \Log::info("Found first product: {$firstProductName}");
-            }
+            $firstProduct = ProductSize::find($payload['productSizes'][0]['id']);
+            $firstProductName = $firstProduct?->name;
         }
 
         $batchPrefix = $firstProductName ? strtolower(substr($firstProductName, 0, 3)) : 'xx';
-        $istNow = now()->setTimezone('Asia/Kolkata');
-        $batchNo = $batchPrefix . '-' . $istNow->format('Y-m-d H-i-s');
+        $batchNo = $batchPrefix . '-' . now('Asia/Kolkata')->format('Y-m-d H-i-s');
         $misc = isset($payload['misc']) ? json_encode($payload['misc']) : null;
 
-        // Get user before using it
         $user = auth()->user();
-        if (!$user) {
-            \Log::warning("No authenticated user found!");
-        }
-        $userId = $user ? $user->id : null;
-        $CompanyId = $user ? $user-> company_id : null;
-        \Log::info("Using user ID: {$userId}");
+        $userId = $user?->id;
+        $companyId = $user?->company_id;
 
         $processing = MilkProcesing::create([
             'batch_no'         => $batchNo,
@@ -321,11 +596,10 @@ public function createProduct(Request $request)
             'created_by'       => $userId,
             'updated_by'       => $userId,
         ]);
-        \Log::info("Created milk processing with ID: {$processing->id}");
 
-        /* ───── 3. RAW‑MATERIAL DEDUCTIONS + processed_ingredients ───── */
-        \Log::info("2. Processing raw materials");
-        if (!empty($payload['rawMaterials']) && is_array($payload['rawMaterials'])) {
+        $processedIngredients = [];
+
+        if (!empty($payload['rawMaterials'])) {
             foreach ($payload['rawMaterials'] as $item) {
                 $material = RawMaterial::lockForUpdate()->find($item['id']);
                 if (!$material) {
@@ -335,17 +609,14 @@ public function createProduct(Request $request)
                 }
                 if ($material->unit_qty < $item['quantity']) {
                     throw ValidationException::withMessages([
-                        'rawMaterials' => "Not enough stock for \"{$material->name}\". " .
-                                          "Available: {$material->unit_qty}, " .
-                                          "requested: {$item['quantity']}."
+                        'rawMaterials' => "Not enough stock for \"{$material->name}\". Available: {$material->unit_qty}, requested: {$item['quantity']}."
                     ]);
                 }
 
                 $material->unit_qty -= $item['quantity'];
                 $material->save();
-                \Log::info("Updated raw material {$material->id}, new qty: {$material->unit_qty}");
 
-                $ingredient = ProcessedIngredients::create([
+                $processedIngredient = ProcessedIngredients::create([
                     'processing_id' => $processing->id,
                     'ingredient_id' => $material->id,
                     'quantity'      => $item['quantity'],
@@ -353,48 +624,38 @@ public function createProduct(Request $request)
                     'created_by'    => $userId,
                     'updated_by'    => $userId,
                 ]);
-                \Log::info("Created processed ingredient with ID: {$ingredient->id}");
+
+                $processedIngredients[] = $processedIngredient->id; // Store the processed_id for use in the next step
             }
-        } else {
-            \Log::info("No raw materials to process");
         }
 
-        /* ───── 4. MILK‑TANK DEDUCTION ───── */
-        \Log::info("3. Processing milk tank");
-        $tankReq = $payload['milkTank'];
-        $tank = MilkTank::lockForUpdate()->find($tankReq['id']);
+        $tank = MilkTank::lockForUpdate()->find($payload['milkTank']['id']);
         if (!$tank) {
             throw ValidationException::withMessages([
-                'milkTank' => "Milk‑tank ID {$tankReq['id']} not found."
+                'milkTank' => "Milk‑tank ID {$payload['milkTank']['id']} not found."
             ]);
         }
-        if ($tank->quantity < $tankReq['quantity']) {
+        if ($tank->quantity < $payload['milkTank']['quantity']) {
             throw ValidationException::withMessages([
-                'milkTank' => "Not enough milk in \"{$tank->name}\". " .
-                              "Available: {$tank->quantity}, " .
-                              "requested: {$tankReq['quantity']}."
+                'milkTank' => "Not enough milk in \"{$tank->name}\". Available: {$tank->quantity}, requested: {$payload['milkTank']['quantity']}."
             ]);
         }
 
-        $tank->quantity -= $tankReq['quantity'];
+        $tank->quantity -= $payload['milkTank']['quantity'];
         $tank->save();
-        \Log::info("Updated milk tank {$tank->id}, new qty: {$tank->quantity}");
 
-        /* ───── 5. PRODUCT‑SIZE ADDITIONS + products_tracker ───── */
-        \Log::info("4. Processing product sizes");
         if (!empty($payload['productSizes'])) {
             foreach ($payload['productSizes'] as $ps) {
-                $size = FactoryProduct::lockForUpdate()->find($ps['id']);
+                $size = ProductSize::find($ps['id']);
                 if (!$size) {
                     throw ValidationException::withMessages([
                         'productSizes' => "Product‑size ID {$ps['id']} not found."
                     ]);
                 }
 
-                $oldQty = $size->quantity;
-                $size->quantity += $ps['qty'];
+                $oldQty = $size->qty;
+                $size->qty += $ps['qty'];
                 $size->save();
-                \Log::info("Updated factory product {$size->id} from qty {$oldQty} to {$size->quantity}");
 
                 $packagingId = $ps['packaging_id'] ?? null;
                 if ($packagingId && !RawMaterial::find($packagingId)) {
@@ -403,52 +664,38 @@ public function createProduct(Request $request)
                     ]);
                 }
 
-                $tracker = ProductsTracker::create([
-                    'factory_product_id' => $size->id,
-                    'processed_id'       => $processing->id,
-                    'packaging_id'       => $packagingId,
-                    'product_qty'        => $ps['qty'],
-                    'milkUsed'           => $payload['milkTank']['quantity'],
-                    'batch_no'           => $batchNo,
-                    'misc'               => null,
-                    'created_by'         => $userId ,
-                    'updated_by'         => $userId ,
-                ]);
-                \Log::info("Created product tracker with ID: {$tracker->id}");
-                
-                
-                $user = Auth::user();
-                
-                try {
-                    if ($user && isset($user->company_id)) {
-                        $tally = DailyTally::create([
-                            'company_id'          => $user->company_id,
-                            'tally_date'          => now()->toDateString(),
-                            'product_type'        => 'factory',
-                            'product_id'          => $size->id,
-                            'product_name'        => $size->name,
-                            'product_local_name'  => $size->local_name ?? null,
-                            'quantity'            => $ps['qty'],
-                            'unit'                => $size->unit ?? null,
-                            'batch_no'            => $batchNo,
-                        ]);
-                        \Log::info("Created daily tally with ID: {$tally->id}");
-                    } else {
-                        \Log::warning("Could not create DailyTally: No company_id available");
-                    }
-                } catch (\Exception $e) {
-                    // Log the error but don't fail the whole transaction
-                    \Log::error("Failed to create DailyTally: {$e->getMessage()}");
+                // Insert processed_id from ProcessedIngredients into ProductsTracker
+                foreach ($processedIngredients as $processed_id) {
+                    ProductsTracker::create([
+                        'product_size_id' => $size->id,
+                        'processed_id'    => $processed_id, // Correct foreign key here
+                        'packaging_id'    => $packagingId,
+                        'product_qty'     => $ps['qty'],
+                        'milkUsed'        => $payload['milkTank']['quantity'],
+                        'batch_no'        => $batchNo,
+                        'misc'            => null,
+                        'created_by'      => $userId,
+                        'updated_by'      => $userId,
+                    ]);
+                }
+
+                if ($companyId) {
+                    DailyTally::create([
+                        'company_id'         => $companyId,
+                        'tally_date'         => now()->toDateString(),
+                        'product_type'       => 'factory',
+                        'product_id'         => $size->id,
+                        'product_name'       => $size->name,
+                        'product_local_name' => $size->localName ?? null,
+                        'quantity'           => $ps['qty'],
+                        'unit'               => $size->unit ?? null,
+                        'batch_no'           => $batchNo,
+                    ]);
                 }
             }
-        } else {
-            \Log::info("No product sizes to process");
         }
 
-        /* ───── 6. COMMIT & RESPOND ───── */
-        \Log::info("5. Committing transaction");
         DB::commit();
-        \Log::info("Transaction committed successfully");
 
         return response()->json([
             'status'  => 'success',
@@ -459,7 +706,6 @@ public function createProduct(Request $request)
     } catch (\Throwable $e) {
         DB::rollBack();
         \Log::error("Error occurred during product creation: " . $e->getMessage());
-        \Log::error("Stack trace: " . $e->getTraceAsString());
 
         if ($e instanceof ValidationException) {
             throw $e;
@@ -472,6 +718,18 @@ public function createProduct(Request $request)
         ], 500);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+// ----------------------------------------------------------------------- 
 // public function createProduct(Request $request)
 // {
 //     /* ───────────── 1. VALIDATE SHAPE ───────────── */
@@ -869,7 +1127,7 @@ public function newRetailProduct(Request $request)
         }
 
         // === Step 4: Deduct realQty from FactoryProduct ===
-        $factoryProduct = FactoryProduct::find($factoryProductId);
+        $factoryProduct = ProductSize::find($factoryProductId);
 
         if (!$factoryProduct) {
             throw new \Exception("Factory product with ID {$factoryProductId} not found");
@@ -877,11 +1135,11 @@ public function newRetailProduct(Request $request)
 
         $newFactoryQty = $factoryProduct->quantity - $totalRealQty;
 
-        if ($newFactoryQty < 0) {
-            throw new \Exception("Not enough stock in factory product ID {$factoryProductId} for deduction.");
-        }
+        // if ($newFactoryQty < 0) {
+        //     throw new \Exception("Not enough stock in factory product ID {$factoryProductId} for deduction.");
+        // }
 
-        $factoryProduct->quantity = $newFactoryQty;
+        $factoryProduct->qty = $newFactoryQty;
         $factoryProduct->save();
 
         // === Step 5: Add request->qty to ProductSize, and build response

@@ -40,10 +40,11 @@ class ProductsTrackerController extends Controller
         ]);
     }
 
+    
     public function BatchByProductId(Request $request)
 {
     $uniqueBatchNumbers = ProductsTracker::query()
-        ->where('factory_product_id', $request->id)
+        ->where('product_size_id', $request->id)
         ->latest() // Orders by created_at descending
         ->take(2)  // Limits to 2 results
         ->select('product_qty', 'batch_no', 'id')
@@ -62,16 +63,20 @@ class ProductsTrackerController extends Controller
     ]);
 }
 
+
+
     
     
 
     /**
      * Display a listing of the resource.
      */
-    public function getFinalProductInventory()
+    public function getFinalProductInventory(Request $request)
     {
+        $type = $request->query('type');
         $materials = ProductSize::all()   // ProductSize
             ->sortByDesc('max_stock') // show visible first
+            ->where('product_type',$type)
             ->where('returnable',0)
             ->values() // reset the index
     
@@ -96,8 +101,8 @@ class ProductsTrackerController extends Controller
     public function searchByProductNameFinalInventry(Request $request) 
 {
     $search = $request->query('search');
-
-    $materials = ProductSize::query()
+    $type = $request->query('type');
+    $materials = ProductSize::query()   
         ->when($search, function ($query, $search) {
             $search = strtolower(trim($search));
             $query->where(function ($q) use ($search) {
@@ -107,6 +112,7 @@ class ProductsTrackerController extends Controller
         })
         ->orderByDesc('max_stock') // Show packaging materials first
         ->where('returnable',0)
+        ->where('product_type',$type)
         ->get()
         ->map(function ($item) {
             $percentage = ($item->qty / $item->max_stock) * 100;

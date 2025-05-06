@@ -198,4 +198,72 @@ class MilkTanksTrackerController extends Controller
             ], 404);
         }
     }
+
+    public function getGroupedQuantities(Request $request): JsonResponse
+    {
+        // Filter by date (default to today)
+        $date = $request->input('date') ?? now()->format('Y-m-d');
+    
+        // Get all entries for the date, ordered to ensure consistent grouping
+        $records = MilkTanksTracker::whereDate('created_at', $date)
+            ->orderBy('milk_tank_id')
+            ->orderBy('created_at')
+            ->get();
+    
+        $grouped = [];
+    
+        foreach ($records as $record) {
+            $tankId = $record->milk_tank_id;
+            $hour = (int) $record->created_at->format('H');
+            $timestamp = $record->created_at->toDateTimeString();
+    
+            // First time this tank is encountered
+            if (!isset($grouped[$tankId])) {
+                $grouped[$tankId] = [
+                    'milk_tank_id' => $tankId,
+                    'opening_balance' => $record->opening_balance, // ✅ First record's value
+                    'morning_quantity' => 0,
+                    'evening_quantity' => 0,
+                    'waste_quantity' => 0,
+                    'records' => [],
+                    'waste_records' => [],
+                ];
+            }
+    
+            // Categorize based on added_quantity
+            if ($record->added_quantity < 0) {
+                // Negative quantity = Waste
+                $grouped[$tankId]['waste_quantity'] += abs($record->added_quantity);
+                $grouped[$tankId]['waste_records'][] = [
+                    'id' => $record->id,
+                    'added_quantity' => $record->added_quantity,
+                    'created_at' => $timestamp,
+                    'updated_by' => $record->updated_by,
+                ];
+            } else {
+                // Positive or zero = Milk record
+                if ($hour >= 6 && $hour < 14) {
+                    $grouped[$tankId]['morning_quantity'] += $record->added_quantity;
+                } else {
+                    $grouped[$tankId]['evening_quantity'] += $record->added_quantity;
+                }
+    
+                $grouped[$tankId]['records'][] = [
+                    'id' => $record->id,
+                    'added_quantity' => $record->added_quantity,
+                    'created_at' => $timestamp,
+                    'updated_by' => $record->updated_by,
+                ];
+            }
+        }
+    
+        return response()->json([
+            'success' => true,
+            'data' => array_values($grouped)
+        ]);
+    }
+    
+
+    
+
 }

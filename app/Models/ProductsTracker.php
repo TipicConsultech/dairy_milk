@@ -10,7 +10,7 @@ class ProductsTracker extends Model
     protected $table = 'products_tracker';
     use HasFactory;
     protected $fillable = [
-        'factory_product_id',
+        'product_size_id',
         'processed_id',
         'packaging_id',
         'product_qty',

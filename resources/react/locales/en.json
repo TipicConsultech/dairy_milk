@@ -289,9 +289,11 @@
   "confirmEmpty":"Confim Empty",
   "cow":"Cow",
   "buffalo":"Buffalo",
-  "enterRemark": "Enter The Remark"
+  "enterRemark": "Enter The Remark",
 
-
+  "sms_part_1": "Hello, Total packets",
+  "sms_part_2": "and ",
+  "sms_part_3": " is pending. Regards - "
 
     },
 

@@ -42,7 +42,7 @@ const CreditReport = () => {
       try {
         const reportData = await getAPICall('/api/creditReport');
         if(reportData) {
-          const filteredData = reportData.filter(r => r.totalPayment != 0 || r.items?.filter(i => i.quantity > 0).length > 0).sort((c1,c2)=> c1.name.localeCompare(c2.name));
+          const filteredData = reportData.filter(r => r.items?.filter(i => i.quantity > 0).length > 0).sort((c1,c2)=> c1.name.localeCompare(c2.name));
           setReport(filteredData);
           setFilteredReport(filteredData);
         }
@@ -69,7 +69,19 @@ const CreditReport = () => {
       }, debounceDelay);
   }
 
-  let grandTotal = 0;
+  function getSmsBody(p) {
+    let products = "";
+    //I want items reduced as string
+      p.items?.forEach(i => {
+        if(i.quantity > 0) {
+          products += ` ${i.quantity} ${t('LABELS.empty')} ${lng === 'en' ? i.product_name : i.product_local_name}`;
+        }
+      });
+
+    return `${t('MSG.sms_part_1')} ${p.totalPayment < 0 ? -1 * p.totalPayment : 0} ${t('MSG.sms_part_2')}${products}${t('MSG.sms_part_3')} ${company}`;
+  }
+
+  let totalCrates = 0;
 
   return (
     <CRow>
@@ -95,27 +107,39 @@ const CreditReport = () => {
                     <CTableHeaderCell scope="col" className="d-none d-sm-table-cell">{t('LABELS.id')}</CTableHeaderCell>
                     <CTableHeaderCell scope="col">{t('LABELS.name')}</CTableHeaderCell>
                     <CTableHeaderCell scope="col" className="d-none d-sm-table-cell">{t('LABELS.mobile_number')}</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">{t('LABELS.total')} ₹ </CTableHeaderCell>
-                    {/* <CTableHeaderCell scope="col">{t('LABELS.return_items')}</CTableHeaderCell> */}
+                    {/* <CTableHeaderCell scope="col">{t('LABELS.total')} ₹ </CTableHeaderCell> */}
+                    <CTableHeaderCell scope="col">{t('LABELS.return_items')}</CTableHeaderCell>
                     <CTableHeaderCell scope="col">{t('LABELS.actions')}</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                  {filteredReport.map((p, index) => {
-                    grandTotal += p.totalPayment;
+                {filteredReport.map((p, index) => {
+                  totalCrates += p.totalCrates;
                     return (
                       <CTableRow key={p.mobile+'_'+index}>
                         <CTableDataCell className="d-none d-sm-table-cell" scope="row">{index + 1}</CTableDataCell>
                         <CTableDataCell>{p.name}</CTableDataCell>
                         <CTableDataCell className="d-none d-sm-table-cell">{p.mobile}</CTableDataCell>
-                        <CTableDataCell>{p.totalPayment > 0 ? <><CBadge color="success">{p.totalPayment}</CBadge> <br /> ({t('LABELS.advance')})</> : <CBadge color="danger">{p.totalPayment * -1}</CBadge>}</CTableDataCell>
-                        {/* git  */}
+                        {/* <CTableDataCell>{p.totalPayment > 0 ? <><CBadge color="success">{p.totalPayment}</CBadge> <br /> ({t('LABELS.advance')})</> : <CBadge color="danger">{p.totalPayment * -1}</CBadge>}</CTableDataCell> */}
+                        <CTableDataCell>
+                          <table className="table table-sm borderless">
+                            <tbody>
+                            {
+                              p.items?.map(i => (
+                                <tr key={i.id}>
+                                  <td>{lng === 'en' ? i.product_name : i.product_local_name} {i.quantity + `(${t('LABELS.empty')})`}</td>
+                                </tr>
+                              ))
+                            }
+                            </tbody>
+                          </table>
+                        </CTableDataCell>
                         <CTableDataCell>
                           <a className='btn btn-outline-primary btn-sm' href={"tel:" + p.mobile}>
                             <CIcon icon={cilPhone} />
                           </a>
                           &nbsp;
-                          <a className='btn btn-outline-success btn-sm' href={`sms:+${p.mobile}?body=Hello, There is an outstanding payment of Rs. ${p.totalPayment < 0 ? -1 * p.totalPayment : 0}. Kindly pay it. From - ${company}`}>
+                          <a className='btn btn-outline-success btn-sm' href={`sms:+91${p.mobile}?body=${getSmsBody(p)}`}>
                             <CIcon icon={cilChatBubble} />
                           </a>
                         </CTableDataCell>
@@ -126,7 +150,7 @@ const CreditReport = () => {
                     <td className="d-none d-sm-table-cell"></td>
                     <td className="d-none d-sm-table-cell"></td>
                     <td>{t('LABELS.total')} ₹</td>
-                    <td>{grandTotal > 0 ? <><CBadge color="success">{grandTotal}</CBadge> <br /> ({t('LABELS.advance')})</> : <CBadge color="danger">{grandTotal * -1}</CBadge>}</td>
+                    <td>{totalCrates > 0 ? <><CBadge color="success">{totalCrates}</CBadge> <br /> ({t('LABELS.advance')})</> : <CBadge color="danger">{totalCrates * -1}</CBadge>}</td>
                     <td></td>
                     <td></td>
                   </tr>

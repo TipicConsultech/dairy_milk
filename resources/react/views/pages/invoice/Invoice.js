@@ -207,7 +207,7 @@ const Invoice = () => {
     const options = ['Select Product']
     options.push(
       ...response
-        .filter((p) => p.show == 1 && p.sizes[0].isFactory != 1)
+        .filter((p) => p.show == 1 )
         .map((p) => {
           return {
             label: p.sizes[0].name,

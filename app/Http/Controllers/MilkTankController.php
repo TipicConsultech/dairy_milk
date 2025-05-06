@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\MilkTank;
+use App\Models\MilkTanksTracker;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -117,6 +118,8 @@ class MilkTankController extends Controller
         $milkTank->quantity -= $request->quantity;
         $milkTank->save();
 
+        
+
         return response()->json([
             'success' => true,
             'message' => 'Milk quantity updated successfully.',
@@ -186,6 +189,8 @@ class MilkTankController extends Controller
             $milkTank->ts = $request->ts;
             $milkTank->updated_by = Auth::id();
             $milkTank->save();
+
+           
 
             return response()->json([
                 'success' => true,
@@ -269,6 +274,18 @@ class MilkTankController extends Controller
             $milkTank->updated_by = Auth::id();
             $milkTank->save();
 
+            $addedQuantity = -$previousQuantity;
+            MilkTanksTracker::create([
+                'milk_tank_id' => $milkTank->id,
+                'opening_balance' => $previousQuantity,
+                'added_quantity' => $addedQuantity,
+                'updated_quantity'=> $previousQuantity + $addedQuantity,  // No new quantity added when emptying the tank
+                'snf' => 0,              // SNF is set to 0 when emptying the tank
+                'ts' => 0,               // TS is set to 0 when emptying the tank
+                'updated_by' => Auth::id(),
+            ]);
+            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Milk tank emptied successfully',
@@ -299,7 +316,17 @@ class MilkTankController extends Controller
     public function laboratoryUpdate(Request $request, $id): JsonResponse
     {
         try {
+
+            $user = Auth::user();
             $milkTank = MilkTank::findOrFail($id);
+
+            if ($user->company_id != $milkTank->company_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You are not authorized to empty this tank'
+                ], 403);
+            }
+            
 
             $validator = Validator::make($request->all(), [
                 'added_quantity' => 'required|numeric|min:0.01',
@@ -354,6 +381,17 @@ class MilkTankController extends Controller
             $milkTank->ts = $calculatedTS;
             $milkTank->updated_by = Auth::id();
             $milkTank->save();
+
+            MilkTanksTracker::create([
+                'milk_tank_id' => $milkTank->id,
+                'opening_balance' => $currentQuantity,
+                'added_quantity' => $addedQuantity,
+                'updated_quantity'=> $totalQuantity,
+                'snf' => $calculatedSNF,
+                'ts' => $calculatedTS,
+                'updated_by' => Auth::id(), // assumes auth middleware
+            ]);
+        
 
             return response()->json([
                 'success' => true,

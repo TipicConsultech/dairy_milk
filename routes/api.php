@@ -27,6 +27,7 @@ use App\Http\Controllers\FactoryProductController;
 use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\CompanyReceiptController;
 use App\Http\Controllers\MailController;
+use App\Http\Controllers\MilkTanksTrackerController;
 // Dairy
 // use App\Http\Controllers\MilkTankController;
 
@@ -39,6 +40,8 @@ use App\Http\Controllers\MailController;
 use App\Http\Controllers\DailyTallyController;
 
 Route::get('/daily-tallies', [DailyTallyController::class, 'index']);
+
+Route::get('/milk-tanks/trackers/grouped', [MilkTanksTrackerController::class, 'getGroupedQuantities']);
 
 
 Route::post('/reset-password-link', [MailController::class, 'sendEmail']);
@@ -114,9 +117,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/uniqueBatchNumbers', [ProductsTrackerController::class, 'getUniqueBatchNumbers']);
     Route::post('/productInBatch', [ProductsTrackerController::class, 'productInBatch']);
     Route::post('/batchByProductId', [ProductsTrackerController::class, 'BatchByProductId']);
-    Route::get('/getProductsWithVisibleSizes', [ProductController::class, 'getProductsWithVisibleSizes']);
+    Route::get('/getProductsWithVisibleSizes', [ProductController::class, 'getProductsWithVisibleSizes']); // TODO - Need to remove not used
     Route::post('/newRetailProduct', [CommonController::class, 'newRetailProduct']);
-    Route::post('/createProduct', [CommonController::class, 'createProduct']);
+    Route::post('/createProduct', [CommonController::class, 'createProduct']); 
+    Route::get('/getProductsByProductType', [ProductController::class, 'getProductsByProductType']);  
+    Route::get('/getProductsByProductTypeForRetail', [ProductController::class, 'getProductsByProductTypeForRetail']);
 });
 
 

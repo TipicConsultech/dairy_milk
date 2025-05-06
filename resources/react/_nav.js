@@ -151,25 +151,31 @@ export default function fetchNavItems(t1){
         ],
       },
 
+      // {
+      //   component: CNavGroup,
+      //   name: t("LABELS.invoice"),
+      //   icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+      //   items: [
+          
+      //     {
+      //       component: CNavItem,
+      //       name: "Factory Invoice(B2B)",
+      //      to: '/factory-invoice',
+      //     },
+      //     {
+      //       component: CNavItem,
+      //       name: "Retails Invoice",
+      //       to: '/invoice',
+      //     },
+          
+          
+      //   ],
+      // },
       {
-        component: CNavGroup,
+        component: CNavItem,
         name: t("LABELS.invoice"),
+        to: '/invoice',
         icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
-        items: [
-          
-          {
-            component: CNavItem,
-            name: "Factory Invoice(B2B)",
-           to: '/factory-invoice',
-          },
-          {
-            component: CNavItem,
-            name: "Retails Invoice",
-            to: '/invoice',
-          },
-          
-          
-        ],
       },
       
       {
@@ -287,28 +293,34 @@ export default function fetchNavItems(t1){
         to: '/dashboard',
         icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
       },
+      {
+        component: CNavItem,
+        name: t("LABELS.invoice"),
+        to: '/invoice',
+        icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+      },
     
   
-      {
-        component: CNavGroup,
-        name: t("LABELS.invoice"),
-        icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
-        items: [
+      // {
+      //   component: CNavGroup,
+      //   name: t("LABELS.invoice"),
+      //   icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+      //   items: [
           
-          {
-            component: CNavItem,
-            name: "Factory Invoice(B2B)",
-           to: '/factory-invoice',
-          },
-          {
-            component: CNavItem,
-            name: "Retails Invoice",
-            to: '/invoice',
-          },
+      //     {
+      //       component: CNavItem,
+      //       name: "Factory Invoice(B2B)",
+      //      to: '/factory-invoice',
+      //     },
+      //     {
+      //       component: CNavItem,
+      //       name: "Retails Invoice",
+      //       to: '/invoice',
+      //     },
           
           
-        ],
-      },
+      //   ],
+      // },
       
       {
         component: CNavGroup,
