@@ -32,6 +32,7 @@ const NewProduct = () => {
     default_qty:0,
     oPrice: 0,
     bPrice: 0,
+    unit_multiplier	:0,
     media: [],
     sizes: [],
     isFactory: false
@@ -65,6 +66,7 @@ const NewProduct = () => {
         oPrice: data.oPrice,
         bPrice: data.bPrice,
         dPrice: data.oPrice,
+        unit_multiplier:data.unit_multiplier,
         default_qty :data.default_qty,
         stock: data.qty,
         show: true,
@@ -116,6 +118,7 @@ const NewProduct = () => {
       oPrice: 0,
       default_qty:0,
       bPrice: 0,
+      unit_multiplier:0,
       media: [],
       sizes: [],
     })
@@ -177,7 +180,7 @@ const NewProduct = () => {
                   />
                   <div className="invalid-feedback">Quantity must be greater than 0</div>
                 </div>
-                <div className="col-4">
+                {/* <div className="col-4">
                   <CFormLabel htmlFor="bPrice">Base Price</CFormLabel>
                   <CFormInput
                     type="number"
@@ -190,9 +193,9 @@ const NewProduct = () => {
                     required
                   />
                   <div className="invalid-feedback">Base price must be greater than 0</div>
-                </div>
+                </div> */}
                 <div className="col-4">
-                  <CFormLabel htmlFor="oPrice">Selling Price</CFormLabel>
+                  <CFormLabel htmlFor="oPrice">Selling Price </CFormLabel>
                   <CFormInput
                     type="number"
                     id="oPrice"
@@ -221,7 +224,7 @@ const NewProduct = () => {
                 </div>
               </div>
               <div className="row mb-2">
-                <div className="col-6">
+                {/* <div className="col-6">
                   <CFormCheck
                     id="show"
                     label="Show for invoicing"
@@ -229,7 +232,7 @@ const NewProduct = () => {
                     checked={state.show}
                     onChange={handleCBChange}
                   />
-                </div>
+                </div> */}
                 {/* <div className="col-6">
                   <CFormCheck
                     id="returnable"
@@ -239,7 +242,7 @@ const NewProduct = () => {
                     onChange={handleCBChange}
                   />
                 </div> */}
-                <div className="col-6">
+                {/* <div className="col-6">
                   <CFormCheck
                     id="isFactory"
                     label="Is this product for bulk order?"
@@ -247,10 +250,10 @@ const NewProduct = () => {
                     checked={state.isFactory}
                     onChange={handleCBChange}
                   />
-                </div>
+                </div> */}
               </div>
               <div className="row mb-2">
-                <div className="col-sm-3">
+                {/* <div className="col-sm-3">
                   <CFormCheck
                     id="showOnHome"
                     label="Can deliver"
@@ -258,8 +261,9 @@ const NewProduct = () => {
                     checked={state.showOnHome}
                     onChange={handleCBChange}
                   />
-                </div>
-                <div className="col-9">
+                </div> */}
+                <div className="col-4">
+                <CFormLabel htmlFor="oPrice">Unit</CFormLabel>
                     <CFormInput
                       type="text"
                       id="unit"
@@ -269,6 +273,18 @@ const NewProduct = () => {
                       onChange={handleChange}
                     />
                 </div>
+                <div className="col-4">
+                <CFormLabel htmlFor="oPrice">Unit Multiplier</CFormLabel>
+  <CFormInput
+    type="number"
+    id="unit_multiplier"
+    placeholder="Unit Multiplier"
+    name="unit_multiplier"
+    value={state.unit_multiplier}
+    step="any"
+    onChange={handleChange}
+  />
+</div>
               </div>
               <div className="mb-3">
                 <CButton color="success" type="submit">
