@@ -259,6 +259,17 @@ const LaboratoryUser = () => {
     }).format(date);
   };
 
+  // Get short text for empty tank button based on tank type
+  const getEmptyButtonText = (tankName) => {
+    if (tankName?.toLowerCase().includes('cow')) {
+      return t('LABELS.emptyCowTank');
+    }
+    if (tankName?.toLowerCase().includes('buffalo')) {
+      return t('LABELS.emptyBuffaloTank');
+    }
+    return t('LABELS.emptyTank');
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -350,6 +361,7 @@ const LaboratoryUser = () => {
                 const fillColor = getColorByPercentage(percentage);
                 const tankFormData = formData[tank.id] || { quantity: '', snf: '', ts: '' };
                 const displayName = formatMilkType(tank.name);
+                const emptyButtonText = getEmptyButtonText(tank.name);
 
                 return (
                   <CCol className="mb-2" key={tank.id}>
@@ -462,10 +474,10 @@ const LaboratoryUser = () => {
                             <CButton
                               color="danger"
                               variant="outline"
-                              className="w-100 px-1"
+                              className="w-100 px-0 text-nowrap"
                               onClick={() => handleRemoveMilkTank(tank.id, tank.name)}
                             >
-                              {t('LABELS.empty2')} {tank.name?.toLowerCase().includes('cow') ? t('LABELS.cow') : t('LABELS.buffalo')} {t('LABELS.tank')}
+                              {emptyButtonText}
                             </CButton>
                           </CCol>
                         </CRow>

@@ -116,7 +116,7 @@ const Invoice = () => {
   //     getProductFromParam();
   //   }
   // },[id]);
-  
+
   const { showToast } = useToast();
   const [customerName, setCustomerName] = useState({});
   const [suggestions, setSuggestions] = useState([]);
@@ -173,7 +173,7 @@ const Invoice = () => {
 
   const getDiscountedPrice = (p, discount) =>{
     const value = p.sizes[0]?.oPrice ?? 0;
-    const price = value - (value * (discount || (customerName.discount ?? 0)) /100);    
+    const price = value - (value * (discount || (customerName.discount ?? 0)) /100);
     return Math.round(price);
   }
 
@@ -182,7 +182,7 @@ const Invoice = () => {
       if(p.sizes.length>0){
         p.sizes[0].dPrice = getDiscountedPrice(p, discount)
       }
-     
+
     })
     return products;
   }
@@ -368,19 +368,19 @@ const Invoice = () => {
       event.stopPropagation()
       //Valdation
       let isInvalid = false
-      let clonedState = { 
+      let clonedState = {
         ...state,
-        finalAmount: state.totalAmount, 
+        finalAmount: state.totalAmount,
         deliveryTime: timeNow(),
       };
-      
+
       const eligibleToSubmit =clonedState.balanceAmount>=0 && clonedState.customer_id > 0 && (clonedState.paidAmount > 0 || clonedState.items.length)
 
       if (!isInvalid && eligibleToSubmit) {
         showSpinner();
         const res = await post('/api/order', { ...clonedState })
         if (res) {
-         
+
           if(res.id){
             showToast('success','Order is delivered.');
             navigate('/invoice-details/'+res.id);
@@ -388,7 +388,7 @@ const Invoice = () => {
             setMessage('');
             handleClear()
           }if(res.error_message){
-            
+
             setShowAlert(true);
             setMessage(res.error_message);
           }
@@ -456,20 +456,35 @@ const Invoice = () => {
           <CCardBody>
             <CForm noValidate validated={validated} onSubmit={handleSubmit}>
             <div className="row mb-2">
-              <div className="col-8">
-              <CFormLabel htmlFor="invoiceDate">Search customer</CFormLabel>
-                <CFormInput
-                  type="text"
-                  id="pname"
-                  placeholder="Customer Name"
-                  name="customerName"
-                  value={customerName.name}
-                  onChange={handleNameChange}
-                  autoComplete='off'
-                  required
-                />
+              {/* Modified customer search section for responsive design */}
+              <div className="col-md-8 col-12 mb-2">
+                <CFormLabel htmlFor="invoiceDate">Search customer</CFormLabel>
+                <div className="d-flex position-relative">
+                  <CFormInput
+                    type="text"
+                    id="pname"
+                    placeholder="Customer Name"
+                    name="customerName"
+                    value={customerName.name}
+                    onChange={handleNameChange}
+                    autoComplete='off'
+                    required
+                    className="w-100"
+                  />
+                  {!customerName.id && customerName.name?.length > 0 && (
+                    <CBadge
+                      role="button"
+                      color="danger"
+                      onClick={() => setShowCustomerModal(true)}
+                      className="position-absolute"
+                      style={{ right: '10px', top: '50%', transform: 'translateY(-50%)' }}
+                    >
+                      + New
+                    </CBadge>
+                  )}
+                </div>
                 {customerName.name?.length > 0 && (
-                  <ul className="suggestions-list">
+                  <ul className="suggestions-list" style={{ zIndex: 1000, position: 'absolute', width: 'calc(100% - 30px)' }}>
                     {suggestions.map((suggestion, index) => (
                       <li key={index} onClick={() => handleSuggestionClick(suggestion)}>
                         {suggestion.name + ' ('+suggestion.mobile+')'}
@@ -487,99 +502,24 @@ const Invoice = () => {
                   </ul>
                 )}
               </div>
-              {/* <div className="col-3">
-              <CBadge
-                role="button"
-                color="danger"
-                onClick={() => setShowCustomerModal(true)}
-              >
-                New Customer
-              </CBadge>
-              </div> */}
-               <div className="col-sm-4">
-                  <div className="mb-3">
-                    <CFormLabel htmlFor="invoiceDate">Invoice Date</CFormLabel>
-                    <CFormInput
-                      type="date"
-                      id="invoiceDate"
-                      placeholder="Pune"
-                      name="invoiceDate"
-                      value={state.invoiceDate}
-                      onChange={handleChange}
-                      required
-                      feedbackInvalid="Please select date."
-                    />
-                  </div>
-                </div>
-            </div>
-              {/* {customerName.id && <div className="row">
-                <div className="col-sm-12 mt-1">
-                <CAlert color="success">
-                  <p>
-                    <strong>Name:</strong> {customerName.name} ({customerName.mobile}) <br/>
-                    {customerName.address && <><strong>Address: </strong> {customerName.address}</>}
-                    {customerHistory && <>
-                    {
-                      customerHistory.pendingPayment > 0 && <><br/>Credit <strong className="text-danger">{customerHistory.pendingPayment}</strong> Rs.</>
-                    }
-                    {
-                      customerHistory.pendingPayment < 0 && <><br/>Balance (Advance) <strong className="text-success">{customerHistory.pendingPayment * -1}</strong> Rs.</>
-                    }
-                    {
-                      customerHistory.returnEmptyProducts.filter(p=>p.quantity>0).map(p=>(<>
-                      <br/>Collect <strong className="text-danger"> {p.quantity} </strong> empty  <strong className="text-danger"> {p.product_name} </strong>
-                      </>))
-                    }
-                    </>}
-                  </p>
-                </CAlert>
-                </div>
-              </div>} */}
-              <div className="row">
-                <div className="col-sm-4">
-                  {/* <div className="mb-3">
-                    <CFormLabel htmlFor="invoiceType">Invoice Type</CFormLabel>
-                    <CFormSelect
-                      aria-label="Select Invoice Type"
-                      name="invoiceType"
-                      value={state.invoiceType}
-                      options={[
-                        {
-                          label: 'Regular',
-                          value: 1,
-                        },
-                        {
-                          label: 'Advance Booking',
-                          value: 2,
-                        },
-                      ]}
-                      onChange={handleChange}
-                      required
-                      feedbackInvalid="Please select type."
-                    />
-                  </div> */}
-                </div>
-               
-                <div className="col-sm-4">
-                  {state.invoiceType == 2 && (
-                    <div className="mb-3">
-                      <CFormLabel htmlFor="deliveryDate">Delivery Date</CFormLabel>
-                      <CFormInput
-                        type="date"
-                        id="deliveryDate"
-                        placeholder="Pune"
-                        name="deliveryDate"
-                        value={state.deliveryDate}
-                        onChange={handleChange}
-                        required={state.invoiceType == 2}
-                        feedbackInvalid="Please select date."
-                      />
-                    </div>
-                  )}
+              <div className="col-md-4 col-12 mb-2">
+                <div className="mb-3">
+                  <CFormLabel htmlFor="invoiceDate">Invoice Date</CFormLabel>
+                  <CFormInput
+                    type="date"
+                    id="invoiceDate"
+                    placeholder="Pune"
+                    name="invoiceDate"
+                    value={state.invoiceDate}
+                    onChange={handleChange}
+                    required
+                    feedbackInvalid="Please select date."
+                  />
                 </div>
               </div>
-              {/* Products table */}
-              <div className="row">
+            </div>
+              {/* Products table - responsive headers */}
+              <div className="row d-none d-md-flex">
                 <div className="col-4">
                   <div className="mb-1">
                     <b>Product</b>
@@ -607,88 +547,65 @@ const Invoice = () => {
                 </div>
               </div>
 
+              {/* Product items - made responsive */}
               {state.items?.map((oitem, index) => (
-                <div key={index} className="row">
-                  <div className="col-4">
-                    <div className="mb-1">
-                      <CFormSelect
-                        aria-label="Select Product"
-                        value={oitem.product_sizes_id}
-                        options={products}
-                        onChange={() => handleProductChange(event, index)}
-                        invalid={oitem.notSelected == true}
-                        required
-                        feedbackInvalid="Select product."
-                      />
+                <div key={index} className="row mb-3 border-bottom pb-2">
+                  <div className="col-md-4 col-12 mb-2">
+                    <div className="d-md-none mb-1"><b>Product</b></div>
+                    <CFormSelect
+                      aria-label="Select Product"
+                      value={oitem.product_sizes_id}
+                      options={products}
+                      onChange={() => handleProductChange(event, index)}
+                      invalid={oitem.notSelected == true}
+                      required
+                      feedbackInvalid="Select product."
+                    />
+                  </div>
+
+                  <div className="col-md-2 col-6 mb-2">
+                    <div className="d-md-none mb-1"><b>Quantity</b></div>
+                    <CFormInput
+                      type="number"
+                      value={oitem.dQty > 0 ? oitem.dQty : ''}
+                      placeholder={`Stock: ${oitem.qty}`}
+                      invalid={oitem.invalidQty === true}
+                      required
+                      feedbackInvalid={`Max ${oitem.qty}`}
+                      onChange={(event) => handleQtyChange(event, index)}
+                    />
+                  </div>
+                  <div className="col-md-2 col-6 mb-2">
+                    <div className="d-md-none mb-1"><b>Price</b></div>
+                    <p className="mt-md-2 mb-0">{oitem.dPrice + (oitem.unit ? ' / ' + oitem.unit : '')}</p>
+                  </div>
+                  <div className="col-md-2 col-6 mb-2">
+                    <div className="d-md-none mb-1"><b>Total (RS)</b></div>
+                    <p className="mt-md-2 mb-0">{oitem.total_price}</p>
+                  </div>
+                  <div className="col-md-2 col-6 mb-2 text-md-start text-end">
+                    <div className="d-md-none mb-1"><b>Action</b></div>
+                    <div>
+                      {state.items.length > 1 && (
+                        <CButton color="" onClick={() => handleRemoveProductRow(index)}>
+                          <CIcon icon={cilDelete} size="xl" style={{ '--ci-primary-color': 'red' }} />
+                        </CButton>
+                      )}
+                      {index === state.items.length - 1 && (
+                        <CButton onClick={handleAddProductRow} color="">
+                          <CIcon icon={cilPlus} size="xl" style={{ '--ci-primary-color': 'green' }} />
+                        </CButton>
+                      )}
                     </div>
-                  </div>
-                 
-                  <div className="col-2">
-                  <CFormInput
-                    type="number"
-                    value={oitem.dQty > 0 ? oitem.dQty : ''}
-                    placeholder={`Available Stock :${oitem.qty}`}
-                    invalid={oitem.invalidQty === true}
-                    required
-                    feedbackInvalid={`Max ${oitem.qty}`}
-                    onChange={(event) => handleQtyChange(event, index)}
-                  />
-                  </div>
-                  <div className="col-2 pt-2">
-                    <p>{oitem.dPrice + (oitem.unit ? ' / ' + oitem.unit : '')}</p>
-                  </div>
-                  <div className="col-2 pt-2">
-                    <p>{oitem.total_price}</p>
-                  </div>
-                  <div className="col-2">
-                    {state.items.length > 1 && (
-                      <CButton color="" onClick={() => handleRemoveProductRow(index)}>
-                        <CIcon icon={cilDelete} size="xl" style={{ '--ci-primary-color': 'red' }} />
-                      </CButton>
-                    )}
-                    &nbsp;
-                    {index === state.items.length - 1 && (
-                      <CButton onClick={handleAddProductRow} color="">
-                        <CIcon icon={cilPlus}  size="xl" style={{ '--ci-primary-color': 'green' }} />
-                      </CButton>
-                    )}
                   </div>
                 </div>
               ))}
-              <div className="row">
-                <div className="col-1">
-                  <div className="mb-1"> </div>
-                </div>
-                <div className="col-3">
-                  <div className="mb-1"></div>
-                </div>
-                <div className="col-2"></div>
-                {/* <div className="col-2">
-                  <b>Total (RS)</b>
-                </div>
-                <div className="col-2">
-                  {state.totalAmount}
-                </div> */}
-                <div className="col-2"></div>
-              </div>
-              {/* Payment info */}
-              <div className="row">
-                {/* <div className="col-sm-4"> */}
-                  {/* <div className="mb-3">
-                    <CFormLabel htmlFor="discount">Discount (%)</CFormLabel>
-                    <CFormInput
-                      type="number"
-                      id="discount"
-                      placeholder=""
-                      name="discount"
-                      value={state.discount}
-                      onChange={handleChange}
-                    />
-                  </div> */}
-                {/* </div> */}
-                <div className="col-sm-4">
+
+              {/* Payment info - made responsive */}
+              <div className="row mt-4">
+                <div className="col-md-4 col-12 mb-3">
                   <div className="mb-3">
-                    <CFormLabel htmlFor="paidAmount">Balance Amount (Rs)</CFormLabel>
+                    <CFormLabel htmlFor="balanceAmount">Balance Amount (Rs)</CFormLabel>
                     <CFormInput
                       type="number"
                       id="balanceAmount"
@@ -700,7 +617,7 @@ const Invoice = () => {
                     />
                   </div>
                 </div>
-                <div className="col-sm-4">
+                <div className="col-md-4 col-12 mb-3">
                   <div className="mb-3">
                     <CFormLabel htmlFor="paidAmount">Paid Amount (Rs)</CFormLabel>
                     <CFormInput
@@ -713,7 +630,7 @@ const Invoice = () => {
                     />
                   </div>
                 </div>
-                <div className="col-sm-4">
+                <div className="col-md-4 col-12 mb-3">
                   <div className="mb-3">
                     <CFormLabel htmlFor="finalAmount">Total Amount (Rs)</CFormLabel>
                     <CFormInput
@@ -736,11 +653,11 @@ const Invoice = () => {
                 )}
               </div>
               <div className="mb-3 mt-3">
-                <CButton color="success" type="submit">
+                <CButton color="success" type="submit" className="w-100 mb-2 mb-md-0 w-md-auto">
                   Submit
                 </CButton>
                 &nbsp;
-                <CButton color="secondary" onClick={handleClear}>
+                <CButton color="secondary" onClick={handleClear} className="w-100 w-md-auto">
                   Clear
                 </CButton>
               </div>

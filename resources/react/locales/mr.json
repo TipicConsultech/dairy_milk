@@ -281,8 +281,8 @@
   "tsValue": "TS मूल्य",
 
   "remove": "रिकामे करा",
-  "empty2":"रिकामी करा",
-
+  "emptyCowTank": "रिकामी करा गाई टँक",
+  "emptyBuffaloTank": "रिकामी करा म्हैस टँक",
   "ltr": "लिटर",
   "emptyTankConfirmation": "टँक रिकामा करण्याची पुष्टी",
   "confirmEmpty": "रिकामा करण्याची पुष्टी करा",
