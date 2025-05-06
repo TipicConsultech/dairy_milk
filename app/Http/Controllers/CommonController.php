@@ -586,7 +586,7 @@ public function createProduct(Request $request)
         $user = auth()->user();
         $userId = $user?->id;
         $companyId = $user?->company_id;
-
+        
         $processing = MilkProcesing::create([
             'batch_no'         => $batchNo,
             'milkTank_id'      => $payload['milkTank']['id'],
@@ -678,10 +678,11 @@ public function createProduct(Request $request)
                         'updated_by'      => $userId,
                     ]);
                 }
-
+                 
                 if ($companyId) {
                     DailyTally::create([
                         'company_id'         => $companyId,
+                        'milk_tank_id'      => (int)$payload['milkTank']['id'],
                         'tally_date'         => now()->toDateString(),
                         'product_type'       => 'factory',
                         'product_id'         => $size->id,
