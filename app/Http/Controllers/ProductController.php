@@ -194,17 +194,18 @@ class ProductController extends Controller
         $sz->name = $size['name'];
         $sz->localName = $size['localName'];
         $sz->oPrice = $size['oPrice'];
-        $sz->bPrice = $size['bPrice'];
+        $sz->bPrice = $size['oPrice'];                           // 'bPrice'
         $sz->default_qty = $size['default_qty'] ?? 0;
         // $sz->stock = $size['stock'];
         $sz->max_stock = $size['stock'] ?? null;
 
         $sz->returnable = $size['returnable'];
-        $sz->isFactory = $size['isFactory'];
-        if (isset($size['dPrice'])) { // Only add if dPrice exists
-            $sz->dPrice = $size['dPrice'];
+        $sz->isFactory = $size['isFactory'] ?? 0;
+        if (isset($size['oPrice'])) { // Only add if dPrice exists 'dPrice'
+            $sz->dPrice = $size['oPrice'];   // 'dPrice'
         }
         $sz->qty = $size['qty'];
+        $sz->unit_multiplier = $size['unit_multiplier'];
         $sz->show = $size['show'];
         $sz->company_id = $user->company_id; // Add company_id
         $sizes[] = $sz;
