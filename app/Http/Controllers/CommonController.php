@@ -575,7 +575,7 @@ public function createProduct(Request $request)
     try {
         $firstProductName = null;
         if (!empty($payload['productSizes'])) {
-            $firstProduct = FactoryProduct::find($payload['productSizes'][0]['id']);
+            $firstProduct = ProductSize::find($payload['productSizes'][0]['id']);
             $firstProductName = $firstProduct?->name;
         }
 

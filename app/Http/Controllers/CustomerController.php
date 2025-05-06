@@ -128,12 +128,13 @@ class CustomerController extends Controller
         $creditReports = [];
 
         foreach ($customers as $customer) {
-            if ($customer->paymentTracker) {
+            if ($customer->jarTrackers) {
                 $customerData = [
                     'name' => $customer->name,
                     'mobile' => $customer->mobile,
                     'address' => $customer->address,
-                    'totalPayment' => $customer->paymentTracker->amount,
+                    // 'totalPayment' => $customer->paymentTracker->amount, // we are not maintaining payment so commented this line
+                    // 'totalCrates' => $customer->JarTracker->quantity, 
                     'items' => $customer->jarTrackers // All items from JarTracker
                 ];
 
