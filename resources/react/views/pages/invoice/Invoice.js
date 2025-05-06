@@ -669,12 +669,20 @@ const Invoice = () => {
                   </CRow>
                 )}
               </div>
-              <div className="mb-3 mt-3">
-                <CButton color="success" type="submit" className="w-100 mb-2 mb-md-0 w-md-auto">
+              <div className="mb-3 mt-3 d-flex justify-content-start">
+                <CButton
+                  color="success"
+                  type="submit"
+                  className="mb-2 mb-md-0 me-md-2 "
+                  style={{ width: '125px' }}
+                >
                   {t('LABELS.submit')}
-                </CButton>
-                &nbsp;
-                <CButton color="secondary" onClick={handleClear} className="w-100 w-md-auto">
+                </CButton>&nbsp;
+                <CButton
+                  color="secondary"
+                  onClick={handleClear}
+                  style={{ width: '125px' }}
+                >
                   {t('LABELS.clear')}
                 </CButton>
               </div>
