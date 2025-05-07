@@ -86,7 +86,7 @@ const MilkForm = () => {
 
   const fetchRawMaterials = async () => {
     try {
-      const res = await getAPICall('/api/raw-materials/showAll')
+      const res = await getAPICall('/api/getRawMaterialsByParam/0')
       setRawMaterialData(res.quantity)
       setIngredientOptions(res.quantity.map(item => item.name))
     } catch (err) {

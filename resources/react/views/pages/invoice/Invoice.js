@@ -700,14 +700,14 @@ const Invoice = () => {
           
           {!oitem.product_name ? (
             <div
-              className="dropdown-icon"
-              onClick={() => {
-                setCurrentEditIndex(index);
-                setIsProductsDropdownOpen(true);
-              }}
-            >
-              <CIcon icon={cilChevronBottom} size="sm" />
-            </div>
+            className="dropdown-icon"
+            onClick={() => {
+              setCurrentEditIndex(index);
+              setIsProductsDropdownOpen(true);
+            }}
+          >
+            <CIcon icon={cilChevronBottom} size="sm" />
+          </div>
 
           ) : (
             <div className="clear-button" onClick={() => clearProductSelection(index)}>
@@ -741,23 +741,31 @@ const Invoice = () => {
         <CFormInput
   type="number"
   value={oitem.dQty}
-  placeholder={`${t('LABELS.stock')}: ${oitem.qty}`} // ✅ show available stock
+  placeholder={`${t('LABELS.stock')}: ${oitem.qty}`}
   onChange={(e) => {
-    const value = parseFloat(e.target.value) || '';
+    const value = e.target.value === '' ? '' : parseFloat(e.target.value);
+
     const updatedItems = [...state.items];
     updatedItems[index].dQty = value;
-    updatedItems[index].total_price = value && updatedItems[index].dPrice
-      ? value * updatedItems[index].dPrice
-      : 0;
-    setState((prev) => ({
-      ...prev,
+
+    // ✅ Safe total_price calculation
+    const price = parseFloat(updatedItems[index].dPrice || 0);
+    const qty = parseFloat(value || 0);
+    updatedItems[index].total_price = price && qty ? price * qty : 0;
+
+    const updatedState = {
+      ...state,
       items: updatedItems,
       totalAmount: calculateTotal(updatedItems),
-    }));
+    };
+
+    // ✅ Recalculate balance after total changes
+    calculateFinalAmount(updatedState);
+
+    setState(updatedState);
   }}
 />
-
-      </div>
+</div>
 
       {/* Price field - half width on xs/sm, 2 columns on md+ */}
       <div className="col-6 col-md-2 mb-3 mb-md-0">
