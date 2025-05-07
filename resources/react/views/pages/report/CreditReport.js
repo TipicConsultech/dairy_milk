@@ -74,7 +74,7 @@ const CreditReport = () => {
         }
       });
 
-    return `${t('MSG.sms_part_1')} ${p.totalPayment < 0 ? -1 * p.totalPayment : 0} ${t('MSG.sms_part_2')}${products}${t('MSG.sms_part_3')} ${company}`;
+    return `${t('MSG.sms_part_1')}${t('MSG.sms_part_2')}${products}${t('MSG.sms_part_3')} ${company}`;
   }
 
   // Calculate total crates by summing up quantities from all customers' items

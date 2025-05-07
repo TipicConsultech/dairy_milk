@@ -153,6 +153,7 @@
     "gram": "Gram",
     "Date": "Date",
     "Ltr": "Ltr",
+    "total_crates":"Total Crates",
     "select": "Select",
     "g": "g",
     "pcs":"Packets",
@@ -310,6 +311,7 @@
   "availableQuantityLtrs": "Available Quantity: {{qty}} Ltrs",
   "ltrs": "Ltrs",
   "searchOrSelectIngredient": "Search or Select Ingredient",
+  "searchOrSelectProduct": "Search Or Select Product",
   "availableQuantityValue": "Available Quantity: {{qty}}",
   "availableQuantity": "Available Quantity",
   "productCreated": "Product Created",
@@ -489,6 +491,9 @@
             "errorTryAgain": "Error occurred, please try again later.",
             "failedToLoadProductData": "Failed to load product data",
             "failedToLoadMilkTankData": "Failed to load milk tank data",
-            "noDataAvailable": "No data available"
+            "noDataAvailable": "No data available",
+            "sms_part_1": "Hello, Total",
+            "sms_part_2": "",
+            "sms_part_3": " is pending. Regards - "
     }
    }
