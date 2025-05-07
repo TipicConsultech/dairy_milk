@@ -740,6 +740,21 @@ public function createProduct(Request $request)
 
         DB::commit();
 
+        // for data goes to minus then show error
+        $negativeStockMaterials = RawMaterial::where('unit_qty', '<', 0)->pluck('name')->toArray();
+if (!empty($negativeStockMaterials)) {
+    throw ValidationException::withMessages([
+        'rawMaterials' => 'Negative stock detected in: ' . implode(', ', $negativeStockMaterials),
+    ]);
+}
+
+$negativeMilkTanks = MilkTank::where('quantity', '<', 0)->pluck('name')->toArray();
+if (!empty($negativeMilkTanks)) {
+    throw ValidationException::withMessages([
+        'milkTank' => 'Negative milk stock detected in: ' . implode(', ', $negativeMilkTanks),
+    ]);
+}
+
         return response()->json([
             'status'  => 'success',
             'message' => 'Inventory updated; batch, ingredients and product tracking logged.',
@@ -1354,6 +1369,19 @@ public function newRetailProduct(Request $request)
         }
 
         DB::commit();
+
+        // 7-5-25 for product qty deduct
+        // Deduct used quantity from products_tracker and factory ProductSize ===
+$trackerRecord = ProductsTracker::find($batchId);
+if ($trackerRecord) {
+    $newTrackerQty = $trackerRecord->product_qty - $totalRealQty;
+    if ($newTrackerQty < 0) {
+        throw new \Exception("Not enough product quantity in tracker to complete packaging. Available: {$trackerRecord->product_qty}, Required: {$totalRealQty}");
+    }
+
+    $trackerRecord->product_qty = $newTrackerQty;
+    $trackerRecord->save();
+}
 
         return response()->json([
             'success' => true,

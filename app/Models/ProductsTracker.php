@@ -29,4 +29,9 @@ class ProductsTracker extends Model
 {
     return $this->belongsTo(FactoryProduct::class, 'factory_product_id');
 }
+public function productSize()
+{
+    return $this->belongsTo(ProductSize::class, 'product_size_id');
+}
+
 }
