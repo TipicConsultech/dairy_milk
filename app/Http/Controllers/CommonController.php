@@ -30,11 +30,21 @@ class CommonController extends Controller
             'unit',
             'qty as quantity',
             'dPrice as price',
-            'show as is_visible'
+            'show as is_visible',
+            'product_type'
         )
         ->get()
         ->map(function ($item) {
+            if($item->product_type==2){
             $item->source_type = 'retail';
+            }
+            else if($item->product_type==1){
+            $item->source_type = 'factory';
+            }
+            else if($item->product_type==0){
+            $item->source_type = 'delivery';  
+            }
+           
             // $item->is_visible = true;
             return $item;
         });
@@ -63,7 +73,7 @@ class CommonController extends Controller
                 'quantity' => $item->quantity,
                 'price' => $item->price,
                 'is_visible' => (bool) $item->is_visible,
-                'source_type' => 'retail',
+                'source_type' => $item->source_type,
             ];
         });
         
@@ -83,7 +93,7 @@ class CommonController extends Controller
         $combined = $retailArray->merge($factoryArray)->values();
     
         return response()->json([
-            'data' => $combined
+            'data' => $retailArray
         ]);
     }
     
