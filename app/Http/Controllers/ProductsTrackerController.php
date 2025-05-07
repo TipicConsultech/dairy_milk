@@ -43,24 +43,44 @@ class ProductsTrackerController extends Controller
     
     public function BatchByProductId(Request $request)
 {
-    $uniqueBatchNumbers = ProductsTracker::query()
-        ->where('product_size_id', $request->id)
-        ->latest() // Orders by created_at descending
-        ->take(2)  // Limits to 2 results
-        ->select('product_qty', 'batch_no', 'id')
-        ->get()
-        ->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'product_qty' => $item->product_qty,
-                'batch' => $item->batch_no,
-            ];
-        });
+    // $uniqueBatchNumbers = ProductsTracker::query()
+    //     ->where('product_size_id', $request->id)
+    //     ->with(['ProductSize:id,id,unit'])
+    //     ->latest() // Orders by created_at descending
+    //     ->take(2)  // Limits to 2 results
+    //     ->select('product_qty', 'batch_no', 'id')
+    //     ->get()
+    //     ->map(function ($item) {
+    //         return [
+    //             'id' => $item->id,
+    //             'product_qty' => $item->product_qty,
+    //             'batch' => $item->batch_no,
+    //             'unit'         => $item->productSize->unit ?? null, 
+    //         ];
+    //     });
 
-    return response()->json([
-        'status' => true,
-        'batch' => $uniqueBatchNumbers,
-    ]);
+    // return response()->json([
+    //     'status' => true,
+    //     'batch' => $uniqueBatchNumbers,
+    // ]);
+    $batches = ProductsTracker::with('productSize')
+    ->where('product_size_id', $request->id)
+    ->latest()
+    ->take(2)
+    ->get()
+    ->map(function ($item) {
+        return [
+            'id'          => $item->id,
+            'product_qty' => $item->product_qty,
+            'batch'       => $item->batch_no,
+            'unit'        => $item->productSize?->unit, // Null-safe access
+        ];
+    });
+
+return response()->json([
+    'status' => true,
+    'batch'  => $batches,
+]);
 }
 
 

@@ -451,9 +451,14 @@ const createRetailProduct = () => {
           <CCol md={2}>
             <CFormLabel><b>{t('LABELS.totalQty')}</b></CFormLabel>
             <CFormInput
-              type="number"
+              type="text"
               placeholder={t('LABELS.quantity')}
-              value={selectedBatch?.product_qty}
+              // value={selectedBatch?.product_qty}
+              value={
+                selectedBatch
+                  ? `${selectedBatch?.product_qty} (${selectedBatch?.unit})`
+                  : ''
+              }
               disabled
             />
           </CCol>
