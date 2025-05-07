@@ -82,6 +82,20 @@ const Invoice = () => {
     finalAmount: 0,
     paymentType: 1,
   })
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (productsDropdownRef.current && !productsDropdownRef.current.contains(event.target)) {
+        setIsProductsDropdownOpen(false);
+      }
+    };
+  
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  
   const [showAlert, setShowAlert] = useState(false);
   const [message, setMessage] = useState('');
   async function getProductFromParam(){
@@ -364,34 +378,35 @@ const Invoice = () => {
   const handleProductSelectFromDropdown = (selectedProductName, index) => {
     const p = allProducts.find((p) => p.sizes[0].name === selectedProductName);
     if (p && p.sizes[0]) {
+      const size = p.sizes[0];
       setState((prev) => {
-        const old = { ...prev }
+        const old = { ...prev };
         old.items[index].product_id = p.id;
         old.items[index].id = p.id;
-        old.items[index].product_sizes_id = p.sizes[0].id;
-        old.items[index].name = p.sizes[0].name;
-        old.items[index].product_name = p.sizes[0].name;
-        old.items[index].localName = p.sizes[0].localName;
+        old.items[index].product_sizes_id = size.id;
+        old.items[index].name = size.name;
+        old.items[index].product_name = size.name;
+        old.items[index].localName = size.localName;
         old.items[index].unit = p.unit;
-        old.items[index].size_name = p.sizes[0].name;
-        old.items[index].size_local_name = p.sizes[0].localName;
+        old.items[index].size_name = size.name;
+        old.items[index].size_local_name = size.localName;
         old.items[index].product_local_name = p.localName;
-        old.items[index].oPrice = p.sizes[0].oPrice;
-        old.items[index].dQty = 0;
+        old.items[index].oPrice = size.oPrice;
+        old.items[index].qty = size.qty; // used for placeholder only
         old.items[index].eQty = 0;
-        old.items[index].dPrice = p.sizes[0].dPrice;
-        old.items[index].bPrice = p.sizes[0].bPrice;
-        old.items[index].returnable = p.sizes[0].returnable;
-        old.items[index].total_price = p.sizes[0].dPrice * old.items[index].dQty;
-        old.totalAmount = calculateTotal(old.items);
-        calculateFinalAmount(old);
-        return { ...old }
+        old.items[index].dQty = ''; // ⛔ keep blank until user types
+        old.items[index].dPrice = size.dPrice;
+        old.items[index].bPrice = size.bPrice;
+        old.items[index].returnable = size.returnable;
+        old.items[index].total_price = 0; // Reset total until quantity is typed
+        return { ...old };
       });
-      
-      // Close dropdown after selection
+  
       setIsProductsDropdownOpen(false);
     }
   };
+  
+  
 
   // Legacy handler (keep for compatibility)
   const handleProductChange = (e, index) => {
@@ -684,9 +699,16 @@ const Invoice = () => {
           />
           
           {!oitem.product_name ? (
-            <div className="dropdown-icon">
+            <div
+              className="dropdown-icon"
+              onClick={() => {
+                setCurrentEditIndex(index);
+                setIsProductsDropdownOpen(true);
+              }}
+            >
               <CIcon icon={cilChevronBottom} size="sm" />
             </div>
+
           ) : (
             <div className="clear-button" onClick={() => clearProductSelection(index)}>
               <CIcon icon={cilX} size="sm" />
@@ -717,14 +739,24 @@ const Invoice = () => {
       <div className="col-6 col-md-2 mb-3 mb-md-0">
         <div className="d-md-none fw-bold mb-2">{t('LABELS.quantity')}</div>
         <CFormInput
-          type="number"
-          value={oitem.dQty > 0 ? oitem.dQty : ''}
-          placeholder={`${t('LABELS.stock')}: ${oitem.qty}`}
-          invalid={oitem.invalidQty === true}
-          required
-          feedbackInvalid={`${t('LABELS.max')} ${oitem.qty}`}
-          onChange={(event) => handleQtyChange(event, index)}
-        />
+  type="number"
+  value={oitem.dQty}
+  placeholder={`${t('LABELS.stock')}: ${oitem.qty}`} // ✅ show available stock
+  onChange={(e) => {
+    const value = parseFloat(e.target.value) || '';
+    const updatedItems = [...state.items];
+    updatedItems[index].dQty = value;
+    updatedItems[index].total_price = value && updatedItems[index].dPrice
+      ? value * updatedItems[index].dPrice
+      : 0;
+    setState((prev) => ({
+      ...prev,
+      items: updatedItems,
+      totalAmount: calculateTotal(updatedItems),
+    }));
+  }}
+/>
+
       </div>
 
       {/* Price field - half width on xs/sm, 2 columns on md+ */}
