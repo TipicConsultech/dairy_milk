@@ -194,11 +194,11 @@ export default function fetchNavItems(t1){
             name: t("LABELS.create_retail_product"),
             to: '/CreateRetailProduct',
           },
-          {
-            component: CNavItem,
-            name: t("LABELS.create_bulk_product"),
-            to: '/CreateBulkProduct',
-          },
+          // {
+          //   component: CNavItem,
+          //   name: t("LABELS.create_bulk_product"),
+          //   to: '/CreateBulkProduct',
+          // },
           
           
         ],
