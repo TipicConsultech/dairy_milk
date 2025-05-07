@@ -620,6 +620,7 @@ const Delivery = () => {
                         id="dQty"
                         placeholder="0"
                         name="dQty"
+                        style={{height : '41px'}}
                         value={p.dQty}
                         onChange={(e)=>{
                           handleQuantityChangeRate(index, parseInt(e.target.value ?? '0'),'dQty')
@@ -699,6 +700,8 @@ const Delivery = () => {
                           id="eQty"
                           placeholder="0"
                           name="eQty"
+                          
+                          style={{height : '41px'}}
                           value={p.eQty ?? 0}
                           onChange={(e)=>{
                             handleQuantityChange(index, Math.min(parseInt(e.target.value ?? '0'), customerHistory?.returnEmptyProducts?.find((itm)=> itm.product_sizes_id === p.sizes[0].id)?.quantity ?? 0),'eQty')
