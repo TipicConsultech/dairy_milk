@@ -67,7 +67,7 @@ const Invoice = () => {
         oPrice: 0,
         bPrice: 0,
         dPrice: 0,
-        dQty: 0,
+        dQty: '',
         eQty: 0,
         qty: 0,
         total_price: 0,
@@ -118,7 +118,7 @@ const Invoice = () => {
             bPrice: data.bPrice,
             dPrice: data.dPrice,
             id:'0',
-            dQty: 0,
+            dQty: '',
             eQty: 0,
             qty: data.qty,
             total_price: 0,
@@ -270,7 +270,7 @@ const Invoice = () => {
               bPrice: data.bPrice,
               dPrice: data.dPrice,
               id:'0',
-              dQty: 0,
+              dQty: '',
               eQty: 0,
               qty: data.qty,
               total_price: 0,
@@ -299,7 +299,7 @@ const Invoice = () => {
         dPrice: 0,
         bPrice: 0,
         qty: 0,
-        dQty: 0,
+        dQty: '',
         eQty: 0,
         total_price: 0,
         returnable: 0,
@@ -375,6 +375,36 @@ const Invoice = () => {
   };
 
   // Handle product selection from dropdown
+  // const handleProductSelectFromDropdown = (selectedProductName, index) => {
+  //   const p = allProducts.find((p) => p.sizes[0].name === selectedProductName);
+  //   if (p && p.sizes[0]) {
+  //     const size = p.sizes[0];
+  //     setState((prev) => {
+  //       const old = { ...prev };
+  //       old.items[index].product_id = p.id;
+  //       old.items[index].id = p.id;
+  //       old.items[index].product_sizes_id = size.id;
+  //       old.items[index].name = size.name;
+  //       old.items[index].product_name = size.name;
+  //       old.items[index].localName = size.localName;
+  //       old.items[index].unit = p.unit;
+  //       old.items[index].size_name = size.name;
+  //       old.items[index].size_local_name = size.localName;
+  //       old.items[index].product_local_name = p.localName;
+  //       old.items[index].oPrice = size.oPrice;
+  //       old.items[index].qty = size.qty; // used for placeholder only
+  //       old.items[index].eQty = 0;
+  //       old.items[index].dQty = ''; // ⛔ keep blank until user types
+  //       old.items[index].dPrice = size.dPrice;
+  //       old.items[index].bPrice = size.bPrice;
+  //       old.items[index].returnable = size.returnable;
+  //       old.items[index].total_price = 0; // Reset total until quantity is typed
+  //       return { ...old };
+  //     });
+  
+  //     setIsProductsDropdownOpen(false);
+  //   }
+  // };
   const handleProductSelectFromDropdown = (selectedProductName, index) => {
     const p = allProducts.find((p) => p.sizes[0].name === selectedProductName);
     if (p && p.sizes[0]) {
@@ -387,18 +417,19 @@ const Invoice = () => {
         old.items[index].name = size.name;
         old.items[index].product_name = size.name;
         old.items[index].localName = size.localName;
-        old.items[index].unit = p.unit;
+        old.items[index].unit = p.unit || ''; // ✅ ensure fallback
         old.items[index].size_name = size.name;
         old.items[index].size_local_name = size.localName;
         old.items[index].product_local_name = p.localName;
         old.items[index].oPrice = size.oPrice;
-        old.items[index].qty = size.qty; // used for placeholder only
+        old.items[index].qty = size.qty ?? 0; // ✅ fallback for placeholder
         old.items[index].eQty = 0;
-        old.items[index].dQty = ''; // ⛔ keep blank until user types
-        old.items[index].dPrice = size.dPrice;
+        old.items[index].dQty = ''; // ⛔ reset input
+        old.items[index].dPrice = size.dPrice ?? 0; // ✅ fallback for price
         old.items[index].bPrice = size.bPrice;
         old.items[index].returnable = size.returnable;
-        old.items[index].total_price = 0; // Reset total until quantity is typed
+        old.items[index].total_price = 0;
+        old.items[index].notSelected = false; // ✅ add this to fix invalid feedback
         return { ...old };
       });
   
@@ -406,6 +437,10 @@ const Invoice = () => {
     }
   };
   
+
+
+
+
   
 
   // Legacy handler (keep for compatibility)
@@ -452,7 +487,7 @@ const Invoice = () => {
       old.items[index].size_local_name = '';
       old.items[index].product_local_name = '';
       old.items[index].oPrice = 0;
-      old.items[index].dQty = 0;
+      old.items[index].dQty = '';
       old.items[index].eQty = 0;
       old.items[index].dPrice = 0;
       old.items[index].bPrice = 0;
@@ -666,7 +701,7 @@ const Invoice = () => {
       <div className="fw-bold">{t('LABELS.quantity')}</div>
     </div>
     <div className="col-md-2">
-      <div className="fw-bold">{t('LABELS.price')}</div>
+      <div className="fw-bold">{t('LABELS.price')} ₹</div>
     </div>
     <div className="col-md-2">
       <div className="fw-bold">{t('LABELS.totalRs')}</div>
@@ -738,7 +773,7 @@ const Invoice = () => {
       {/* Quantity field - half width on xs/sm, 2 columns on md+ */}
       <div className="col-6 col-md-2 mb-3 mb-md-0">
         <div className="d-md-none fw-bold mb-2">{t('LABELS.quantity')}</div>
-        <CFormInput
+        {/* <CFormInput
   type="number"
   value={oitem.dQty}
   placeholder={`${t('LABELS.stock')}: ${oitem.qty}`}
@@ -764,19 +799,50 @@ const Invoice = () => {
 
     setState(updatedState);
   }}
+/> */}
+<CFormInput
+  type="number"
+  value={oitem.dQty === '' || oitem.dQty === undefined ? '' : oitem.dQty}
+  placeholder={`Stock: ${oitem.qty ?? 0}`}
+  onChange={(e) => {
+    const value = e.target.value === '' ? '' : parseFloat(e.target.value);
+
+    const updatedItems = [...state.items];
+    updatedItems[index].dQty = value;
+
+    const price = parseFloat(updatedItems[index].dPrice || 0);
+    const qty = parseFloat(value || 0);
+    updatedItems[index].total_price = price && qty ? price * qty : 0;
+
+    const updatedState = {
+      ...state,
+      items: updatedItems,
+      totalAmount: calculateTotal(updatedItems),
+    };
+
+    calculateFinalAmount(updatedState);
+    setState(updatedState);
+  }}
 />
+
 </div>
 
       {/* Price field - half width on xs/sm, 2 columns on md+ */}
       <div className="col-6 col-md-2 mb-3 mb-md-0">
         <div className="d-md-none fw-bold mb-2">{t('LABELS.price')}</div>
-        <p className="mb-0">{oitem.dPrice + (oitem.unit ? ' / ' + oitem.unit : '')}</p>
+        {/* <p className="mb-0">{oitem.dPrice + (oitem.unit ?  '₹ / ' + oitem.unit : '')}</p> */}
+        <p className="mb-0">
+  {oitem.product_name && oitem.dPrice !== undefined
+    ? `${oitem.dPrice} ₹${oitem?.unit && oitem?.unit !== 'NA' ? ' / ' + oitem?.unit : ''}`
+    : ''}
+</p>
+
       </div>
 
       {/* Total price field - half width on xs/sm, 2 columns on md+ */}
       <div className="col-6 col-md-2 mb-3 mb-md-0">
         <div className="d-md-none fw-bold mb-2">{t('LABELS.totalRs')}</div>
-        <p className="mb-0 fw-bold">{oitem.total_price}</p>
+        <p className="mb-0 fw-bold">{oitem.total_price }</p>
       </div>
 
       {/* Action buttons - half width on xs/sm, 2 columns on md+ */}

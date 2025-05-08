@@ -70,6 +70,12 @@ const Dashboard = (Props) => {
     }
   }, [])
 
+  const decodeUnicode = (str) => {
+    return str.replace(/\\u[\dA-F]{4}/gi, (match) => {
+      return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
+    });
+  };
+
   return (
     <>
       {mode === 'advance' && <WidgetsDropdown className="mb-4" reportMonth={reportMonth} />}
@@ -122,7 +128,9 @@ const Dashboard = (Props) => {
                       if (searchTerm.length < 2) return true;
                       
                       // Search in product name (based on current language)
-                      const productName = lng === 'en' ? p.name : p.local_name;
+                      const productName = lng === 'en' ? p.name : decodeUnicode(p.localName);
+                      console.log("p.local_name",productName);
+                      
                       return productName && productName.toLowerCase().includes(searchTerm.toLowerCase());
                     })
                     .map((p) => {
@@ -131,7 +139,7 @@ const Dashboard = (Props) => {
                       
                       return (
                         <CTableRow key={p.id}>
-                          <CTableHeaderCell>{lng === 'en' ? p.name : p.local_name}</CTableHeaderCell>
+                          <CTableHeaderCell>{lng === 'en' ? p.name : decodeUnicode(p.localName)}</CTableHeaderCell>
   
                           <CTableDataCell className="text-center font-weight-bold text-black" style={{ width: '16%' }}>
                             {p.max_stock}

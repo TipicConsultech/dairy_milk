@@ -104,30 +104,62 @@ export default function fetchNavItems(t1){
         to: '/dashboard',
         icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
       },
+      // {
+      //   component: CNavItem,
+      //   name: t('LABELS.dailyTallyReport'),
+      //   to: '/dailyTallies',
+      //   icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
+      // },
+      // {
+      //   component: CNavItem,
+      //   name: t("LABELS.report"),
+      //   to: 'Reports/Reports',
+      //   icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
+      // },
+      // {
+      //   component: CNavItem,
+      //   name: t("LABELS.credit_report"),
+      //   to: 'Reports/creditReport',
+      //   icon: <CIcon icon={cilDollar} customClassName="nav-icon" />,
+      // },
+      // {
+      //   component: CNavItem,
+      //   name: t("LABELS.customer_report"),
+      //   to: 'Reports/Customer_Report',
+      //   icon: <CIcon icon={cilAddressBook} customClassName="nav-icon" />,
+      // },
       {
-        component: CNavItem,
-        name: t('LABELS.dailyTallyReport'),
-        to: '/dailyTallies',
-        icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
-      },
-      {
-        component: CNavItem,
+        component: CNavGroup,
         name: t("LABELS.report"),
-        to: 'Reports/Reports',
         icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
+        items: [
+          {
+            component: CNavItem,
+            name: t('LABELS.dailyTallyReport'),
+            to: '/dailyTallies',
+            icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
+          },
+          {
+            component: CNavItem,
+            name: t("LABELS.report"),
+            to: 'Reports/Reports',
+            icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
+          },
+          {
+            component: CNavItem,
+            name: t("LABELS.credit_report"),
+            to: 'Reports/creditReport',
+            icon: <CIcon icon={cilDollar} customClassName="nav-icon" />,
+          },
+          {
+            component: CNavItem,
+            name: t("LABELS.customer_report"),
+            to: 'Reports/Customer_Report',
+            icon: <CIcon icon={cilAddressBook} customClassName="nav-icon" />,
+          },
+        ],
       },
-      {
-        component: CNavItem,
-        name: t("LABELS.credit_report"),
-        to: 'Reports/creditReport',
-        icon: <CIcon icon={cilDollar} customClassName="nav-icon" />,
-      },
-      {
-        component: CNavItem,
-        name: t("LABELS.customer_report"),
-        to: 'Reports/Customer_Report',
-        icon: <CIcon icon={cilAddressBook} customClassName="nav-icon" />,
-      },
+      
       {
         component: CNavGroup,
         name: t("LABELS.expense"),
@@ -299,7 +331,31 @@ export default function fetchNavItems(t1){
         to: '/invoice',
         icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
       },
-    
+      {
+        component: CNavGroup,
+        name: t("LABELS.report"),
+        icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
+        items: [
+          {
+            component: CNavItem,
+            name: t('LABELS.dailyTallyReport'),
+            to: '/dailyTallies',
+            icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
+          },
+          {
+            component: CNavItem,
+            name: t("LABELS.credit_report"),
+            to: 'Reports/creditReport',
+            icon: <CIcon icon={cilDollar} customClassName="nav-icon" />,
+          },
+          {
+            component: CNavItem,
+            name: t("LABELS.customer_report"),
+            to: 'Reports/Customer_Report',
+            icon: <CIcon icon={cilAddressBook} customClassName="nav-icon" />,
+          },
+        ],
+      },
   
       // {
       //   component: CNavGroup,
