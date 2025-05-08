@@ -27,6 +27,7 @@ const createRetailProduct = () => {
   const [factoryProductData, setFactoryProductData] = useState([])
   const [error, setError] = useState('')
   const [batch, setBatch] = useState([])
+  const [mappedRetailProducts, setMappedRetailProducts] = useState([]);
 
   const [ingredientOptions, setIngredientOptions] = useState([])
   const [newIngredient, setNewIngredient] = useState({id:'', name: '', quantity: '', available_qty: '', unit: '' })
@@ -106,21 +107,30 @@ const createRetailProduct = () => {
   }
 
   const handleFactoryProductChange = async(factoryProductId) => {
+    setFactoryProductId(factoryProductId);
+  
     if(factoryProductId){
       try{
-        const resp = await post('/api/batchByProductId',{'id': factoryProductId});
-        setBatch(resp?.batch);
-      }
-      catch(e){
+        const resp = await post('/api/batchByProductId', {'id': factoryProductId});
+        setBatch(resp?.batch || []);
+      } catch(e){
         console.error('Error fetching batch data:', e);
       }
-    }
-    else{
+  
+      // 🔽 New: Fetch mapped retail products
+      try {
+        const mappingResp = await getAPICall(`/api/retail-products/${factoryProductId}`);
+        setMappedRetailProducts(mappingResp); // Assumes it returns an array of retail product objects
+      } catch (err) {
+        console.error('Error fetching mapped retail products:', err);
+        setMappedRetailProducts([]);
+      }
+    } else {
       setBatch([]);
+      setMappedRetailProducts([]);
     }
-
-    setFactoryProductId(factoryProductId);
-  }
+  };
+  
 
   const clearFactoryProduct = () => {
     setFactoryProductSearch('');
@@ -658,21 +668,22 @@ const createRetailProduct = () => {
                       className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
                       style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
                     >
-                      {productOptions
-                        .filter(item => item.name.toLowerCase().includes(newProduct.name.toLowerCase()))
-                        .map((item, index) => (
-                          <div
-                            key={index}
-                            className="p-2 cursor-pointer hover-bg-light"
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => {
-                              handleProductSelect(item);
-                              setIsProductsDropdownOpen(false);
-                            }}
-                          >
-                            {item.name} ({item.label_value} {item.unit})
-                          </div>
-                        ))}
+                      {mappedRetailProducts
+                      .filter(item => item.name.toLowerCase().includes(newProduct.name.toLowerCase()))
+                      .map((item, index) => (
+                        <div
+                          key={index}
+                          className="p-2 cursor-pointer hover-bg-light"
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => {
+                            handleProductSelect(item); // already defined in your file
+                            setIsProductsDropdownOpen(false);
+                          }}
+                        >
+                          {item.name} ({item.label_value} {item.unit})
+                        </div>
+                    ))}
+
                     </div>
                   )}
                 </div>
