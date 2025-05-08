@@ -176,16 +176,16 @@ class ProductController extends Controller
         'updated_by' => $user->id, // Add updated_by
     ]);
 
-    // Save images with company_id
-    $images = [];
-    foreach ($request->media as $img) {
-        $media = new ProductMedia;
-        $media->url = $img['url'];
-        $media->type = $img['type'];
-        $media->company_id = $user->company_id; // Add company_id
-        $images[] = $media;
-    }
-    $product->media()->saveMany($images);
+    // // Save images with company_id
+    // $images = [];
+    // foreach ($request->media as $img) {
+    //     $media = new ProductMedia;
+    //     $media->url = $img['url'];
+    //     $media->type = $img['type'];
+    //     $media->company_id = $user->company_id; // Add company_id
+    //     $images[] = $media;
+    // }
+    // $product->media()->saveMany($images);
 
     // Save sizes with company_id
     $sizes = [];
@@ -193,19 +193,18 @@ class ProductController extends Controller
         $sz = new ProductSize;
         $sz->name = $size['name'];
         $sz->localName = $size['localName'];
-        $sz->oPrice = $size['oPrice'];
-        $sz->bPrice = $size['oPrice'];                           // 'bPrice'
+        $sz->oPrice = $size['dPrice'];
+        $sz->bPrice = $size['dPrice'];  
+        $sz->dPrice = $size['dPrice'];                         // 'dPrice'
         $sz->default_qty = $size['default_qty'] ?? 0;
         // $sz->stock = $size['stock'];
-        $sz->max_stock = $size['stock'] ?? null;
-
+        $sz->max_stock = $size['max_stock'] ?? null;
+        $sz->unit = $size['unit'];                         
         $sz->returnable = $size['returnable'];
         $sz->isFactory = $size['isFactory'] ?? 0;
-        if (isset($size['oPrice'])) { // Only add if dPrice exists 'dPrice'
-            $sz->dPrice = $size['oPrice'];   // 'dPrice'
-        }
         $sz->qty = $size['qty'];
         $sz->unit_multiplier = $size['unit_multiplier'];
+        $sz->product_type = $size['product_type'];
         $sz->show = $size['show'];
         $sz->company_id = $user->company_id; // Add company_id
         $sizes[] = $sz;
@@ -427,6 +426,7 @@ class ProductController extends Controller
         'updated_by' => 'nullable|integer',
         'returnable' => 'boolean',
         'show' => 'boolean',
+        'product_type'=>'nullable|numeric',
     ]);
 
     $productSize->update($validated);

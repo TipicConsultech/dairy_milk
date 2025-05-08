@@ -4,8 +4,10 @@ import { CBadge, CButton, CCardHeader } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilArrowThickToBottom, cilArrowThickToTop } from '@coreui/icons';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function RawMaterial() {
+   const { t, i18n } = useTranslation("global");
   const [tableData, setTableData] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
@@ -112,7 +114,7 @@ function RawMaterial() {
 
 <CCardHeader style={{ backgroundColor: '#d4edda', marginBottom:'10px'}} className='p-2 rounded'>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h5 className="mb-0" >Retail Product Inventory </h5>
+            <h5 className="mb-0" >{t('LABELS.retail_product_inventory')}</h5>
 
           </div>
         </CCardHeader>
@@ -124,7 +126,7 @@ function RawMaterial() {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by name"
+          placeholder={t('LABELS.search_name')}
           className="form-control w-100"
           style={{ maxWidth: '500px', width: '100%' }}
         />
@@ -158,21 +160,23 @@ function RawMaterial() {
         <table className="table table-hover table-bordered align-middle">
           <thead className="table-light" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
             <tr>
-              <th>Name</th>
-              <th>Available Stock</th>
-              <th>Stock Indicator</th>
+            <th>{t('LABELS.name')}</th>
+              <th>{t('LABELS.price')}</th>
+              <th>{t('LABELS.available_stock')}</th>
+              <th>{t('LABELS.stock_indicator')}</th>
               {/* <th>Weight</th> */}
-              <th>Capacity</th>
+              <th>{t('LABELS.Capacity')}</th>
 
 
 
-              <th style={{ width: '100px' }}>Action</th>
+              <th style={{ width: '100px' }}>{t('LABELS.actions')}</th>
             </tr>
           </thead>
           <tbody>
             {tableData.map((item) => (
               <tr key={item.id}>
                 <td>{item.name}</td>
+                <td>₹&nbsp;{item.dPrice}</td>
                 <td>{item.qty}&nbsp;units</td>
                 {/* <td>
                 {item.label_value}&nbsp;{item.unit}
@@ -192,10 +196,10 @@ function RawMaterial() {
                     }}
                   >
                     {item.min_qty === 1
-                      ? 'Empty Soon'
+                      ? `${t('LABELS.empty_soon')}`
                       : item.min_qty === 2
-                      ? 'Moderate'
-                      : 'Sufficient'}
+                      ? `${t('LABELS.moderate')}`
+                      :`${t('LABELS.sufficient')}`}
                   </CBadge>
                 </td>
                 <td>{item.max_stock}</td>
@@ -205,7 +209,7 @@ function RawMaterial() {
                     className="btn btn-outline-success btn-sm w-100"
                     onClick={() => handleAddClick(item)}
                   >
-                    Invoice
+                    {t('LABELS.invoice')}
                   </button>
                 </td>
               </tr>
