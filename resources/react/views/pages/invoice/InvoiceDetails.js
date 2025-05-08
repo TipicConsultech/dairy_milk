@@ -257,7 +257,7 @@ const InvoiceDetails = () => {
                       <td className='text-center'>{index + 1}</td>
                       <td className='text-center'>{product.product_name}</td>
                       <td className='text-center'>{product.dPrice}&nbsp;₹ {product.product_unit ? ` per ${product.product_unit}` : ''}</td>
-                      <td className='text-center'>{product.dQty}{product.product_unit ? ` ${product.product_unit}` : ''}</td>
+                       <td className='text-center'>{product.dQty}</td>                     {/*  {product.product_unit ? `${product.product_unit}` : ''} */}
                       <td className='text-center'>{product.total_price}&nbsp;₹</td>
                     </tr>
                   ))}
