@@ -51,6 +51,7 @@ const CustomerReport = React.lazy(() => import('./views/pages/report/CustomerRep
 const SalesReport = React.lazy(() => import('./views/pages/report/SalesReport'))
 const PnLReport = React.lazy(() => import('./views/pages/report/PnLReport'))
 const All_Reports=React.lazy(() => import('./views/pages/report/AllReports'))
+const creditreport2=React.lazy(() => import('./views/pages/report/creditreport2'))
 
 //Password Newpassword
 const Resetpassword = React.lazy(() => import('./views/pages/Password/Newpassword'))
@@ -167,7 +168,7 @@ export default function fetchRoutes(){
       { path: '/MilkProcessing', name: 'MilkProcessing', element:MilkProcessing },
       { path: '/DairyFarmInventory', name: 'DairyFarmInventory', element:DairyFarmInventory } ,
       { path: '/dailyTallies', name: 'Daily Tallies', element:DailyTallies } ,
-      
+      { path: '/Reports/creditreport2', name: 'Credit Report', element:creditreport2 } ,
     
     
 
@@ -204,6 +205,8 @@ export default function fetchRoutes(){
     { path: '/expense/new', name: 'New Expense', element: NewExpense },
     { path:'/resetPassword', name: 'Update Password', element: Resetpassword },
     { path: '/updatepassword', name: 'Reset Password', element: Updatepassword },
+    { path: '/Reports/creditReport', name: 'Credit Report', element: CreditReport },
+    { path: '/dailyTallies', name: 'Daily Tallies', element:DailyTallies } ,
 
     { path:'/CreateRetailProduct', name: 'Create Retail Product', element: CreateRetailProduct },
     { path:'/CreateBulkProduct', name: 'Create Bulk Product', element: CreateBulkProduct },

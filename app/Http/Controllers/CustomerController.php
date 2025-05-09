@@ -115,33 +115,62 @@ class CustomerController extends Controller
     
 
 
+    // public function creditReport(Request $request)
+    // {
+    //     $user = Auth::user();
+    //     $companyId = $user->company_id; // Get the company_id of the authenticated user
+
+    //     // Eager load PaymentTracker and JarTracker relationships
+    //     $customers = Customer::with(['paymentTracker', 'jarTrackers'])
+    //     ->where('company_id', $companyId)
+    //     ->get();
+
+    //     $creditReports = [];
+
+    //     foreach ($customers as $customer) {
+    //         if ($customer->jarTrackers) {
+    //             $customerData = [
+    //                 'name' => $customer->name,
+    //                 'mobile' => $customer->mobile,
+    //                 'address' => $customer->address,
+    //                 // 'totalPayment' => $customer->paymentTracker->amount, // we are not maintaining payment so commented this line
+    //                 // 'totalCrates' => $customer->JarTracker->quantity, 
+    //                 'items' => $customer->jarTrackers // All items from JarTracker
+    //             ];
+
+    //             $creditReports[] = $customerData;
+    //         }
+    //     }
+
+    //     return response()->json($creditReports);
+    // }
+
     public function creditReport(Request $request)
     {
         $user = Auth::user();
         $companyId = $user->company_id; // Get the company_id of the authenticated user
-
+ 
         // Eager load PaymentTracker and JarTracker relationships
         $customers = Customer::with(['paymentTracker', 'jarTrackers'])
         ->where('company_id', $companyId)
         ->get();
-
+ 
         $creditReports = [];
-
+ 
         foreach ($customers as $customer) {
-            if ($customer->jarTrackers) {
+            if ($customer->paymentTracker) {
                 $customerData = [
                     'name' => $customer->name,
                     'mobile' => $customer->mobile,
                     'address' => $customer->address,
-                    // 'totalPayment' => $customer->paymentTracker->amount, // we are not maintaining payment so commented this line
-                    // 'totalCrates' => $customer->JarTracker->quantity, 
+                    'totalPayment' => $customer->paymentTracker->amount,
                     'items' => $customer->jarTrackers // All items from JarTracker
                 ];
-
+ 
                 $creditReports[] = $customerData;
             }
         }
-
+ 
         return response()->json($creditReports);
     }
 

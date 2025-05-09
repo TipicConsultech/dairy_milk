@@ -20,6 +20,15 @@ const MilkForm = () => {
   const { t, i18n } = useTranslation("global")
   const lng = i18n.language;
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString); // Convert string or timestamp to Date object
+    const day = String(date.getDate()).padStart(2, '0'); // Ensure two digits for day
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Ensure two digits for month (months are 0-indexed)
+    const year = date.getFullYear();
+  
+    return `${day}/${month}/${year}`; // Return in dd/mm/yyyy format
+  };
+
   const [milkType, setMilkType] = useState('')
   const [milkAmount, setMilkAmount] = useState('')
   const [availableQty, setAvailableQty] = useState(null)
@@ -724,7 +733,7 @@ const MilkForm = () => {
           {t('LABELS.submit')}
         </CButton>
 
-        {createdSummary && (
+        {/* {createdSummary && (
           <CAlert color='success' className='mt-2'>
             <div className="">
               <strong>{t('LABELS.productCreated')}:</strong>
@@ -732,7 +741,16 @@ const MilkForm = () => {
               <p className=" mt-1">{t('LABELS.createdAt')}: {createdSummary.time}</p>
             </div>
           </CAlert>
-        )}
+        )} */}
+        {createdSummary && (
+  <CAlert color='success' className='mt-2'>
+    <div>
+      <strong>{t('LABELS.productCreated')}:</strong>
+      <p>{createdSummary.text}</p>
+      <p className="mt-1">{t('LABELS.createdAt')}: {formatDate(createdSummary.time)}</p>
+    </div>
+  </CAlert>
+)}
       </CCardBody>
     </CCard>
   )

@@ -121,7 +121,7 @@ const NewExpense = () => {
       qty: 0,
       price: 0,
       total_price: 0,
-      expense_date: '',
+      expense_date:  today,
       show: true,
       typeNotSet: state.expense_id === undefined,
     });
