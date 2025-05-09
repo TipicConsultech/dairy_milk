@@ -348,12 +348,12 @@ export default function fetchNavItems(t1){
             to: 'Reports/creditReport',
             icon: <CIcon icon={cilDollar} customClassName="nav-icon" />,
           },
-          {
-            component: CNavItem,
-            name: t("LABELS.customer_report"),
-            to: 'Reports/Customer_Report',
-            icon: <CIcon icon={cilAddressBook} customClassName="nav-icon" />,
-          },
+          // {
+          //   component: CNavItem,
+          //   name: t("LABELS.customer_report"),
+          //   to: 'Reports/Customer_Report',
+          //   icon: <CIcon icon={cilAddressBook} customClassName="nav-icon" />,
+          // },
         ],
       },
   

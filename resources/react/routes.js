@@ -204,6 +204,8 @@ export default function fetchRoutes(){
     { path: '/expense/new', name: 'New Expense', element: NewExpense },
     { path:'/resetPassword', name: 'Update Password', element: Resetpassword },
     { path: '/updatepassword', name: 'Reset Password', element: Updatepassword },
+    { path: '/Reports/creditReport', name: 'Credit Report', element: CreditReport },
+    { path: '/dailyTallies', name: 'Daily Tallies', element:DailyTallies } ,
 
     { path:'/CreateRetailProduct', name: 'Create Retail Product', element: CreateRetailProduct },
     { path:'/CreateBulkProduct', name: 'Create Bulk Product', element: CreateBulkProduct },

@@ -233,17 +233,28 @@ const createRetailProduct = () => {
   };
 
   const handleProductSelect = (product) => {
+    console.log("Selected:", product); // Add this for debugging
+  
+    const sizeOption = {
+      id: product.sizeId || product.id,
+      label_value: product.label_value || '',
+      unit: product.unit || '',
+      qty: product.qty || null, // Ensure qty is present if needed
+    };
+  
     setNewProduct({
-      ...newProduct,
-      name: product.name,
-      sizeOptions: [{
-        id: product.sizeId,
-        label_value: product.label_value,
-        unit: product.unit,
-      }],
-      sizeId: product.sizeId,
+      name: product.name || '',
+      quantity: '',
+      unit: sizeOption.unit,
+      sizeId: sizeOption.id,
+      sizeOptions: [sizeOption],
     });
+  
+    setProductAvailQty(sizeOption.qty || null); // Store qty for validation if needed
+    setProdError('');
   };
+  
+  
 
   const clearProduct = () => {
     setNewProduct({ name:'', quantity:'', unit:'', sizeId: null, sizeOptions: [] });
@@ -281,21 +292,22 @@ const createRetailProduct = () => {
   };
 
   const addProduct = () => {
+    console.log('Adding product:', newProduct);
+  
     if (newProduct.name && newProduct.quantity && newProduct.sizeId && !prodError) {
       const selectedSize = newProduct.sizeOptions.find(size => size.id === newProduct.sizeId);
       const sizeDisplay = selectedSize ? `${selectedSize.label_value} ${selectedSize.unit}` : '';
-
+  
       setProducts(prev => [...prev, {
         ...newProduct,
         sizeDisplay: sizeDisplay
       }]);
-
-      console.log("product:", { id: newProduct.sizeId, qty: parseFloat(newProduct.quantity) });
-
+  
       setNewProduct({ name:'', quantity:'', unit:'', sizeId: null, sizeOptions: [] });
       setProductAvailQty(null);
     }
   };
+  
 
   const removeProduct = idx => {
     setProducts(prev => prev.filter((_, i) => i !== idx));
@@ -771,7 +783,7 @@ const createRetailProduct = () => {
                 </CCol>
 
                 {/* Delete Button: quarter on mobile, 2 cols on desktop */}
-                <CCol xs={3} md={2} className="d-flex justify-content-end">
+                <CCol xs={3} md={2} className="d-flex justify-content-start">
                   <CButton color="danger" variant="outline" onClick={() => removeProduct(idx)}>
                     <CIcon icon={cilTrash} />
                   </CButton>
