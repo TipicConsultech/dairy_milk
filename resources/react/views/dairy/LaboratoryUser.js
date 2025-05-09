@@ -341,7 +341,7 @@ const LaboratoryUser = () => {
       <CCard className="mb-3 shadow-sm">
         <CCardHeader style={{ backgroundColor: "#E6E6FA" }}>
           <div className="d-flex justify-content-between align-items-center flex-wrap">
-            <h5 className="mb-0">{t('LABELS.laboratoryUser')}</h5>
+            <h5 className="mb-0">{t('LABELS.Welcome')} {t('LABELS.laboratoryUser')}</h5>
           </div>
         </CCardHeader>
 
@@ -423,42 +423,80 @@ const LaboratoryUser = () => {
 
                       {/* Input form */}
                       <CForm>
-                        <CRow className="g-3 mb-3">
-                          <CCol xs={12}>
-                            <CFormInput
-                              type="number"
-                              value={tankFormData.quantity}
-                              onChange={(e) => handleFormChange(tank.id, 'quantity', e.target.value)}
-                              placeholder={t('LABELS.milkQtyToAdd')}
-                              min="0"
-                              className="form-control-lg"
-                            />
-                          </CCol>
-                          <CCol xs={6}>
-                            <div className="d-flex align-items-center">
-                              <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '40px' }}>{t('LABELS.snf')}</CFormLabel>
-                              <CFormInput
-                                type="number"
-                                step="0.01"
-                                value={tankFormData.snf}
-                                onChange={(e) => handleFormChange(tank.id, 'snf', e.target.value)}
-                                placeholder={t('LABELS.snfValue')}
-                              />
-                            </div>
-                          </CCol>
-                          <CCol xs={6}>
-                            <div className="d-flex align-items-center">
-                              <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '40px' }}>{t('LABELS.ts')}</CFormLabel>
-                              <CFormInput
-                                type="number"
-                                step="0.01"
-                                value={tankFormData.ts}
-                                onChange={(e) => handleFormChange(tank.id, 'ts', e.target.value)}
-                                placeholder={t('LABELS.tsValue')}
-                              />
-                            </div>
-                          </CCol>
-                        </CRow>
+                       <CRow className="g-3 mb-3">
+  <CCol xs={12}>
+    <CFormInput
+      type="number"
+      value={tankFormData.quantity}
+      onChange={(e) => handleFormChange(tank.id, 'quantity', e.target.value)}
+      placeholder={t('LABELS.milkQtyToAdd')}
+      min="0"
+      className="form-control-lg"
+      onInput={(e) => {
+        let inputValue = e.target.value;
+
+        // Ensure the value has only one decimal point and up to two decimal places
+        inputValue = inputValue.replace(/^(\d*\.?\d{0,2}).*$/, '$1');
+
+        // Update the value only if it's valid (no negative sign or more than two decimals)
+        if (inputValue !== e.target.value) {
+          e.target.value = inputValue;
+        }
+      }}
+    />
+  </CCol>
+
+  <CCol xs={6}>
+    <div className="d-flex align-items-center">
+      <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '40px' }}>{t('LABELS.snf')}</CFormLabel>
+      <CFormInput
+        type="number"
+        step="0.01"
+        value={tankFormData.snf}
+        onChange={(e) => handleFormChange(tank.id, 'snf', e.target.value)}
+        min="0"
+        placeholder={t('LABELS.snfValue')}
+        onInput={(e) => {
+          let inputValue = e.target.value;
+
+          // Ensure the value has only one decimal point and up to two decimal places
+          inputValue = inputValue.replace(/^(\d*\.?\d{0,2}).*$/, '$1');
+
+          // Update the value only if it's valid (no negative sign or more than two decimals)
+          if (inputValue !== e.target.value) {
+            e.target.value = inputValue;
+          }
+        }}
+      />
+    </div>
+  </CCol>
+
+  <CCol xs={6}>
+    <div className="d-flex align-items-center">
+      <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '40px' }}>{t('LABELS.ts')}</CFormLabel>
+      <CFormInput
+        type="number"
+        step="0.01"
+        value={tankFormData.ts}
+        onChange={(e) => handleFormChange(tank.id, 'ts', e.target.value)}
+        min="0"
+        placeholder={t('LABELS.tsValue')}
+        onInput={(e) => {
+          let inputValue = e.target.value;
+
+          // Ensure the value has only one decimal point and up to two decimal places
+          inputValue = inputValue.replace(/^(\d*\.?\d{0,2}).*$/, '$1');
+
+          // Update the value only if it's valid (no negative sign or more than two decimals)
+          if (inputValue !== e.target.value) {
+            e.target.value = inputValue;
+          }
+        }}
+      />
+    </div>
+  </CCol>
+</CRow>
+
 
                         <CRow className="g-3">
                           <CCol xs={6}>

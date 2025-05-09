@@ -151,7 +151,8 @@
      "id": "Id",
     "actions": "Actions",
     "return_items": "Quantity",
-
+    
+    "return"  : "Return",
 
     "filter": "Submit",
     "loading": "Loading...",
@@ -254,6 +255,7 @@
 "sweetener": "Sweetener",
 "milkSolids": "Milk Solids",
 "kg": "Kg",
+"Welcome" : "Welcome,",
 
 "milk_processing": "Milk Processing",
 "tank_capacity": "Tank Capacity",
@@ -427,7 +429,10 @@
   "dailyProduction": "Daily Production",
   "cowProducts": "Cow Products",
   "buffaloProducts": "Buffalo Products",
-  "factoryProducts": "Factory Products",
+  "cowfactoryProducts": "Cow Factory Products",
+  "buffalofactoryProducts": "Buffale Factory Products",
+  "cowretailProducts": "Cow Retail Products",
+  "buffaloretailProducts": "Buffale Retail Products",
   "retailProducts": "Retail Products",
   "productName": "Product Name",
   "summary": "Summary",
@@ -452,6 +457,7 @@
 
 
     "MSG": {
+        "productNotFound": "Product not found",
         "order_is_delivered_msg": "Order is delivered.",
         "error_occured_msg": "Error occured",
         "provide_valid_data_msg": "Provide valid data.",

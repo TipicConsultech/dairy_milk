@@ -463,11 +463,11 @@ function DailyProductLog() {
             <div className="mb-4">
               <CRow>
                 <CCol md={6}>
-                  <h6 className="mb-3 text-primary">{t('LABELS.cowProducts')}</h6>
+                 
                   <div className="mb-4" style={{ height: '250px', overflow: 'auto' }}>
                     <CCard className="h-100 border">
                       <CCardHeader style={{ backgroundColor: '#E6E6FA', position: 'sticky', top: 0, zIndex: 2 }}>
-                        <h6 className="mb-0">{t('LABELS.factoryProducts')}</h6>
+                        <h6 className="mb-0">{t('LABELS.cowfactoryProducts')}</h6>
                       </CCardHeader>
                       <CCardBody style={{ padding: 0 }}>
                         {filteredCowFactory.length > 0 ? (
@@ -498,7 +498,7 @@ function DailyProductLog() {
                   <div style={{ height: '250px', overflow: 'auto' }}>
                     <CCard className="h-100 border">
                       <CCardHeader style={{ backgroundColor: '#f8d7da', position: 'sticky', top: 0, zIndex: 2 }}>
-                        <h6 className="mb-0">{t('LABELS.retailProducts')}</h6>
+                        <h6 className="mb-0">{t('LABELS.cowretailProducts')}</h6>
                       </CCardHeader>
                       <CCardBody style={{ padding: 0 }}>
                         {filteredCowRetail.length > 0 ? (
@@ -528,11 +528,11 @@ function DailyProductLog() {
                   </div>
                 </CCol>
                 <CCol md={6}>
-                  <h6 className="mb-3 text-info">{t('LABELS.buffaloProducts')}</h6>
+                  
                   <div className="mb-4" style={{ height: '250px', overflow: 'auto' }}>
                     <CCard className="h-100 border">
                       <CCardHeader style={{ backgroundColor: '#E6E6FA', position: 'sticky', top: 0, zIndex: 2 }}>
-                        <h6 className="mb-0">{t('LABELS.factoryProducts')}</h6>
+                        <h6 className="mb-0">{t('LABELS.buffalofactoryProducts')}</h6>
                       </CCardHeader>
                       <CCardBody style={{ padding: 0 }}>
                         {filteredBuffaloFactory.length > 0 ? (
@@ -563,7 +563,7 @@ function DailyProductLog() {
                   <div style={{ height: '250px', overflow: 'auto' }}>
                     <CCard className="h-100 border">
                       <CCardHeader style={{ backgroundColor: '#f8d7da', position: 'sticky', top: 0, zIndex: 2 }}>
-                        <h6 className="mb-0">{t('LABELS.retailProducts')}</h6>
+                        <h6 className="mb-0">{t('LABELS.buffaloretailProducts')}</h6>
                       </CCardHeader>
                       <CCardBody style={{ padding: 0 }}>
                         {filteredBuffaloRetail.length > 0 ? (
@@ -596,60 +596,72 @@ function DailyProductLog() {
             </div>
             
             {/* Summary Card */}
-            <div className="mt-4">
-              <CRow>
-                <CCol md={6}>
-                  <div className="border rounded p-4 h-100">
-                    <h6 className="mb-3 text-primary">{t('LABELS.cowSummary')}</h6>
-                    <table className="table table-bordered">
-                      <tbody>
-                        <tr>
-                          <th>{t('LABELS.totalBalance')}</th>
-                          <td>{cowTotals.total} {t('LABELS.liters')}</td>
-                        </tr>
-                        <tr>
-                          <th>{t('LABELS.quantityUsed')}</th>
-                          <td>{cowTotals.productQuantity} {t('LABELS.liters')}</td>
-                        </tr>
-                        <tr>
-                          <th>{t('LABELS.wasteMilk')}</th>
-                          <td>{cowTotals.waste_quantity} {t('LABELS.liters')}</td>
-                        </tr>
-                        <tr>
-                          <th>{t('LABELS.remainingBalance')}</th>
-                          <td>{cowTotals.remaining} {t('LABELS.liters')}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </CCol>
-                <CCol md={6}>
-                  <div className="border rounded p-4 h-100">
-                    <h6 className="mb-3 text-info">{t('LABELS.buffaloSummary')}</h6>
-                    <table className="table table-bordered">
-                      <tbody>
-                        <tr>
-                          <th>{t('LABELS.totalBalance')}</th>
-                          <td>{buffaloTotals.total} {t('LABELS.liters')}</td>
-                        </tr>
-                        <tr>
-                          <th>{t('LABELS.quantityUsed')}</th>
-                          <td>{buffaloTotals.productQuantity} {t('LABELS.liters')}</td>
-                        </tr>
-                        <tr>
-                          <th>{t('LABELS.wasteMilk')}</th>
-                          <td>{buffaloTotals.waste_quantity} {t('LABELS.liters')}</td>
-                        </tr>
-                        <tr>
-                          <th>{t('LABELS.remainingBalance')}</th>
-                          <td>{buffaloTotals.remaining} {t('LABELS.liters')}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </CCol>
-              </CRow>
-            </div>
+           <div className="mt-4">
+  <CRow>
+    {/* Cow Summary Card */}
+    <CCol md={6}>
+      <CCard className="h-100 border-primary">
+        <CCardHeader style={{ backgroundColor: '#e2efff' }}>
+          <h6 className="mb-0 text-primary">{t('LABELS.cowSummary')}</h6>
+        </CCardHeader>
+        <CCardBody>
+          <table className="table table-bordered mb-0">
+            <tbody>
+              <tr>
+                <th>{t('LABELS.totalBalance')}</th>
+                <td>{cowTotals.total} {t('LABELS.liters')}</td>
+              </tr>
+              <tr>
+                <th>{t('LABELS.quantityUsed')}</th>
+                <td>{cowTotals.productQuantity} {t('LABELS.liters')}</td>
+              </tr>
+              <tr>
+                <th>{t('LABELS.wasteMilk')}</th>
+                <td>{cowTotals.waste_quantity} {t('LABELS.liters')}</td>
+              </tr>
+              <tr>
+                <th>{t('LABELS.remainingBalance')}</th>
+                <td>{cowTotals.remaining} {t('LABELS.liters')}</td>
+              </tr>
+            </tbody>
+          </table>
+        </CCardBody>
+      </CCard>
+    </CCol>
+
+    {/* Buffalo Summary Card */}
+    <CCol md={6}>
+      <CCard className="h-100 border-info">
+        <CCardHeader style={{ backgroundColor: '#e0f7fa' }}>
+          <h6 className="mb-0 text-info">{t('LABELS.buffaloSummary')}</h6>
+        </CCardHeader>
+        <CCardBody>
+          <table className="table table-bordered mb-0">
+            <tbody>
+              <tr>
+                <th>{t('LABELS.totalBalance')}</th>
+                <td>{buffaloTotals.total} {t('LABELS.liters')}</td>
+              </tr>
+              <tr>
+                <th>{t('LABELS.quantityUsed')}</th>
+                <td>{buffaloTotals.productQuantity} {t('LABELS.liters')}</td>
+              </tr>
+              <tr>
+                <th>{t('LABELS.wasteMilk')}</th>
+                <td>{buffaloTotals.waste_quantity} {t('LABELS.liters')}</td>
+              </tr>
+              <tr>
+                <th>{t('LABELS.remainingBalance')}</th>
+                <td>{buffaloTotals.remaining} {t('LABELS.liters')}</td>
+              </tr>
+            </tbody>
+          </table>
+        </CCardBody>
+      </CCard>
+    </CCol>
+  </CRow>
+</div>
+
           </>
         )}
       </CCardBody>
