@@ -481,7 +481,7 @@ export default function fetchNavItems(t1){
       
       {
         component: CNavItem,
-        name: t("LABELS.delivery"),
+        name: t("LABELS.crate_deliver"),
         to: '/delivery',
         icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
       },
@@ -548,7 +548,7 @@ export default function fetchNavItems(t1){
     _nav = [
       {
         component: CNavItem,
-        name: t("LABELS.delivery"),
+        name: t("LABELS.crate_deliver"),
         to: '/delivery',
         icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
       },
