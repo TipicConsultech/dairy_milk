@@ -386,7 +386,14 @@
   "totalBalance": "एकूण शिल्लक",
   "quantityUsed": "वापरलेली मात्रा",
   "wasteMilk": "वाया गेलेले दूध",
-  "remainingBalance": "उरलेली शिल्ल"
+  "remainingBalance": "उरलेली शिल्ल",
+
+"RawMaterialsInventory":"कच्च्या मालाची यादी",
+"productUpdateSuccess": "✅ उत्पादन यशस्वीरित्या अद्यतनित झाले!",
+"overCapacityWarning": "तुम्ही या घटकासाठी परवानगी असलेल्या जास्तीत जास्त क्षमतेपेक्षा जास्त प्रविष्ट केले आहे.",
+"itemCapacityExceeded": "तुम्ही {quantity} प्रमाणात <strong>{name}</strong> मध्ये जोडण्याचा प्रयत्न करत आहात, पण केवळ <strong>{remaining}</strong> एवढेच उरलेले आहे (मर्यादा <strong>{capacity}</strong>)."
+
+
 
 
 

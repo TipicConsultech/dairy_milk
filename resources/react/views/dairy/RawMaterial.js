@@ -20,9 +20,13 @@ import {
 import CIcon from '@coreui/icons-react';
 import { cilArrowThickToBottom, cilArrowThickToTop, cilSettings, cilWarning, cilPlus, cilX } from '@coreui/icons';
 import { getUserData } from '../../util/session';
-
+import { useTranslation } from 'react-i18next'
 
 function RawMaterial() {
+
+const { t, i18n } = useTranslation("global")
+  const lng = i18n.language;
+
   const [tableData, setTableData] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
@@ -309,19 +313,19 @@ function RawMaterial() {
     <div className="p-0">
       <CCardHeader style={{ backgroundColor: '#d6eaff', marginBottom:'10px'}} className='p-2 rounded'>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h5 className="mb-0" >Raw Materials Inventory </h5> 
+          <h5 className="mb-0" > {t('LABELS.RawMaterialsInventory')}</h5> 
         </div>
       </CCardHeader>
 
       {showAlert && (
         <CAlert color="success" onDismiss={() => setShowAlert(false)}>
-          <div>✅Product Updated successfully!</div>
+          <div>✅{t('LABELS.productUpdateSuccess')}</div>  
         </CAlert>
       )}
       {failAlert && (
         <CAlert color="warning" onDismiss={() => setFailAlert(false)} className="d-flex align-items-center mb-2">
           <CIcon icon={cilWarning} className="flex-shrink-0 me-2" width={24} height={24} />
-          <div>You have entered more than the maximum capacity allowed for this item.</div>
+          <div>{t('LABELS.overCapacityWarning')}</div>                     {/* You have entered more than the maximum capacity allowed for this item. */}
         </CAlert>
       )}
 
