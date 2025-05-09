@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { CBadge, CCardHeader, CRow } from '@coreui/react';
+import { CBadge, CButton, CCardHeader, CRow } from '@coreui/react';
 import { MantineReactTable } from 'mantine-react-table';
 import { deleteAPICall, getAPICall } from '../../../util/api';
 import ConfirmationModal from '../../common/ConfirmationModal';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../common/toast/ToastContext';
 import ProductModal from './ProductModals';
+import ProductForm from './NewProduct';
+import { useTranslation } from 'react-i18next';
 
 
 const AllProducts = () => {
+   const { t, i18n } = useTranslation("global");
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [deleteProduct, setDeleteProduct] = useState();
@@ -16,6 +19,7 @@ const AllProducts = () => {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const { showToast } = useToast();
+  const [showModal, setShowModal] = useState(false)
 
   const fetchProducts = async () => {
     try {
@@ -53,20 +57,20 @@ const AllProducts = () => {
   const columns = [
     {
       accessorKey: 'source_type',
-      header: 'Product Type',
+      header: `${t('LABELS.product_type')}`,
       Cell: ({ cell }) => (
         cell.row.original.source_type === "retail" ? (
-          <CBadge color="success">Retail</CBadge>
+          <CBadge color="success">{t('LABELS.retail')}</CBadge>
         ) : (
-          <CBadge color="info">Factory</CBadge>
+          <CBadge color="info">{t('LABELS.factory')}</CBadge>
         )
       ),
     },
-    { accessorKey: 'name', header: 'Name' },
-    { accessorKey: 'local_name', header: 'Local Name' },
+    { accessorKey: 'name', header: `${t('LABELS.product_name')}`, },
+    { accessorKey: 'local_name', header: `${t('LABELS.product_local_name')}`, },
     {
       accessorKey: 'sellingPrice',
-      header: 'Price',
+      header: `${t('LABELS.price')}`,
       Cell: ({ cell }) => {
         const price = cell.row.original.price; 
           
@@ -75,18 +79,18 @@ const AllProducts = () => {
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: `${t('LABELS.status')}`,
       Cell: ({ cell }) => (
         cell.row.original.is_visible == true ? (
-          <CBadge color="success">Visible</CBadge>
+          <CBadge color="success">{t('LABELS.visible')}</CBadge>
         ) : (
-          <CBadge color="danger">Hidden</CBadge>
+          <CBadge color="danger">{t('LABELS.hidden')}</CBadge>
         )
       ),
     },
     {
       accessorKey: 'actions',
-      header: 'Actions',
+      header: `${t('LABELS.action')}`,
       Cell: ({ cell }) => (
         <div>
           <CBadge
@@ -94,7 +98,7 @@ const AllProducts = () => {
             color="info"
             onClick={() => handleEdit(cell.row.original)}
           >
-            Edit
+           {t('LABELS.edit')}
           </CBadge>
           &nbsp;
           {/* <CBadge
@@ -118,9 +122,16 @@ const AllProducts = () => {
      <div className="p-0">
           <CCardHeader style={{ backgroundColor: '#d6eaff'}} className='p-2  rounded'>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h5 className="mb-0" >All Products </h5> 
+              <h5 className="mb-0" >{t('LABELS.all_product')}</h5> 
             </div>
           </CCardHeader>
+       <div  style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' ,paddingTop:'10px' ,paddingRight:'5px' }}>
+            <CButton color="primary" onClick={()=>setShowModal(true)}>{t('LABELS.add_product')}</CButton>
+       </div>
+          <ProductForm 
+        isOpen={showModal} 
+        onClose={() => setShowModal(false)} 
+      />
           <div className="p-3">
    <CRow>
       <ConfirmationModal
@@ -144,10 +155,6 @@ const AllProducts = () => {
         columns={columns} 
         data={data} 
         enableFullScreenToggle={false}
-        // initialState={{
-        //   density: 'comfortable', // 'compact' | 'comfortable' | 'spacious'
-        // }}
-        
       />
     </CRow>
     </div>
