@@ -683,29 +683,33 @@ const createRetailProduct = () => {
                     {newProduct.name ? <CIcon icon={cilX} /> : <CIcon icon={cilChevronBottom} />}
                   </div>
 
-                  {isProductsDropdownOpen && (
-                    <div
-                      className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
-                      style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
-                    >
-                      {mappedRetailProducts
-                      .filter(item => item.name.toLowerCase().includes(newProduct.name.toLowerCase()))
-                      .map((item, index) => (
-                        <div
-                          key={index}
-                          className="p-2 cursor-pointer hover-bg-light"
-                          style={{ cursor: 'pointer' }}
-                          onClick={() => {
-                            handleProductSelect(item); // already defined in your file
-                            setIsProductsDropdownOpen(false);
-                          }}
-                        >
-                          {item.name} ({item.label_value} {item.unit})
-                        </div>
-                    ))}
+                {isProductsDropdownOpen && (
+  <div
+    className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
+    style={{ maxHeight: '200px', overflowY: 'auto', zIndex: 1000 }}
+  >
+    {mappedRetailProducts.filter(item => item.name.toLowerCase().includes(newProduct.name.toLowerCase())).length === 0 ? (
+      <div className="p-2 text-muted text-center">{t('MSG.productNotFound')}</div>
+    ) : (
+      mappedRetailProducts
+        .filter(item => item.name.toLowerCase().includes(newProduct.name.toLowerCase()))
+        .map((item, index) => (
+          <div
+            key={index}
+            className="p-2 cursor-pointer hover-bg-light"
+            style={{ cursor: 'pointer' }}
+            onClick={() => {
+              handleProductSelect(item);
+              setIsProductsDropdownOpen(false);
+            }}
+          >
+            {item.name} ({item.label_value} {item.unit})
+          </div>
+        ))
+    )}
+  </div>
+)}
 
-                    </div>
-                  )}
                 </div>
               </CCol>
 
