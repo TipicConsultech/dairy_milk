@@ -48,7 +48,108 @@ class OrderController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+//     public function store(Request $request)
+// {
+//     DB::beginTransaction();
+
+//     try {
+//         $user = Auth::user();
+//         $profit = 0;
+
+//         foreach ($request->items as $item) {
+//             $profit += $item['total_price'] - (($item['dqty'] ?? 0) * ($item['bPrice'] ?? 0));
+//         }
+
+//         $order = Order::create(
+//             array_merge(
+//                 $request->all(),
+//                 [
+//                     'profit' => $profit,
+//                     'company_id' => $user->company_id,
+//                     'created_by' => $user->id,
+//                     'updated_by' => $user->id,
+//                 ]
+//             )
+//         );
+
+//         foreach ($request->items as $item) {
+//             // Check if orderStatus is 1 (Delivery) and qty is sufficient
+//             if ($request->orderStatus == 1) {
+//                 $productSize = ProductSize::find($item['product_sizes_id']);
+//                 if ($productSize) {
+//                     $availableQty = $productSize->qty;
+//                     $requestedQty = $item['dQty'] ?? 0;
+
+//                     if ($availableQty - $requestedQty < 0) {
+//                         DB::rollBack();
+//                         return response()->json([
+//                             'error_message' => "The product '{$item['name']}' has only {$availableQty} in stock, but you requested {$requestedQty}."
+//                         ], 200);
+//                     }
+
+//                     // Update stock
+//                     $productSize->update(['qty' => $availableQty - $requestedQty]);
+//                 }
+
+//                 $returnable = $item['returnable'] ?? $item['sizes'][0]['returnable'] ?? false;
+//             }
+
+//             // Save order item
+//             $od = new OrderDetail;
+//             $od->product_id = $item['id'];
+//             $od->product_name = $item['name'];
+//             $od->product_local_name = $item['localName'];
+//             $od->product_unit = $item['unit'];
+//             $od->product_sizes_id = $item['product_sizes_id'];
+//             $od->size_name = $item['size_name'];
+//             $od->size_local_name = $item['size_local_name'];
+//             $od->dQty = $item['dQty'] ?? 0;
+//             $od->eQty = $item['eQty'] ?? 0;
+//             $od->oPrice = $item['oPrice'];
+//             $od->dPrice = $item['dPrice'];
+//             $od->total_price = $item['total_price'] ?? 0;
+//             $od->remark = $item['remark'] ?? '';
+//             $order->items()->save($od);
+
+//             // If order is booked (not yet delivered)
+//             if ($order->orderStatus == 2) {
+//                 $productSize = ProductSize::find($item['product_sizes_id']);
+//                 if ($productSize) {
+//                     $changeStockQty = $item['dQty'] ?? 0;
+//                     $productSize->update(['booked' => $productSize->booked + $changeStockQty]);
+//                 }
+//             }
+//         }
+
+//         // Update payment
+//         $paymentDetails = PaymentTracker::firstOrNew(['customer_id' => $request->customer_id]);
+
+//         if ($request->orderStatus == 1) {
+//             $balanceAmount = $request->totalAmount - $request->paidAmount;
+//             $paymentDetails->created_by = $user->id;
+//             $paymentDetails->updated_by = $user->id;
+//             $paymentDetails->amount -= $balanceAmount;
+//         }
+
+//         if ($request->orderStatus !== 1 && $request->paidAmount > 0) {
+//             $paymentDetails->amount += $request->paidAmount;
+//         }
+
+//         $paymentDetails->save();
+//         $order->items = $order->items()->get();
+
+//         DB::commit();
+//         return response()->json($order);
+//     } catch (\Exception $e) {
+//         DB::rollBack();
+//         return response()->json([
+//             'error_message' => 'Order creation failed.',
+//             'exception' => $e->getMessage()
+//         ], 500);
+//     }
+// }
+
+public function store(Request $request)
 {
     DB::beginTransaction();
 
@@ -56,42 +157,47 @@ class OrderController extends Controller
         $user = Auth::user();
         $profit = 0;
 
+        // ✅ First: Pre-check all quantities if orderStatus == 1
+        if ($request->orderStatus == 1) {
+            foreach ($request->items as $item) {
+                $productSize = ProductSize::find($item['product_sizes_id']);
+                $requestedQty = $item['dQty'] ?? 0;
+
+                if (!$productSize) {
+                    DB::rollBack();
+                    return response()->json([
+                        'error_message' => "Product size not found for '{$item['name']}'."
+                    ], 200);
+                }
+
+                if ($productSize->qty < $requestedQty) {
+                    DB::rollBack();
+                    return response()->json([
+                        'error_message' => "The product '{$item['name']}' has only {$productSize->qty} in stock, but you requested {$requestedQty}."
+                    ], 200);
+                }
+            }
+        }
+
+        // ✅ Now safe to calculate profit and create order
         foreach ($request->items as $item) {
             $profit += $item['total_price'] - (($item['dqty'] ?? 0) * ($item['bPrice'] ?? 0));
         }
 
-        $order = Order::create(
-            array_merge(
-                $request->all(),
-                [
-                    'profit' => $profit,
-                    'company_id' => $user->company_id,
-                    'created_by' => $user->id,
-                    'updated_by' => $user->id,
-                ]
-            )
-        );
+        $order = Order::create(array_merge($request->all(), [
+            'profit' => $profit,
+            'company_id' => $user->company_id,
+            'created_by' => $user->id,
+            'updated_by' => $user->id,
+        ]));
 
         foreach ($request->items as $item) {
-            // Check if orderStatus is 1 (Delivery) and qty is sufficient
-            if ($request->orderStatus == 1) {
-                $productSize = ProductSize::find($item['product_sizes_id']);
-                if ($productSize) {
-                    $availableQty = $productSize->qty;
-                    $requestedQty = $item['dQty'] ?? 0;
+            $productSize = ProductSize::find($item['product_sizes_id']);
 
-                    if ($availableQty - $requestedQty < 0) {
-                        DB::rollBack();
-                        return response()->json([
-                            'error_message' => "The product '{$item['name']}' has only {$availableQty} in stock, but you requested {$requestedQty}."
-                        ], 200);
-                    }
-
-                    // Update stock
-                    $productSize->update(['qty' => $availableQty - $requestedQty]);
-                }
-
-                $returnable = $item['returnable'] ?? $item['sizes'][0]['returnable'] ?? false;
+            if ($request->orderStatus == 1 && $productSize) {
+                $availableQty = $productSize->qty;
+                $requestedQty = $item['dQty'] ?? 0;
+                $productSize->update(['qty' => $availableQty - $requestedQty]);
             }
 
             // Save order item
@@ -111,17 +217,14 @@ class OrderController extends Controller
             $od->remark = $item['remark'] ?? '';
             $order->items()->save($od);
 
-            // If order is booked (not yet delivered)
-            if ($order->orderStatus == 2) {
-                $productSize = ProductSize::find($item['product_sizes_id']);
-                if ($productSize) {
-                    $changeStockQty = $item['dQty'] ?? 0;
-                    $productSize->update(['booked' => $productSize->booked + $changeStockQty]);
-                }
+            // Booking if not yet delivered
+            if ($order->orderStatus == 2 && $productSize) {
+                $changeStockQty = $item['dQty'] ?? 0;
+                $productSize->update(['booked' => $productSize->booked + $changeStockQty]);
             }
         }
 
-        // Update payment
+        // Payment logic
         $paymentDetails = PaymentTracker::firstOrNew(['customer_id' => $request->customer_id]);
 
         if ($request->orderStatus == 1) {
@@ -136,6 +239,7 @@ class OrderController extends Controller
         }
 
         $paymentDetails->save();
+
         $order->items = $order->items()->get();
 
         DB::commit();
@@ -148,6 +252,7 @@ class OrderController extends Controller
         ], 500);
     }
 }
+
 
     /**
      * Display the specified resource.
