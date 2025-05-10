@@ -20,13 +20,23 @@ const createRetailProduct = () => {
   const { t, i18n } = useTranslation("global")
   const lng = i18n.language;
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
+  const formatDate = (dateInput) => {
+    const date = new Date(dateInput);
     const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+  
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+  
+    hours = hours % 12 || 12;
+    const formattedHours = String(hours).padStart(2, '0');
+  
+    return `${day}/${month}/${year} ${formattedHours}:${minutes}:${seconds} ${ampm}`;
   };
+  
 
   const [factoryProductId, setFactoryProductId] = useState(null)
 
@@ -834,15 +844,20 @@ const createRetailProduct = () => {
             </div>
           </CAlert>
         )} */}
-        {createdSummary && (
+{createdSummary && (
   <CAlert color={createdSummary.success ? 'success' : 'danger'} className='mt-2'>
     <div>
-      <strong>{createdSummary.success ? t('LABELS.productCreated') : t('LABELS.error')}:</strong>
+      <strong>
+        {createdSummary.success ? t('LABELS.productCreated') : t('LABELS.error')}:
+      </strong>
+
       {createdSummary.products ? (
         <div className="mt-2">
           {createdSummary.products.map((product, index) => (
             <div key={index} className="mb-2">
-              <p><strong>{product.product_name}</strong> {t('MSG.createdSuccessfully')}</p>
+              <p>
+                <strong>{product.product_name}</strong> {t('MSG.createdSuccessfully')}
+              </p>
               <ul className="mb-0">
                 <li>{t('LABELS.createdQuantity')}: {product.created_quantity}</li>
                 <li>{t('LABELS.previousQuantity')}: {product.previous_quantity}</li>
@@ -854,12 +869,14 @@ const createRetailProduct = () => {
       ) : (
         <p>{createdSummary.text}</p>
       )}
+
       <p className="mt-1 text-muted">
         {t('LABELS.createdAt')}: {formatDate(createdSummary.time)}
       </p>
     </div>
   </CAlert>
 )}
+
       </CCardBody>
     </CCard>
   )

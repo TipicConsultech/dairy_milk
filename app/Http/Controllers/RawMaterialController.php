@@ -203,23 +203,51 @@ public function criticalStock()
 
     public function getRawMaterialsByParam($isPackaging)
     {
-        $materials = RawMaterial::select('id','name', 'unit_qty','unit')
-        ->where('isPackaging',$isPackaging)
+    //     $materials = RawMaterial::select('id','name', 'unit_qty','unit')
+    //     ->where('isPackaging',$isPackaging)
+    //     ->get()
+    //     ->map(function ($material) {
+    //         return [
+    //             'id' => $material->id,
+    //             'name' => $material->name,
+    //             // If you want to show remaining capacity, modify the logic accordingly.
+    //             'available_qty' => $material->unit_qty,
+    //             'unit'=>$material->unit
+    //         ];
+    //     });
+
+    // return response()->json([
+    //     'success' => true,
+    //     'quantity' => $materials
+    // ]);
+    $user = auth()->user();
+
+    if (!$user || !$user->company_id) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Company ID not found for the user.',
+        ], 404);
+    }
+
+    $companyId = $user->company_id;
+
+    $materials = RawMaterial::select('id','name', 'unit_qty','unit')
+        ->where('isPackaging', $isPackaging)
+        ->where('company_id', $companyId)
         ->get()
         ->map(function ($material) {
             return [
                 'id' => $material->id,
                 'name' => $material->name,
-                // If you want to show remaining capacity, modify the logic accordingly.
                 'available_qty' => $material->unit_qty,
-                'unit'=>$material->unit
+                'unit' => $material->unit
             ];
         });
 
     return response()->json([
         'success' => true,
         'quantity' => $materials
-    ]);
+    ]); 
     }
 
     public function updateRawMaterial(Request $request)

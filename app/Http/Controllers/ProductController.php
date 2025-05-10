@@ -72,8 +72,27 @@ class ProductController extends Controller
 
     public function getProductsByProductType()
     {
-        //  where product_type is 1 show only 
-        $products = ProductSize::where('product_type', 1)->get();
+        // //  where product_type is 1 show only 
+        // $products = ProductSize::where('product_type', 1)->get();
+    
+        // return response()->json([
+        //     'status' => true,
+        //     'products' => $products,
+        // ]);
+        $user = auth()->user();
+
+        if (!$user || !$user->company_id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Company ID not found for the user.',
+            ], 404);
+        }
+    
+        $companyId = $user->company_id;
+    
+        $products = ProductSize::where('product_type', 1)
+            ->where('company_id', $companyId)
+            ->get();
     
         return response()->json([
             'status' => true,
@@ -83,8 +102,27 @@ class ProductController extends Controller
 
     public function getProductsByProductTypeForRetail()
     {
-        //  where product_type is 1 show only 
-        $products = ProductSize::where('product_type', 2)->get();
+        // //  where product_type is 1 show only 
+        // $products = ProductSize::where('product_type', 2)->get();
+    
+        // return response()->json([
+        //     'status' => true,
+        //     'products' => $products,
+        // ]);
+        $user = auth()->user();
+
+        if (!$user || !$user->company_id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Company ID not found for the user.',
+            ], 404);
+        }
+    
+        $companyId = $user->company_id;
+    
+        $products = ProductSize::where('product_type', 2)
+            ->where('company_id', $companyId)
+            ->get();
     
         return response()->json([
             'status' => true,

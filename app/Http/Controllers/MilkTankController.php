@@ -72,7 +72,33 @@ class MilkTankController extends Controller
 
     public function getNames()
     {
+        // $tanks = MilkTank::select('id', 'name', 'capacity', 'quantity')
+        //     ->get()
+        //     ->map(function ($tank) {
+        //         return [
+        //             'id' => $tank->id,
+        //             'name' => $tank->name,
+        //             'available_qty' => $tank->quantity
+        //         ];
+        //     });
+
+        // return response()->json([
+        //     'success' => true,
+        //     'quantity' => $tanks
+        // ]);
+        $user = auth()->user();
+
+        if (!$user || !$user->company_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Company ID not found for the user.',
+            ], 404);
+        }
+    
+        $companyId = $user->company_id;
+    
         $tanks = MilkTank::select('id', 'name', 'capacity', 'quantity')
+            ->where('company_id', $companyId)
             ->get()
             ->map(function ($tank) {
                 return [
@@ -81,7 +107,7 @@ class MilkTankController extends Controller
                     'available_qty' => $tank->quantity
                 ];
             });
-
+    
         return response()->json([
             'success' => true,
             'quantity' => $tanks

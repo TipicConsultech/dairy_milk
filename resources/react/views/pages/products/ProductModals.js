@@ -267,7 +267,8 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
               />
             </CCol>
             <CCol md={4}>
-              <CFormCheck
+            
+             <CFormCheck
                 id="returnable"
                 name="returnable"
                 label={t('LABELS.returnable')}
@@ -278,7 +279,7 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
             {formData.returnable ===1 ||formData.returnable ===true  && (
                 
                 <div className="col-md-4 col-12 mb-2 ">
-                  <CFormLabel htmlFor="default_qty">{t('LABELS.default_qty')}</CFormLabel>
+                  <CFormLabel htmlFor="default_qty">{t('LABELS.default_qty')} </CFormLabel>
                   <CFormInput
                     type="number"
                     id="default_qty"

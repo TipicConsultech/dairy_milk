@@ -323,7 +323,7 @@ const ProductForm = ({ isOpen, onClose }) => {
             onChange={handleCBChange}
           />
         </div>
-        {state.returnable && (
+        {/* {state.returnable && (
     
     <div className="col-md-4 col-12 mb-2">
       <CFormLabel htmlFor="default_qty">{t('LABELS.default_qty')}</CFormLabel>
@@ -338,7 +338,7 @@ const ProductForm = ({ isOpen, onClose }) => {
       />
     </div>
 
-)}
+)} */}
       </div>
       
       <div className="mb-3">
@@ -350,7 +350,7 @@ const ProductForm = ({ isOpen, onClose }) => {
         </CButton>
         {onClose && (
           <CButton color="danger" onClick={onClose} className="mb-2">
-            {t('LABELS.cancle')}
+            {t('LABELS.cancel')}
           </CButton>
         )}
       </div>

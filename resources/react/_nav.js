@@ -136,7 +136,7 @@ export default function fetchNavItems(t1){
           {
             component: CNavItem,
             name: t('LABELS.dailyTallyReport'),
-            to: '/dailyTallies',
+            to: '/dailyTalliesReport',
             // icon: <CIcon icon={cilFile} customClassName="nav-icon ms-4" />,
             className: 'ms-4',
           },
@@ -150,7 +150,7 @@ export default function fetchNavItems(t1){
           {
             component: CNavItem,
             name: t("LABELS.credit_report"),
-            to: 'Reports/creditReport',
+            to: 'Reports/crateReport',
             // icon: <CIcon icon={cilDollar} customClassName="nav-icon ms-4" />,
             className: 'ms-4'
 
@@ -166,7 +166,7 @@ export default function fetchNavItems(t1){
           {
             component: CNavItem,
             name: 'Credit Report',
-            to: 'Reports/creditreport2',
+            to: 'Reports/creditreport',
             // icon: <CIcon icon={cilAddressBook} customClassName="nav-icon ms-4" />
             className: 'ms-4'
 
@@ -239,7 +239,7 @@ export default function fetchNavItems(t1){
           {
             component: CNavItem,
             name: t("LABELS.create_factory_product"),
-            to: '/CreateProduct',
+            to: '/CreateFactoryProduct',
              className: 'ms-4'
           },
           {
@@ -366,13 +366,13 @@ export default function fetchNavItems(t1){
           {
             component: CNavItem,
             name: t('LABELS.dailyTallyReport'),
-            to: '/dailyTallies',
+            to: '/dailyTalliesReport',
             icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
           },
           {
             component: CNavItem,
             name: t("LABELS.credit_report"),
-            to: 'Reports/creditReport',
+            to: 'Reports/crateReport',
             icon: <CIcon icon={cilDollar} customClassName="nav-icon" />,
           },
           // {
@@ -414,7 +414,7 @@ export default function fetchNavItems(t1){
           {
             component: CNavItem,
             name: t("LABELS.create_factory_product"),
-            to: '/CreateProduct',
+            to: '/CreateFactoryProduct',
           },
           {
             component: CNavItem,
@@ -522,12 +522,14 @@ export default function fetchNavItems(t1){
           {
             component: CNavItem,
             name: t("LABELS.create_factory_product"),
-            to: '/CreateProduct',
+            to: '/CreateFactoryProduct',
           },
+         
           {
             component: CNavItem,
             name: t("LABELS.create_retail_product"),
-            to: '/CreateRetailProduct',
+            to: '/CreateRetailProduct',   
+           
           },
           
           
@@ -536,8 +538,8 @@ export default function fetchNavItems(t1){
       {
         component: CNavItem,
         name: t("LABELS.dailyTallyReport"),
-        to: '/dailyTallies',
-        // icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+        to: '/dailyTalliesReport',
+        icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
       }
       
 ]
@@ -555,7 +557,7 @@ export default function fetchNavItems(t1){
       {
         component: CNavItem,
         name: t("LABELS.credit_report"),
-        to: 'Reports/creditReport',
+        to: 'Reports/crateReport',
         // icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
       }
       

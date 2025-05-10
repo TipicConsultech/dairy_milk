@@ -20,15 +20,24 @@ const MilkForm = () => {
   const { t, i18n } = useTranslation("global")
   const lng = i18n.language;
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString); // Convert string or timestamp to Date object
-    const day = String(date.getDate()).padStart(2, '0'); // Ensure two digits for day
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Ensure two digits for month (months are 0-indexed)
+  const formatDate = (dateInput) => {
+    const date = new Date(dateInput);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
   
-    return `${day}/${month}/${year}`; // Return in dd/mm/yyyy format
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+  
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    const formattedHours = String(hours).padStart(2, '0');
+  
+    return `${day}/${month}/${year} ${formattedHours}:${minutes}:${seconds} ${ampm}`;
   };
-
+  
   const [milkType, setMilkType] = useState('')
   const [milkAmount, setMilkAmount] = useState('')
   const [availableQty, setAvailableQty] = useState(null)
@@ -752,7 +761,7 @@ const MilkForm = () => {
     <div>
       <strong>{t('LABELS.productCreated')}:</strong>
       <p>{createdSummary.text}</p>
-      <p className="mt-1">{t('LABELS.createdAt')}: {formatDate(createdSummary.time)}</p>
+      <p className="mt-1">{t('LABELS.createdAt')}: {formatDate(createdSummary.time || new Date())}</p>
     </div>
   </CAlert>
 )}

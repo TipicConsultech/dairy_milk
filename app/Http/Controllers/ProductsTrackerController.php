@@ -93,13 +93,45 @@ return response()->json([
      */
     public function getFinalProductInventory(Request $request)
     {
-        $type = $request->query('type');
-        $materials = ProductSize::all()   // ProductSize
-            ->sortByDesc('max_stock') // show visible first
-            ->where('product_type',$type)
-            ->where('returnable',0)
-            ->values() // reset the index
+        // $type = $request->query('type');
+        // $materials = ProductSize::all()   // ProductSize
+        //     ->sortByDesc('max_stock') // show visible first
+        //     ->where('product_type',$type)
+        //     ->where('returnable',0)
+        //     ->values() // reset the index
     
+        //     ->map(function ($item) {
+        //         $percentage = ($item->qty / $item->max_stock) * 100;
+    
+        //         if ($percentage < 20) {
+        //             $item->min_qty = 1;
+        //         } elseif ($percentage < 60) {
+        //             $item->min_qty = 2;
+        //         } else {
+        //             $item->min_qty = 3;
+        //         }
+    
+        //         return $item;
+        //     });
+    
+        // return response()->json($materials, 200);
+        $user = auth()->user();
+
+        if (!$user || !$user->company_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Company ID not found for the user.',
+            ], 404);
+        }
+    
+        $companyId = $user->company_id;
+        $type = $request->query('type');
+    
+        $materials = ProductSize::where('product_type', $type)
+            ->where('returnable', 0)
+            ->where('company_id', $companyId)
+            ->orderByDesc('max_stock')
+            ->get()
             ->map(function ($item) {
                 $percentage = ($item->qty / $item->max_stock) * 100;
     
@@ -112,7 +144,8 @@ return response()->json([
                 }
     
                 return $item;
-            });
+            })
+            ->values(); // reset the index
     
         return response()->json($materials, 200);
     }
