@@ -713,7 +713,8 @@ const createRetailProduct = () => {
               setIsProductsDropdownOpen(false);
             }}
           >
-            {item.name} ({item.label_value} {item.unit})
+            {item.name} 
+            {/* ({item.label_value} {item.unit}) */}
           </div>
         ))
     )}
@@ -743,7 +744,7 @@ const createRetailProduct = () => {
                 >
                   {newProduct.sizeOptions && newProduct.sizeOptions.map((size, i) => (
                     <option key={i} value={size.id}>
-                      {size.label_value} {size.unit}
+                     {size.unit}
                     </option>
                   ))}
                 </CFormSelect>
@@ -770,7 +771,7 @@ const createRetailProduct = () => {
                 >
                   {newProduct.sizeOptions && newProduct.sizeOptions.map((size, i) => (
                     <option key={i} value={size.id}>
-                      {size.label_value} {size.unit}
+                      {size.unit}
                     </option>
                   ))}
                 </CFormSelect>
