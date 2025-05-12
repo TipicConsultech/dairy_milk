@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { getAPICall } from '../../util/api';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import CIcon from '@coreui/icons-react';
@@ -39,23 +39,80 @@ function DailyProductLog() {
   const [error, setError] = useState(null);
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [tankIds, setTankIds] = useState({ cow: null, buffalo: null });
 
-  // Custom calendar functions
-  const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
-  const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
+  // Format date for API call (YYYY-MM-DD)
+  const formatDateForAPI = (dateObj) => {
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
-  const months = [
-    t('LABELS.january'), t('LABELS.february'), t('LABELS.march'), t('LABELS.april'),
-    t('LABELS.may'), t('LABELS.june'), t('LABELS.july'), t('LABELS.august'),
-    t('LABELS.september'), t('LABELS.october'), t('LABELS.november'), t('LABELS.december')
-  ];
+  const fetchTankIds = useCallback(async () => {
+    try {
+      const response = await getAPICall('/api/milk-tanks/by-company');
+      const tanks = response?.data || [];
 
-  const daysOfWeek = [
-    t('LABELS.sun'), t('LABELS.mon'), t('LABELS.tue'), t('LABELS.wed'),
-    t('LABELS.thu'), t('LABELS.fri'), t('LABELS.sat')
-  ];
+      const cowTank = tanks.find(t => t.name.toLowerCase() === 'cow');
+      const buffaloTank = tanks.find(t => t.name.toLowerCase() === 'buffalo');
 
-  const fetchProductData = async () => {
+      if (!cowTank || !buffaloTank) {
+        console.warn('Milk tanks not properly defined for this company');
+      }
+
+      const newTankIds = {
+        cow: cowTank?.id || null,
+        buffalo: buffaloTank?.id || null,
+      };
+
+      setTankIds(newTankIds);
+      return newTankIds; // Return the tank IDs for immediate use
+    } catch (err) {
+      console.error('Failed to fetch tank IDs', err);
+      return null;
+    }
+  }, []);
+
+  const fetchMilkTankData = useCallback(async (date, tankIdsToUse) => {
+    try {
+      // Use either passed tankIds or state tankIds
+      const idsToUse = tankIdsToUse || tankIds;
+      
+      if (!idsToUse.cow || !idsToUse.buffalo) {
+        console.warn('Tank IDs not available yet');
+        return;
+      }
+
+      const formattedDate = formatDateForAPI(date);
+      const response = await getAPICall(`/api/milk-tanks/trackers/grouped?date=${formattedDate}`);
+
+      const cowTank = response?.data?.find(tank => tank.milk_tank_id === idsToUse.cow) || {};
+      const buffaloTank = response?.data?.find(tank => tank.milk_tank_id === idsToUse.buffalo) || {};
+
+      const tankData = {
+        cow: {
+          openingBalance: cowTank.opening_balance || 0,
+          morningEntry: cowTank.morning_quantity || 0,
+          eveningEntry: cowTank.evening_quantity || 0,
+          waste: cowTank.waste_quantity || 0,
+        },
+        buffalo: {
+          openingBalance: buffaloTank.opening_balance || 0,
+          morningEntry: buffaloTank.morning_quantity || 0,
+          eveningEntry: buffaloTank.evening_quantity || 0,
+          waste: buffaloTank.waste_quantity || 0,
+        }
+      };
+
+      setMilkTankData(tankData);
+    } catch (error) {
+      console.error('Error fetching milk tank data:', error);
+      setError(t('MSG.failedToLoadMilkTankData'));
+    }
+  }, [tankIds, t]);
+
+  const fetchProductData = useCallback(async () => {
     try {
       const response = await getAPICall('/api/daily-tallies');
 
@@ -108,39 +165,33 @@ function DailyProductLog() {
       console.error('Error fetching daily tallies:', error);
       setError(t('MSG.failedToLoadProductData'));
     }
-  };
+  }, [t]);
 
-  const fetchMilkTankData = async (date) => {
+  // Initial data loading
+ useEffect(() => {
+  async function initializeData() {
+    setLoading(true);
     try {
-      const formattedDate = formatDateForAPI(date);
-      const response = await getAPICall(`/api/milk-tanks/trackers/grouped?date=${formattedDate}`);
-
-      const cowTank = response?.data?.find(tank => tank.milk_tank_id === 1) || {};
-      const buffaloTank = response?.data?.find(tank => tank.milk_tank_id === 2) || {};
-
-      const tankData = {
-        cow: {
-          openingBalance: cowTank.opening_balance || 0,
-          morningEntry: cowTank.morning_quantity || 0,
-          eveningEntry: cowTank.evening_quantity || 0,
-          waste: cowTank.waste_quantity || 0,
-        },
-        buffalo: {
-          openingBalance: buffaloTank.opening_balance || 0,
-          morningEntry: buffaloTank.morning_quantity || 0,
-          eveningEntry: buffaloTank.evening_quantity || 0,
-          waste: buffaloTank.waste_quantity || 0,
-        }
-      };
-
-      setMilkTankData(tankData);
+      const fetchedTankIds = await fetchTankIds();
+      await Promise.all([
+        fetchProductData(),
+        fetchMilkTankData(selectedDate, fetchedTankIds)
+      ]);
     } catch (error) {
-      console.error('Error fetching milk tank data:', error);
-      setError(t('MSG.failedToLoadMilkTankData'));
+      console.error('Error initializing data:', error);
+      setError(t('MSG.failedToLoadData'));
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
-  const fetchAllData = async () => {
+  initializeData();
+}, []); // 🚨 EMPTY dependency array
+
+
+
+
+  const handleRefresh = async () => {
     setLoading(true);
     try {
       await Promise.all([
@@ -148,29 +199,27 @@ function DailyProductLog() {
         fetchMilkTankData(selectedDate)
       ]);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error refreshing data:', error);
+      setError(t('MSG.failedToRefreshData'));
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchAllData();
-  }, []);
+  // Custom calendar functions
+  const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
+  const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
 
-  useEffect(() => {
-    if (selectedDate) {
-      fetchMilkTankData(selectedDate);
-    }
-  }, [selectedDate]);
+  const months = [
+    t('LABELS.january'), t('LABELS.february'), t('LABELS.march'), t('LABELS.april'),
+    t('LABELS.may'), t('LABELS.june'), t('LABELS.july'), t('LABELS.august'),
+    t('LABELS.september'), t('LABELS.october'), t('LABELS.november'), t('LABELS.december')
+  ];
 
-  // Format date for API call (YYYY-MM-DD)
-  const formatDateForAPI = (dateObj) => {
-    const year = dateObj.getFullYear();
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const day = String(dateObj.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
+  const daysOfWeek = [
+    t('LABELS.sun'), t('LABELS.mon'), t('LABELS.tue'), t('LABELS.wed'),
+    t('LABELS.thu'), t('LABELS.fri'), t('LABELS.sat')
+  ];
 
   // Format date for display (DD-MM-YYYY)
   const formatDateForDisplay = (dateObj) => {
@@ -209,10 +258,6 @@ function DailyProductLog() {
     if (!calendarVisible) {
       setCurrentMonth(new Date(selectedDate));
     }
-  };
-
-  const handleRefresh = () => {
-    fetchAllData();
   };
 
   const prevMonth = () => {
@@ -267,7 +312,6 @@ function DailyProductLog() {
 
   const cowTotals = calculateTotals(milkTankData.cow, filteredCowFactory);
   const buffaloTotals = calculateTotals(milkTankData.buffalo, filteredBuffaloFactory);
-
   return (
     <CCard className="mb-4">
       <CCardHeader style={{ backgroundColor: '#d4edda' }}>
