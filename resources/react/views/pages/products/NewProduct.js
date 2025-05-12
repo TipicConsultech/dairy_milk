@@ -352,7 +352,8 @@ const ProductForm = ({ isOpen, onClose }) => {
         {state.productType === '2' && (
   <div className="row mb-2">
     <div className="col-md-6 col-12 mb-2">
-      <CFormLabel htmlFor="selectedFactorySizeId">Map to Factory Product Size</CFormLabel>
+      <CFormLabel htmlFor="selectedFactorySizeId">{t('LABELS.product_mapping')}</CFormLabel>
+
       <CFormSelect
         id="selectedFactorySizeId"
         name="selectedFactorySizeId"
