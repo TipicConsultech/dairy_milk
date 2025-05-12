@@ -142,7 +142,7 @@ export default function fetchNavItems(t1){
           },
           {
             component: CNavItem,
-            name: t("LABELS.p&l"),                                  //report
+            name: t("LABELS.p&lreport"),                                  //report
             to: 'Reports/Reports',
             // icon: <CIcon icon={cilChart} customClassName="nav-icon ms-4" />,
             className: 'ms-4'
@@ -165,7 +165,7 @@ export default function fetchNavItems(t1){
           },
           {
             component: CNavItem,
-            name: 'Credit Report',
+            name: t("LABELS.creditreport"),
             to: 'Reports/creditreport',
             // icon: <CIcon icon={cilAddressBook} customClassName="nav-icon ms-4" />
             className: 'ms-4'
@@ -367,13 +367,15 @@ export default function fetchNavItems(t1){
             component: CNavItem,
             name: t('LABELS.dailyTallyReport'),
             to: '/dailyTalliesReport',
-            icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
+            // icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
+            className: 'ms-4',
           },
           {
             component: CNavItem,
             name: t("LABELS.credit_report"),
             to: 'Reports/crateReport',
-            icon: <CIcon icon={cilDollar} customClassName="nav-icon" />,
+            // icon: <CIcon icon={cilDollar} customClassName="nav-icon" />,
+            className: 'ms-4',
           },
           // {
           //   component: CNavItem,
@@ -415,11 +417,13 @@ export default function fetchNavItems(t1){
             component: CNavItem,
             name: t("LABELS.create_factory_product"),
             to: '/CreateFactoryProduct',
+            className: 'ms-4',
           },
           {
             component: CNavItem,
             name: t("LABELS.create_retail_product"),
             to: '/CreateRetailProduct',
+            className: 'ms-4',
           },
           
           
@@ -436,20 +440,21 @@ export default function fetchNavItems(t1){
             component: CNavItem,
             name: t("LABELS.rawMaterialinventory"),
             to: '/rawMaterial',
-            
+            className: 'ms-4',
           },
           
           {
             component: CNavItem,
             name: t("LABELS.finalproductinventry"),
             to: '/finalProductInvenrty',
+            className: 'ms-4',
           },
 
           {
             component: CNavItem,
             name: t("LABELS.retailproductinventry"),
             to: '/retailProductInvenrty',
-            
+            className: 'ms-4',
           },
           
         ],
@@ -469,6 +474,7 @@ export default function fetchNavItems(t1){
             component: CNavItem,
             name: t("LABELS.all_products"),
             to: '/products/all',
+            className: 'ms-4',
           },
         ],
       },
@@ -495,16 +501,19 @@ export default function fetchNavItems(t1){
             component: CNavItem,
             name: t("LABELS.new_expense"),
             to: '/expense/new',
+            className: 'ms-4',
           },
           {
             component: CNavItem,
             name: t("LABELS.all_expense_types"),
             to: '/expense/all-type',
+            className: 'ms-4',
           },
           {
             component: CNavItem,
             name: t("LABELS.expense_report"),
             to: '/expense/reportExpense',
+            className: 'ms-4',
           },
         ],
       },
@@ -516,6 +525,7 @@ export default function fetchNavItems(t1){
       {
         component: CNavGroup,
         name: t("LABELS.create_Product"),
+        // to: '/CreateFactoryProduct',
         icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
         items: [
           
@@ -523,12 +533,15 @@ export default function fetchNavItems(t1){
             component: CNavItem,
             name: t("LABELS.create_factory_product"),
             to: '/CreateFactoryProduct',
+            className: 'ms-4',
+
           },
          
           {
             component: CNavItem,
             name: t("LABELS.create_retail_product"),
             to: '/CreateRetailProduct',   
+            className: 'ms-4',
            
           },
           

@@ -107,7 +107,7 @@ const CreditReport2 = () => {
                     <CTableHeaderCell scope="col" className="d-none d-sm-table-cell">{t('LABELS.id')}</CTableHeaderCell>
                     <CTableHeaderCell scope="col">{t('LABELS.name')}</CTableHeaderCell>
                     <CTableHeaderCell scope="col" className="d-none d-sm-table-cell">{t('LABELS.mobile_number')}</CTableHeaderCell>
-                     <CTableHeaderCell scope="col">Amount ₹ </CTableHeaderCell>       {/*{t('LABELS.total')} */}
+                     <CTableHeaderCell scope="col">{t('LABELS.balanceAmountRs')}  </CTableHeaderCell>       {/*{t('LABELS.total')} */}
                     {/* <CTableHeaderCell scope="col">{t('LABELS.return_items')}</CTableHeaderCell> */}
                     <CTableHeaderCell scope="col">{t('LABELS.actions')}</CTableHeaderCell>
                   </CTableRow>
