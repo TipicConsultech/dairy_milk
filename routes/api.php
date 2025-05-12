@@ -39,18 +39,13 @@ use App\Http\Controllers\ProductMappingController;
 
 //-
 use App\Http\Controllers\DailyTallyController;
+Route::middleware('auth:sanctum')->get('/milk-tanks/by-company', [MilkTankController::class, 'getByCompany']);
 
 
 
 Route::get('/api/product-mappings/{factoryProductId}', [ProductMappingController::class, 'getProductMappings']);
 Route::post('/api/product-mappings', [ProductMappingController::class, 'createProductMapping']);
 Route::delete('/api/product-mappings/{id}', [ProductMappingController::class, 'deleteProductMapping']);
-
-
-Route::get('/daily-tallies', [DailyTallyController::class, 'index']);
-
-Route::get('/milk-tanks/trackers/grouped', [MilkTanksTrackerController::class, 'getGroupedQuantities']);
-
 
 Route::post('/reset-password-link', [MailController::class, 'sendEmail']);
 Route::post('/newPassword',[MailController::class, 'resetPassword']);
@@ -115,6 +110,7 @@ Route::get('productSizes/{id}', [ProductController::class, 'showProductSize']);
 Route::get('/retail-products/{factoryProductId}', [ProductMappingController::class, 'getRetailProducts']);
 
 
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/factoryProducts', [FactoryProductController::class, 'store']);
     Route::get('/factoryProducts', [FactoryProductController::class, 'index']);
@@ -126,6 +122,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/uniqueBatchNumbers', [ProductsTrackerController::class, 'getUniqueBatchNumbers']);
     Route::post('/productInBatch', [ProductsTrackerController::class, 'productInBatch']);
     Route::post('/batchByProductId', [ProductsTrackerController::class, 'BatchByProductId']);
+    Route::get('/milk-tanks/trackers/grouped', [MilkTanksTrackerController::class, 'getGroupedQuantities']);
+  
+    //DailyTallies
+    Route::get('/daily-tallies', [DailyTallyController::class, 'index']);
+
+    
+
+
+
 
     Route::get('/getProductsWithVisibleSizes', [ProductController::class, 'getProductsWithVisibleSizes']); // TODO - Need to remove not used
     Route::post('/newRetailProduct', [CommonController::class, 'newRetailProduct']);

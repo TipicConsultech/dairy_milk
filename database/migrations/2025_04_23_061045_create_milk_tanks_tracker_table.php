@@ -12,6 +12,7 @@ return new class extends Migration {
     {
         Schema::create('milk_tanks_tracker', function (Blueprint $table) {
             $table->id();
+            $table->integer('company_id');
             $table->unsignedBigInteger('milk_tank_id');
             $table->double('opening_balance')->default(0);
             $table->double('added_quantity')->default(0); // ✅ default value
@@ -20,7 +21,10 @@ return new class extends Migration {
             $table->double('ts')->nullable(); 
             $table->integer('updated_by')->nullable();
             $table->timestamps();
-        
+            
+            
+       
+            $table->foreign('company_id')->references('company_id')->on('company_info')->onDelete('cascade');
             $table->foreign('milk_tank_id')->references('id')->on('milk_tanks')->onDelete('cascade');
         });
         

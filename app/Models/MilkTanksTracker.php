@@ -12,6 +12,7 @@ class MilkTanksTracker extends Model
     protected $table = 'milk_tanks_tracker';
 
     protected $fillable = [
+        'company_id',
         'milk_tank_id',
         'opening_balance',
         'added_quantity',
