@@ -387,6 +387,7 @@
   "bulkProductsCreation": "Bulk Products Creation",
   "allUsers": "All Users",
   "mobile": "Mobile",
+  
   "type": "Type",
   "blocked": "Blocked",
   "active": "Active",
@@ -444,7 +445,10 @@
   "wasteMilk": "Waste Milk",
   "remainingBalance": "Remaining Balance",
   "Capacity":"Capacity ",
-  "p&l":"P & L Report"
+  "p&l":"P & L Report",
+  "p&lreport":"P & L Report",
+  "creditreport" : "Credit Report"
+
 
     },
 
