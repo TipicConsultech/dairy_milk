@@ -84,23 +84,41 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
-Route::prefix('raw-materials')->group(function () {
+// Route::prefix('raw-materials')->group(function () {
+//     Route::get('/', [RawMaterialController::class, 'index']);
+//     Route::get('/visible', [RawMaterialController::class, 'visible']);
+//     Route::get('/company/{companyId}', [RawMaterialController::class, 'byCompany']);
+//     // Route::get('/{id}', [RawMaterialController::class, 'show']);
+//     Route::get('/showAll', [RawMaterialController::class, 'showAll']);
+//     Route::post('/store', [RawMaterialController::class, 'store']);
+//     Route::put('/{id}', [RawMaterialController::class, 'update']);
+//     Route::post('/updateRawMaterial', [RawMaterialController::class, 'updateRawMaterial']);
+//     Route::delete('/{id}', [RawMaterialController::class, 'destroy']);
+//     // Route::get('/criticalStock', [RawMaterialController::class, 'criticalStock']);
+// });
+Route::middleware(['auth:sanctum'])->prefix('raw-materials')->group(function () {
     Route::get('/', [RawMaterialController::class, 'index']);
     Route::get('/visible', [RawMaterialController::class, 'visible']);
     Route::get('/company/{companyId}', [RawMaterialController::class, 'byCompany']);
-    // Route::get('/{id}', [RawMaterialController::class, 'show']);
     Route::get('/showAll', [RawMaterialController::class, 'showAll']);
     Route::post('/store', [RawMaterialController::class, 'store']);
     Route::put('/{id}', [RawMaterialController::class, 'update']);
     Route::post('/updateRawMaterial', [RawMaterialController::class, 'updateRawMaterial']);
     Route::delete('/{id}', [RawMaterialController::class, 'destroy']);
-    // Route::get('/criticalStock', [RawMaterialController::class, 'criticalStock']);
+    //  Route::get('/serchRawMaterials', [RawMaterialController::class, 'searchByName']);
+
 });
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/searchRawMaterials', [RawMaterialController::class, 'searchByName']);
+});
+
+
 Route::get('/criticalStock', [RawMaterialController::class, 'criticalStock']);
 Route::get('/csv-download', [RawMaterialController::class, 'downloadDemoCsv']);
-Route::get('/serchRawMaterials', [RawMaterialController::class, 'searchByName']);
 Route::post('/uploadCSVRawMaterial', [RawMaterialController::class, 'uploadCsvRawMaterial']);
 Route::post('/uploadBulk', [RawMaterialController::class, 'bulkUpdate']);
+// Route::get('/serchRawMaterials', [RawMaterialController::class, 'searchByName']);
+
 //Private 
 Route::post('/rawMaterialAdd', [RawMaterialController::class, 'store'])->middleware('auth:sanctum');
 

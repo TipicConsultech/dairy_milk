@@ -122,6 +122,8 @@ function RawMaterial() {
 
   async function getData() {
     const response = await getAPICall('/api/raw-materials');
+    console.log(response);
+    
     setTableData(response);
   }
   
@@ -192,7 +194,7 @@ function RawMaterial() {
   const searchMaterials = async () => {
     setLoading(true);
     try {
-      const response = await getAPICall(`/api/serchRawMaterials?search=${debouncedSearchTerm}`);
+      const response = await getAPICall(`/api/searchRawMaterials?search=${debouncedSearchTerm}`);
       setTableData(response);
     } catch (error) {
       console.error('Error fetching materials:', error);
@@ -702,7 +704,7 @@ function RawMaterial() {
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setShowModal(false)}>
-          {t('LABELS.cancle')}
+          {t('LABELS.cancel')}
           </CButton>
           <CButton color="primary" onClick={handleFormSubmit} disabled={submitting}>
             {submitting ? <><CSpinner size="sm" /> {t('LABELS.saving')}</> : `${t('LABELS.save')}`}

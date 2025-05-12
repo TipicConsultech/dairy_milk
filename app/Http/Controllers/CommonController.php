@@ -23,78 +23,160 @@ class CommonController extends Controller
 
     public function getCombinedProducts()
     {
-        $retail = ProductSize::select(
-            'id',
-            'name',
-            'localName as local_name',
-            'unit',
-            'qty as quantity',
-            'dPrice as price',
-            'show as is_visible',
-            'product_type'
-        )
-        ->get()
-        ->map(function ($item) {
-            if($item->product_type==2){
-            $item->source_type = 'retail';
-            }
-            else if($item->product_type==1){
-            $item->source_type = 'factory';
-            }
-            else if($item->product_type==0){
-            $item->source_type = 'delivery';  
-            }
+        // $retail = ProductSize::select(
+        //     'id',
+        //     'name',
+        //     'localName as local_name',
+        //     'unit',
+        //     'qty as quantity',
+        //     'dPrice as price',
+        //     'show as is_visible',
+        //     'product_type'
+        // )
+        // ->get()
+        // ->map(function ($item) {
+        //     if($item->product_type==2){
+        //     $item->source_type = 'retail';
+        //     }
+        //     else if($item->product_type==1){
+        //     $item->source_type = 'factory';
+        //     }
+        //     else if($item->product_type==0){
+        //     $item->source_type = 'delivery';  
+        //     }
            
-            // $item->is_visible = true;
-            return $item;
-        });
+        //     // $item->is_visible = true;
+        //     return $item;
+        // });
     
-        $factory = FactoryProduct::select(
-            'id',
-            'name',
-            'local_name',
-            'unit',
-            'quantity',
-            'price',
-            'is_visible'
-        )
-        ->get()
-        ->map(function ($item) {
-            $item->source_type = 'factory';
-            return $item;
-        });
+        // $factory = FactoryProduct::select(
+        //     'id',
+        //     'name',
+        //     'local_name',
+        //     'unit',
+        //     'quantity',
+        //     'price',
+        //     'is_visible'
+        // )
+        // ->get()
+        // ->map(function ($item) {
+        //     $item->source_type = 'factory';
+        //     return $item;
+        // });
 
-        $retailArray = $retail->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'name' => $item->name,
-                'local_name' => $item->local_name,
-                'unit' => $item->unit,
-                'quantity' => $item->quantity,
-                'price' => $item->price,
-                'is_visible' => (bool) $item->is_visible,
-                'source_type' => $item->source_type,
-            ];
-        });
+        // $retailArray = $retail->map(function ($item) {
+        //     return [
+        //         'id' => $item->id,
+        //         'name' => $item->name,
+        //         'local_name' => $item->local_name,
+        //         'unit' => $item->unit,
+        //         'quantity' => $item->quantity,
+        //         'price' => $item->price,
+        //         'is_visible' => (bool) $item->is_visible,
+        //         'source_type' => $item->source_type,
+        //     ];
+        // });
         
-        $factoryArray = $factory->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'name' => $item->name,
-                'local_name' => $item->local_name,
-                'unit' => $item->unit,
-                'quantity' => $item->quantity,
-                'price' => $item->price,
-                'is_visible' => $item->is_visible,
-                'source_type' => 'factory',
-            ];
-        });
+        // $factoryArray = $factory->map(function ($item) {
+        //     return [
+        //         'id' => $item->id,
+        //         'name' => $item->name,
+        //         'local_name' => $item->local_name,
+        //         'unit' => $item->unit,
+        //         'quantity' => $item->quantity,
+        //         'price' => $item->price,
+        //         'is_visible' => $item->is_visible,
+        //         'source_type' => 'factory',
+        //     ];
+        // });
     
-        $combined = $retailArray->merge($factoryArray)->values();
+        // $combined = $retailArray->merge($factoryArray)->values();
     
-        return response()->json([
-            'data' => $retailArray
-        ]);
+        // return response()->json([
+        //     'data' => $retailArray
+        // ]);
+            // Ensure the user is authenticated
+    $user = auth()->user();
+    if (!$user) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $companyId = $user->company_id;
+
+    // Get retail products by company_id
+    $retail = ProductSize::select(
+        'id',
+        'name',
+        'localName as local_name',
+        'unit',
+        'qty as quantity',
+        'dPrice as price',
+        'show as is_visible',
+        'product_type'
+    )
+    ->where('company_id', $companyId)
+    ->get()
+    ->map(function ($item) {
+        $item->source_type = match ($item->product_type) {
+            2 => 'retail',
+            1 => 'factory',
+            0 => 'delivery',
+            default => 'unknown',
+        };
+        return $item;
+    });
+
+    // Get factory products by company_id
+    $factory = FactoryProduct::select(
+        'id',
+        'name',
+        'local_name',
+        'unit',
+        'quantity',
+        'price',
+        'is_visible'
+    )
+    ->where('company_id', $companyId)
+    ->get()
+    ->map(function ($item) {
+        $item->source_type = 'factory';
+        return $item;
+    });
+
+    // Format retail products
+    $retailArray = $retail->map(function ($item) {
+        return [
+            'id' => $item->id,
+            'name' => $item->name,
+            'local_name' => $item->local_name,
+            'unit' => $item->unit,
+            'quantity' => $item->quantity,
+            'price' => $item->price,
+            'is_visible' => (bool) $item->is_visible,
+            'source_type' => $item->source_type,
+        ];
+    });
+
+    // Format factory products
+    $factoryArray = $factory->map(function ($item) {
+        return [
+            'id' => $item->id,
+            'name' => $item->name,
+            'local_name' => $item->local_name,
+            'unit' => $item->unit,
+            'quantity' => $item->quantity,
+            'price' => $item->price,
+            'is_visible' => $item->is_visible,
+            'source_type' => 'factory',
+        ];
+    });
+
+    // Combine both lists
+    $combined = $retailArray->merge($factoryArray)->values();
+
+    return response()->json([
+        'data' => $combined,
+    ]);
     }
     
 
