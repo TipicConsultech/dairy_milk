@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   CButton,
   CCard,
@@ -16,13 +16,15 @@ import {
   CModalTitle,
   CRow,
 } from '@coreui/react'
-import { post } from '../../../util/api'
+import { getAPICall, post } from '../../../util/api'
 import { useToast } from '../../common/toast/ToastContext';
 import { useTranslation } from 'react-i18next';
 
 const ProductForm = ({ isOpen, onClose }) => {
      const { t, i18n } = useTranslation("global");
-  
+   const [factoryProductData, setFactoryProductData] = useState([])
+   const [selectedFactorySizeId, setSelectedFactorySizeId] = useState('');
+
   const { showToast } = useToast();
   const [state, setState] = useState({
     name: '',
@@ -49,12 +51,29 @@ const ProductForm = ({ isOpen, onClose }) => {
     sizes: [],
     isFactory: false
   })
+  const [mappedFactoryProductId, setMappedFactoryProductId] = useState('');
+
+   useEffect(() => {
+      fetchFactoryProduct()
+      
+    }, [])
+  
+    const fetchFactoryProduct = async () => {
+      try {
+        const res = await getAPICall('/api/getProductsByProductType')    // showAllFactoryProducts
+        setFactoryProductData(res?.products)
+      } catch (err) {
+        console.error('Error fetching tank data:', err)
+      }
+    }
+  
 
   const unitOptions = [
     { value: 'Kg', label: `${t('LABELS.Kilogram')}` },
     { value: 'Ltr', label: `${t('LABELS.liter')}`  },
     { value: 'ml', label: `${t('LABELS.milli_liter')}`  },
     { value: 'gm', label: `${t('LABELS.grams')}`  },
+    { value: 'Pcs', label: `${t('LABELS.pcs')}`  },
   ]
 
   const productTypeOptions = [
@@ -146,6 +165,11 @@ const ProductForm = ({ isOpen, onClose }) => {
       delete data.bPrice
       delete data.qty
     }
+
+    if (state.productType === '2' && selectedFactorySizeId) {
+  data.mapped_factory_product_size_id = selectedFactorySizeId;
+}
+
     
     try {
       const resp = await post('/api/product', data)
@@ -186,6 +210,8 @@ const ProductForm = ({ isOpen, onClose }) => {
       isFactory: false,
       unit_multiplier:0,
       lable_value: '',
+     
+
     })
   }
 
@@ -323,6 +349,29 @@ const ProductForm = ({ isOpen, onClose }) => {
             onChange={handleCBChange}
           />
         </div>
+        {state.productType === '2' && (
+  <div className="row mb-2">
+    <div className="col-md-6 col-12 mb-2">
+      <CFormLabel htmlFor="selectedFactorySizeId">Map to Factory Product Size</CFormLabel>
+      <CFormSelect
+        id="selectedFactorySizeId"
+        name="selectedFactorySizeId"
+        value={selectedFactorySizeId}
+        onChange={(e) => setSelectedFactorySizeId(e.target.value)}
+      >
+        <option value="">Select Factory Product Size</option>
+        {factoryProductData.map(fp => (
+          <option key={fp.id} value={fp.id}>
+            {fp.name}
+          </option>
+        ))}
+
+      </CFormSelect>
+    </div>
+  </div>
+)}
+
+
         {/* {state.returnable && (
     
     <div className="col-md-4 col-12 mb-2">

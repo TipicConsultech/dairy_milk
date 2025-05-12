@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Util;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ProductMapping;
 
 
 class ProductController extends Controller
@@ -189,65 +190,63 @@ class ProductController extends Controller
     }
     
   
-    public function store(Request $request)
+public function store(Request $request)
 {
-    // Validate incoming request data (only the fields that are required for the store function)
     $request->validate([
         'name' => 'required',
         'localName' => 'required',
         'multiSize' => 'required',
         'show' => 'required',
-        'unit' => 'nullable',  // Assuming unit can be nullable
+        'unit' => 'nullable',
     ]);
 
     $user = Auth::user();
 
-    // Create the product using only the fillable fields
+    // Create product
     $product = Product::create([
         'name' => $request->name,
         'localName' => $request->localName,
         'unit' => $request->unit,
         'multiSize' => $request->multiSize,
         'show' => $request->show,
-        'company_id' => $user->company_id, // Add company_id
-        'created_by' => $user->id, // Add created_by
-        'updated_by' => $user->id, // Add updated_by
+        'company_id' => $user->company_id,
+        'created_by' => $user->id,
+        'updated_by' => $user->id,
     ]);
 
-    // // Save images with company_id
-    // $images = [];
-    // foreach ($request->media as $img) {
-    //     $media = new ProductMedia;
-    //     $media->url = $img['url'];
-    //     $media->type = $img['type'];
-    //     $media->company_id = $user->company_id; // Add company_id
-    //     $images[] = $media;
-    // }
-    // $product->media()->saveMany($images);
-
-    // Save sizes with company_id
-    $sizes = [];
+    // Loop through sizes and save each
     foreach ($request->sizes as $size) {
-        $sz = new ProductSize;
+        $sz = new ProductSize();
         $sz->name = $size['name'];
         $sz->localName = $size['localName'];
         $sz->oPrice = $size['dPrice'];
-        $sz->bPrice = $size['dPrice'];  
-        $sz->dPrice = $size['dPrice'];                         // 'dPrice'
+        $sz->bPrice = $size['dPrice'];
+        $sz->dPrice = $size['dPrice'];
         $sz->default_qty = $size['default_qty'] ?? 0;
-        // $sz->stock = $size['stock'];
         $sz->max_stock = $size['max_stock'] ?? null;
-        $sz->unit = $size['unit'];                         
+        $sz->unit = $size['unit'];
         $sz->returnable = $size['returnable'];
         $sz->isFactory = $size['isFactory'] ?? 0;
         $sz->qty = $size['qty'];
         $sz->unit_multiplier = $size['unit_multiplier'];
         $sz->product_type = $size['product_type'];
         $sz->show = $size['show'];
-        $sz->company_id = $user->company_id; // Add company_id
-        $sizes[] = $sz;
+        $sz->company_id = $user->company_id;
+
+        // Save size
+        $product->size()->save($sz);
+
+        // ✅ If retail, save mapping to factory size
+        if (
+            $size['product_type'] == '2' &&  // Retail
+            $request->filled('mapped_factory_product_size_id')
+        ) {
+            ProductMapping::create([
+                'factory_productSize_id' => $request->mapped_factory_product_size_id,
+                'retail_productSize_id' => $sz->id,
+            ]);
+        }
     }
-    $product->size()->saveMany($sizes);
 
     return response()->json($product, 201);
 }
