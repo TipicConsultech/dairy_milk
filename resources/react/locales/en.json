@@ -90,7 +90,7 @@
      "date": "Date",
      "filled": "Filled",
      "rate": "Rate",
-     "total": "Total Packets",
+     "total": "Total",
      "total_amount": "Total Amount",
      "cash_collected": "Cash Collected",
      "submit": "Submit",
@@ -448,7 +448,15 @@
   "Capacity":"Capacity ",
   "p&l":"P & L Report",
   "p&lreport":"P & L Report",
-  "creditreport" : "Credit Report"
+  "creditreport" : "Credit Report",
+  
+    
+    "transaction_details": "Transaction Details",
+    
+    "grand_total": "Grand Total",
+    
+    "only_cash_collected": "Only Cash Collected"
+
 
 
     },
@@ -481,6 +489,8 @@
         "please_provide_mobile_number_msg": "Please provide mobile number",
         "enter_customer_name_msg": "Enter Customer Name",
         "enter_mob_no_msg": "Enter Mobile No",
+
+        
 
         "please_select_date_msg": "Please select date",
         "booking_is_done_msg": "Booking is done",
@@ -558,6 +568,13 @@
             "noDataAvailable": "No data available",
             "sms_part_1": "Hello, Total",
             "sms_part_2": "",
-            "sms_part_3": " is pending. Regards - "
+            "sms_part_3": " is pending. Regards - ",
+            
+            "report_fetched_successfully": "Report fetched successfully",
+            "no_data_found": "No data found",
+            "adjust_search_criteria": "Try adjusting your search criteria",
+            "error_occurred": "An error occurred:",
+            "report_downloaded": "Report downloaded successfully",
+            "no_report_to_download": "No report available to download"
     }
    }

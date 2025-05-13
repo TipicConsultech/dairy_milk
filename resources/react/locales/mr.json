@@ -26,7 +26,7 @@
         "date": "तारीख",
         "filled": "भरलेले",
         "rate": "रेट",
-        "total": "एकूण पाकिटे",
+        "total": "एकूण",
         "total_amount": "एकूण रक्कम",
         "cash_collected": "जमा रक्कम",
         "submit": "सबमिट",
@@ -451,7 +451,13 @@
 "overCapacityWarning": "तुम्ही या घटकासाठी परवानगी असलेल्या जास्तीत जास्त क्षमतेपेक्षा जास्त प्रविष्ट केले आहे.",
 "itemCapacityExceeded": "तुम्ही {quantity} प्रमाणात <strong>{name}</strong> मध्ये जोडण्याचा प्रयत्न करत आहात, पण केवळ <strong>{remaining}</strong> एवढेच उरलेले आहे (मर्यादा <strong>{capacity}</strong>).",
 "p&lreport":"P आणि L अहवाल",
-"creditreport":"क्रेडिट अहवाल"
+"creditreport":"क्रेडिट अहवाल",
+
+    "transaction_details": "व्यवहार तपशील",
+    
+    "grand_total": "एकूण",
+    
+    "only_cash_collected": "फक्त रक्कम जमा केली"
 
 
 
@@ -570,7 +576,14 @@
         "noDataAvailable": "कोणताही डेटा उपलब्ध नाही",
         "sms_part_1": "नमस्कार, आपली ",
         "sms_part_2": "",
-        "sms_part_3": " येणे बाकी आहे. फर्म - "
+        "sms_part_3": " येणे बाकी आहे. फर्म - ",
+      
+        "report_fetched_successfully": "अहवाल यशस्वीरित्या आणला",
+        "no_data_found": "कोणताही डेटा आढळला नाही",
+        "adjust_search_criteria": "आपले शोध निकष समायोजित करण्याचा प्रयत्न करा",
+        "error_occurred": "एक त्रुटी आली:",
+        "report_downloaded": "अहवाल यशस्वीरित्या डाउनलोड केला",
+        "no_report_to_download": "डाउनलोड करण्यासाठी कोणताही अहवाल उपलब्ध नाही"
 
     }
    }

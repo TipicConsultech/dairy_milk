@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Util;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Response;
 use App\Models\ProductMapping;
 
 
@@ -538,6 +539,219 @@ public function updateProductSize(Request $request, $id)
         'message' => 'ProductSize updated successfully',
         'data' => $productSize
     ]);
+}
+
+
+public function uploadProductCsv(Request $request)
+{
+    $request->validate([
+        'file' => 'required|mimes:csv,txt',
+    ]);
+
+    $user = Auth::user();
+    $file = $request->file('file');
+
+    // Read and convert file content to UTF-8
+    $raw = file_get_contents($file);
+    $utf8 = mb_convert_encoding($raw, 'UTF-8', 'auto');
+
+    // Split into lines and parse CSV
+    $lines = explode(PHP_EOL, $utf8);
+    $data = array_map('str_getcsv', $lines);
+
+    // Remove empty lines
+    $data = array_filter($data, function ($row) {
+        return array_filter($row); // Keep only non-empty rows
+    });
+
+    if (count($data) < 2) {
+        return response()->json(['error' => 'CSV file is empty or improperly formatted.'], 422);
+    }
+
+    $headers = array_map('trim', $data[0]);
+    unset($data[0]);
+
+    $productTypeMap = [
+        'Delivery' => 0,
+        'Factory' => 1,
+        'Retail' => 2,
+    ];
+
+    $deliveryAndFactoryRows = [];
+    $retailRows = [];
+
+    foreach ($data as $row) {
+        if (count($row) !== count($headers)) {
+            continue; // Skip invalid rows
+        }
+        $row = array_combine($headers, $row);
+
+        $productType = $row['product_type'] ?? '';
+        if (in_array($productType, ['Delivery', 'Factory'])) {
+            $deliveryAndFactoryRows[] = $row;
+        } elseif ($productType === 'Retail') {
+            $retailRows[] = $row;
+        }
+    }
+
+    DB::beginTransaction();
+    try {
+        // Insert Delivery and Factory products
+        foreach ($deliveryAndFactoryRows as $row) {
+            $returnable = null;
+            if ($row['returnable'] === "TRUE") {
+                $returnable = 1;
+            } elseif ($row['returnable'] === "FALSE") {
+                $returnable = 0;
+            }
+
+            $product = Product::create([
+                'name' => $row['name'],
+                'localName' => $row['localName'],
+                'unit' => $row['unit'] ?? null,
+                'multiSize' => 1,
+                'show' => 1,
+                'company_id' => $user->company_id,
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+            ]);
+
+            $weight = floatval($row['weight']);
+            $unit = strtolower($row['unit']);
+            $unit_multiplier = in_array($unit, ['gm', 'ml']) ? $weight / 1000 : (in_array($unit, ['kg', 'ltr']) ? $weight : 1);
+
+            $size = new ProductSize([
+                'name' => $row['name'],
+                'localName' => $row['localName'],
+                'oPrice' => $row['price'],
+                'bPrice' => $row['price'],
+                'dPrice' => $row['price'],
+                'default_qty' => $row['default_qty'] ?? 0,
+                'max_stock' => $row['capacity'] ?? null,
+                'unit' => $row['unit'],
+                'returnable' => $returnable,
+                'isFactory' => 1,
+                'qty' => $row['quantity'],
+                'lable_value' => $row['weight'],
+                'unit_multiplier' => $unit_multiplier,
+                'product_type' => $productTypeMap[$row['product_type']] ?? 0,
+                'show' => 1,
+                'company_id' => $user->company_id,
+            ]);
+
+            $product->size()->save($size);
+        }
+
+        // Insert Retail products
+        foreach ($retailRows as $row) {
+            $returnable = null;
+            if ($row['returnable'] === "TRUE") {
+                $returnable = 1;
+            } elseif ($row['returnable'] === "FALSE") {
+                $returnable = 0;
+            }
+
+            $retailProduct = Product::create([
+                'name' => $row['name'],
+                'localName' => $row['localName'],
+                'unit' => $row['unit'] ?? null,
+                'multiSize' => 1,
+                'show' => 1,
+                'company_id' => $user->company_id,
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+            ]);
+
+            $weight = floatval($row['weight']);
+            $unit = strtolower($row['unit']);
+            $unit_multiplier = in_array($unit, ['gm', 'ml']) ? $weight / 1000 : (in_array($unit, ['kg', 'ltr']) ? $weight : 1);
+
+            $retailSize = new ProductSize([
+                'name' => $row['name'],
+                'localName' => $row['localName'],
+                'oPrice' => $row['price'],
+                'bPrice' => $row['price'],
+                'dPrice' => $row['price'],
+                'default_qty' => $row['default_qty'] ?? 0,
+                'max_stock' => $row['capacity'] ?? null,
+                'unit' => $row['unit'],
+                'returnable' => $returnable,
+                'isFactory' => 0,
+                'qty' => $row['quantity'],
+                'lable_value' => $row['weight'],
+                'unit_multiplier' => $unit_multiplier,
+                'product_type' => $productTypeMap[$row['product_type']] ?? 0,
+                'show' => 1,
+                'company_id' => $user->company_id,
+            ]);
+
+            $retailProduct->size()->save($retailSize);
+
+            // Try to match with factory product
+            $possibleFactory = ProductSize::where('company_id', $user->company_id)
+                ->where('product_type', $productTypeMap['Factory'])
+                ->get()
+                ->first(function ($factorySize) use ($row) {
+                    return stripos($row['name'], $factorySize->name) !== false || stripos($factorySize->name, $row['name']) !== false;
+                });
+
+            if ($possibleFactory) {
+                ProductMapping::create([
+                    'factory_productSize_id' => $possibleFactory->id,
+                    'retail_productSize_id' => $retailSize->id,
+                ]);
+            }
+        }
+
+        DB::commit();
+        return response()->json(['message' => 'CSV uploaded and processed successfully'], 201);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
+
+
+public function productSampleCsv()
+{
+    $headers = [
+        'Content-Type' => 'text/csv; charset=UTF-8',
+        'Content-Disposition' => 'attachment; filename="products_csv_sample.csv"',
+    ];
+
+    $columns = [
+        'name',
+        'localName',
+        'weight',
+        'unit',
+        'price',
+        'quantity',
+        'capacity',
+        'returnable',
+        'product_type',
+    ];
+
+    $rows = [
+        ['Product A', 'स्थानीय A', 250, 'gm', 50, 10, 100,'TRUE','Delivery'],
+        ['Product B', 'स्थानीय B', 2, 'ltr', 70, 20, 200,'FALSE','Factory'],
+        ['Product C', 'स्थानीय C',100, 'ml', 100, 30, 300,'TRUE','Retail'],
+    ];
+
+    $callback = function () use ($columns, $rows) {
+        $file = fopen('php://output', 'w');
+
+        // Add UTF-8 BOM
+        fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+        fputcsv($file, $columns);
+        foreach ($rows as $row) {
+            fputcsv($file, $row);
+        }
+        fclose($file);
+    };
+
+    return response()->stream($callback, 200, $headers);
 }
 
 }
