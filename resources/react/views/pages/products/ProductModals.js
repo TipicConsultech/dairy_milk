@@ -24,6 +24,23 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({});
+  const [factoryProductData, setFactoryProductData] = useState([])
+  const [selectedFactorySizeId, setSelectedFactorySizeId] = useState('');
+  const [mappedFactoryProductId, setMappedFactoryProductId] = useState('');
+
+  useEffect(() => {
+     fetchFactoryProduct()
+     
+   }, [])
+ 
+   const fetchFactoryProduct = async () => {
+     try {
+       const res = await getAPICall('/api/getProductsByProductType')    // showAllFactoryProducts
+       setFactoryProductData(res?.products)
+     } catch (err) {
+       console.error('Error fetching tank data:', err)
+     }
+   }
 
   useEffect(() => {
     if (productId && visible) {
@@ -101,26 +118,33 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
       let endpoint = sourceType === 'retail' 
         ? `/api/updateProductSize/${productId}` 
         : `/api/updateProductSize/${productId}`;
-      
-      // Format the data correctly before sending
+  
       let dataToSubmit = formData;
-      
-      // For retail products, we might need to wrap in a data object if the API expects it
-      if (sourceType === 'retail') {
-        // Converting boolean string values to actual booleans for checkbox fields
+  
+      // Include mapped_factory_product_size_id if selectedFactorySizeId is set
+      if (formData.productType === '2' && selectedFactorySizeId) {
         dataToSubmit = {
           ...formData,
-          returnable: formData.returnable ? 1 : 0,
-          show: formData.show ? 1 : 0
+          mapped_factory_product_size_id: selectedFactorySizeId, // Add this line
+        };
+      }
+      console.log('Selected Factory Size ID:', selectedFactorySizeId);
+
+      // For retail products, ensure boolean is properly formatted
+      if (sourceType === 'retail') {
+        dataToSubmit = {
+          ...dataToSubmit,
+          returnable: dataToSubmit.returnable ? 1 : 0,
+          show: dataToSubmit.show ? 1 : 0
         };
       } else {
         // For factory products, ensure boolean is properly formatted
         dataToSubmit = {
-          ...formData,
-          is_visible: formData.is_visible ? true : false
+          ...dataToSubmit,
+          is_visible: dataToSubmit.is_visible ? true : false
         };
       }
-      
+  
       await put(endpoint, dataToSubmit);
       showToast('success', 'Product updated successfully');
       setVisible(false);
@@ -131,6 +155,7 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
       setLoading(false);
     }
   };
+  
 
   const handleDefaultQtyChange = (e) => {
     const { value } = e.target;
@@ -149,7 +174,8 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
     if (sourceType === 'retail' || sourceType === 'factory') {
       return (
         <CForm onSubmit={handleSubmit}>
-          <CRow className="mb-3">
+      <CRow className="mb-3">
+
             <CCol md={6}>
               <CFormLabel htmlFor="name">{t('LABELS.product_name')}</CFormLabel>
               <CFormInput
@@ -230,6 +256,7 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
                 <option value="ltr">{t('LABELS.liter')}</option>
                 <option value="gm">{t('LABELS.grams')}</option>
                 <option value="ml">{t('LABELS.milli_liter')}</option>
+                <option value="pcs">{t('LABELS.pcs')}</option>
               </CFormSelect>
             </CCol>
             <CCol md={4}>
@@ -292,6 +319,28 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
                 </div>
             
             )}
+            
+  <div className="row mb-2">
+    <div className="col-md-6 col-12 mb-2">
+      <CFormLabel htmlFor="selectedFactorySizeId">Map to Factory Product Size</CFormLabel>
+      <CFormSelect
+        id="selectedFactorySizeId"
+        name="selectedFactorySizeId"
+        value={selectedFactorySizeId}
+        onChange={(e) => setSelectedFactorySizeId(e.target.value)}
+      >
+        <option value="">Select Factory Product Size</option>
+        {factoryProductData.map(fp => (
+          <option key={fp.id} value={fp.id}>
+            {fp.name}
+          </option>
+        ))}
+
+      </CFormSelect>
+    </div>
+  </div>
+
+
           </CRow>
         </CForm>
       );

@@ -436,7 +436,45 @@ public function store(Request $request)
         return ProductSize::where('product_id',$id)->delete();
     }
 
-    public function updateProductSize(Request $request, $id)
+//     public function updateProductSize(Request $request, $id)
+// {
+//     $productSize = ProductSize::find($id);
+
+//     if (!$productSize) {
+//         return response()->json(['message' => 'ProductSize not found'], 404);
+//     }
+
+//     $validated = $request->validate([
+//         'product_id' => 'required|integer|exists:products,id',
+//         'name' => 'required|string',
+//         'localName' => 'nullable|string',
+//         'bPrice' => 'required|numeric',
+//         'oPrice' => 'required|numeric',
+//         'dPrice' => 'required|numeric',
+//         'unit' => 'required|string',
+//         'label_value' => 'nullable|numeric',
+//         'unit_multiplier' => 'nullable|numeric',
+//         'qty' => 'required|numeric',
+//         'default_qty' => 'nullable|numeric',
+//         'max_stock' => 'nullable|numeric',
+//         'booked' => 'nullable|numeric',
+//         'company_id' => 'nullable|integer',
+//         'created_by' => 'nullable|integer',
+//         'updated_by' => 'nullable|integer',
+//         'returnable' => 'boolean',
+//         'show' => 'boolean',
+//         'product_type'=>'nullable|numeric',
+//     ]);
+
+//     $productSize->update($validated);
+
+//     return response()->json([
+//         'message' => 'ProductSize updated successfully',
+//         'data' => $productSize
+//     ]);
+// }
+
+public function updateProductSize(Request $request, $id)
 {
     $productSize = ProductSize::find($id);
 
@@ -463,14 +501,43 @@ public function store(Request $request)
         'updated_by' => 'nullable|integer',
         'returnable' => 'boolean',
         'show' => 'boolean',
-        'product_type'=>'nullable|numeric',
+        'product_type' => 'nullable|numeric',
+        'mapped_factory_product_size_id' => 'nullable|exists:product_sizes,id',
     ]);
 
+    // Update ProductSize
     $productSize->update($validated);
+
+    // ✅ Handle Product Mapping if it's a Retail Product (product_type = 2)
+    if (isset($validated['product_type']) && $validated['product_type'] == 2) {
+        if ($request->filled('mapped_factory_product_size_id')) {
+            // Check if mapping already exists
+            $existingMapping = ProductMapping::where('retail_productSize_id', $productSize->id)->first();
+
+            if ($existingMapping) {
+                // Update existing mapping
+                $existingMapping->factory_productSize_id = $request->mapped_factory_product_size_id;
+                $existingMapping->save();
+            } else {
+                // Create new mapping
+                ProductMapping::create([
+                    'factory_productSize_id' => $request->mapped_factory_product_size_id,
+                    'retail_productSize_id' => $productSize->id,
+                ]);
+            }
+        } else {
+            // If no factory product size selected, optionally delete mapping
+            ProductMapping::where('retail_productSize_id', $productSize->id)->delete();
+        }
+    } else {
+        // If product_type is not 2, remove mapping if it exists
+        ProductMapping::where('retail_productSize_id', $productSize->id)->delete();
+    }
 
     return response()->json([
         'message' => 'ProductSize updated successfully',
         'data' => $productSize
     ]);
 }
+
 }

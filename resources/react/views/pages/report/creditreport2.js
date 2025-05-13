@@ -88,7 +88,7 @@ const CreditReport2 = () => {
       <CCol xs={12} style={{ padding: '2px' }}>
         <CCard className="mb-4">
           <CCardHeader>
-            <strong>{t('LABELS.credit_report')}</strong>
+            <strong>{t('LABELS.creditreport')}</strong>
           </CCardHeader>
           <CCardBody>
             {/* ** Search Input Box ** */}

@@ -47,4 +47,12 @@ class ProductSize extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    // ProductSize.php
+    public function productMapping()
+    {
+        return $this->hasOne(ProductMapping::class, 'retail_productSize_id', 'id');
+    }
+    
+
 }

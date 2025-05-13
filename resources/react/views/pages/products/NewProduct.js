@@ -25,6 +25,12 @@ const ProductForm = ({ isOpen, onClose }) => {
    const [factoryProductData, setFactoryProductData] = useState([])
    const [selectedFactorySizeId, setSelectedFactorySizeId] = useState('');
 
+
+   const [searchTerm, setSearchTerm] = useState('');
+const [dropdownOpen, setDropdownOpen] = useState(false);
+// const [selectedFactorySizeId, setSelectedFactorySizeId] = useState('');
+
+
   const { showToast } = useToast();
   const [state, setState] = useState({
     name: '',
@@ -349,12 +355,13 @@ const ProductForm = ({ isOpen, onClose }) => {
             onChange={handleCBChange}
           />
         </div>
+        
         {state.productType === '2' && (
   <div className="row mb-2">
     <div className="col-md-6 col-12 mb-2">
       <CFormLabel htmlFor="selectedFactorySizeId">{t('LABELS.product_mapping')}</CFormLabel>
 
-      <CFormSelect
+      {/* <CFormSelect
         id="selectedFactorySizeId"
         name="selectedFactorySizeId"
         value={selectedFactorySizeId}
@@ -367,7 +374,67 @@ const ProductForm = ({ isOpen, onClose }) => {
           </option>
         ))}
 
-      </CFormSelect>
+      </CFormSelect> */}
+  <div style={{ position: 'relative' }}>
+  <CFormInput
+    type="text"
+    id="selectedFactorySizeId"
+    value={searchTerm}
+    placeholder="Search or select factory product size"
+    onChange={(e) => {
+      const value = e.target.value;
+      setSearchTerm(value);
+      setSelectedFactorySizeId('');
+      setDropdownOpen(true);
+    }}
+    onFocus={() => setDropdownOpen(true)}
+    onBlur={() => {
+      setTimeout(() => setDropdownOpen(false), 150);
+    }}
+    className="border  rounded "
+  />
+
+  {dropdownOpen && (
+    <div
+      className="position-absolute w-100 mb-1 border rounded bg-white shadow z-index-dropdown"
+      style={{
+        maxHeight: '200px',
+        overflowY: 'auto',
+        bottom: '105%', // Makes the dropdown appear above the input
+        zIndex: 1050,
+      }}
+    >
+      {factoryProductData
+        .filter((fp) =>
+          fp.name.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        .map((fp) => (
+          <div
+            key={fp.id}
+            className="px-3 py-2 dropdown-item"
+            style={{
+              cursor: 'pointer',
+              transition: 'background-color 0.2s ease',
+            }}
+            onMouseDown={() => {
+              setSelectedFactorySizeId(fp.id);
+              setSearchTerm(fp.name);
+              setDropdownOpen(false);
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundColor = '#f0f8ff')
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = 'transparent')
+            }
+          >
+            {fp.name}
+          </div>
+        ))}
+    </div>
+  )}
+</div>
+
     </div>
   </div>
 )}

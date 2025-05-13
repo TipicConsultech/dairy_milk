@@ -145,7 +145,8 @@ Route::middleware('auth:sanctum')->group(function () {
     //DailyTallies
     Route::get('/daily-tallies', [DailyTallyController::class, 'index']);
 
-    
+    Route::get('/product-size/{id}', [ProductController::class, 'getProductSize']);
+
 
 
 

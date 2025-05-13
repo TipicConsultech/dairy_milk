@@ -448,6 +448,7 @@ const MilkForm = () => {
                     }}
                     onFocus={() => setIsDropdownOpen(true)}
                     placeholder={t('LABELS.searchOrSelectIngredient')}
+                   
                   />
 
                   {!newIngredient.name ? (

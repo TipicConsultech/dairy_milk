@@ -313,7 +313,7 @@ function DailyProductLog() {
   const cowTotals = calculateTotals(milkTankData.cow, filteredCowFactory);
   const buffaloTotals = calculateTotals(milkTankData.buffalo, filteredBuffaloFactory);
   return (
-    <CCard className="mb-4">
+    <CCard className="mb-2">
       <CCardHeader style={{ backgroundColor: '#d4edda' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h5 className="mb-0">{t('LABELS.dailyTallyReport')}</h5>
@@ -435,7 +435,7 @@ function DailyProductLog() {
       <CCardBody>
         {/* Error Alert */}
         {error && (
-          <CAlert color="danger" className="mb-4">
+          <CAlert color="danger" className="mb-2">
             {error}
           </CAlert>
         )}
@@ -448,7 +448,7 @@ function DailyProductLog() {
         ) : (
           <>
             {/* Milk Capacity Section */}
-            <div className="mb-4">
+            <div className="mb-2">
               <CRow>
                 <CCol md={6}>
                   <CCard className="h-100 border-primary">
@@ -504,11 +504,11 @@ function DailyProductLog() {
             </div>
            
             {/* Product Log Section */}
-            <div className="mb-4">
+            <div className="mb-2">
               <CRow>
                 <CCol md={6}>
                  
-                  <div className="mb-4" style={{ height: '250px', overflow: 'auto' }}>
+                  <div className="mb-2" style={{ height: '250px', overflow: 'auto' }}>
                     <CCard className="h-100 border">
                       <CCardHeader style={{ backgroundColor: '#E6E6FA', position: 'sticky', top: 0, zIndex: 2 }}>
                         <h6 className="mb-0">{t('LABELS.cowfactoryProducts')}</h6>
@@ -573,7 +573,7 @@ function DailyProductLog() {
                 </CCol>
                 <CCol md={6}>
                   
-                  <div className="mb-4" style={{ height: '250px', overflow: 'auto' }}>
+                  <div className="mb-2" style={{ height: '250px', overflow: 'auto' }}>
                     <CCard className="h-100 border">
                       <CCardHeader style={{ backgroundColor: '#E6E6FA', position: 'sticky', top: 0, zIndex: 2 }}>
                         <h6 className="mb-0">{t('LABELS.buffalofactoryProducts')}</h6>
@@ -640,7 +640,7 @@ function DailyProductLog() {
             </div>
             
             {/* Summary Card */}
-           <div className="mt-4">
+           <div className="mt-2">
   <CRow>
     {/* Cow Summary Card */}
     <CCol md={6}>

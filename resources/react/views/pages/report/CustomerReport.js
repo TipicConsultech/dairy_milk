@@ -357,62 +357,27 @@ const CustomerReport = () => {
                               </CTableHead>
                               <CTableBody>
                                 {p.details.map(detail => (
-                                  //       <CTableRow key={detail.id}>
-                                  //         <CTableDataCell>{formatDate(detail.deliveryDate)}</CTableDataCell>
-                                  //         <CTableDataCell>{convertTo12HourFormat(detail.deliveryTime)}</CTableDataCell> 
-                                  //         <CTableDataCell>
-                                  //         {detail.items.length >0 ? <table className="table table-sm borderless">
-                                  //           <tbody>
-                                  //           {
-                                  //             detail.items.map(i=>(<tr key={i.id}>
-                                  //               <td>{lng === 'en' ? i.product_name : i.product_local_name}</td>
-                                  //               <td>{i.dQty> 0 ? i.dQty +' X '+i.dPrice + '₹': '' }</td>
-                                  //               <td>{i.eQty > 0 ? i.eQty + '('+t('LABELS.collected')+')' : ''}</td>
-                                  //             </tr>))
-                                  //           }
-                                  //           </tbody>
-                                  //       </table> : 'Only cash collected'}
-                                  //   </CTableDataCell>
-                                  //   <CTableDataCell>{detail.paidAmount}</CTableDataCell>
-                                  //   <CTableDataCell className='text-danger'>{detail.totalAmount - detail.paidAmount}</CTableDataCell>
-                                  //   <CTableDataCell>{detail.totalAmount}</CTableDataCell>
-                                  //   <CTableDataCell>{detail.user.name}</CTableDataCell>
-                                  // </CTableRow>
-
-                                  <CTableRow key={detail.id}>
-  <CTableDataCell>{formatDate(detail.deliveryDate)}</CTableDataCell>
-  <CTableDataCell>{convertTo12HourFormat(detail.deliveryTime)}</CTableDataCell>
-  <CTableDataCell>
-    {detail.items.length > 0 ? (
-      <table className="table table-sm borderless">
-        <tbody>
-          {detail.items.map(i => (
-            <tr key={i.id}>
-              <td>
-                <div>
-                  <div>{lng === 'en' ? i.product_name : i.product_local_name}</div>
-                  <div>
-                    {i.dQty > 0 ? `${i.dQty} X ${i.dPrice} ₹` : ''}
-                  </div>
-                  <div>
-                    {i.eQty > 0 ? `${i.eQty} (${t('LABELS.collected')})` : ''}
-                  </div>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    ) : (
-      'Only cash collected'
-    )}
-  </CTableDataCell>
-  <CTableDataCell>{detail.paidAmount}</CTableDataCell>
-  <CTableDataCell className="text-danger">{detail.totalAmount - detail.paidAmount}</CTableDataCell>
-  <CTableDataCell>{detail.totalAmount}</CTableDataCell>
-  <CTableDataCell>{detail.user.name}</CTableDataCell>
-</CTableRow>
-
+                                        <CTableRow key={detail.id}>
+                                          <CTableDataCell>{formatDate(detail.deliveryDate)}</CTableDataCell>
+                                          <CTableDataCell>{convertTo12HourFormat(detail.deliveryTime)}</CTableDataCell> 
+                                          <CTableDataCell>
+                                          {detail.items.length >0 ? <table className="table table-sm borderless">
+                                            <tbody>
+                                            {
+                                              detail.items.map(i=>(<tr key={i.id}>
+                                                <td>{lng === 'en' ? i.product_name : i.product_local_name}</td>
+                                                <td>{i.dQty> 0 ? i.dQty +' X '+i.dPrice + '₹': '' }</td>
+                                                <td>{i.eQty > 0 ? i.eQty + '('+t('LABELS.collected')+')' : ''}</td>
+                                              </tr>))
+                                            }
+                                            </tbody>
+                                        </table> : 'Only cash collected'}
+                                    </CTableDataCell>
+                                    <CTableDataCell>{detail.paidAmount}</CTableDataCell>
+                                    <CTableDataCell className='text-danger'>{detail.totalAmount - detail.paidAmount}</CTableDataCell>
+                                    <CTableDataCell>{detail.totalAmount}</CTableDataCell>
+                                    <CTableDataCell>{detail.user.name}</CTableDataCell>
+                                  </CTableRow>
                                 ))}
                               </CTableBody>
                             </CTable>

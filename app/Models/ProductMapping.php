@@ -11,6 +11,8 @@ use App\Models\ProductSize;
 
 class ProductMapping extends Model
 {
+
+    protected $table = 'product_mappings';
     protected $fillable = ['factory_productSize_id', 'retail_productSize_id'];
 
     public function retailProductSize()
