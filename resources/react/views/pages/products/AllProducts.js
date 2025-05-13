@@ -62,6 +62,7 @@ const AllProducts = () => {
       try {
         const res = await postFormData('/api/uploadProductCsv', formData);
         alert('File uploaded successfully!');
+        fetchProducts();
       } catch (error) {
         console.error('Upload failed:', error);
         alert('Upload failed');
