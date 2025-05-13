@@ -193,8 +193,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/lastRemark/{customer_id}/{product_name}', [JarTrackerController::class, 'getLastRemark']);
     Route::get('/jarTracker/check', [JarTrackerController::class, 'check']);
 
-    Route::post('/uploadProductCsv', [ProductController::class, 'uploadProductCsv']);
-    Route::get('/productSampleCsv', [ProductController::class, 'productSampleCsv']);
+    Route::post('/uploadProductCsv', [ProductController::class, 'uploadProductExcel']);
+    Route::get('/productSampleCsv', [ProductController::class, 'productSampleExcel']);
     Route::post('/product/updateQty', [ProductController::class, 'updateQty']);
     Route::post('/fileUpload', [FileUpload::class, 'fileUpload']);
     Route::get('/monthlyReport', [OrderController::class, 'getMonthlyReport']);
