@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Util;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Response;
 
 class ProductController extends Controller
 {
@@ -436,4 +436,119 @@ class ProductController extends Controller
         'data' => $productSize
     ]);
 }
+
+
+public function uploadProductCsv(Request $request)
+{
+    $request->validate([
+        'file' => 'required|mimes:csv,txt',
+    ]);
+
+    $user = Auth::user();
+    $file = $request->file('file');
+    $data = array_map('str_getcsv', file($file));
+    $headers = array_map('trim', $data[0]);
+    unset($data[0]);
+
+    $productTypeMap = [
+        'Delivery' => 0,
+        'Factory' => 1,
+        'Retail' => 2,
+    ];
+
+    DB::beginTransaction();
+    try {
+        foreach ($data as $row) {
+            $row = array_combine($headers, $row);
+            $show=1;
+            $product = Product::create([
+                'name' => $row['name'],
+                'localName' => $row['localName'],
+                'unit' => $row['unit'] ?? null,
+                'multiSize' => $row['multiSize'],
+                'show' => $show,
+                'company_id' => $user->company_id,
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+            ]);
+
+            // ✅ Calculate unit_multiplier from weight and unit (not user input)
+            $weight = floatval($row['weight']);
+            $unit = strtolower($row['unit']);
+            if (in_array($unit, ['gm', 'ml'])) {
+                $unit_multiplier = $weight / 1000;
+            } elseif (in_array($unit, ['kg', 'ltr'])) {
+                $unit_multiplier = $weight;
+            } else {
+                $unit_multiplier = 1; // default fallback
+            }
+
+            $size = new ProductSize([
+                'name' => $row['name'],
+                'localName' => $row['localName'],
+                'oPrice' => $row['price'],
+                'bPrice' => $row['price'],
+                'dPrice' => $row['price'],
+                'default_qty' => $row['default_qty'] ?? 0,
+                'max_stock' => $row['capacity'] ?? null,
+                'unit' => $row['unit'],
+                'returnable' => $row['size_returnable'],
+                'isFactory' => $row['size_isFactory'] ?? 0,
+                'qty' => $row['quantity'],
+                'unit_multiplier' => $unit_multiplier,
+                'product_type' => $productTypeMap[$row['product_type']] ?? 0,
+                'show' => $show,
+                'company_id' => $user->company_id,
+            ]);
+
+            $product->size()->save($size);
+        }
+
+        DB::commit();
+        return response()->json(['message' => 'CSV uploaded successfully'], 201);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
+public function productSampleCsv()
+{
+    $headers = ['Content-Type' => 'text/csv'];
+    $fileName = 'sample_products.csv';
+
+    $columns = [
+        'name',
+        'localName',
+        'unit',
+        'multiSize',
+        'weight',              // used to calculate unit_multiplier
+        'unit',                // product size unit
+        'price',
+        'quantity',
+        'capacity',            // replaces max_stock
+        'size_returnable',
+        'size_isFactory',
+        'product_type',
+        'default_qty',         // at the end
+    ];
+
+    $rows = [
+        ['Product A', 'स्थानीय A', 'kg', 1, 250, 'gm', 50, 10, 100, 1, 0, 'Delivery', 1],
+        ['Product B', 'स्थानीय B', 'ltr', 1, 2, 'ltr', 70, 20, 200, 0, 1, 'Factory', 2],
+        ['Product C', 'स्थानीय C', 'ml',  1, 100, 'ml', 100, 30, 300, 1, 0, 'Retail', 3],
+    ];
+
+    $callback = function () use ($columns, $rows) {
+        $file = fopen('php://output', 'w');
+        fputcsv($file, $columns);
+        foreach ($rows as $row) {
+            fputcsv($file, $row);
+        }
+        fclose($file);
+    };
+
+    return Response::stream($callback, 200, $headers + ['Content-Disposition' => "attachment; filename=$fileName"]);
+}
+
 }

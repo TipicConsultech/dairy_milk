@@ -8,6 +8,8 @@ import { useToast } from '../../common/toast/ToastContext';
 import ProductModal from './ProductModals';
 import ProductForm from './NewProduct';
 import { useTranslation } from 'react-i18next';
+import CIcon from '@coreui/icons-react';
+import { cilArrowThickToBottom } from '@coreui/icons';
 
 
 const AllProducts = () => {
@@ -38,6 +40,25 @@ const AllProducts = () => {
     setDeleteProduct(p);
     setDeleteModalVisible(true);
   };
+
+  const handleDownload = async () => {
+    try {
+      const response = await getAPICall('/api/productSampleCsv');
+  
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+  
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'raw_materials_demo.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+    }
+  };
+  
 
   const onDelete = async () => {
     try {
@@ -126,6 +147,11 @@ const AllProducts = () => {
             </div>
           </CCardHeader>
        <div  style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' ,paddingTop:'10px' ,paddingRight:'5px' }}>
+         <CButton color="primary" onClick={handleDownload}>
+                        <CIcon icon={cilArrowThickToBottom} size="sm" style={{ marginRight: 3 }}/>
+                        {t('LABELS.download_template')}
+                      </CButton>
+
             <CButton color="primary" onClick={()=>setShowModal(true)}>{t('LABELS.add_product')}</CButton>
        </div>
           <ProductForm 
