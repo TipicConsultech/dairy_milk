@@ -100,10 +100,39 @@ class RawMaterialController extends Controller
 
     public function index()
 {
-    $materials = RawMaterial::all()
-        ->sortByDesc('isPackaging') // show visible first
-        ->values() // reset the index
+    // $materials = RawMaterial::all()
+    //     ->sortByDesc('isPackaging') // show visible first
+    //     ->values() // reset the index
 
+    //     ->map(function ($item) {
+    //         $percentage = ($item->unit_qty / $item->capacity) * 100;
+
+    //         if ($percentage < 20) {
+    //             $item->min_qty = 1;
+    //         } elseif ($percentage < 60) {
+    //             $item->min_qty = 2;
+    //         } else {
+    //             $item->min_qty = 3;
+    //         }
+
+    //         return $item;
+    //     });
+
+    // return response()->json($materials, 200);
+    $user = auth()->user();
+
+    if (!$user || !$user->company_id) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Company ID not found for the logged-in user.'
+        ], 404);
+    }
+
+    $companyId = $user->company_id;
+
+    $materials = RawMaterial::where('company_id', $companyId)
+        ->orderByDesc('isPackaging') // show packaging materials first
+        ->get()
         ->map(function ($item) {
             $percentage = ($item->unit_qty / $item->capacity) * 100;
 
@@ -123,9 +152,44 @@ class RawMaterialController extends Controller
 
 public function searchByName(Request $request) 
 {
+    // $search = $request->query('search');
+
+    // $materials = RawMaterial::query()
+    //     ->when($search, function ($query, $search) {
+    //         $search = strtolower(trim($search));
+    //         $query->where(function ($q) use ($search) {
+    //             $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
+    //               ->orWhereRaw('LOWER(local_name) LIKE ?', ["%{$search}%"]);
+    //         });
+    //     })
+    //     ->orderByDesc('isPackaging') // Show packaging materials first
+    //     ->get()
+    //     ->map(function ($item) {
+    //         $percentage = ($item->unit_qty / $item->capacity) * 100;
+
+    //         if ($percentage < 20) {
+    //             $item->min_qty = 1;
+    //         } elseif ($percentage < 60) {
+    //             $item->min_qty = 2;
+    //         } else {
+    //             $item->min_qty = 3;
+    //         }
+
+    //         return $item;
+    //     });
+
+    // return response()->json($materials, 200);
+    $user = auth()->user();
+
+    if (!$user) {
+        return response()->json(['error' => 'Unauthenticated.'], 401);
+    }
+
     $search = $request->query('search');
+    $companyId = $user->company_id;
 
     $materials = RawMaterial::query()
+        ->where('company_id', $companyId)
         ->when($search, function ($query, $search) {
             $search = strtolower(trim($search));
             $query->where(function ($q) use ($search) {
@@ -133,7 +197,7 @@ public function searchByName(Request $request)
                   ->orWhereRaw('LOWER(local_name) LIKE ?', ["%{$search}%"]);
             });
         })
-        ->orderByDesc('isPackaging') // Show packaging materials first
+        ->orderByDesc('isPackaging')
         ->get()
         ->map(function ($item) {
             $percentage = ($item->unit_qty / $item->capacity) * 100;
@@ -203,23 +267,51 @@ public function criticalStock()
 
     public function getRawMaterialsByParam($isPackaging)
     {
-        $materials = RawMaterial::select('id','name', 'unit_qty','unit')
-        ->where('isPackaging',$isPackaging)
+    //     $materials = RawMaterial::select('id','name', 'unit_qty','unit')
+    //     ->where('isPackaging',$isPackaging)
+    //     ->get()
+    //     ->map(function ($material) {
+    //         return [
+    //             'id' => $material->id,
+    //             'name' => $material->name,
+    //             // If you want to show remaining capacity, modify the logic accordingly.
+    //             'available_qty' => $material->unit_qty,
+    //             'unit'=>$material->unit
+    //         ];
+    //     });
+
+    // return response()->json([
+    //     'success' => true,
+    //     'quantity' => $materials
+    // ]);
+    $user = auth()->user();
+
+    if (!$user || !$user->company_id) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Company ID not found for the user.',
+        ], 404);
+    }
+
+    $companyId = $user->company_id;
+
+    $materials = RawMaterial::select('id','name', 'unit_qty','unit')
+        ->where('isPackaging', $isPackaging)
+        ->where('company_id', $companyId)
         ->get()
         ->map(function ($material) {
             return [
                 'id' => $material->id,
                 'name' => $material->name,
-                // If you want to show remaining capacity, modify the logic accordingly.
                 'available_qty' => $material->unit_qty,
-                'unit'=>$material->unit
+                'unit' => $material->unit
             ];
         });
 
     return response()->json([
         'success' => true,
         'quantity' => $materials
-    ]);
+    ]); 
     }
 
     public function updateRawMaterial(Request $request)

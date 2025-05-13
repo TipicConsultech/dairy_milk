@@ -20,6 +20,24 @@ const createRetailProduct = () => {
   const { t, i18n } = useTranslation("global")
   const lng = i18n.language;
 
+  const formatDate = (dateInput) => {
+    const date = new Date(dateInput);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+  
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+  
+    hours = hours % 12 || 12;
+    const formattedHours = String(hours).padStart(2, '0');
+  
+    return `${day}/${month}/${year} ${formattedHours}:${minutes}:${seconds} ${ampm}`;
+  };
+  
+
   const [factoryProductId, setFactoryProductId] = useState(null)
 
   const [milkAmount, setMilkAmount] = useState('')
@@ -233,17 +251,28 @@ const createRetailProduct = () => {
   };
 
   const handleProductSelect = (product) => {
+    console.log("Selected:", product); // Add this for debugging
+  
+    const sizeOption = {
+      id: product.sizeId || product.id,
+      label_value: product.label_value || '',
+      unit: product.unit || '',
+      qty: product.qty || null, // Ensure qty is present if needed
+    };
+  
     setNewProduct({
-      ...newProduct,
-      name: product.name,
-      sizeOptions: [{
-        id: product.sizeId,
-        label_value: product.label_value,
-        unit: product.unit,
-      }],
-      sizeId: product.sizeId,
+      name: product.name || '',
+      quantity: '',
+      unit: sizeOption.unit,
+      sizeId: sizeOption.id,
+      sizeOptions: [sizeOption],
     });
+  
+    setProductAvailQty(sizeOption.qty || null); // Store qty for validation if needed
+    setProdError('');
   };
+  
+  
 
   const clearProduct = () => {
     setNewProduct({ name:'', quantity:'', unit:'', sizeId: null, sizeOptions: [] });
@@ -281,21 +310,22 @@ const createRetailProduct = () => {
   };
 
   const addProduct = () => {
+    console.log('Adding product:', newProduct);
+  
     if (newProduct.name && newProduct.quantity && newProduct.sizeId && !prodError) {
       const selectedSize = newProduct.sizeOptions.find(size => size.id === newProduct.sizeId);
       const sizeDisplay = selectedSize ? `${selectedSize.label_value} ${selectedSize.unit}` : '';
-
+  
       setProducts(prev => [...prev, {
         ...newProduct,
         sizeDisplay: sizeDisplay
       }]);
-
-      console.log("product:", { id: newProduct.sizeId, qty: parseFloat(newProduct.quantity) });
-
+  
       setNewProduct({ name:'', quantity:'', unit:'', sizeId: null, sizeOptions: [] });
       setProductAvailQty(null);
     }
   };
+  
 
   const removeProduct = idx => {
     setProducts(prev => prev.filter((_, i) => i !== idx));
@@ -663,29 +693,34 @@ const createRetailProduct = () => {
                     {newProduct.name ? <CIcon icon={cilX} /> : <CIcon icon={cilChevronBottom} />}
                   </div>
 
-                  {isProductsDropdownOpen && (
-                    <div
-                      className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
-                      style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
-                    >
-                      {mappedRetailProducts
-                      .filter(item => item.name.toLowerCase().includes(newProduct.name.toLowerCase()))
-                      .map((item, index) => (
-                        <div
-                          key={index}
-                          className="p-2 cursor-pointer hover-bg-light"
-                          style={{ cursor: 'pointer' }}
-                          onClick={() => {
-                            handleProductSelect(item); // already defined in your file
-                            setIsProductsDropdownOpen(false);
-                          }}
-                        >
-                          {item.name} ({item.label_value} {item.unit})
-                        </div>
-                    ))}
+                {isProductsDropdownOpen && (
+  <div
+    className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
+    style={{ maxHeight: '200px', overflowY: 'auto', zIndex: 1000 }}
+  >
+    {mappedRetailProducts.filter(item => item.name.toLowerCase().includes(newProduct.name.toLowerCase())).length === 0 ? (
+      <div className="p-2 text-muted text-center">{t('MSG.productNotFound')}</div>
+    ) : (
+      mappedRetailProducts
+        .filter(item => item.name.toLowerCase().includes(newProduct.name.toLowerCase()))
+        .map((item, index) => (
+          <div
+            key={index}
+            className="p-2 cursor-pointer hover-bg-light"
+            style={{ cursor: 'pointer' }}
+            onClick={() => {
+              handleProductSelect(item);
+              setIsProductsDropdownOpen(false);
+            }}
+          >
+            {item.name} 
+            {/* ({item.label_value} {item.unit}) */}
+          </div>
+        ))
+    )}
+  </div>
+)}
 
-                    </div>
-                  )}
                 </div>
               </CCol>
 
@@ -709,7 +744,7 @@ const createRetailProduct = () => {
                 >
                   {newProduct.sizeOptions && newProduct.sizeOptions.map((size, i) => (
                     <option key={i} value={size.id}>
-                      {size.label_value} {size.unit}
+                     {size.unit}
                     </option>
                   ))}
                 </CFormSelect>
@@ -736,7 +771,7 @@ const createRetailProduct = () => {
                 >
                   {newProduct.sizeOptions && newProduct.sizeOptions.map((size, i) => (
                     <option key={i} value={size.id}>
-                      {size.label_value} {size.unit}
+                      {size.unit}
                     </option>
                   ))}
                 </CFormSelect>
@@ -771,7 +806,7 @@ const createRetailProduct = () => {
                 </CCol>
 
                 {/* Delete Button: quarter on mobile, 2 cols on desktop */}
-                <CCol xs={3} md={2} className="d-flex justify-content-end">
+                <CCol xs={3} md={2} className="d-flex justify-content-start">
                   <CButton color="danger" variant="outline" onClick={() => removeProduct(idx)}>
                     <CIcon icon={cilTrash} />
                   </CButton>
@@ -785,7 +820,7 @@ const createRetailProduct = () => {
           {t('LABELS.submit')}
         </CButton>
 
-        {createdSummary && (
+        {/* {createdSummary && (
           <CAlert color={createdSummary.success ? 'success' : 'danger'} className='mt-2'>
             <div>
               <strong>{createdSummary.success ? t('LABELS.productCreated') : t('LABELS.error')}:</strong>
@@ -809,7 +844,40 @@ const createRetailProduct = () => {
               <p className="mt-1 text-muted">{t('LABELS.createdAt')}: {createdSummary.time}</p>
             </div>
           </CAlert>
-        )}
+        )} */}
+{createdSummary && (
+  <CAlert color={createdSummary.success ? 'success' : 'danger'} className='mt-2'>
+    <div>
+      <strong>
+        {createdSummary.success ? t('LABELS.productCreated') : t('LABELS.error')}:
+      </strong>
+
+      {createdSummary.products ? (
+        <div className="mt-2">
+          {createdSummary.products.map((product, index) => (
+            <div key={index} className="mb-2">
+              <p>
+                <strong>{product.product_name}</strong> {t('MSG.createdSuccessfully')}
+              </p>
+              <ul className="mb-0">
+                <li>{t('LABELS.createdQuantity')}: {product.created_quantity}</li>
+                <li>{t('LABELS.previousQuantity')}: {product.previous_quantity}</li>
+                <li>{t('LABELS.updatedQuantity')}: {product.updated_quantity}</li>
+              </ul>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p>{createdSummary.text}</p>
+      )}
+
+      <p className="mt-1 text-muted">
+        {t('LABELS.createdAt')}: {formatDate(createdSummary.time)}
+      </p>
+    </div>
+  </CAlert>
+)}
+
       </CCardBody>
     </CCard>
   )

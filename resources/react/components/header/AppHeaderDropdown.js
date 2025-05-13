@@ -48,7 +48,7 @@ const AppHeaderDropdown = () => {
         <Link to="/sendEmailForResetLink" style={{ textDecoration: 'none', color: 'inherit' }}>
           <CDropdownItem>
             <CIcon icon={cilApplications} className="me-2" />
-            Forget Password
+            Forgot Password
           </CDropdownItem>
         </Link>
         <CDropdownDivider />

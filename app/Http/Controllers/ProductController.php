@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use App\Helpers\Util;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use App\Models\ProductMapping;
+
 
 class ProductController extends Controller
 {
@@ -72,8 +74,27 @@ class ProductController extends Controller
 
     public function getProductsByProductType()
     {
-        //  where product_type is 1 show only 
-        $products = ProductSize::where('product_type', 1)->get();
+        // //  where product_type is 1 show only 
+        // $products = ProductSize::where('product_type', 1)->get();
+    
+        // return response()->json([
+        //     'status' => true,
+        //     'products' => $products,
+        // ]);
+        $user = auth()->user();
+
+        if (!$user || !$user->company_id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Company ID not found for the user.',
+            ], 404);
+        }
+    
+        $companyId = $user->company_id;
+    
+        $products = ProductSize::where('product_type', 1)
+            ->where('company_id', $companyId)
+            ->get();
     
         return response()->json([
             'status' => true,
@@ -83,8 +104,27 @@ class ProductController extends Controller
 
     public function getProductsByProductTypeForRetail()
     {
-        //  where product_type is 1 show only 
-        $products = ProductSize::where('product_type', 2)->get();
+        // //  where product_type is 1 show only 
+        // $products = ProductSize::where('product_type', 2)->get();
+    
+        // return response()->json([
+        //     'status' => true,
+        //     'products' => $products,
+        // ]);
+        $user = auth()->user();
+
+        if (!$user || !$user->company_id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Company ID not found for the user.',
+            ], 404);
+        }
+    
+        $companyId = $user->company_id;
+    
+        $products = ProductSize::where('product_type', 2)
+            ->where('company_id', $companyId)
+            ->get();
     
         return response()->json([
             'status' => true,
@@ -151,65 +191,63 @@ class ProductController extends Controller
     }
     
   
-    public function store(Request $request)
+public function store(Request $request)
 {
-    // Validate incoming request data (only the fields that are required for the store function)
     $request->validate([
         'name' => 'required',
         'localName' => 'required',
         'multiSize' => 'required',
         'show' => 'required',
-        'unit' => 'nullable',  // Assuming unit can be nullable
+        'unit' => 'nullable',
     ]);
 
     $user = Auth::user();
 
-    // Create the product using only the fillable fields
+    // Create product
     $product = Product::create([
         'name' => $request->name,
         'localName' => $request->localName,
         'unit' => $request->unit,
         'multiSize' => $request->multiSize,
         'show' => $request->show,
-        'company_id' => $user->company_id, // Add company_id
-        'created_by' => $user->id, // Add created_by
-        'updated_by' => $user->id, // Add updated_by
+        'company_id' => $user->company_id,
+        'created_by' => $user->id,
+        'updated_by' => $user->id,
     ]);
 
-    // // Save images with company_id
-    // $images = [];
-    // foreach ($request->media as $img) {
-    //     $media = new ProductMedia;
-    //     $media->url = $img['url'];
-    //     $media->type = $img['type'];
-    //     $media->company_id = $user->company_id; // Add company_id
-    //     $images[] = $media;
-    // }
-    // $product->media()->saveMany($images);
-
-    // Save sizes with company_id
-    $sizes = [];
+    // Loop through sizes and save each
     foreach ($request->sizes as $size) {
-        $sz = new ProductSize;
+        $sz = new ProductSize();
         $sz->name = $size['name'];
         $sz->localName = $size['localName'];
         $sz->oPrice = $size['dPrice'];
-        $sz->bPrice = $size['dPrice'];  
-        $sz->dPrice = $size['dPrice'];                         // 'dPrice'
+        $sz->bPrice = $size['dPrice'];
+        $sz->dPrice = $size['dPrice'];
         $sz->default_qty = $size['default_qty'] ?? 0;
-        // $sz->stock = $size['stock'];
         $sz->max_stock = $size['max_stock'] ?? null;
-        $sz->unit = $size['unit'];                         
+        $sz->unit = $size['unit'];
         $sz->returnable = $size['returnable'];
         $sz->isFactory = $size['isFactory'] ?? 0;
         $sz->qty = $size['qty'];
         $sz->unit_multiplier = $size['unit_multiplier'];
         $sz->product_type = $size['product_type'];
         $sz->show = $size['show'];
-        $sz->company_id = $user->company_id; // Add company_id
-        $sizes[] = $sz;
+        $sz->company_id = $user->company_id;
+
+        // Save size
+        $product->size()->save($sz);
+
+        // ✅ If retail, save mapping to factory size
+        if (
+            $size['product_type'] == '2' &&  // Retail
+            $request->filled('mapped_factory_product_size_id')
+        ) {
+            ProductMapping::create([
+                'factory_productSize_id' => $request->mapped_factory_product_size_id,
+                'retail_productSize_id' => $sz->id,
+            ]);
+        }
     }
-    $product->size()->saveMany($sizes);
 
     return response()->json($product, 201);
 }
@@ -446,7 +484,24 @@ public function uploadProductCsv(Request $request)
 
     $user = Auth::user();
     $file = $request->file('file');
-    $data = array_map('str_getcsv', file($file));
+
+    // Read and convert file content to UTF-8
+    $raw = file_get_contents($file);
+    $utf8 = mb_convert_encoding($raw, 'UTF-8', 'auto');
+
+    // Split into lines and parse CSV
+    $lines = explode(PHP_EOL, $utf8);
+    $data = array_map('str_getcsv', $lines);
+
+    // Remove empty lines
+    $data = array_filter($data, function ($row) {
+        return array_filter($row); // Keep only non-empty rows
+    });
+
+    if (count($data) < 2) {
+        return response()->json(['error' => 'CSV file is empty or improperly formatted.'], 422);
+    }
+
     $headers = array_map('trim', $data[0]);
     unset($data[0]);
 
@@ -456,32 +511,48 @@ public function uploadProductCsv(Request $request)
         'Retail' => 2,
     ];
 
+    $deliveryAndFactoryRows = [];
+    $retailRows = [];
+
+    foreach ($data as $row) {
+        if (count($row) !== count($headers)) {
+            continue; // Skip invalid rows
+        }
+        $row = array_combine($headers, $row);
+
+        $productType = $row['product_type'] ?? '';
+        if (in_array($productType, ['Delivery', 'Factory'])) {
+            $deliveryAndFactoryRows[] = $row;
+        } elseif ($productType === 'Retail') {
+            $retailRows[] = $row;
+        }
+    }
+
     DB::beginTransaction();
     try {
-        foreach ($data as $row) {
-            $row = array_combine($headers, $row);
-            $show=1;
+        // Insert Delivery and Factory products
+        foreach ($deliveryAndFactoryRows as $row) {
+            $returnable = null;
+            if ($row['returnable'] === "TRUE") {
+                $returnable = 1;
+            } elseif ($row['returnable'] === "FALSE") {
+                $returnable = 0;
+            }
+
             $product = Product::create([
                 'name' => $row['name'],
                 'localName' => $row['localName'],
                 'unit' => $row['unit'] ?? null,
-                'multiSize' => $row['multiSize'],
-                'show' => $show,
+                'multiSize' => 1,
+                'show' => 1,
                 'company_id' => $user->company_id,
                 'created_by' => $user->id,
                 'updated_by' => $user->id,
             ]);
 
-            // ✅ Calculate unit_multiplier from weight and unit (not user input)
             $weight = floatval($row['weight']);
             $unit = strtolower($row['unit']);
-            if (in_array($unit, ['gm', 'ml'])) {
-                $unit_multiplier = $weight / 1000;
-            } elseif (in_array($unit, ['kg', 'ltr'])) {
-                $unit_multiplier = $weight;
-            } else {
-                $unit_multiplier = 1; // default fallback
-            }
+            $unit_multiplier = in_array($unit, ['gm', 'ml']) ? $weight / 1000 : (in_array($unit, ['kg', 'ltr']) ? $weight : 1);
 
             $size = new ProductSize([
                 'name' => $row['name'],
@@ -492,55 +563,121 @@ public function uploadProductCsv(Request $request)
                 'default_qty' => $row['default_qty'] ?? 0,
                 'max_stock' => $row['capacity'] ?? null,
                 'unit' => $row['unit'],
-                'returnable' => $row['size_returnable'],
-                'isFactory' => $row['size_isFactory'] ?? 0,
+                'returnable' => $returnable,
+                'isFactory' => 1,
                 'qty' => $row['quantity'],
+                'lable_value' => $row['weight'],
                 'unit_multiplier' => $unit_multiplier,
                 'product_type' => $productTypeMap[$row['product_type']] ?? 0,
-                'show' => $show,
+                'show' => 1,
                 'company_id' => $user->company_id,
             ]);
 
             $product->size()->save($size);
         }
 
+        // Insert Retail products
+        foreach ($retailRows as $row) {
+            $returnable = null;
+            if ($row['returnable'] === "TRUE") {
+                $returnable = 1;
+            } elseif ($row['returnable'] === "FALSE") {
+                $returnable = 0;
+            }
+
+            $retailProduct = Product::create([
+                'name' => $row['name'],
+                'localName' => $row['localName'],
+                'unit' => $row['unit'] ?? null,
+                'multiSize' => 1,
+                'show' => 1,
+                'company_id' => $user->company_id,
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+            ]);
+
+            $weight = floatval($row['weight']);
+            $unit = strtolower($row['unit']);
+            $unit_multiplier = in_array($unit, ['gm', 'ml']) ? $weight / 1000 : (in_array($unit, ['kg', 'ltr']) ? $weight : 1);
+
+            $retailSize = new ProductSize([
+                'name' => $row['name'],
+                'localName' => $row['localName'],
+                'oPrice' => $row['price'],
+                'bPrice' => $row['price'],
+                'dPrice' => $row['price'],
+                'default_qty' => $row['default_qty'] ?? 0,
+                'max_stock' => $row['capacity'] ?? null,
+                'unit' => $row['unit'],
+                'returnable' => $returnable,
+                'isFactory' => 0,
+                'qty' => $row['quantity'],
+                'lable_value' => $row['weight'],
+                'unit_multiplier' => $unit_multiplier,
+                'product_type' => $productTypeMap[$row['product_type']] ?? 0,
+                'show' => 1,
+                'company_id' => $user->company_id,
+            ]);
+
+            $retailProduct->size()->save($retailSize);
+
+            // Try to match with factory product
+            $possibleFactory = ProductSize::where('company_id', $user->company_id)
+                ->where('product_type', $productTypeMap['Factory'])
+                ->get()
+                ->first(function ($factorySize) use ($row) {
+                    return stripos($row['name'], $factorySize->name) !== false || stripos($factorySize->name, $row['name']) !== false;
+                });
+
+            if ($possibleFactory) {
+                ProductMapping::create([
+                    'factory_productSize_id' => $possibleFactory->id,
+                    'retail_productSize_id' => $retailSize->id,
+                ]);
+            }
+        }
+
         DB::commit();
-        return response()->json(['message' => 'CSV uploaded successfully'], 201);
+        return response()->json(['message' => 'CSV uploaded and processed successfully'], 201);
     } catch (\Exception $e) {
         DB::rollBack();
         return response()->json(['error' => $e->getMessage()], 500);
     }
 }
 
+
+
 public function productSampleCsv()
 {
-    $headers = ['Content-Type' => 'text/csv'];
-    $fileName = 'sample_products.csv';
+    $headers = [
+        'Content-Type' => 'text/csv; charset=UTF-8',
+        'Content-Disposition' => 'attachment; filename="products_csv_sample.csv"',
+    ];
 
     $columns = [
         'name',
         'localName',
+        'weight',
         'unit',
-        'multiSize',
-        'weight',              // used to calculate unit_multiplier
-        'unit',                // product size unit
         'price',
         'quantity',
-        'capacity',            // replaces max_stock
-        'size_returnable',
-        'size_isFactory',
+        'capacity',
+        'returnable',
         'product_type',
-        'default_qty',         // at the end
     ];
 
     $rows = [
-        ['Product A', 'स्थानीय A', 'kg', 1, 250, 'gm', 50, 10, 100, 1, 0, 'Delivery', 1],
-        ['Product B', 'स्थानीय B', 'ltr', 1, 2, 'ltr', 70, 20, 200, 0, 1, 'Factory', 2],
-        ['Product C', 'स्थानीय C', 'ml',  1, 100, 'ml', 100, 30, 300, 1, 0, 'Retail', 3],
+        ['Product A', 'स्थानीय A', 250, 'gm', 50, 10, 100,'TRUE','Delivery'],
+        ['Product B', 'स्थानीय B', 2, 'ltr', 70, 20, 200,'FALSE','Factory'],
+        ['Product C', 'स्थानीय C',100, 'ml', 100, 30, 300,'TRUE','Retail'],
     ];
 
     $callback = function () use ($columns, $rows) {
         $file = fopen('php://output', 'w');
+
+        // Add UTF-8 BOM
+        fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
         fputcsv($file, $columns);
         foreach ($rows as $row) {
             fputcsv($file, $row);
@@ -548,7 +685,7 @@ public function productSampleCsv()
         fclose($file);
     };
 
-    return Response::stream($callback, 200, $headers + ['Content-Disposition' => "attachment; filename=$fileName"]);
+    return response()->stream($callback, 200, $headers);
 }
 
 }

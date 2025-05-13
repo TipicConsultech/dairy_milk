@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CBadge, CButton, CCardHeader, CRow } from '@coreui/react';
 import { MantineReactTable } from 'mantine-react-table';
-import { deleteAPICall, getAPICall } from '../../../util/api';
+import { deleteAPICall, getAPICall, postFormData } from '../../../util/api';
 import ConfirmationModal from '../../common/ConfirmationModal';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../common/toast/ToastContext';
@@ -9,7 +9,9 @@ import ProductModal from './ProductModals';
 import ProductForm from './NewProduct';
 import { useTranslation } from 'react-i18next';
 import CIcon from '@coreui/icons-react';
-import { cilArrowThickToBottom } from '@coreui/icons';
+import { cilArrowThickToBottom, cilArrowThickToTop } from '@coreui/icons';
+import { host } from '../../../util/constants';
+import { getToken, getUserData } from '../../../util/session';
 
 
 const AllProducts = () => {
@@ -21,7 +23,12 @@ const AllProducts = () => {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const { showToast } = useToast();
-  const [showModal, setShowModal] = useState(false)
+  const [showModal, setShowModal] = useState(false);
+   const [selectedFile, setSelectedFile] = useState(null);
+    const [uploading, setUploading] = useState(false);
+
+      const user = getUserData();
+    
 
   const fetchProducts = async () => {
     try {
@@ -41,22 +48,64 @@ const AllProducts = () => {
     setDeleteModalVisible(true);
   };
 
+   const handleFileChange = (e) => {
+      setSelectedFile(e.target.files[0]);
+    };
+  
+    const handleSubmit = async () => {
+      if (!selectedFile) return;
+  
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+     
+      try {
+        const res = await postFormData('/api/uploadProductCsv', formData);
+        alert('File uploaded successfully!');
+      } catch (error) {
+        console.error('Upload failed:', error);
+        alert('Upload failed');
+      } finally {
+        setUploading(false);
+        setSelectedFile(null);
+      }
+    };
+
   const handleDownload = async () => {
     try {
-      const response = await getAPICall('/api/productSampleCsv');
+
+       const token = getToken()
+      const response = await fetch(host+'/api/productSampleCsv', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
   
-      const blob = new Blob([response.data], { type: 'text/csv' });
+      if (!response.ok) {
+        throw new Error('Failed to download file');
+      }
+  
+      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
   
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'raw_materials_demo.csv');
+      link.setAttribute('download', 'products_csv_sample.csv'); // filename must match backend
       document.body.appendChild(link);
       link.click();
-      link.remove();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error downloading CSV:', error);
     }
+  };
+  
+  const shortenFileName = (name) => {
+    if (!name) return '';
+    if (name.length <= 6) return name;
+    const extension = name.split('.').pop();
+    return `${name.substring(0, 4)}..${extension}`;
   };
   
 
@@ -146,11 +195,66 @@ const AllProducts = () => {
               <h5 className="mb-0" >{t('LABELS.all_product')}</h5> 
             </div>
           </CCardHeader>
-       <div  style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' ,paddingTop:'10px' ,paddingRight:'5px' }}>
-         <CButton color="primary" onClick={handleDownload}>
+       <div  style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' ,paddingTop:'10px'  }}>
+         <CButton color="primary" onClick={handleDownload} style={{marginRight:'10px'}}>
                         <CIcon icon={cilArrowThickToBottom} size="sm" style={{ marginRight: 3 }}/>
                         {t('LABELS.download_template')}
                       </CButton>
+        <div className="d-flex gap-2 mb-2">
+                        
+               {/* {user?.type===1 &&(
+                <CButton color="primary" onClick={handleDownload} style={{ flex: '1' }}>
+                <CIcon icon={cilArrowThickToBottom} size="sm" style={{ marginRight: 3 }}/>
+                {t('LABELS.template')}
+                 </CButton>
+              
+               )} */}
+                      
+                      <input
+  type="file"
+  id="fileInput"
+  accept=".csv"
+  style={{ display: 'none' }}
+  onChange={handleFileChange}
+/>    
+              {user?.type===1 && (
+                 <CButton
+                color={selectedFile ? "primary" : "primary"} 
+                variant={selectedFile ? "solid" : "outline"}
+                onClick={() => document.getElementById('fileInput').click()}
+                style={{ 
+                   flex: '1',
+                   overflow: 'hidden', 
+                   marginRight:'10px',
+                   marginTop:'10px',
+                   whiteSpace: 'nowrap', 
+                   textOverflow: 'ellipsis', 
+                   maxWidth: '150px', // limit button width
+                    // 👈 add right gap (you can adjust value)
+                   }}
+               >
+                   {!selectedFile && (<CIcon icon={cilArrowThickToTop} size="sm" style={{ marginRight: 0 }}/>)}
+                   {selectedFile ? shortenFileName(selectedFile.name) : `${t('LABELS.upload_csv')}`}
+               </CButton>
+               )}
+        
+          
+        
+              
+                      {selectedFile && user?.type===1 && (
+                        <CButton
+                          color="success"
+                          disabled={uploading}
+                          onClick={handleSubmit}
+                          style={{ flex: '1',
+                            marginRight: '8px'
+        
+                          }}
+                        >
+                          {uploading ? `${t('LABELS.uplaoding')}` : `${t('LABELS.submit')}`}
+                        </CButton>
+                      )}
+                    </div>
 
             <CButton color="primary" onClick={()=>setShowModal(true)}>{t('LABELS.add_product')}</CButton>
        </div>

@@ -27,7 +27,8 @@ class ProductSize extends Model
         'unit_multiplier',
         'label_value',
         'show',
-        'isFactory'
+        'isFactory',
+        'company_id'
     ];
 
     /**

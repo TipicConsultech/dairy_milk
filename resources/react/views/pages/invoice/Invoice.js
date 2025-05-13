@@ -830,12 +830,12 @@ const Invoice = () => {
       {/* Price field - half width on xs/sm, 2 columns on md+ */}
       <div className="col-6 col-md-2 mb-3 mb-md-0">
         <div className="d-md-none fw-bold mb-2">{t('LABELS.price')}</div>
-        {/* <p className="mb-0">{oitem.dPrice + (oitem.unit ?  '₹ / ' + oitem.unit : '')}</p> */}
-        <p className="mb-0">
+        <p className="mb-0">{oitem.dPrice   } ₹</p>
+        {/* <p className="mb-0">
   {oitem.product_name && oitem.dPrice !== undefined
     ? `${oitem.dPrice} ₹${oitem?.unit && oitem?.unit !== 'NA' ? ' / ' + oitem?.unit : ''}`
     : ''}
-</p>
+</p> */}
 
       </div>
 

@@ -122,6 +122,8 @@ function RawMaterial() {
 
   async function getData() {
     const response = await getAPICall('/api/raw-materials');
+    console.log(response);
+    
     setTableData(response);
   }
   
@@ -192,7 +194,7 @@ function RawMaterial() {
   const searchMaterials = async () => {
     setLoading(true);
     try {
-      const response = await getAPICall(`/api/serchRawMaterials?search=${debouncedSearchTerm}`);
+      const response = await getAPICall(`/api/searchRawMaterials?search=${debouncedSearchTerm}`);
       setTableData(response);
     } catch (error) {
       console.error('Error fetching materials:', error);
@@ -317,13 +319,13 @@ function RawMaterial() {
 
       {showAlert && (
         <CAlert color="success" onDismiss={() => setShowAlert(false)}>
-          <div>✅Product Updated successfully!</div>
+          <div>✅{t('LABELS.productUpdateSuccess')}</div>  
         </CAlert>
       )}
       {failAlert && (
         <CAlert color="warning" onDismiss={() => setFailAlert(false)} className="d-flex align-items-center mb-2">
           <CIcon icon={cilWarning} className="flex-shrink-0 me-2" width={24} height={24} />
-          <div>You have entered more than the maximum capacity allowed for this item.</div>
+          <div>{t('LABELS.overCapacityWarning')}</div>                     {/* You have entered more than the maximum capacity allowed for this item. */}
         </CAlert>
       )}
 
@@ -702,7 +704,7 @@ function RawMaterial() {
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setShowModal(false)}>
-          {t('LABELS.cancle')}
+          {t('LABELS.cancel')}
           </CButton>
           <CButton color="primary" onClick={handleFormSubmit} disabled={submitting}>
             {submitting ? <><CSpinner size="sm" /> {t('LABELS.saving')}</> : `${t('LABELS.save')}`}

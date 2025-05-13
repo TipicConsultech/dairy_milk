@@ -64,7 +64,7 @@ const Login = () => {
       case 2:
         return '/dashboard';
       case 3:
-        return '/CreateProduct';
+        return '/CreateFactoryProduct';
       case 4:
         return '/delivery';
       case 5:
