@@ -230,7 +230,7 @@ const AllProducts = () => {
                    marginTop:'10px',
                    whiteSpace: 'nowrap', 
                    textOverflow: 'ellipsis', 
-                   maxWidth: '150px', // limit button width
+                   maxWidth: '200px', // limit button width
                     // 👈 add right gap (you can adjust value)
                    }}
                >
@@ -243,17 +243,19 @@ const AllProducts = () => {
         
               
                       {selectedFile && user?.type===1 && (
+                        <div style={{padding:'5px',marginTop:'7px'}}>
                         <CButton
                           color="success"
                           disabled={uploading}
                           onClick={handleSubmit}
                           style={{ flex: '1',
-                            marginRight: '8px'
-        
+                          marginRight: '10px',
+                          padding:'-5px'
                           }}
                         >
                           {uploading ? `${t('LABELS.uplaoding')}` : `${t('LABELS.submit')}`}
                         </CButton>
+                        </div>
                       )}
                     </div>
 
