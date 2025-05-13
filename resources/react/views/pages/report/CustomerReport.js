@@ -316,7 +316,7 @@ const CustomerReport = () => {
               {state.customer && state.customer_id && (
                 <div className="row">
                   <div className="col-sm-12">
-                    <CAlert color="info" className="d-flex align-items-center">
+                    <CAlert color="success" className="d-flex align-items-center">
                       <div>
                         <h6 className="mb-1">{state.customer.name}</h6>
                         <p className="mb-0">
