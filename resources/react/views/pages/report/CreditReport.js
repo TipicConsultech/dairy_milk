@@ -53,10 +53,6 @@ const CreditReport = () => {
     fetchReport();
   }, []);
 
-  // if(searchTerm?.length > 0){
-  //   filteredReport = report.filter(r => r.name.toLowerCase().includes(searchTerm.toLowerCase()));
-  // }
-
   function onSearchChange(searchTerm) {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
@@ -78,10 +74,24 @@ const CreditReport = () => {
         }
       });
 
-    return `${t('MSG.sms_part_1')} ${p.totalPayment < 0 ? -1 * p.totalPayment : 0} ${t('MSG.sms_part_2')}${products}${t('MSG.sms_part_3')} ${company}`;
+    return `${t('MSG.sms_part_1')}${t('MSG.sms_part_2')}${products}${t('MSG.sms_part_3')} ${company}`;
   }
 
-  let totalCrates = 0;
+  // Calculate total crates by summing up quantities from all customers' items
+  const calculateTotalCrates = () => {
+    let total = 0;
+    filteredReport.forEach(customer => {
+      customer.items?.forEach(item => {
+        if (item.quantity > 0) {
+          total += item.quantity;
+        }
+      });
+    });
+    return total;
+  };
+
+  // Get the total crates count
+  const totalCrates = calculateTotalCrates();
 
   return (
     <CRow>
@@ -107,25 +117,22 @@ const CreditReport = () => {
                     <CTableHeaderCell scope="col" className="d-none d-sm-table-cell">{t('LABELS.id')}</CTableHeaderCell>
                     <CTableHeaderCell scope="col">{t('LABELS.name')}</CTableHeaderCell>
                     <CTableHeaderCell scope="col" className="d-none d-sm-table-cell">{t('LABELS.mobile_number')}</CTableHeaderCell>
-                    {/* <CTableHeaderCell scope="col">{t('LABELS.total')} ₹ </CTableHeaderCell> */}
                     <CTableHeaderCell scope="col">{t('LABELS.return_items')}</CTableHeaderCell>
                     <CTableHeaderCell scope="col">{t('LABELS.actions')}</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
                 {filteredReport.map((p, index) => {
-                  totalCrates += p.totalCrates;
                     return (
                       <CTableRow key={p.mobile+'_'+index}>
                         <CTableDataCell className="d-none d-sm-table-cell" scope="row">{index + 1}</CTableDataCell>
                         <CTableDataCell>{p.name}</CTableDataCell>
                         <CTableDataCell className="d-none d-sm-table-cell">{p.mobile}</CTableDataCell>
-                        {/* <CTableDataCell>{p.totalPayment > 0 ? <><CBadge color="success">{p.totalPayment}</CBadge> <br /> ({t('LABELS.advance')})</> : <CBadge color="danger">{p.totalPayment * -1}</CBadge>}</CTableDataCell> */}
                         <CTableDataCell>
                           <table className="table table-sm borderless">
                             <tbody>
                             {
-                              p.items?.map(i => (
+                              p.items?.filter(i => i.quantity > 0).map(i => (
                                 <tr key={i.id}>
                                   <td>{lng === 'en' ? i.product_name : i.product_local_name} {i.quantity + `(${t('LABELS.empty')})`}</td>
                                 </tr>
@@ -148,10 +155,13 @@ const CreditReport = () => {
                   })}
                   <tr>
                     <td className="d-none d-sm-table-cell"></td>
+                    <td>{t('LABELS.total_crates')}</td>
                     <td className="d-none d-sm-table-cell"></td>
-                    <td>{t('LABELS.total')} ₹</td>
-                    <td>{totalCrates > 0 ? <><CBadge color="success">{totalCrates}</CBadge> <br /> ({t('LABELS.advance')})</> : <CBadge color="danger">{totalCrates * -1}</CBadge>}</td>
-                    <td></td>
+                    <td>
+                      {totalCrates > 0 ? 
+                        <CBadge color="danger">{totalCrates} {t('LABELS.empty')}</CBadge> : 
+                        <CBadge color="primary">0 {t('LABELS.empty')}</CBadge>}
+                    </td>
                     <td></td>
                   </tr>
                 </CTableBody>

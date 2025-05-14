@@ -29,6 +29,7 @@ use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\CompanyReceiptController;
 use App\Http\Controllers\MailController;
 use App\Http\Controllers\MilkTanksTrackerController;
+use App\Http\Controllers\ProductMappingController;
 // Dairy
 // use App\Http\Controllers\MilkTankController;
 
@@ -39,11 +40,13 @@ use App\Http\Controllers\MilkTanksTrackerController;
 
 //-
 use App\Http\Controllers\DailyTallyController;
+Route::middleware('auth:sanctum')->get('/milk-tanks/by-company', [MilkTankController::class, 'getByCompany']);
 
-Route::get('/daily-tallies', [DailyTallyController::class, 'index']);
 
-Route::get('/milk-tanks/trackers/grouped', [MilkTanksTrackerController::class, 'getGroupedQuantities']);
 
+Route::get('/api/product-mappings/{factoryProductId}', [ProductMappingController::class, 'getProductMappings']);
+Route::post('/api/product-mappings', [ProductMappingController::class, 'createProductMapping']);
+Route::delete('/api/product-mappings/{id}', [ProductMappingController::class, 'deleteProductMapping']);
 
 Route::post('/reset-password-link', [MailController::class, 'sendEmail']);
 Route::post('/newPassword', [MailController::class, 'resetPassword']);
@@ -77,23 +80,41 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
-Route::prefix('raw-materials')->group(function () {
+// Route::prefix('raw-materials')->group(function () {
+//     Route::get('/', [RawMaterialController::class, 'index']);
+//     Route::get('/visible', [RawMaterialController::class, 'visible']);
+//     Route::get('/company/{companyId}', [RawMaterialController::class, 'byCompany']);
+//     // Route::get('/{id}', [RawMaterialController::class, 'show']);
+//     Route::get('/showAll', [RawMaterialController::class, 'showAll']);
+//     Route::post('/store', [RawMaterialController::class, 'store']);
+//     Route::put('/{id}', [RawMaterialController::class, 'update']);
+//     Route::post('/updateRawMaterial', [RawMaterialController::class, 'updateRawMaterial']);
+//     Route::delete('/{id}', [RawMaterialController::class, 'destroy']);
+//     // Route::get('/criticalStock', [RawMaterialController::class, 'criticalStock']);
+// });
+Route::middleware(['auth:sanctum'])->prefix('raw-materials')->group(function () {
     Route::get('/', [RawMaterialController::class, 'index']);
     Route::get('/visible', [RawMaterialController::class, 'visible']);
     Route::get('/company/{companyId}', [RawMaterialController::class, 'byCompany']);
-    // Route::get('/{id}', [RawMaterialController::class, 'show']);
     Route::get('/showAll', [RawMaterialController::class, 'showAll']);
     Route::post('/store', [RawMaterialController::class, 'store']);
     Route::put('/{id}', [RawMaterialController::class, 'update']);
     Route::post('/updateRawMaterial', [RawMaterialController::class, 'updateRawMaterial']);
     Route::delete('/{id}', [RawMaterialController::class, 'destroy']);
-    // Route::get('/criticalStock', [RawMaterialController::class, 'criticalStock']);
+    //  Route::get('/serchRawMaterials', [RawMaterialController::class, 'searchByName']);
+
 });
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/searchRawMaterials', [RawMaterialController::class, 'searchByName']);
+});
+
+
 Route::get('/criticalStock', [RawMaterialController::class, 'criticalStock']);
 Route::get('/csv-download', [RawMaterialController::class, 'downloadDemoCsv']);
-Route::get('/serchRawMaterials', [RawMaterialController::class, 'searchByName']);
 Route::post('/uploadCSVRawMaterial', [RawMaterialController::class, 'uploadCsvRawMaterial']);
 Route::post('/uploadBulk', [RawMaterialController::class, 'bulkUpdate']);
+// Route::get('/serchRawMaterials', [RawMaterialController::class, 'searchByName']);
+
 //Private
 Route::post('/rawMaterialAdd', [RawMaterialController::class, 'store'])->middleware('auth:sanctum');
 
@@ -113,6 +134,8 @@ Route::post('/mobileLogin', [AuthController::class, 'mobileLogin']);
 //Secured API's
 
 Route::get('productSizes/{id}', [ProductController::class, 'showProductSize']);
+Route::get('/retail-products/{factoryProductId}', [ProductMappingController::class, 'getRetailProducts']);
+
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -126,6 +149,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/uniqueBatchNumbers', [ProductsTrackerController::class, 'getUniqueBatchNumbers']);
     Route::post('/productInBatch', [ProductsTrackerController::class, 'productInBatch']);
     Route::post('/batchByProductId', [ProductsTrackerController::class, 'BatchByProductId']);
+    Route::get('/milk-tanks/trackers/grouped', [MilkTanksTrackerController::class, 'getGroupedQuantities']);
+
+    //DailyTallies
+    Route::get('/daily-tallies', [DailyTallyController::class, 'index']);
+
+    Route::get('/product-size/{id}', [ProductController::class, 'getProductSize']);
+
+
+
+
+
     Route::get('/getProductsWithVisibleSizes', [ProductController::class, 'getProductsWithVisibleSizes']); // TODO - Need to remove not used
     Route::post('/newRetailProduct', [CommonController::class, 'newRetailProduct']);
     Route::post('/createProduct', [CommonController::class, 'createProduct']);
@@ -169,7 +203,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/lastRemark/{customer_id}/{product_name}', [JarTrackerController::class, 'getLastRemark']);
     Route::get('/jarTracker/check', [JarTrackerController::class, 'check']);
 
-
+    Route::post('/uploadProductCsv', [ProductController::class, 'uploadProductExcel']);
+    Route::get('/productSampleCsv', [ProductController::class, 'productSampleExcel']);
     Route::post('/product/updateQty', [ProductController::class, 'updateQty']);
     Route::post('/fileUpload', [FileUpload::class, 'fileUpload']);
     Route::get('/monthlyReport', [OrderController::class, 'getMonthlyReport']);

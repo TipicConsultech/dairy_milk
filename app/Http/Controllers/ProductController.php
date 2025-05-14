@@ -9,7 +9,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Util;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Response;
+use App\Models\ProductMapping;
+use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ProductController extends Controller
 {
@@ -72,8 +77,27 @@ class ProductController extends Controller
 
     public function getProductsByProductType()
     {
-        //  where product_type is 1 show only 
-        $products = ProductSize::where('product_type', 1)->get();
+        // //  where product_type is 1 show only 
+        // $products = ProductSize::where('product_type', 1)->get();
+    
+        // return response()->json([
+        //     'status' => true,
+        //     'products' => $products,
+        // ]);
+        $user = auth()->user();
+
+        if (!$user || !$user->company_id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Company ID not found for the user.',
+            ], 404);
+        }
+    
+        $companyId = $user->company_id;
+    
+        $products = ProductSize::where('product_type', 1)
+            ->where('company_id', $companyId)
+            ->get();
     
         return response()->json([
             'status' => true,
@@ -83,8 +107,27 @@ class ProductController extends Controller
 
     public function getProductsByProductTypeForRetail()
     {
-        //  where product_type is 1 show only 
-        $products = ProductSize::where('product_type', 2)->get();
+        // //  where product_type is 1 show only 
+        // $products = ProductSize::where('product_type', 2)->get();
+    
+        // return response()->json([
+        //     'status' => true,
+        //     'products' => $products,
+        // ]);
+        $user = auth()->user();
+
+        if (!$user || !$user->company_id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Company ID not found for the user.',
+            ], 404);
+        }
+    
+        $companyId = $user->company_id;
+    
+        $products = ProductSize::where('product_type', 2)
+            ->where('company_id', $companyId)
+            ->get();
     
         return response()->json([
             'status' => true,
@@ -151,66 +194,63 @@ class ProductController extends Controller
     }
     
   
-    public function store(Request $request)
+public function store(Request $request)
 {
-    // Validate incoming request data (only the fields that are required for the store function)
     $request->validate([
         'name' => 'required',
         'localName' => 'required',
         'multiSize' => 'required',
         'show' => 'required',
-        'unit' => 'nullable',  // Assuming unit can be nullable
+        'unit' => 'nullable',
     ]);
 
     $user = Auth::user();
 
-    // Create the product using only the fillable fields
+    // Create product
     $product = Product::create([
         'name' => $request->name,
         'localName' => $request->localName,
         'unit' => $request->unit,
         'multiSize' => $request->multiSize,
         'show' => $request->show,
-        'company_id' => $user->company_id, // Add company_id
-        'created_by' => $user->id, // Add created_by
-        'updated_by' => $user->id, // Add updated_by
+        'company_id' => $user->company_id,
+        'created_by' => $user->id,
+        'updated_by' => $user->id,
     ]);
 
-    // Save images with company_id
-    $images = [];
-    foreach ($request->media as $img) {
-        $media = new ProductMedia;
-        $media->url = $img['url'];
-        $media->type = $img['type'];
-        $media->company_id = $user->company_id; // Add company_id
-        $images[] = $media;
-    }
-    $product->media()->saveMany($images);
-
-    // Save sizes with company_id
-    $sizes = [];
+    // Loop through sizes and save each
     foreach ($request->sizes as $size) {
-        $sz = new ProductSize;
+        $sz = new ProductSize();
         $sz->name = $size['name'];
         $sz->localName = $size['localName'];
-        $sz->oPrice = $size['oPrice'];
-        $sz->bPrice = $size['oPrice'];                           // 'bPrice'
+        $sz->oPrice = $size['dPrice'];
+        $sz->bPrice = $size['dPrice'];
+        $sz->dPrice = $size['dPrice'];
         $sz->default_qty = $size['default_qty'] ?? 0;
-        // $sz->stock = $size['stock'];
-        $sz->max_stock = $size['stock'] ?? null;
-
+        $sz->max_stock = $size['max_stock'] ?? null;
+        $sz->unit = $size['unit'];
         $sz->returnable = $size['returnable'];
         $sz->isFactory = $size['isFactory'] ?? 0;
-        if (isset($size['oPrice'])) { // Only add if dPrice exists 'dPrice'
-            $sz->dPrice = $size['oPrice'];   // 'dPrice'
-        }
         $sz->qty = $size['qty'];
         $sz->unit_multiplier = $size['unit_multiplier'];
+        $sz->product_type = $size['product_type'];
         $sz->show = $size['show'];
-        $sz->company_id = $user->company_id; // Add company_id
-        $sizes[] = $sz;
+        $sz->company_id = $user->company_id;
+
+        // Save size
+        $product->size()->save($sz);
+
+        // ✅ If retail, save mapping to factory size
+        if (
+            $size['product_type'] == '2' &&  // Retail
+            $request->filled('mapped_factory_product_size_id')
+        ) {
+            ProductMapping::create([
+                'factory_productSize_id' => $request->mapped_factory_product_size_id,
+                'retail_productSize_id' => $sz->id,
+            ]);
+        }
     }
-    $product->size()->saveMany($sizes);
 
     return response()->json($product, 201);
 }
@@ -400,7 +440,45 @@ class ProductController extends Controller
         return ProductSize::where('product_id',$id)->delete();
     }
 
-    public function updateProductSize(Request $request, $id)
+//     public function updateProductSize(Request $request, $id)
+// {
+//     $productSize = ProductSize::find($id);
+
+//     if (!$productSize) {
+//         return response()->json(['message' => 'ProductSize not found'], 404);
+//     }
+
+//     $validated = $request->validate([
+//         'product_id' => 'required|integer|exists:products,id',
+//         'name' => 'required|string',
+//         'localName' => 'nullable|string',
+//         'bPrice' => 'required|numeric',
+//         'oPrice' => 'required|numeric',
+//         'dPrice' => 'required|numeric',
+//         'unit' => 'required|string',
+//         'label_value' => 'nullable|numeric',
+//         'unit_multiplier' => 'nullable|numeric',
+//         'qty' => 'required|numeric',
+//         'default_qty' => 'nullable|numeric',
+//         'max_stock' => 'nullable|numeric',
+//         'booked' => 'nullable|numeric',
+//         'company_id' => 'nullable|integer',
+//         'created_by' => 'nullable|integer',
+//         'updated_by' => 'nullable|integer',
+//         'returnable' => 'boolean',
+//         'show' => 'boolean',
+//         'product_type'=>'nullable|numeric',
+//     ]);
+
+//     $productSize->update($validated);
+
+//     return response()->json([
+//         'message' => 'ProductSize updated successfully',
+//         'data' => $productSize
+//     ]);
+// }
+
+public function updateProductSize(Request $request, $id)
 {
     $productSize = ProductSize::find($id);
 
@@ -427,13 +505,220 @@ class ProductController extends Controller
         'updated_by' => 'nullable|integer',
         'returnable' => 'boolean',
         'show' => 'boolean',
+        'product_type' => 'nullable|numeric',
+        'mapped_factory_product_size_id' => 'nullable|exists:product_sizes,id',
     ]);
 
+    // Update ProductSize
     $productSize->update($validated);
+
+    // ✅ Handle Product Mapping if it's a Retail Product (product_type = 2)
+    if (isset($validated['product_type']) && $validated['product_type'] == 2) {
+        if ($request->filled('mapped_factory_product_size_id')) {
+            // Check if mapping already exists
+            $existingMapping = ProductMapping::where('retail_productSize_id', $productSize->id)->first();
+
+            if ($existingMapping) {
+                // Update existing mapping
+                $existingMapping->factory_productSize_id = $request->mapped_factory_product_size_id;
+                $existingMapping->save();
+            } else {
+                // Create new mapping
+                ProductMapping::create([
+                    'factory_productSize_id' => $request->mapped_factory_product_size_id,
+                    'retail_productSize_id' => $productSize->id,
+                ]);
+            }
+        } else {
+            // If no factory product size selected, optionally delete mapping
+            ProductMapping::where('retail_productSize_id', $productSize->id)->delete();
+        }
+    } else {
+        // If product_type is not 2, remove mapping if it exists
+        ProductMapping::where('retail_productSize_id', $productSize->id)->delete();
+    }
 
     return response()->json([
         'message' => 'ProductSize updated successfully',
         'data' => $productSize
     ]);
+}
+
+
+public function uploadProductExcel(Request $request)
+{
+    $request->validate([
+        'file' => 'required|file|mimes:xlsx,xls',
+    ]);
+
+    try {
+        $user = Auth::user();
+        $productTypeMap = [
+            'Delivery' => 0,
+            'Factory' => 1,
+            'Retail' => 2,
+        ];
+
+        $spreadsheet = IOFactory::load($request->file('file'));
+        $sheet = $spreadsheet->getActiveSheet();
+        $rows = $sheet->toArray(null, true, true, true);
+
+        $headers = array_map('strtolower', $rows[1]); // first row is headers
+        unset($rows[1]);
+
+        $deliveryAndFactoryRows = [];
+        $retailRows = [];
+
+        foreach ($rows as $index => $row) {
+            $data = array_combine($headers, array_map('trim', $row));
+
+            if (empty($data['name']) || empty($data['product_type'])) continue;
+
+            if (in_array($data['product_type'], ['Delivery', 'Factory'])) {
+                $deliveryAndFactoryRows[] = $data;
+            } elseif ($data['product_type'] === 'Retail') {
+                $retailRows[] = $data;
+            }
+        }
+
+        DB::beginTransaction();
+
+        foreach ($deliveryAndFactoryRows as $row) {
+            $returnable = $row['returnable'] === 'TRUE' ? 1 : 0;
+
+            $product = Product::create([
+                'name' => $row['name'],
+                'localName' => $row['localname'] ?? null,
+                'unit' => $row['unit'] ?? null,
+                'multiSize' => 1,
+                'show' => 1,
+                'company_id' => $user->company_id,
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+            ]);
+
+            $weight = floatval($row['weight']);
+            $unit = strtolower($row['unit']);
+            $unit_multiplier = in_array($unit, ['gm', 'ml']) ? $weight / 1000 : (in_array($unit, ['kg', 'ltr']) ? $weight : 1);
+
+            $product->size()->create([
+                'name' => $row['name'],
+                'localName' => $row['localname'] ?? null,
+                'oPrice' => $row['price'] ?? 0,
+                'bPrice' => $row['price'] ?? 0,
+                'dPrice' => $row['price'] ?? 0,
+                'default_qty' => 0,
+                'max_stock' => $row['capacity'] ?? null,
+                'unit' => $row['unit'] ?? null,
+                'returnable' => $returnable,
+                'isFactory' => 1,
+                'qty' => $row['quantity'] ?? 0,
+                'lable_value' => $row['weight'] ?? null,
+                'unit_multiplier' => $unit_multiplier,
+                'product_type' => $productTypeMap[$row['product_type']] ?? 0,
+                'show' => 1,
+                'company_id' => $user->company_id,
+            ]);
+        }
+
+        foreach ($retailRows as $row) {
+            $returnable = $row['returnable'] === 'TRUE' ? 1 : 0;
+
+            $retailProduct = Product::create([
+                'name' => $row['name'],
+                'localName' => $row['localname'] ?? null,
+                'unit' => $row['unit'] ?? null,
+                'multiSize' => 1,
+                'show' => 1,
+                'company_id' => $user->company_id,
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+            ]);
+
+            $weight = floatval($row['weight']);
+            $unit = strtolower($row['unit']);
+            $unit_multiplier = in_array($unit, ['gm', 'ml']) ? $weight / 1000 : (in_array($unit, ['kg', 'ltr']) ? $weight : 1);
+
+            $retailSize = $retailProduct->size()->create([
+                'name' => $row['name'],
+                'localName' => $row['localname'] ?? null,
+                'oPrice' => $row['price'] ?? 0,
+                'bPrice' => $row['price'] ?? 0,
+                'dPrice' => $row['price'] ?? 0,
+                'default_qty' => 0,
+                'max_stock' => $row['capacity'] ?? null,
+                'unit' => $row['unit'] ?? null,
+                'returnable' => $returnable,
+                'isFactory' => 0,
+                'qty' => $row['quantity'] ?? 0,
+                'lable_value' => $row['weight'] ?? null,
+                'unit_multiplier' => $unit_multiplier,
+                'product_type' => $productTypeMap[$row['product_type']] ?? 2,
+                'show' => 1,
+                'company_id' => $user->company_id,
+            ]);
+
+            $possibleFactory = ProductSize::where('company_id', $user->company_id)
+                ->where('product_type', $productTypeMap['Factory'])
+                ->get()
+                ->first(function ($factorySize) use ($row) {
+                    return stripos($row['name'], $factorySize->name) !== false ||
+                           stripos($factorySize->name, $row['name']) !== false;
+                });
+
+            if ($possibleFactory) {
+                ProductMapping::create([
+                    'factory_productSize_id' => $possibleFactory->id,
+                    'retail_productSize_id' => $retailSize->id,
+                ]);
+            }
+        }
+
+        DB::commit();
+        return response()->json(['message' => 'Excel imported successfully.'], 201);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
+
+
+public function productSampleExcel()
+{
+    // Create a new spreadsheet
+    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Set the headings
+    $headings = [
+        'name',
+        'localName',
+        'weight',
+        'unit',
+        'price',
+        'quantity',
+        'capacity',
+        'returnable',
+        'product_type',
+    ];
+    $sheet->fromArray($headings, null, 'A1');
+
+    // Add sample data
+    $data = [
+      
+        ['Product ', 'स्थानीय ', 2, 'ltr', 70, 20, 200, 'FALSE', 'Factory'],
+        ['Product A', 'स्थानीय B', 100, 'ml', 100, 30, 300, 'TRUE', 'Retail'],
+    ];
+    $sheet->fromArray($data, null, 'A2');
+
+    // Save to temporary file
+    $writer = new Xlsx($spreadsheet);
+    $fileName = 'products_sample.xlsx';
+    $temp_file = tempnam(sys_get_temp_dir(), $fileName);
+    $writer->save($temp_file);
+
+    // Return response
+    return response()->download($temp_file, $fileName)->deleteFileAfterSend(true);
 }
 }

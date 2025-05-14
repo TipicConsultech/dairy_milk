@@ -40,33 +40,42 @@ const InvoiceDetails = () => {
     }
 
     let words = '';
-    if (number >= 100000) {
-      words += numberToWords(Math.floor(number / 1000)) + ' Lakh ';
+
+    if (Math.floor(number / 10000000) > 0) {
+      words += numberToWords(Math.floor(number / 10000000)) + ' Crore ';
+      number %= 10000000;
+    }
+
+    if (Math.floor(number / 100000) > 0) {
+      words += numberToWords(Math.floor(number / 100000)) + ' Lakh ';
       number %= 100000;
     }
 
-    if (number >= 1000) {
+    if (Math.floor(number / 1000) > 0) {
       words += numberToWords(Math.floor(number / 1000)) + ' Thousand ';
       number %= 1000;
     }
 
-    if (number >= 100) {
-      words += units[Math.floor(number / 100)] + ' Hundred ';
+    if (Math.floor(number / 100) > 0) {
+      words += numberToWords(Math.floor(number / 100)) + ' Hundred ';
       number %= 100;
     }
 
-    if (number >= 20) {
-      words += tens[Math.floor(number / 10)] + ' ';
-      number %= 10;
-    }
-
-    if (number >= 10) {
-      words += teens[number - 10] + ' ';
-      number = 0;
-    }
-
     if (number > 0) {
-      words += units[number] + ' ';
+      if (words !== '') {
+        words += 'and ';
+      }
+
+      if (number < 10) {
+        words += units[number];
+      } else if (number < 20) {
+        words += teens[number - 10];
+      } else {
+        words += tens[Math.floor(number / 10)];
+        if (number % 10 > 0) {
+          words += '-' + units[number % 10];
+        }
+      }
     }
 
     return words.trim();
@@ -112,7 +121,7 @@ const InvoiceDetails = () => {
       setGrandTotal(finalAmount);
       setTotalAmountWords(numberToWords(finalAmount));
     } catch (error) {
-      showToast('danger', 'Error occured ' + error);
+      showToast('danger', 'Error occurred ' + error);
       console.error('Error fetching product data:', error);
     }
   };
@@ -183,18 +192,18 @@ const InvoiceDetails = () => {
   };
 
   let invoiceName;
-  if (formData.status == 0) {
+  if (formData.status === 0) {
     invoiceName = <h5 className='text-danger'>{formData.InvoiceStatus}</h5>;
   }
-  if (formData.status == 1) {
+  if (formData.status === 1) {
     invoiceName = <h5 className='text-success'>{formData.InvoiceStatus}</h5>;
   }
-  if (formData.status == 2) {
+  if (formData.status === 2) {
     invoiceName = <h5 className='text-warning'>{formData.InvoiceStatus}</h5>;
   }
 
   return (
-    <CCard className="mb-4">
+        <CCard className="mb-4">
       <CCardHeader className='no-print'>
         <strong>Invoice</strong>
       </CCardHeader>
@@ -256,8 +265,8 @@ const InvoiceDetails = () => {
                     <tr key={index}>
                       <td className='text-center'>{index + 1}</td>
                       <td className='text-center'>{product.product_name}</td>
-                      <td className='text-center'>{product.dPrice}&nbsp;₹ {product.product_unit ? ` per ${product.product_unit}` : ''}</td>
-                      <td className='text-center'>{product.dQty}{product.product_unit ? ` ${product.product_unit}` : ''}</td>
+                      <td className='text-center'>{product.dPrice}&nbsp;₹</td>
+                       <td className='text-center'>{product.dQty}</td>                     {/*  {product.product_unit ? `${product.product_unit}` : ''} */}
                       <td className='text-center'>{product.total_price}&nbsp;₹</td>
                     </tr>
                   ))}

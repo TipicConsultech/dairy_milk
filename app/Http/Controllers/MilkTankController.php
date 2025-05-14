@@ -72,7 +72,33 @@ class MilkTankController extends Controller
 
     public function getNames()
     {
+        // $tanks = MilkTank::select('id', 'name', 'capacity', 'quantity')
+        //     ->get()
+        //     ->map(function ($tank) {
+        //         return [
+        //             'id' => $tank->id,
+        //             'name' => $tank->name,
+        //             'available_qty' => $tank->quantity
+        //         ];
+        //     });
+
+        // return response()->json([
+        //     'success' => true,
+        //     'quantity' => $tanks
+        // ]);
+        $user = auth()->user();
+
+        if (!$user || !$user->company_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Company ID not found for the user.',
+            ], 404);
+        }
+    
+        $companyId = $user->company_id;
+    
         $tanks = MilkTank::select('id', 'name', 'capacity', 'quantity')
+            ->where('company_id', $companyId)
             ->get()
             ->map(function ($tank) {
                 return [
@@ -81,7 +107,7 @@ class MilkTankController extends Controller
                     'available_qty' => $tank->quantity
                 ];
             });
-
+    
         return response()->json([
             'success' => true,
             'quantity' => $tanks
@@ -275,7 +301,9 @@ class MilkTankController extends Controller
             $milkTank->save();
 
             $addedQuantity = -$previousQuantity;
+            $companyId= $user->company_id;
             MilkTanksTracker::create([
+                'company_id' => $companyId,
                 'milk_tank_id' => $milkTank->id,
                 'opening_balance' => $previousQuantity,
                 'added_quantity' => $addedQuantity,
@@ -318,6 +346,7 @@ class MilkTankController extends Controller
         try {
 
             $user = Auth::user();
+            $companyId = $user->company_id;
             $milkTank = MilkTank::findOrFail($id);
 
             if ($user->company_id != $milkTank->company_id) {
@@ -383,6 +412,7 @@ class MilkTankController extends Controller
             $milkTank->save();
 
             MilkTanksTracker::create([
+                'company_id' => $companyId,
                 'milk_tank_id' => $milkTank->id,
                 'opening_balance' => $currentQuantity,
                 'added_quantity' => $addedQuantity,
@@ -418,4 +448,26 @@ class MilkTankController extends Controller
             ], 404);
         }
     }
+
+public function getByCompany()
+{
+    
+
+     $user = Auth::user();
+
+    $companyId = $user->company_id;
+
+    \Log::info("Fetching tanks for company_id: $companyId");  // Log the company_id
+
+    $tanks = MilkTank::where('company_id', $companyId)->get();
+
+    if ($tanks->isEmpty()) {
+        return response()->json(['success' => false, 'message' => 'Milk tank not found'], 404);
+    }
+
+    \Log::info("Milk tanks found: ", $tanks->toArray());  // Log the fetched tanks
+
+    return response()->json(['success' => true, 'data' => $tanks]);
+}
+
 }

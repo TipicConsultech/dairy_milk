@@ -17,11 +17,30 @@ import {
 } from '@coreui/react';
 import { getAPICall, put } from '../../../util/api';
 import { useToast } from '../../common/toast/ToastContext';
+import { useTranslation } from 'react-i18next';
 
 const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess }) => {
+       const { t, i18n } = useTranslation("global");
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({});
+  const [factoryProductData, setFactoryProductData] = useState([])
+  const [selectedFactorySizeId, setSelectedFactorySizeId] = useState('');
+  const [mappedFactoryProductId, setMappedFactoryProductId] = useState('');
+
+  useEffect(() => {
+     fetchFactoryProduct()
+     
+   }, [])
+ 
+   const fetchFactoryProduct = async () => {
+     try {
+       const res = await getAPICall('/api/getProductsByProductType')    // showAllFactoryProducts
+       setFactoryProductData(res?.products)
+     } catch (err) {
+       console.error('Error fetching tank data:', err)
+     }
+   }
 
   useEffect(() => {
     if (productId && visible) {
@@ -34,7 +53,7 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
     try {
       let endpoint = sourceType === 'retail' 
         ? `/api/retailProduct/${productId}` 
-        : `/api/factoryProducts/${productId}`;
+        :`/api/retailProduct/${productId}`;
       
       const response = await getAPICall(endpoint);
       
@@ -44,7 +63,7 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
         setFormData(response.data);
       } else {
         // Factory product returns flat object
-        setFormData(response);
+        setFormData(response.data);
       }
     } catch (error) {
       showToast('danger', 'Error fetching product data: ' + error);
@@ -52,7 +71,12 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
       setLoading(false);
     }
   };
-
+  const productTypeOptions = [
+    { value: '2', label: `${t('LABELS.retail')}`  },
+    { value: '1', label:`${t('LABELS.factory')}` },
+    { value: '0', label: `${t('LABELS.delivery_product')}` }
+  ]
+ 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     
@@ -93,27 +117,34 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
     try {
       let endpoint = sourceType === 'retail' 
         ? `/api/updateProductSize/${productId}` 
-        : `/api/factoryProducts/${productId}`;
-      
-      // Format the data correctly before sending
+        : `/api/updateProductSize/${productId}`;
+  
       let dataToSubmit = formData;
-      
-      // For retail products, we might need to wrap in a data object if the API expects it
-      if (sourceType === 'retail') {
-        // Converting boolean string values to actual booleans for checkbox fields
+  
+      // Include mapped_factory_product_size_id if selectedFactorySizeId is set
+      if (formData.productType === '2' && selectedFactorySizeId) {
         dataToSubmit = {
           ...formData,
-          returnable: formData.returnable ? 1 : 0,
-          show: formData.show ? 1 : 0
+          mapped_factory_product_size_id: selectedFactorySizeId, // Add this line
+        };
+      }
+      console.log('Selected Factory Size ID:', selectedFactorySizeId);
+
+      // For retail products, ensure boolean is properly formatted
+      if (sourceType === 'retail') {
+        dataToSubmit = {
+          ...dataToSubmit,
+          returnable: dataToSubmit.returnable ? 1 : 0,
+          show: dataToSubmit.show ? 1 : 0
         };
       } else {
         // For factory products, ensure boolean is properly formatted
         dataToSubmit = {
-          ...formData,
-          is_visible: formData.is_visible ? true : false
+          ...dataToSubmit,
+          is_visible: dataToSubmit.is_visible ? true : false
         };
       }
-      
+  
       await put(endpoint, dataToSubmit);
       showToast('success', 'Product updated successfully');
       setVisible(false);
@@ -124,15 +155,29 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
       setLoading(false);
     }
   };
+  
+
+  const handleDefaultQtyChange = (e) => {
+    const { value } = e.target;
+
+    // Allow empty string to let the field appear blank when clicked
+    if (value === '' || /^[0-9]+$/.test(value)) {
+      setFormData((prev) => ({
+        ...prev,
+        default_qty: value === '' ? '' : parseInt(value),
+      }));
+    }
+  };
 
   // Render the appropriate form based on the source type
   const renderForm = () => {
-    if (sourceType === 'retail') {
+    if (sourceType === 'retail' || sourceType === 'factory') {
       return (
         <CForm onSubmit={handleSubmit}>
-          <CRow className="mb-3">
+      <CRow className="mb-3">
+
             <CCol md={6}>
-              <CFormLabel htmlFor="name">Name</CFormLabel>
+              <CFormLabel htmlFor="name">{t('LABELS.product_name')}</CFormLabel>
               <CFormInput
                 id="name"
                 name="name"
@@ -142,7 +187,7 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
               />
             </CCol>
             <CCol md={6}>
-              <CFormLabel htmlFor="localName">Local Name</CFormLabel>
+              <CFormLabel htmlFor="localName">{t('LABELS.product_local_name')}</CFormLabel>
               <CFormInput
                 id="localName"
                 name="localName"
@@ -152,8 +197,22 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
             </CCol>
           </CRow>
           <CRow className="mb-3">
-            <CCol md={6}>
-              <CFormLabel htmlFor="qty">Available Quantity</CFormLabel>
+          <CCol md={4}>
+                      <CFormLabel htmlFor="product_type">{t('LABELS.product_type')}</CFormLabel>
+                      <CFormSelect 
+                        id="product_type" 
+                        name="product_type" 
+                        value={formData.product_type}
+                        onChange={handleChange}
+                      >
+                        {productTypeOptions.map(option => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </CFormSelect>
+            </CCol>
+                 
+            <CCol md={4}>
+              <CFormLabel htmlFor="qty">{t('LABELS.availableQuantity')}</CFormLabel>
               <CFormInput
                 id="qty"
                 name="qty"
@@ -163,8 +222,8 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
                 required
               />
             </CCol>
-            <CCol md={6}>
-              <CFormLabel htmlFor="max_stock">Maximum Stock</CFormLabel>
+            <CCol md={4}>
+              <CFormLabel htmlFor="max_stock">{t('LABELS.Capacity')}</CFormLabel>
               <CFormInput
                 id="max_stock"
                 name="max_stock"
@@ -176,7 +235,7 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
           </CRow>
           <CRow className="mb-3">
           <CCol md={4}>
-              <CFormLabel htmlFor="label_value">Weight</CFormLabel>
+              <CFormLabel htmlFor="label_value">{t('LABELS.weight')}</CFormLabel>
               <CFormInput
                 id="label_value"
                 name="label_value"
@@ -185,7 +244,7 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
               />
             </CCol>
             <CCol md={4}>
-              <CFormLabel htmlFor="unit">Unit</CFormLabel>
+              <CFormLabel htmlFor="unit">{t('LABELS.units')}</CFormLabel>
               <CFormSelect
                 id="unit"
                 name="unit"
@@ -193,14 +252,15 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
                 onChange={handleChange}
                 required
               >
-                <option value="kg">kg</option>
-                <option value="ltr">ltr</option>
-                <option value="gm">gm</option>
-                <option value="ml">ml</option>
+                <option value="kg">{t('LABELS.Kilogram')}</option>
+                <option value="ltr">{t('LABELS.liter')}</option>
+                <option value="gm">{t('LABELS.grams')}</option>
+                <option value="ml">{t('LABELS.milli_liter')}</option>
+                <option value="pcs">{t('LABELS.pcs')}</option>
               </CFormSelect>
             </CCol>
             <CCol md={4}>
-              <CFormLabel htmlFor="dPrice">Price/Unit In Rupees</CFormLabel>
+              <CFormLabel htmlFor="dPrice">{t('LABELS.price')}</CFormLabel>
               <CFormInput
                 id="dPrice"
                 name="dPrice"
@@ -223,112 +283,69 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
          
           
           <CRow className="mb-3">
-            <CCol md={6}>
-              <CFormCheck
-                id="returnable"
-                name="returnable"
-                label="Returnable"
-                checked={formData.returnable === 1 || formData.returnable === true}
-                onChange={handleChange}
-              />
-            </CCol>
-            <CCol md={6}>
+           
+            <CCol md={4}>
               <CFormCheck
                 id="show"
                 name="show"
-                label="Show"
+                label={t('LABELS.show')}
                 checked={formData.show === 1 || formData.show === true}
                 onChange={handleChange}
               />
             </CCol>
+            <CCol md={4}>
+            
+             <CFormCheck
+                id="returnable"
+                name="returnable"
+                label={t('LABELS.returnable')}
+                checked={formData.returnable === 1 || formData.returnable === true}
+                onChange={handleChange}
+              />
+            </CCol>
+            {formData.returnable ===1 ||formData.returnable ===true  && (
+                
+                <div className="col-md-4 col-12 mb-2 ">
+                  <CFormLabel htmlFor="default_qty">{t('LABELS.default_qty')} </CFormLabel>
+                  <CFormInput
+                    type="number"
+                    id="default_qty"
+                    placeholder="0"
+                    min="1"
+                    name="default_qty"
+                    value={formData.default_qty}
+                    onChange={handleDefaultQtyChange}
+                  />
+                </div>
+            
+            )}
+            
+  <div className="row mb-2">
+    <div className="col-md-6 col-12 mb-2">
+      <CFormLabel htmlFor="selectedFactorySizeId">Map to Factory Product Size</CFormLabel>
+      <CFormSelect
+        id="selectedFactorySizeId"
+        name="selectedFactorySizeId"
+        value={selectedFactorySizeId}
+        onChange={(e) => setSelectedFactorySizeId(e.target.value)}
+      >
+        <option value="">Select Factory Product Size</option>
+        {factoryProductData.map(fp => (
+          <option key={fp.id} value={fp.id}>
+            {fp.name}
+          </option>
+        ))}
+
+      </CFormSelect>
+    </div>
+  </div>
+
+
           </CRow>
         </CForm>
       );
-    } else {
-      // Factory product form
-      return (
-        <CForm onSubmit={handleSubmit}>
-          <CRow className="mb-3">
-            <CCol md={6}>
-              <CFormLabel htmlFor="name">Name</CFormLabel>
-              <CFormInput
-                id="name"
-                name="name"
-                value={formData.name || ''}
-                onChange={handleChange}
-                required
-              />
-            </CCol>
-            <CCol md={6}>
-              <CFormLabel htmlFor="local_name">Local Name</CFormLabel>
-              <CFormInput
-                id="local_name"
-                name="local_name"
-                value={formData.local_name || ''}
-                onChange={handleChange}
-              />
-            </CCol>
-          </CRow>
-          <CRow className="mb-3">
-            <CCol md={6}>
-              <CFormLabel htmlFor="unit">Unit</CFormLabel>
-              <CFormInput
-                id="unit"
-                name="unit"
-                value={formData.unit || ''}
-                onChange={handleChange}
-                required
-              />
-            </CCol>
-            <CCol md={6}>
-              <CFormLabel htmlFor="quantity">Quantity</CFormLabel>
-              <CFormInput
-                id="quantity"
-                name="quantity"
-                type="number"
-                value={formData.quantity || ''}
-                onChange={handleChange}
-                required
-              />
-            </CCol>
-          </CRow>
-          <CRow className="mb-3">
-            <CCol md={6}>
-              <CFormLabel htmlFor="capacity">Capacity</CFormLabel>
-              <CFormInput
-                id="capacity"
-                name="capacity"
-                type="number"
-                value={formData.capacity || ''}
-                onChange={handleChange}
-              />
-            </CCol>
-            <CCol md={6}>
-              <CFormLabel htmlFor="price">Price</CFormLabel>
-              <CFormInput
-                id="price"
-                name="price"
-                type="number"
-                value={formData.price || ''}
-                onChange={handleChange}
-                required
-              />
-            </CCol>
-          </CRow>
-          <CRow className="mb-3">
-            <CCol md={6}>
-              <CFormCheck
-                id="is_visible"
-                name="is_visible"
-                label="Visible"
-                checked={formData.is_visible || false}
-                onChange={handleChange}
-              />
-            </CCol>
-          </CRow>
-        </CForm>
-      );
-    }
+    } 
+    
   };
 
   return (
@@ -340,7 +357,7 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
     >
       <CModalHeader onClose={() => setVisible(false)}>
         <CModalTitle>
-          {sourceType === 'retail' ? 'Edit Retail Product' : 'Edit Factory Product'}
+          {sourceType === 'retail' ? `${t('LABELS.edit_retail_product')}` : `${t('LABELS.edit_factory_product')}`}
         </CModalTitle>
       </CModalHeader>
       <CModalBody>
@@ -354,10 +371,10 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
       </CModalBody>
       <CModalFooter>
         <CButton color="secondary" onClick={() => setVisible(false)}>
-          Cancel
+        {t('LABELS.cancel')}
         </CButton>
         <CButton color="primary" onClick={handleSubmit} disabled={loading}>
-          {loading ? <CSpinner size="sm" /> : 'Save Changes'}
+          {loading ? <CSpinner size="sm" /> : `${t('LABELS.save_changes')}`}
         </CButton>
       </CModalFooter>
     </CModal>

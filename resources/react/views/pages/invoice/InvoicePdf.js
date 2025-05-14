@@ -4,7 +4,6 @@ import "jspdf-autotable";
 import { getUserData } from '../../../util/session';
 
 export function generatePDF(grandTotal, invoiceNo, customerName, formData, remainingAmount, totalAmountWords, isWhatsAppShare = false, callback = null) {
-    // PDF generation logic
     const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
@@ -15,12 +14,11 @@ export function generatePDF(grandTotal, invoiceNo, customerName, formData, remai
 
     const fontSize = 10;
     pdf.setFontSize(fontSize);
-    // pdf.setLineWidth(0.5);
     pdf.setDrawColor("#333");
     pdf.rect(0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight(), "S");
 
     const img = new Image();
-    img.src = 'img/'+ci.logo;
+    img.src = 'img/' + ci.logo;
     pdf.addImage(img, "PNG", 15, 10, 40, 40);
     pdf.setFontSize(15);
     pdf.setTextColor("#000");
@@ -29,13 +27,9 @@ export function generatePDF(grandTotal, invoiceNo, customerName, formData, remai
     const INVOICE = formData.InvoiceStatus;
     const headingX = pdf.internal.pageSize.getWidth() / 2;
 
-    // Set font to bold and increase size by 1.5 times
     pdf.setFont("bold");
-    // "helvetica"
-
     pdf.setFontSize(17);
 
-    // Set color based on status
     if (status === 0) {
         pdf.setTextColor(255, 0, 0); // Red
     } else if (status === 1) {
@@ -46,51 +40,70 @@ export function generatePDF(grandTotal, invoiceNo, customerName, formData, remai
 
     pdf.text(`${INVOICE}`, headingX, 10, { align: "center" });
 
-    // Reset the font size to original after use if needed
     pdf.setFontSize(10);
     pdf.setFont("normal");
-    pdf.setTextColor("#000"); // Reset to default color
+    pdf.setTextColor("#000");
 
     pdf.text(ci.company_name, pdf.internal.pageSize.getWidth() - 65, 20);
     pdf.text(ci.land_mark, pdf.internal.pageSize.getWidth() - 65, 25);
-    pdf.text(ci.Tal+" , "+ci.Dist+" , "+ci.pincode, pdf.internal.pageSize.getWidth() - 65, 30);
-    pdf.text("Phone: "+ci.phone_no, pdf.internal.pageSize.getWidth() - 65, 35);
+    pdf.text(ci.Tal + " , " + ci.Dist + " , " + ci.pincode, pdf.internal.pageSize.getWidth() - 65, 30);
+    pdf.text("Phone: " + ci.phone_no, pdf.internal.pageSize.getWidth() - 65, 35);
 
     pdf.setTextColor("#000");
     pdf.setFontSize(13);
     pdf.text(`Invoice to:`, 15, 60);
     pdf.setFont("normal");
     pdf.setFontSize(11);
-    pdf.text(`Customer Name    : ${formData.customer.name}`, 15, 70);
-    pdf.text(`Customer Address : ${formData.customer.address}`, 15, 75);
-    pdf.text(`Mobile Number     : ${formData.customer.mobile}`, 15, 80);
+
+    let currentY = 70;
+    pdf.text(`Customer Name    : ${formData.customer.name}`, 15, currentY);
+    currentY += 5;
+
+    const addressLines = formData.customer.address
+        .replace(/\r\n/g, "\n")
+        .split('\n')
+        .flatMap(line => {
+            // Wrap long lines manually (e.g. 60 characters per line)
+            const maxChars = 60;
+            const result = [];
+            while (line.length > maxChars) {
+                result.push(line.slice(0, maxChars));
+                line = line.slice(maxChars);
+            }
+            result.push(line);
+            return result;
+        });
+
+    addressLines.forEach((line, idx) => {
+        pdf.text(`Customer Address${idx === 0 ? ' :' : '  '} ${line}`, 15, currentY);
+        currentY += 5;
+    });
+
+    pdf.text(`Mobile Number     : ${formData.customer.mobile}`, 15, currentY);
     pdf.text(`Invoice No: ${invoiceNo}`, 145, 70);
 
     const formattedDate = formData.date.split("-").reverse().join("-");
     pdf.text(`Invoice Date: ${formattedDate}`, 145, 75);
-    let y;
 
     if (formData.InvoiceType == 2) {
         const formattedDeliveryDate = formData.DeliveryDate.split("-").reverse().join("-");
         pdf.text(`Delivery Date: ${formattedDeliveryDate}`, 145, 80);
-        pdf.setFontSize(10);
-        y = 90; // Adjust y coordinate for subsequent text if any
+        currentY = Math.max(currentY + 5, 90);
     } else {
-        pdf.setFontSize(10);
-        y = 85; // Adjust y coordinate for subsequent text if any
+        currentY = Math.max(currentY + 5, 85);
     }
 
-    const grandTotalRow = ["", "", "", "Grand Total", grandTotal+" /-"];
+    const grandTotalRow = ["", "", "", "Grand Total", grandTotal + " /-"];
     pdf.autoTable({
-        startY: y,
+        startY: currentY,
         head: [["Sr No", "Item Name", "Price (Rs)", "Quantity", "Total (Rs)"]],
         body: [
             ...formData.products.map((product, index) => [
                 index + 1,
                 product.product_name,
-                product.dPrice + (product.product_unit?.length > 0 ? ` per ${product.product_unit}`: ' /-'),
-                product.dQty + (product.product_unit?.length > 0 ? ` ${product.product_unit}`: ''),
-                product.total_price+" /-"
+                product.dPrice + " /-",
+                product.dQty,
+                product.total_price + " /-"
             ]),
             grandTotalRow,
         ],
@@ -104,19 +117,16 @@ export function generatePDF(grandTotal, invoiceNo, customerName, formData, remai
         },
     });
 
-    y = pdf.autoTable.previous.finalY + 10;
-    const totalAmountWord = totalAmountWords;
+    let y = pdf.autoTable.previous.finalY + 10;
 
-    // Prepare additional details data
     const additionalDetailsData = [];
-
     if (formData.discount > 0) {
         additionalDetailsData.push(["Discount (%):", `${formData.discount} %`]);
     }
 
     additionalDetailsData.push(
-        ["Amount Paid:",`${formData.amountPaid.toFixed(2)}`+" /-"],
-        ["Balance Amount:",`${remainingAmount.toFixed(2)}`+" /-" ],
+        ["Amount Paid:", `${formData.amountPaid.toFixed(2)} /-`],
+        ["Balance Amount:", `${remainingAmount.toFixed(2)} /-`],
         ["Payment Mode:", formData.paymentMode]
     );
 
@@ -136,76 +146,54 @@ export function generatePDF(grandTotal, invoiceNo, customerName, formData, remai
     pdf.setTextColor("#000");
     pdf.setFontSize(10);
     pdf.setFont("bold");
-    pdf.text(`${totalAmountWord} Rs Only`, 60, y);
+    pdf.text(`${totalAmountWords} Rs Only`, 60, y);
     pdf.setFont("normal");
-    const bankDetailsY = y + 10 + 40 + 10;
+
+    const bankDetailsY = y + 60;
     const signatureY = bankDetailsY + 15;
 
     pdf.setLineWidth(0.2);
     pdf.setDrawColor("#000");
     pdf.rect(13.5, bankDetailsY, pdf.internal.pageSize.getWidth() - 28.5, 40, "S");
-    pdf.setFontSize(12);
 
+    pdf.setFontSize(12);
     pdf.text("Bank Details", 20, bankDetailsY + 9);
     pdf.setFontSize(10);
     pdf.setFont("normal");
     pdf.text(ci.bank_name, 20, bankDetailsY + 20);
-    pdf.text('Account No: '+ci.account_no, 20, bankDetailsY + 25);
-    pdf.text('IFSC code  : '+ci.IFSC_code, 20, bankDetailsY + 30);
+    pdf.text('Account No: ' + ci.account_no, 20, bankDetailsY + 25);
+    pdf.text('IFSC code  : ' + ci.IFSC_code, 20, bankDetailsY + 30);
+
     pdf.setFont("bold");
-    pdf.text(
-        "E-SIGNATURE",
-        pdf.internal.pageSize.width - 84,
-        bankDetailsY + 8
-    );
-    pdf.addImage(
-        'img/'+ci.sign,
-        "JPG",
-        pdf.internal.pageSize.width - 72,
-        bankDetailsY + 9,
-        35,
-        20
-    );
+    pdf.text("E-SIGNATURE", pdf.internal.pageSize.width - 84, bankDetailsY + 8);
+    pdf.addImage('img/' + ci.sign, "JPG", pdf.internal.pageSize.width - 72, bankDetailsY + 9, 35, 20);
+
     pdf.setFontSize(10);
-    pdf.text(
-        "Authorized Signature",
-        pdf.internal.pageSize.width - 70,
-        bankDetailsY + 36
-    );
+    pdf.text("Authorized Signature", pdf.internal.pageSize.width - 70, bankDetailsY + 36);
 
     const additionalMessage = "This bill has been computer-generated and is authorized.";
     const additionalMessageWidth = pdf.getStringUnitWidth(additionalMessage) * 6;
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
-    pdf.setDrawColor(0);
-    pdf.rect(0, 0, pageWidth, pageHeight);
-    pdf.setFontSize(10);
-    const shiftRight = 15;
-    const textXAdditional = (pageWidth - additionalMessageWidth) / 1.3 + shiftRight;
+    const textXAdditional = (pageWidth - additionalMessageWidth) / 1.3 + 15;
     const textY = pageHeight - 5;
+    pdf.setFontSize(10);
     pdf.text(additionalMessage, textXAdditional, textY);
 
     const fileName = `${invoiceNo}-${customerName}-${new Date().getTime()}.pdf`;
 
-    // Create a blob URL for the PDF
     const pdfBlob = pdf.output('blob');
     const pdfUrl = URL.createObjectURL(pdfBlob);
 
-    // Always save the PDF
     pdf.save(fileName);
 
-    // If this is for WhatsApp sharing, call the callback with the URL
     if (isWhatsAppShare && callback) {
         callback(pdfUrl);
     }
 }
 
 function InvoicePdf() {
-    return (
-        <div>
-
-        </div>
-    );
+    return <div></div>;
 }
 
 export default InvoicePdf;

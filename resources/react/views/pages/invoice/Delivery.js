@@ -602,9 +602,9 @@ const Delivery = () => {
                   allProducts.map((p, index)=> (<div key={p.id} className="row bottom-border">
                     <div className="col-6 mb-3 pr-5">
                       <CFormLabel htmlFor="product">
-                        {/* {t("LABELS.filled")}  */}
-                        {lng === 'en' ? p.name : p.localName}
-                      </CFormLabel>
+                      {(lng === 'en' ? p.name : p.localName) || ''} {t("LABELS.given")}
+                    </CFormLabel>
+
                       <div className="input-group">
                       <button
                         className="btn btn-danger"
@@ -620,6 +620,7 @@ const Delivery = () => {
                         id="dQty"
                         placeholder="0"
                         name="dQty"
+                        style={{height : '41px'}}
                         value={p.dQty}
                         onChange={(e)=>{
                           handleQuantityChangeRate(index, parseInt(e.target.value ?? '0'),'dQty')
@@ -637,7 +638,7 @@ const Delivery = () => {
                       </button>
                       </div>
                     </div>
-                    <div className="col-3 mb-3 pr-5 d-none">
+                    {/* <div className="col-3 mb-3 pr-5 d-none">
                       <CFormLabel htmlFor="product">{t("LABELS.rate")}</CFormLabel>
                       <CFormInput
                         type="number"
@@ -645,19 +646,8 @@ const Delivery = () => {
                         disabled
                         value={p.sizes[0].default_qty}
                       />
-                    </div>
-                    <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3 pr-5">
-  <CFormLabel htmlFor="product">{t("LABELS.Packet")}</CFormLabel>
-  <br/>
-  {/* {getDiscountedPrice(p)} */}
-  <CFormInput
-    type="number"
-    value={p.sizes[0].default_qty}
-    onChange={(e) => {
-      handlePriceChange(index, parseInt(e.target.value ?? '0'));
-    }}
-  />
-</div>
+                    </div> */}
+                    
 
 <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3 pr-5">
   <CFormLabel htmlFor="remark">{t("LABELS.remark")}</CFormLabel>
@@ -685,7 +675,7 @@ const Delivery = () => {
 
 
                     {p.sizes[0].returnable === 1 && <div className="col-6 mb-3 pr-5" >
-                      <CFormLabel htmlFor="product">{t("LABELS.empty")} {lng === 'en' ? p.name : p.localName}</CFormLabel>
+                      <CFormLabel htmlFor="product">{t("LABELS.empty")} {lng === 'en' ? p.name : p.localName} {t("LABELS.return")}</CFormLabel>
                       <div className="input-group">
                         <button
                           className="btn btn-danger"
@@ -699,6 +689,8 @@ const Delivery = () => {
                           id="eQty"
                           placeholder="0"
                           name="eQty"
+                          
+                          style={{height : '41px'}}
                           value={p.eQty ?? 0}
                           onChange={(e)=>{
                             handleQuantityChange(index, Math.min(parseInt(e.target.value ?? '0'), customerHistory?.returnEmptyProducts?.find((itm)=> itm.product_sizes_id === p.sizes[0].id)?.quantity ?? 0),'eQty')

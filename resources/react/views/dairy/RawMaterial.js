@@ -20,9 +20,11 @@ import {
 import CIcon from '@coreui/icons-react';
 import { cilArrowThickToBottom, cilArrowThickToTop, cilSettings, cilWarning, cilPlus, cilX } from '@coreui/icons';
 import { getUserData } from '../../util/session';
+import { useTranslation } from 'react-i18next';
 
 
 function RawMaterial() {
+    const { t, i18n } = useTranslation("global");
   const [tableData, setTableData] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
@@ -120,6 +122,8 @@ function RawMaterial() {
 
   async function getData() {
     const response = await getAPICall('/api/raw-materials');
+    console.log(response);
+    
     setTableData(response);
   }
   
@@ -190,7 +194,7 @@ function RawMaterial() {
   const searchMaterials = async () => {
     setLoading(true);
     try {
-      const response = await getAPICall(`/api/serchRawMaterials?search=${debouncedSearchTerm}`);
+      const response = await getAPICall(`/api/searchRawMaterials?search=${debouncedSearchTerm}`);
       setTableData(response);
     } catch (error) {
       console.error('Error fetching materials:', error);
@@ -309,19 +313,19 @@ function RawMaterial() {
     <div className="p-0">
       <CCardHeader style={{ backgroundColor: '#d6eaff', marginBottom:'10px'}} className='p-2 rounded'>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h5 className="mb-0" >Raw Materials Inventory </h5> 
+          <h5 className="mb-0" >{t('LABELS.raw_materials_inventory')}</h5> 
         </div>
       </CCardHeader>
 
       {showAlert && (
         <CAlert color="success" onDismiss={() => setShowAlert(false)}>
-          <div>✅Product Updated successfully!</div>
+          <div>✅{t('LABELS.productUpdateSuccess')}</div>  
         </CAlert>
       )}
       {failAlert && (
         <CAlert color="warning" onDismiss={() => setFailAlert(false)} className="d-flex align-items-center mb-2">
           <CIcon icon={cilWarning} className="flex-shrink-0 me-2" width={24} height={24} />
-          <div>You have entered more than the maximum capacity allowed for this item.</div>
+          <div>{t('LABELS.overCapacityWarning')}</div>                     {/* You have entered more than the maximum capacity allowed for this item. */}
         </CAlert>
       )}
 
@@ -345,7 +349,7 @@ function RawMaterial() {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by name"
+                placeholder={t('LABELS.search_name')}
                 className="form-control"
               />
             </div>
@@ -356,7 +360,7 @@ function RawMaterial() {
        {user?.type===1 &&(
         <CButton color="primary" onClick={handleDownload} style={{ flex: '1' }}>
         <CIcon icon={cilArrowThickToBottom} size="sm" style={{ marginRight: 3 }}/>
-        Template
+        {t('LABELS.template')}
          </CButton>
       
        )}
@@ -377,7 +381,7 @@ function RawMaterial() {
            }}
        >
            {!selectedFile && (<CIcon icon={cilArrowThickToTop} size="sm" style={{ marginRight: 0 }}/>)}
-           {selectedFile ? shortenFileName(selectedFile.name) : 'CSV'}
+           {selectedFile ? shortenFileName(selectedFile.name) : `${t('LABELS.upload_csv')}`}
        </CButton>
        )}
 
@@ -394,7 +398,7 @@ function RawMaterial() {
 
                   }}
                 >
-                  {uploading ? 'Uploading...' : 'Submit'}
+                  {uploading ? `${t('LABELS.uplaoding')}` : `${t('LABELS.submit')}`}
                 </CButton>
               )}
             </div>
@@ -407,7 +411,7 @@ function RawMaterial() {
                 style={{ flex: '1' }}
               >
                 <CIcon icon={cilPlus} size="sm" style={{ marginRight: 3 }}/>
-                Add Material
+                {t('LABELS.add_material')}
               </CButton>
               
               {hasMultipleQuantities && (
@@ -420,7 +424,7 @@ function RawMaterial() {
                     color: 'white',
                    }}
                 >
-                  Bulk Add
+                 {t('LABELS.bulk_add')}
                 </CButton>
               )}
             </div>
@@ -436,7 +440,7 @@ function RawMaterial() {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search by name"
+                  placeholder={t('LABELS.search_name')}
                   className="form-control"
                 />
               </div>
@@ -444,7 +448,7 @@ function RawMaterial() {
               {/* CSV buttons */}
               <CButton color="primary" onClick={handleDownload}>
                 <CIcon icon={cilArrowThickToBottom} size="sm" style={{ marginRight: 3 }}/>
-                Download Template
+                {t('LABELS.download_template')}
               </CButton>
               
               <CButton
@@ -453,7 +457,7 @@ function RawMaterial() {
                 onClick={() => document.getElementById('fileInput').click()}
               >
                 {!selectedFile && (<CIcon icon={cilArrowThickToTop} size="sm" style={{ marginRight: 3 }}/>)}
-                {selectedFile ? selectedFile.name : 'CSV File'}
+                {selectedFile ? selectedFile.name : `${t('LABELS.upload_csv')}`}
               </CButton>
               
               {selectedFile && (
@@ -462,7 +466,7 @@ function RawMaterial() {
                   disabled={uploading}
                   onClick={handleSubmit}
                 >
-                  {uploading ? 'Uploading...' : 'Submit'}
+                  {uploading ? `${t('LABELS.uplaoding')}` : `${t('LABELS.submit')}`}
                 </CButton>
               )}
             </div>
@@ -474,7 +478,7 @@ function RawMaterial() {
                 onClick={handleAddProduct}
               >
                 <CIcon icon={cilPlus} size="sm" style={{ marginRight: 3 }}/>
-                Add Material
+                {t('LABELS.add_material')}
               </CButton>
               
               {hasMultipleQuantities && (
@@ -486,8 +490,8 @@ function RawMaterial() {
       backgroundColor: '#ff0000',
       color: 'white',
     }}
-  >
-    Bulk Add
+  > 
+  {t('LABELS.bulk_add')}
   </CButton>
 )}
 
@@ -508,13 +512,13 @@ function RawMaterial() {
         <table className="table table-hover table-bordered align-middle">
           <thead className="table-light" style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#f8f9fa' }}>
             <tr>
-              <th>Name</th>
-              <th>Packaging</th>
-              <th>Capacity</th>
-              <th>Stock Indicator</th>
-              <th>Available Stock</th>
-              <th style={{ width: '120px' }}>Quantity</th>
-              <th style={{ width: '100px' }}>Action</th>
+              <th>{t('LABELS.name')}</th>
+              <th>{t('LABELS.packaging')}</th>
+              <th>{t('LABELS.Capacity')}</th>
+              <th>{t('LABELS.stock_indicator')}</th>
+              <th>{t('LABELS.available_stock')}</th>
+              <th style={{ width: '120px' }}>{t('LABELS.quantity')}</th>
+              <th style={{ width: '100px' }}>{t('LABELS.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -523,7 +527,7 @@ function RawMaterial() {
                 <td>{item.name}</td>
                 <td>
                   <span className={`badge ${item.isPackaging ? 'bg-info' : 'bg-secondary'}`}>
-                    {item.isPackaging ? 'Yes' : 'No'}
+                    {item.isPackaging ? `${t('LABELS.yes')}` : `${t('LABELS.no')}`}
                   </span>
                 </td>
                 <td>{item.capacity}&nbsp;&nbsp;{item.unit}</td>
@@ -548,10 +552,10 @@ function RawMaterial() {
                     }
                   >
                     {item.min_qty === 1
-                      ? 'Empty Soon'
+                      ? `${t('LABELS.empty_soon')}`
                       : item.min_qty === 2
-                      ? 'Moderate'
-                      : 'Sufficient'}
+                      ? `${t('LABELS.moderate')}`
+                      : `${t('LABELS.sufficient')}`}
                   </CBadge>
                 </td>
                 <td>{item.unit_qty}&nbsp;&nbsp;{item.unit}</td>
@@ -562,7 +566,7 @@ function RawMaterial() {
                     className="form-control"
                     value={quantities[item.id] || ''}
                     onChange={(e) => handleQuantityChange(item.id, e.target.value)}
-                    placeholder="Qty"
+                    placeholder={t('LABELS.qty')}
                   />
                 </td>
                 <td>
@@ -570,7 +574,7 @@ function RawMaterial() {
                     className="btn btn-outline-success btn-sm w-100"
                     onClick={() => handleAddClick(item)}
                   >
-                    Add
+                    {t('LABELS.add')}
                   </button>
                 </td>
               </tr>
@@ -587,13 +591,13 @@ function RawMaterial() {
         size="lg"
       >
         <CModalHeader closeButton>
-          <CModalTitle>Add New Raw Material</CModalTitle>
+          <CModalTitle>{t('LABELS.add_raw_material')}</CModalTitle>
         </CModalHeader>
         <CModalBody>
           <CForm onSubmit={handleFormSubmit}>
             <div className="row mb-3">
               <div className="col-md-6">
-                <CFormLabel htmlFor="name">Product Name*</CFormLabel>
+                <CFormLabel htmlFor="name">{t('LABELS.material_name')}&nbsp;*</CFormLabel>
                 <CFormInput
                   id="name"
                   name="name"
@@ -603,14 +607,14 @@ function RawMaterial() {
                 />
                 <CFormCheck 
                   id="syncNameCheck"
-                  label="Same as local name"
+                  label={t('LABELS.keep_name_and_local_name_same')}
                   checked={syncLocalName}
                   onChange={(e) => setSyncLocalName(e.target.checked)}
                   className="mt-1"
                 />
               </div>
               <div className="col-md-6">
-                <CFormLabel htmlFor="local_name">Local Name</CFormLabel>
+                <CFormLabel htmlFor="local_name">{t('LABELS.material_local_name')}&nbsp;*</CFormLabel>
                 <CFormInput
                   id="local_name"
                   name="local_name"
@@ -623,7 +627,7 @@ function RawMaterial() {
 
             <div className="row mb-3">
               <div className="col-md-4">
-                <CFormLabel htmlFor="capacity">Capacity*</CFormLabel>
+                <CFormLabel htmlFor="capacity">{t('LABELS.Capacity')}&nbsp;*</CFormLabel>
                 <CFormInput
                   type="number"
                   id="capacity"
@@ -636,7 +640,7 @@ function RawMaterial() {
                 />
               </div>
               <div className="col-md-4">
-                <CFormLabel htmlFor="unit_qty">Initial Quantity</CFormLabel>
+                <CFormLabel htmlFor="unit_qty">{t('LABELS.quantity')}&nbsp;*</CFormLabel>
                 <CFormInput
                   type="number"
                   id="unit_qty"
@@ -648,7 +652,7 @@ function RawMaterial() {
                 />
               </div>
               <div className="col-md-4">
-                <CFormLabel htmlFor="unit">Unit*</CFormLabel>
+                <CFormLabel htmlFor="unit">{t('LABELS.units')}&nbsp;*</CFormLabel>
                 <CFormSelect
                   id="unit"
                   name="unit"
@@ -656,21 +660,21 @@ function RawMaterial() {
                   onChange={handleInputChange}
                   required
                 >
-                  <option value="kg">Kilogram (kg)</option>
-                  <option value="gm">Gram (g)</option>
-                  <option value="ltr">Liter (l)</option>
-                  <option value="ml">Milliliter (ml)</option>
+                  <option value="kg">{t('LABELS.Kilogram')}</option>
+                  <option value="gm">{t('LABELS.grams')}</option>
+                  <option value="ltr">{t('LABELS.liter')}</option>
+                  <option value="ml">{t('LABELS.milli_liter')}</option>
                 </CFormSelect>
               </div>
             </div>
-
+            
             <div className="row mb-3">
               <div className="col-md-6">
                 <div className="d-flex align-items-center mb-3">
                   <CFormCheck 
                     id="isPackaging"
                     name="isPackaging"
-                    label="Is Packaging Material"
+                    label={t('LABELS.is_packaging')}
                     checked={formData.isPackaging}
                     onChange={handleInputChange}
                   />
@@ -679,20 +683,20 @@ function RawMaterial() {
                   <CFormCheck 
                     id="isVisible"
                     name="isVisible"
-                    label="Is Visible"
+                    label={t('LABELS.is_visible')}
                     checked={formData.isVisible}
                     onChange={handleInputChange}
                   />
                 </div>
               </div>
               <div className="col-md-6">
-                <CFormLabel htmlFor="misc">Additional Notes</CFormLabel>
+                <CFormLabel htmlFor="misc">{t('LABELS.additional_notes')}</CFormLabel>
                 <CFormInput
                   id="misc"
                   name="misc"
                   value={formData.misc}
                   onChange={handleInputChange}
-                  placeholder="Any additional information"
+                  placeholder={t('LABELS.any_additional_info')}
                 />
               </div>
             </div>
@@ -700,10 +704,10 @@ function RawMaterial() {
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setShowModal(false)}>
-            Cancel
+          {t('LABELS.cancel')}
           </CButton>
           <CButton color="primary" onClick={handleFormSubmit} disabled={submitting}>
-            {submitting ? <><CSpinner size="sm" /> Saving...</> : 'Save Product'}
+            {submitting ? <><CSpinner size="sm" /> {t('LABELS.saving')}</> : `${t('LABELS.save')}`}
           </CButton>
         </CModalFooter>
       </CModal>

@@ -529,12 +529,28 @@ const ProductCreationCalculator = () => {
                         value={alleviationInCreation}
                         readOnly
                         placeholder="Calculated automatically"
-                        className={currentStyle || 'bg-light text-muted'}
+                        style={{
+                          backgroundColor: alleviationInCreation
+                            ? (parseFloat(alleviationInCreation) < 0 ? '#ffe6e6' : '#e6ffee')
+                            : '#f8f9fa',
+                          color: alleviationInCreation
+                            ? (parseFloat(alleviationInCreation) < 0 ? '#dc3545' : '#198754')
+                            : '#6c757d',
+                          fontWeight: alleviationInCreation ? 'bold' : 'normal',
+                          border: alleviationInCreation
+                            ? (parseFloat(alleviationInCreation) < 0
+                               ? '2px solid #dc3545'
+                               : '2px solid #198754')
+                            : '1px solid #ced4da'
+                        }}
                         aria-label="Alleviation In Creation"
                       />
-                      <CInputGroupText className="bg-light">(in kg)</CInputGroupText>
+                      <CInputGroupText style={{
+                        backgroundColor: '#f8f9fa',
+                        fontWeight: 'bold'
+                      }}>(in kg)</CInputGroupText>
                     </CInputGroup>
-                  </CCol>
+                </CCol>
                   <CCol xs={12} sm={6} lg={3}>
                     <CFormLabel className="fw-bold mb-1">TS of Created Panner</CFormLabel>
                     <CFormInput
