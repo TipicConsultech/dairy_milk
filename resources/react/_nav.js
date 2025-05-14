@@ -30,6 +30,7 @@ import {
   cilFile,
   cibPostgresql,
   cilStorage,
+  cilCalculator,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem } from '@coreui/react'
 import { getUserData } from './util/session';
@@ -66,9 +67,9 @@ export default function fetchNavItems(t1){
             name: 'Company Subscription',
             to: '/company/companyReceipt',
           }
-          
+
         ],
-        
+
       },
       {
         component: CNavItem,
@@ -173,7 +174,7 @@ export default function fetchNavItems(t1){
           },
         ],
       },
-      
+
       {
         component: CNavGroup,
         name: t("LABELS.expense"),
@@ -208,7 +209,7 @@ export default function fetchNavItems(t1){
       //   name: t("LABELS.invoice"),
       //   icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
       //   items: [
-          
+
       //     {
       //       component: CNavItem,
       //       name: "Factory Invoice(B2B)",
@@ -219,8 +220,8 @@ export default function fetchNavItems(t1){
       //       name: "Retails Invoice",
       //       to: '/invoice',
       //     },
-          
-          
+
+
       //   ],
       // },
       {
@@ -229,13 +230,19 @@ export default function fetchNavItems(t1){
         to: '/invoice',
         icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
       },
-      
+      {
+        component: CNavItem,
+        name: t("LABELS.ProductCreationCalculator"),
+        to: '/ProductCreationCalculator',
+        icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
+      },
+
       {
         component: CNavGroup,
         name: t("LABELS.create_Product"),
         icon: <CIcon icon={cilLibraryAdd} customClassName="nav-icon" />,
         items: [
-          
+
           {
             component: CNavItem,
             name: t("LABELS.create_factory_product"),
@@ -248,16 +255,23 @@ export default function fetchNavItems(t1){
             to: '/CreateRetailProduct',
              className: 'ms-4'
           },
+          {
+            component: CNavItem,
+            name: t("LABELS.create_bulk_product"),
+            to: '/CreateBulkProduct',
+          },
+
+
           // {
           //   component: CNavItem,
           //   name: t("LABELS.create_bulk_product"),
           //   to: '/CreateBulkProduct',
           // },
-          
-          
+
+
         ],
       },
-      
+
 
       {
         component: CNavGroup,
@@ -268,9 +282,10 @@ export default function fetchNavItems(t1){
             component: CNavItem,
             name: t("LABELS.rawMaterialinventory"),
             to: '/rawMaterial',
+
              className: 'ms-4'
           },
-          
+
           {
             component: CNavItem,
             name: t("LABELS.finalproductinventry"),
@@ -282,14 +297,15 @@ export default function fetchNavItems(t1){
             component: CNavItem,
             name: t("LABELS.retailproductinventry"),
             to: '/retailProductInvenrty',
+
              className: 'ms-4'
           },
-          
+
         ],
       },
-      
-      
-      
+
+
+
       {
         component: CNavGroup,
         name: t("LABELS.products"),
@@ -315,14 +331,14 @@ export default function fetchNavItems(t1){
         to: '/LaboratoryUser',
         icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" />,
       },
-      
+
       {
         component: CNavItem,
         name: t("LABELS.crate_deliver"),
         to: '/delivery',
         icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
       },
-     
+
       {
         component: CNavGroup,
         name: t("LABELS.user_management"),
@@ -385,13 +401,21 @@ export default function fetchNavItems(t1){
           // },
         ],
       },
-  
+
+      {
+        component: CNavItem,
+        name: t("LABELS.ProductCreationCalculator"),
+        to: '/ProductCreationCalculator',
+        icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
+      },
+
+
       // {
       //   component: CNavGroup,
       //   name: t("LABELS.invoice"),
       //   icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
       //   items: [
-          
+
       //     {
       //       component: CNavItem,
       //       name: "Factory Invoice(B2B)",
@@ -402,17 +426,17 @@ export default function fetchNavItems(t1){
       //       name: "Retails Invoice",
       //       to: '/invoice',
       //     },
-          
-          
+
+
       //   ],
       // },
-      
+
       {
         component: CNavGroup,
         name: t("LABELS.create_Product"),
         icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
         items: [
-          
+
           {
             component: CNavItem,
             name: t("LABELS.create_factory_product"),
@@ -425,11 +449,11 @@ export default function fetchNavItems(t1){
             to: '/CreateRetailProduct',
             className: 'ms-4',
           },
-          
-          
+
+
         ],
       },
-      
+
 
       {
         component: CNavGroup,
@@ -440,9 +464,10 @@ export default function fetchNavItems(t1){
             component: CNavItem,
             name: t("LABELS.rawMaterialinventory"),
             to: '/rawMaterial',
+
             className: 'ms-4',
           },
-          
+
           {
             component: CNavItem,
             name: t("LABELS.finalproductinventry"),
@@ -454,12 +479,13 @@ export default function fetchNavItems(t1){
             component: CNavItem,
             name: t("LABELS.retailproductinventry"),
             to: '/retailProductInvenrty',
+
             className: 'ms-4',
           },
-          
+
         ],
       },
-      
+
       {
         component: CNavGroup,
         name: t("LABELS.products"),
@@ -484,14 +510,14 @@ export default function fetchNavItems(t1){
         to: '/LaboratoryUser',
         icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" />,
       },
-      
+
       {
         component: CNavItem,
         name: t("LABELS.crate_deliver"),
         to: '/delivery',
         icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
       },
-       
+
       {
         component: CNavGroup,
         name: t("LABELS.expense"),
@@ -517,9 +543,9 @@ export default function fetchNavItems(t1){
           },
         ],
       },
-     
+
     ];
-    
+
   }else if(user===3){
     _nav = [
       {
@@ -528,7 +554,7 @@ export default function fetchNavItems(t1){
         // to: '/CreateFactoryProduct',
         icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
         items: [
-          
+
           {
             component: CNavItem,
             name: t("LABELS.create_factory_product"),
@@ -536,25 +562,26 @@ export default function fetchNavItems(t1){
             className: 'ms-4',
 
           },
-         
+
           {
             component: CNavItem,
             name: t("LABELS.create_retail_product"),
-            to: '/CreateRetailProduct',   
+            to: '/CreateRetailProduct',
             className: 'ms-4',
-           
+
           },
-          
-          
+
+
         ],
       },
+
       {
         component: CNavItem,
         name: t("LABELS.dailyTallyReport"),
         to: '/dailyTalliesReport',
         icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
       }
-      
+
 ]
 
   }
@@ -573,7 +600,7 @@ export default function fetchNavItems(t1){
         to: 'Reports/crateReport',
         // icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
       }
-      
+
 ]
 
   }

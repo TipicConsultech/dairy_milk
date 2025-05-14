@@ -152,7 +152,7 @@
      "id": "Id",
     "actions": "Actions",
     "return_items": "Quantity",
-    
+
     "return"  : "Return",
 
     "filter": "Submit",
@@ -388,7 +388,7 @@
   "bulkProductsCreation": "Bulk Products Creation",
   "allUsers": "All Users",
   "mobile": "Mobile",
-  
+
   "type": "Type",
   "blocked": "Blocked",
   "active": "Active",
@@ -445,16 +445,17 @@
   "quantityUsed": "Quantity Used",
   "wasteMilk": "Waste Milk",
   "remainingBalance": "Remaining Balance",
+  "ProductCreationCalculator": "Product Creation Calculator",
   "Capacity":"Capacity ",
   "p&l":"P & L Report",
   "p&lreport":"P & L Report",
   "creditreport" : "Credit Report",
-  
-    
+
+
     "transaction_details": "Transaction Details",
-    
+
     "grand_total": "Grand Total",
-    
+
     "only_cash_collected": "Only Cash Collected"
 
 
@@ -490,7 +491,7 @@
         "enter_customer_name_msg": "Enter Customer Name",
         "enter_mob_no_msg": "Enter Mobile No",
 
-        
+
 
         "please_select_date_msg": "Please select date",
         "booking_is_done_msg": "Booking is done",
@@ -569,7 +570,7 @@
             "sms_part_1": "Hello, Total",
             "sms_part_2": "",
             "sms_part_3": " is pending. Regards - ",
-            
+
             "report_fetched_successfully": "Report fetched successfully",
             "no_data_found": "No data found",
             "adjust_search_criteria": "Try adjusting your search criteria",
