@@ -451,7 +451,7 @@
   "p&lreport":"P & L Report",
   "creditreport" : "Credit Report",
 
-
+    "expense_category": "Expense Category",
     "transaction_details": "Transaction Details",
 
     "grand_total": "Grand Total",
@@ -576,6 +576,10 @@
             "adjust_search_criteria": "Try adjusting your search criteria",
             "error_occurred": "An error occurred:",
             "report_downloaded": "Report downloaded successfully",
-            "no_report_to_download": "No report available to download"
+            "no_report_to_download": "No report available to download",
+            "expense_type_deleted_successfully" : "Expense Type Deleted Successfully",
+            "failed_to_update_expense_type_msg" : "Failed to update expense type",
+            "expense_type_updated_successfully_msg" : "Expense Type Updated Successfully"
+            
     }
    }

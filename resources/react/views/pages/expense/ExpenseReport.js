@@ -91,15 +91,24 @@ const AllExpenses = () => {
   
 
   const columns = [
-    { 
-      accessorKey: 'expense_date', 
-      header: t("LABELS.date") || 'Date',
-      Cell: ({ cell }) => {
-        const date = new Date(cell.getValue());
-        return date.toLocaleDateString();
-      }
-    },
+   {
+  accessorKey: 'expense_date', 
+  header: t("LABELS.date") || 'Date',
+  Cell: ({ cell }) => {
+    const date = new Date(cell.getValue());
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // months are 0-indexed
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+},
+
     { accessorKey: 'name', header: t("LABELS.expense_name") || 'Expense Name' },
+    {
+    accessorKey: 'expense_type.expense_category',
+    header: t("LABELS.expense_category") || 'Expense Category',
+    Cell: ({ cell }) => cell.getValue() || '-', // fallback if null
+  },
     { 
       accessorKey: 'price', 
       header: t("LABELS.price_per_unit") || 'Price Per Unit',
