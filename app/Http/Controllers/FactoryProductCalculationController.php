@@ -23,7 +23,7 @@ class FactoryProductCalculationController extends Controller
                     ->first();
 
         if (!$item) {
-            return response()->json(['message' => 'Factory product not found'], 404);
+            return response()->json(['message' => 'Factory product not found'], 200);
         }
 
         return response()->json($item);

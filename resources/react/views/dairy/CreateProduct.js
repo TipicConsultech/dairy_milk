@@ -66,7 +66,19 @@ const MilkForm = () => {
   const ingredientsDropdownRef = useRef(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  const [productOptions, setProductOptions] = useState([]);
+  const [newProduct, setNewProduct] = useState({ name:'', quantity:'', unit:'',liters:null });
+  const [products, setProducts] = useState([]);
+  const [prodError, setProdError] = useState('');
+  const [productAvailQty, setProductAvailQty] = useState(null);
+
   const [createdSummary, setCreatedSummary] = useState(null);
+  const[selectedTank,setSelectedTank]= useState(null);
+  const[productCalculationData,setProductCalculationData]= useState(null);
+
+
+  console.log(selectedTank);
+  
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -92,7 +104,12 @@ const MilkForm = () => {
     fetchRawMaterials()
     fetchProducts()
   }, [])
-
+  useEffect(() => {
+    if(newProduct?.id){
+      getProductCalculationData(newProduct?.id);
+    }
+  }, [newProduct.id])
+  
   const fetchTankData = async () => {
     try {
       const res = await getAPICall('/api/milk-tanks-byname/names')
@@ -120,8 +137,10 @@ const MilkForm = () => {
     const selectedTank = tankData.find((t) => t.name === selected)
     if (selectedTank) {
       setAvailableQty(selectedTank.available_qty)
+      setSelectedTank(selectedTank);
     } else {
-      setAvailableQty(null)
+      setAvailableQty(null);
+      setSelectedTank(null);
     }
   }
 
@@ -195,12 +214,6 @@ const MilkForm = () => {
     setIngredients(updated)
   }
 
-  const [productOptions, setProductOptions] = useState([]);
-  const [newProduct, setNewProduct] = useState({ name:'', quantity:'', unit:'' });
-  const [products, setProducts] = useState([]);
-  const [prodError, setProdError] = useState('');
-  const [productAvailQty, setProductAvailQty] = useState(null);
-
   // ---------- fetch once ----------
   const fetchProducts = async () => {
     try {
@@ -227,24 +240,42 @@ const MilkForm = () => {
     const item = prductsData.find(p => p.name === sel);
 
     if (item) {
-      setNewProduct({ id:item.id , name: sel, quantity:'', unit: item.unit || '' });
+      setNewProduct({ id:item.id , name: sel, quantity:'', unit: item.unit || '',liters:null });
       setProductAvailQty(item.quantity);          // use renamed field
     } else {
-      setNewProduct({ name:'', quantity:'', unit:'' });
+      setNewProduct({ name:'', quantity:'', unit:'',liters:null });
       setProductAvailQty(null);
     }
     setProdError('');
   };
 
   const clearProduct = () => {
-    setNewProduct({ id: '', name: '', quantity: '', unit: '' });
+    setNewProduct({ id: '', name: '', quantity: '', unit: '',liters:null });
     setProductAvailQty(null);
     setProdError('');
   };
-
-  const handleProductQty = e => {
+  const getProductCalculationData = async (id) =>  {
+  const responce= await getAPICall(`/api/factoryProductsCalculation/${id}`);
+  if(responce.factory_product_id){
+    setProductCalculationData(responce);
+  }else if(responce.message==="Factory product not found"){
+    setProductCalculationData(null); 
+  }
+  else{
+    setProductCalculationData(null); 
+  }
+  } 
+  const handleProductQty = async (e) =>  {
     const val = e.target.value;
     setNewProduct(p => ({ ...p, quantity: val }));
+    if(productCalculationData?.liters && productCalculationData?.divide_by){
+    // let milk_in_liter=null;
+    // milk_in_liter = (e.target.value * (selectedTank.snf + selectedTank.ts)) / productCalculationData?.divide_by;
+    let rawValue = (e.target.value * (selectedTank.snf + selectedTank.ts)) / productCalculationData?.divide_by;
+    let milk_in_liter = (rawValue % 1) >= 0.1 ? Math.ceil(rawValue) : Math.floor(rawValue);
+      setNewProduct(p => ({ ...p, liters: milk_in_liter }));
+      console.log(milk_in_liter);
+     }
 
     if (productAvailQty !== null && parseFloat(val) == productAvailQty) {
       setProdError(t('MSG.quantityExceedsAvailableStock'));
@@ -254,7 +285,7 @@ const MilkForm = () => {
   const addProduct = () => {
     if (newProduct.name && newProduct.quantity && !prodError) {
       setProducts(prev => [...prev, newProduct]);
-      setNewProduct({ id: '', name:'', quantity:'', unit:'' });
+      setNewProduct({ id: '', name:'', quantity:'', unit:'',liters:null });
       setProductAvailQty(null);
     }
   };
@@ -264,7 +295,7 @@ const MilkForm = () => {
   };
 
   const handleSubmit = async () => {
-    if (!milkType || !milkAmount || parseFloat(milkAmount) > availableQty) {
+    if (!milkType  || parseFloat(milkAmount) > availableQty) {
         alert(t('MSG.enterValidQuantity'));
         return;
     }
@@ -278,7 +309,7 @@ const MilkForm = () => {
     // Prepare milk tank data as an object with `id` and `quantity`
     const milkTankData = {
         id: selectedTank.id,
-        quantity: parseFloat(milkAmount), // Assuming you want to update the quantity with the milkAmount
+        //quantity: parseFloat(milkAmount), // Assuming you want to update the quantity with the milkAmount
     };
 
     // Ensure ingredients and products are in the correct format
@@ -378,9 +409,12 @@ const MilkForm = () => {
 
       <CCardBody>
         <CRow className="g-3 align-items-end mb-0">
+          <CCol md={3}>
+            <CFormLabel><b>&nbsp;&nbsp;{t('LABELS.selectMilkStorage')}</b></CFormLabel>
+         
+          </CCol>
           <CCol md={4}>
-            <CFormLabel><b>{t('LABELS.selectMilkStorage')}</b></CFormLabel>
-            <div style={inputContainerStyle}>
+          <div style={inputContainerStyle}>
               <CFormSelect value={milkType} onChange={handleMilkTypeChange} style={{ appearance: 'none', WebkitAppearance: 'none', MozAppearance: 'none', backgroundImage: 'none' }}>
                 <option value="">{t('LABELS.selectTank')}</option>
                 {tankData.map((tank, idx) => (
@@ -399,10 +433,9 @@ const MilkForm = () => {
                 </div>
               )}
             </div>
-          </CCol>
-
+            </CCol>
           <CCol md={4}>
-            <CFormLabel><b>{t('LABELS.enterMilkForProduct')}</b></CFormLabel>
+            {/* <CFormLabel><b>{t('LABELS.enterMilkForProduct')}</b></CFormLabel> */}
             <CFormInput
               type="number"
               value={milkAmount}
@@ -411,13 +444,14 @@ const MilkForm = () => {
                 availableQty !== null ? t('LABELS.availableQuantityLtrs', { qty: availableQty }) : t('LABELS.enterMilkForProduct')
               }
               className={error ? 'is-invalid' : ''}
+              disabled
             />
             {error && <div className="text-danger mt-1">{error}</div>}
           </CCol>
 
-          <CCol md={2}>
+          {/* <CCol md={2}>
             <div><b>{t('LABELS.ltrs')}</b></div>
-          </CCol>
+          </CCol> */}
 
           <CCol md={2}>
           </CCol>
@@ -643,6 +677,7 @@ const MilkForm = () => {
                   name: item,
                   quantity: '',
                   unit: selectedItem.unit || '',
+                  liters:null
                 });
                 setProductAvailQty(selectedItem.quantity);
               }
@@ -673,13 +708,16 @@ const MilkForm = () => {
 
               {/* Desktop View: unit and + button in separate columns */}
               <CCol md={3} className="d-none d-md-block">
-                <CFormInput
-                  type="text"
-                  value={newProduct.unit}
-                  placeholder={t('LABELS.unit')}
-                  disabled
-                />
-              </CCol>
+  <CFormInput
+    value={
+      newProduct?.liters
+        ? newProduct.liters + ' ltr'
+        : ''
+    }
+    placeholder={t('LABELS.milk_required')}
+    disabled
+  />
+</CCol>
 
               <CCol md={2} className="d-none d-md-block">
                 <CButton
@@ -718,7 +756,7 @@ const MilkForm = () => {
 
                 {/* Product Name: full width on mobile, 4 cols on desktop */}
                 <CCol xs={12} md={4}>
-                  <CFormInput value={p.name} readOnly />
+                  <CFormInput value={p.name+' '+`(${p.unit} )`} readOnly />
                 </CCol>
 
                 {/* Quantity: half on mobile, 3 cols on desktop */}
@@ -728,7 +766,7 @@ const MilkForm = () => {
 
                 {/* Unit: quarter on mobile, 1 col on desktop */}
                 <CCol xs={3} md={1} className="d-flex align-items-center">
-                  {p.unit}
+                  {p.liters+ " "+"ltr"}
                 </CCol>
 
                 {/* Delete Button: quarter on mobile, 2 cols on desktop */}
@@ -744,7 +782,7 @@ const MilkForm = () => {
           </CCardBody>
         </CCard>
 
-        <CButton color="primary" onClick={handleSubmit} disabled={!!error || !milkAmount}>
+        <CButton color="primary" onClick={handleSubmit} disabled={!!error}>
           {t('LABELS.submit')}
         </CButton>
 
