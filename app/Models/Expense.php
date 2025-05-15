@@ -30,6 +30,11 @@ class Expense extends Model
         return $this->belongTo(ExpenseType::class,'expense_id');
     }
 
+    public function expenseType()
+{
+    return $this->belongsTo(ExpenseType::class, 'expense_id');
+}
+
     /**
      * The attributes that should be hidden for serialization.
      *

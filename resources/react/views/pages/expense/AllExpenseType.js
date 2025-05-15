@@ -16,6 +16,7 @@ import {
   CModalBody,
   CModalFooter,
   CRow,
+  CFormSelect,
 } from '@coreui/react';
 import { MantineReactTable } from 'mantine-react-table';
 import { deleteAPICall, getAPICall, post, put } from '../../../util/api';
@@ -39,6 +40,7 @@ const AllExpenseType = () => {
   const [expenseTypeForm, setExpenseTypeForm] = useState({
     name: '',
     localName: '',
+    expense_category: '',
     desc: '',
     show: 1,
   });
@@ -78,6 +80,7 @@ const AllExpenseType = () => {
     setExpenseTypeForm({
       name: p.name || '',
       localName: p.localName || '',
+      expense_category : p.expense_category || '',
       desc: p.desc || '',
       show: p.show,
     });
@@ -89,6 +92,7 @@ const AllExpenseType = () => {
     setExpenseTypeForm({
       name: '',
       localName: '',
+      expense_category: '',
       desc: '',
       show: 1,
     });
@@ -129,6 +133,7 @@ const AllExpenseType = () => {
       const submissionData = {
         name: expenseTypeForm.name,
         localName: expenseTypeForm.localName || '',
+        expense_category: expenseTypeForm.expense_category || '',
         desc: expenseTypeForm.desc || '',
         show: expenseTypeForm.show === 1 ? 1 : 0,
         // Add the slug functionality here
@@ -165,6 +170,7 @@ const AllExpenseType = () => {
       const submissionData = {
         name: expenseTypeForm.name,
         localName: expenseTypeForm.localName || '',
+        expense_category: expenseTypeForm.expense_category || '',
         desc: expenseTypeForm.desc || '',
         show: expenseTypeForm.show === 1 ? 1 : 0,
       };
@@ -185,6 +191,7 @@ const AllExpenseType = () => {
   const columns = [
     { accessorKey: 'name', header: t("LABELS.name") },
     { accessorKey: 'localName', header: t("LABELS.local_name") },
+     { accessorKey: 'expense_category', header: t("LABELS.expense_category") },
     { accessorKey: 'desc', header: t("LABELS.short_desc") },
     {
       accessorKey: 'show',
@@ -271,6 +278,21 @@ const AllExpenseType = () => {
                 </div>
               </div>
             </div>
+             <div className="mb-3">
+            <CFormLabel htmlFor="expense_category"><b>{t("LABELS.expense_category")}</b></CFormLabel>
+            <CFormSelect
+              id="expense_category"
+              name="expense_category"
+              value={expenseTypeForm.expense_category}
+              onChange={handleFormChange}
+              required
+              feedbackInvalid="Please select an expense category."
+            >
+              <option value="">-- Select Category --</option>
+              <option value="Operational Expense">Operational Expense</option>
+              <option value="Capital Expense">Capital Expense</option>
+            </CFormSelect>
+          </div>
             <div className="row">
               <div className="col-sm-12">
                 <div className="mb-3">
@@ -358,6 +380,21 @@ const AllExpenseType = () => {
                 </div>
               </div>
             </div>
+             <div className="mb-3">
+            <CFormLabel htmlFor="expense_category"><b>{t("LABELS.expense_category")}</b></CFormLabel>
+            <CFormSelect
+              id="expense_category"
+              name="expense_category"
+              value={expenseTypeForm.expense_category}
+              onChange={handleFormChange}
+              required
+              feedbackInvalid="Please select an expense category."
+            >
+              <option value="">-- Select Category --</option>
+              <option value="Operational Expense">Operational Expense</option>
+              <option value="Capital Expense">Capital Expense</option>
+            </CFormSelect>
+          </div>
             <div className="row">
               <div className="col-sm-12">
                 <div className="mb-3">

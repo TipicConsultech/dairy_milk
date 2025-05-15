@@ -12,6 +12,7 @@ class ExpenseType extends Model
         'name',
         'slug',
         'localName',
+        'expense_category',
         'desc',
         'show',
         'company_id'

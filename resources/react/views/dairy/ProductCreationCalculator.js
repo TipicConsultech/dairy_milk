@@ -23,6 +23,7 @@ import {
   CSpinner
 } from '@coreui/react';
 import { post } from '../../util/api';
+import ProductCalculationHistory from './ProductCalculationHistory';
 
 const ProductCreationCalculator = () => {
   // Main form state
@@ -34,13 +35,13 @@ const ProductCreationCalculator = () => {
     intakeValue: '',
     pannerToBeCreated: '',
     pannerCreated: '',
-    alleviationInCreation: '',
+    differenceInCreation: '',
     createdPanner: '',
     // Tup states
     milkIntake: '',
     creamCreated: '',
     tupCreated: '',
-    tupAlleviation: ''
+    tupUtaar: ''
   });
 
   // UI states
@@ -60,12 +61,12 @@ const ProductCreationCalculator = () => {
     intakeValue,
     pannerToBeCreated,
     pannerCreated,
-    alleviationInCreation,
+    differenceInCreation,
     createdPanner,
     milkIntake,
     creamCreated,
     tupCreated,
-    tupAlleviation
+    tupUtaar
   } = formState;
 
   // Destructure UI state
@@ -125,7 +126,7 @@ const ProductCreationCalculator = () => {
     try {
       // Calculate alleviation: Paneer To be created - Paneer Created
       const alleviation = (parseFloat(pannerToBeCreated) - parseFloat(pannerCreated)).toFixed(2);
-      updateFormState('alleviationInCreation', alleviation);
+      updateFormState('differenceInCreation', alleviation);
 
       // Set style based on alleviation result
       const style = parseFloat(alleviation) < 0 ? 'bg-warning text-dark fw-bold' : 'bg-info text-white fw-bold';
@@ -155,12 +156,12 @@ const ProductCreationCalculator = () => {
       });
 
       // Process response data
-      if (response && response.tupAlleviation !== undefined) {
-        updateFormState('tupAlleviation', response.tupAlleviation.toFixed(2));
+      if (response && response.tupUtaar !== undefined) {
+        updateFormState('tupUtaar', response.tupUtaar.toFixed(2));
       }
     } catch (err) {
       // Enhanced error handling
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to calculate Tup alleviation';
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to calculate Tup Utaar';
       updateUiState('error', errorMessage);
       console.error('Calculation error:', err);
     } finally {
@@ -190,12 +191,12 @@ const ProductCreationCalculator = () => {
       intakeValue: '',
       pannerToBeCreated: '',
       pannerCreated: '',
-      alleviationInCreation: '',
+      differenceInCreation: '',
       createdPanner: '',
       milkIntake: '',
       creamCreated: '',
       tupCreated: '',
-      tupAlleviation: ''
+      tupUtaar: ''
     });
 
     setUiState(prev => ({
@@ -218,7 +219,7 @@ const ProductCreationCalculator = () => {
         intakeValue: '',
         pannerToBeCreated: '',
         pannerCreated: '',
-        alleviationInCreation: '',
+        differenceInCreation: '',
         createdPanner: ''
       }));
     } else if (selectedProduct === 'Tup') {
@@ -227,7 +228,7 @@ const ProductCreationCalculator = () => {
         milkIntake: '',
         creamCreated: '',
         tupCreated: '',
-        tupAlleviation: ''
+        tupUtaar: ''
       }));
     }
 
@@ -250,7 +251,7 @@ const ProductCreationCalculator = () => {
         intakeValue: parseFloat(intakeValue),
         pannerToBeCreated: parseFloat(pannerToBeCreated),
         pannerCreated: parseFloat(pannerCreated),
-        alleviationInCreation: parseFloat(alleviationInCreation),
+        differenceInCreation: parseFloat(differenceInCreation),
         createdPannerTS: parseFloat(createdPanner)
       });
 
@@ -270,12 +271,12 @@ const ProductCreationCalculator = () => {
           intakeValue: '',
           pannerToBeCreated: '',
           pannerCreated: '',
-          alleviationInCreation: '',
+          differenceInCreation: '',
           createdPanner: '',
           milkIntake: '',
           creamCreated: '',
           tupCreated: '',
-          tupAlleviation: ''
+          tupUtaar: ''
         });
 
         // Reset UI state but preserve success message
@@ -313,7 +314,7 @@ const ProductCreationCalculator = () => {
         milkIntake: parseFloat(milkIntake),
         creamCreated: parseFloat(creamCreated),
         tupCreated: parseFloat(tupCreated),
-        tupAlleviation: parseFloat(tupAlleviation)
+        tupUtaar: parseFloat(tupUtaar)
       });
 
       if (response.success) {
@@ -332,12 +333,12 @@ const ProductCreationCalculator = () => {
           intakeValue: '',
           pannerToBeCreated: '',
           pannerCreated: '',
-          alleviationInCreation: '',
+          differenceInCreation: '',
           createdPanner: '',
           milkIntake: '',
           creamCreated: '',
           tupCreated: '',
-          tupAlleviation: ''
+          tupUtaar: ''
         });
 
         // Reset UI state but preserve success message
@@ -370,13 +371,13 @@ const ProductCreationCalculator = () => {
   const confirmStorage = () => {
     // Validate that all required calculations are complete
     if (selectedProduct === 'Paneer') {
-      if (!pannerToBeCreated || !pannerCreated || !alleviationInCreation || !createdPanner) {
+      if (!pannerToBeCreated || !pannerCreated || !differenceInCreation || !createdPanner) {
         updateUiState('error', 'Please complete all calculations before storing');
         return;
       }
       updateUiState('showConfirmModal', true);
     } else if (selectedProduct === 'Tup') {
-      if (!milkIntake || !creamCreated || !tupCreated || !tupAlleviation) {
+      if (!milkIntake || !creamCreated || !tupCreated || !tupUtaar) {
         updateUiState('error', 'Please complete all calculations before storing');
         return;
       }
@@ -519,31 +520,31 @@ const ProductCreationCalculator = () => {
                   </CCol>
                   <CCol xs={12} sm={6} lg={3}>
                     <CFormLabel className="fw-bold mb-1">
-                      Alleviation In Creation
-                      {alleviationInCreation && (
+                      Difference In Creation
+                      {differenceInCreation && (
                         <span className="ms-1 badge bg-danger">Important</span>
                       )}
                     </CFormLabel>
                     <CInputGroup>
                       <CFormInput
-                        value={alleviationInCreation}
+                        value={differenceInCreation}
                         readOnly
                         placeholder="Calculated automatically"
                         style={{
-                          backgroundColor: alleviationInCreation
-                            ? (parseFloat(alleviationInCreation) < 0 ? '#ffe6e6' : '#e6ffee')
+                          backgroundColor: differenceInCreation
+                            ? (parseFloat(differenceInCreation) < 0 ? '#ffe6e6' : '#e6ffee')
                             : '#f8f9fa',
-                          color: alleviationInCreation
-                            ? (parseFloat(alleviationInCreation) < 0 ? '#dc3545' : '#198754')
+                          color: differenceInCreation
+                            ? (parseFloat(differenceInCreation) < 0 ? '#dc3545' : '#198754')
                             : '#6c757d',
-                          fontWeight: alleviationInCreation ? 'bold' : 'normal',
-                          border: alleviationInCreation
-                            ? (parseFloat(alleviationInCreation) < 0
+                          fontWeight: differenceInCreation ? 'bold' : 'normal',
+                          border: differenceInCreation
+                            ? (parseFloat(differenceInCreation) < 0
                                ? '2px solid #dc3545'
                                : '2px solid #198754')
                             : '1px solid #ced4da'
                         }}
-                        aria-label="Alleviation In Creation"
+                        aria-label="Difference In Creation"
                       />
                       <CInputGroupText style={{
                         backgroundColor: '#f8f9fa',
@@ -563,15 +564,15 @@ const ProductCreationCalculator = () => {
                   </CCol>
                 </CRow>
 
-                {alleviationInCreation && (
+                {differenceInCreation && (
                   <CRow className="mt-2">
                     <CCol>
-                      <CAlert color={parseFloat(alleviationInCreation) < 0 ? "danger" : "success"} className="py-2 mb-0">
+                      <CAlert color={parseFloat(differenceInCreation) < 0 ? "danger" : "success"} className="py-2 mb-0">
                         <strong>
-                          {/* <i className={parseFloat(alleviationInCreation) < 0 ? "fas fa-exclamation-triangle me-2" : "fas fa-check-circle me-2"}></i> */}
-                          {parseFloat(alleviationInCreation) < 0
-                            ? `Deficit of ${Math.abs(parseFloat(alleviationInCreation))} kg in production!`
-                            : `Surplus of ${alleviationInCreation} kg in production!`}
+                          {/* <i className={parseFloat(differenceInCreation) < 0 ? "fas fa-exclamation-triangle me-2" : "fas fa-check-circle me-2"}></i> */}
+                          {parseFloat(differenceInCreation) < 0
+                            ? `Deficit of ${Math.abs(parseFloat(differenceInCreation))} kg in production!`
+                            : `Surplus of ${differenceInCreation} kg in production!`}
                         </strong>
                       </CAlert>
                     </CCol>
@@ -633,13 +634,13 @@ const ProductCreationCalculator = () => {
                     </CInputGroup>
                   </CCol>
                   <CCol xs={12} sm={6}>
-                    <CFormLabel className="fw-bold mb-1">TUP Alleviation</CFormLabel>
+                    <CFormLabel className="fw-bold mb-1">TUP Utaar</CFormLabel>
                     <CFormInput
-                      value={tupAlleviation}
+                      value={tupUtaar}
                       readOnly
                       placeholder="Calculated automatically"
                       className="bg-light text-muted"
-                      aria-label="TUP Alleviation"
+                      aria-label="TUP Utaar"
                     />
                   </CCol>
                 </CRow>
@@ -680,6 +681,7 @@ const ProductCreationCalculator = () => {
           </CForm>
         </CCardBody>
       </CCard>
+      <ProductCalculationHistory />
 
       {/* Confirmation Modal */}
       <CModal
@@ -753,7 +755,7 @@ export default ProductCreationCalculator;
 //   const [intakeValue, setIntakeValue] = useState('');
 //   const [pannerToBeCreated, setPannerToBeCreated] = useState('');
 //   const [pannerCreated, setPannerCreated] = useState('');
-//   const [alleviationInCreation, setAlleviationInCreation] = useState(''); // New state for Alleviation In Creation
+//   const [differenceInCreation, setAlleviationInCreation] = useState(''); // New state for Alleviation In Creation
 //   const [createdPanner, setCreatedPanner] = useState('');
 
 //   // Strobing effect states
@@ -764,7 +766,7 @@ export default ProductCreationCalculator;
 //   const [milkIntake, setMilkIntake] = useState('');
 //   const [creamCreated, setCreamCreated] = useState('');
 //   const [tupCreated, setTupCreated] = useState('');
-//   const [tupAlleviation, setTupAlleviation] = useState('');
+//   const [tupUtaar, setTupAlleviation] = useState('');
 
 //   const productOptions = [
 //     { label: 'Select Product', value: '' },
@@ -779,7 +781,7 @@ export default ProductCreationCalculator;
 //     'bg-light text-primary fw-bold'
 //   ];
 
-//   // Calculate alleviationInCreation whenever pannerToBeCreated or pannerCreated change
+//   // Calculate differenceInCreation whenever pannerToBeCreated or pannerCreated change
 //   useEffect(() => {
 //     if (pannerToBeCreated && pannerCreated) {
 //       const expected = parseFloat(pannerToBeCreated);
@@ -837,7 +839,7 @@ export default ProductCreationCalculator;
 //         intakeValue,
 //         pannerToBeCreated,
 //         pannerCreated,
-//         alleviationInCreation,
+//         differenceInCreation,
 //         createdPanner
 //       });
 //     } else if (selectedProduct === 'Tup') {
@@ -859,7 +861,7 @@ export default ProductCreationCalculator;
 //         milkIntake,
 //         creamCreated,
 //         tupCreated,
-//         tupAlleviation
+//         tupUtaar
 //       });
 //     }
 //     // Submit logic here
@@ -948,13 +950,13 @@ export default ProductCreationCalculator;
 //                   <CCol md={3}>
 //                     <CFormLabel className="fw-bold mb-1">
 //                       Alleviation In Creation
-//                       {alleviationInCreation && (
+//                       {differenceInCreation && (
 //                         <span className="ms-1 badge bg-danger">Important</span>
 //                       )}
 //                     </CFormLabel>
 //                     <CInputGroup>
 //                       <CFormInput
-//                         value={alleviationInCreation}
+//                         value={differenceInCreation}
 //                         readOnly
 //                         placeholder="Auto calculated"
 //                         className={isStrobing ? currentStyle : 'bg-light text-muted'}
@@ -973,14 +975,14 @@ export default ProductCreationCalculator;
 //                   </CCol>
 //                 </CRow>
 
-//                 {alleviationInCreation && (
+//                 {differenceInCreation && (
 //                   <CRow className="mt-2">
 //                     <CCol>
-//                       <CAlert color={parseFloat(alleviationInCreation) < 0 ? "danger" : "success"} className="py-2 mb-0">
+//                       <CAlert color={parseFloat(differenceInCreation) < 0 ? "danger" : "success"} className="py-2 mb-0">
 //                         <strong>
-//                           {parseFloat(alleviationInCreation) < 0
-//                             ? `Deficit of ${Math.abs(parseFloat(alleviationInCreation))} kg in production!`
-//                             : `Surplus of ${alleviationInCreation} kg in production!`}
+//                           {parseFloat(differenceInCreation) < 0
+//                             ? `Deficit of ${Math.abs(parseFloat(differenceInCreation))} kg in production!`
+//                             : `Surplus of ${differenceInCreation} kg in production!`}
 //                         </strong>
 //                       </CAlert>
 //                     </CCol>
@@ -1029,7 +1031,7 @@ export default ProductCreationCalculator;
 //                   <CCol md={6}>
 //                     <CFormLabel className="fw-bold mb-1">TUP Alleviation</CFormLabel>
 //                     <CFormInput
-//                       value={tupAlleviation}
+//                       value={tupUtaar}
 //                       readOnly
 //                       placeholder="Auto calculated"
 //                       className="bg-light text-muted"
