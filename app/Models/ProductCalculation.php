@@ -54,7 +54,7 @@ class ProductCalculation extends Model
     public static function calculatePaneer($snfValue, $tsValue, $intakeValue, $pannerToBeCreated, $pannerCreated)
     {
         // Calculate alleviation in creation (difference between expected and actual)
-        $alleviationInCreation = $pannerCreated - $pannerToBeCreated;
+        $differenceInCreation = $pannerCreated - $pannerToBeCreated;
 
         // Calculate TS of created paneer
         // This is a placeholder formula - implement the actual formula based on your business logic
@@ -64,7 +64,7 @@ class ProductCalculation extends Model
         }
 
         return [
-            'alleviationInCreation' => number_format($alleviationInCreation, 2),
+            'differenceInCreation' => number_format($differenceInCreation, 2),
             'createdPanner' => number_format($createdPannerTs, 2)
         ];
     }

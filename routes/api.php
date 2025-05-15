@@ -126,6 +126,10 @@ Route::post('/calculate/predict/paneer', [ProductCalculationController::class, '
 Route::post('/calculate/predict/tup', [ProductCalculationController::class, 'calculateTup']);
 Route::post('/store/paneer', [ProductCalculationController::class, 'storePaneerCalculation']);
 Route::post('/store/tup', [ProductCalculationController::class, 'storeTupCalculation']);
+Route::get('/history', [ProductCalculationController::class, 'getHistory']);
+Route::get('/product-calculations/all', [ProductCalculationController::class, 'getAllCalculations']);
+Route::get('/calculations/date-range', [ProductCalculationController::class, 'getCalculationsByDateRange']);
+
 
 //public API's
 Route::post('/register', [AuthController::class, 'register']);
