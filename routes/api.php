@@ -31,6 +31,9 @@ use App\Http\Controllers\MailController;
 use App\Http\Controllers\MilkTanksTrackerController;
 use App\Http\Controllers\ProductMappingController;
 use App\Http\Controllers\FactoryProductCalculationController;
+   
+
+    //Factory Product Calculation API's
     Route::get('/factoryProductsCalculation', [FactoryProductCalculationController::class, 'index']);               // Get all
     Route::post('/factoryProductsCalculation', [FactoryProductCalculationController::class, 'store']);              // Create
     Route::get('/factoryProductsCalculation/{factory_product_id}', [FactoryProductCalculationController::class, 'getFactoryProductById']);
