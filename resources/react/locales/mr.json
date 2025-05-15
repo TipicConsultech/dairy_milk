@@ -457,10 +457,10 @@
     
     "grand_total": "एकूण",
     
-    "only_cash_collected": "फक्त रक्कम जमा केली"
+    "only_cash_collected": "फक्त रक्कम जमा केली",
 
 
-
+"please_select_expense_category": "कृपया खर्च प्रकार निवडा."
 
 
     },
@@ -583,7 +583,10 @@
         "adjust_search_criteria": "आपले शोध निकष समायोजित करण्याचा प्रयत्न करा",
         "error_occurred": "एक त्रुटी आली:",
         "report_downloaded": "अहवाल यशस्वीरित्या डाउनलोड केला",
-        "no_report_to_download": "डाउनलोड करण्यासाठी कोणताही अहवाल उपलब्ध नाही"
+        "no_report_to_download": "डाउनलोड करण्यासाठी कोणताही अहवाल उपलब्ध नाही",
+        "expense_type_deleted_successfully" : "खर्च प्रकार यशस्वीपणे हटवला गेला"
+        
+
 
     }
    }

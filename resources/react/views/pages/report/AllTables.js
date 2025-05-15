@@ -1,6 +1,8 @@
 import React from 'react';
 import { MantineReactTable,useMantineReactTable } from 'mantine-react-table';
 import { CBadge } from '@coreui/react';
+import { useTranslation } from 'react-i18next';
+
 
 function All_Tables({ selectedOption, salesData, expenseData, pnlData, expenseType }) {
   const salesColumns = [
@@ -9,12 +11,17 @@ function All_Tables({ selectedOption, salesData, expenseData, pnlData, expenseTy
     { accessorKey: 'paidAmount', header: 'Paid Amount' },
     { accessorKey: 'remainingAmount', header: 'Remaining Amount' },
   ];
-
+const { t } = useTranslation("global");
   const expenseColumns = [
   
     { accessorKey: 'expense_date', header: 'Date' },
 
     { accessorKey: 'name', header: 'Details' },
+    {
+    accessorKey: 'expense_type.expense_category',
+    header: t("LABELS.expense_category") || 'Expense Category',
+    Cell: ({ cell }) => cell.getValue() || '-', // fallback if null
+  },
     { accessorKey: 'qty', header: 'Quantity' },
     { accessorKey: 'price', header: 'Price Per Unit' },
     { accessorKey: 'total_price', header: 'Total Cost' },

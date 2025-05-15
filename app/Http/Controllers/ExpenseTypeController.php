@@ -32,6 +32,7 @@ class ExpenseTypeController extends Controller
         $request->validate([
             'name' => 'required',
             'localName' => 'required',
+             'expense_category' =>'required',
             'desc' => 'required',
             'show' => 'required'
         ]);
@@ -70,6 +71,7 @@ class ExpenseTypeController extends Controller
         $request->validate([
             'name' => 'required',
             'localName' => 'required',
+             'expense_category' =>'required',
             'desc' => 'required',
             'show' => 'required'
         ]);

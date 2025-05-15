@@ -30,19 +30,22 @@ use App\Http\Controllers\CompanyReceiptController;
 use App\Http\Controllers\MailController;
 use App\Http\Controllers\MilkTanksTrackerController;
 use App\Http\Controllers\ProductMappingController;
-// Dairy
-// use App\Http\Controllers\MilkTankController;
+use App\Http\Controllers\FactoryProductCalculationController;
+   
+
+    //Factory Product Calculation API's
+    Route::get('/factoryProductsCalculation', [FactoryProductCalculationController::class, 'index']);               // Get all
+    Route::post('/factoryProductsCalculation', [FactoryProductCalculationController::class, 'store']);              // Create
+    Route::get('/factoryProductsCalculation/{factory_product_id}', [FactoryProductCalculationController::class, 'getFactoryProductById']);
+    Route::put('/factoryProductsCalculation/{factory_product_id}', [FactoryProductCalculationController::class, 'update']);
 
 
-// ini_set('display_errors', 1);
-// ini_set('display_startup_errors', 1);
-// error_reporting(E_ALL);
 
-//-
+
 use App\Http\Controllers\DailyTallyController;
 Route::middleware('auth:sanctum')->get('/milk-tanks/by-company', [MilkTankController::class, 'getByCompany']);
 
-
+   
 
 Route::get('/api/product-mappings/{factoryProductId}', [ProductMappingController::class, 'getProductMappings']);
 Route::post('/api/product-mappings', [ProductMappingController::class, 'createProductMapping']);
@@ -160,7 +163,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/product-size/{id}', [ProductController::class, 'getProductSize']);
 
-
+   
 
 
 

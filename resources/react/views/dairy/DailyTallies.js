@@ -247,10 +247,24 @@ function DailyProductLog() {
   const filteredBuffaloRetail = getFilteredData('buffalo', 'retail');
   const filteredBuffaloFactory = getFilteredData('buffalo', 'factory');
 
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-    setCalendarVisible(false);
-  };
+  const handleDateChange = async (date) => {
+  setSelectedDate(date);
+  setCalendarVisible(false);
+
+  setLoading(true);
+  try {
+    await Promise.all([
+      fetchProductData(),
+      fetchMilkTankData(date) // Pass the selected date
+    ]);
+  } catch (error) {
+    console.error('Error fetching data for selected date:', error);
+    setError(t('MSG.failedToLoadData'));
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const toggleCalendar = () => {
     setCalendarVisible(!calendarVisible);
