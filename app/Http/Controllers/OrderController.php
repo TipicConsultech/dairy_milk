@@ -48,6 +48,107 @@ class OrderController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    //     public function store(Request $request)
+// {
+//     DB::beginTransaction();
+
+    //     try {
+//         $user = Auth::user();
+//         $profit = 0;
+
+    //         foreach ($request->items as $item) {
+//             $profit += $item['total_price'] - (($item['dqty'] ?? 0) * ($item['bPrice'] ?? 0));
+//         }
+
+    //         $order = Order::create(
+//             array_merge(
+//                 $request->all(),
+//                 [
+//                     'profit' => $profit,
+//                     'company_id' => $user->company_id,
+//                     'created_by' => $user->id,
+//                     'updated_by' => $user->id,
+//                 ]
+//             )
+//         );
+
+    //         foreach ($request->items as $item) {
+//             // Check if orderStatus is 1 (Delivery) and qty is sufficient
+//             if ($request->orderStatus == 1) {
+//                 $productSize = ProductSize::find($item['product_sizes_id']);
+//                 if ($productSize) {
+//                     $availableQty = $productSize->qty;
+//                     $requestedQty = $item['dQty'] ?? 0;
+
+    //                     if ($availableQty - $requestedQty < 0) {
+//                         DB::rollBack();
+//                         return response()->json([
+//                             'error_message' => "The product '{$item['name']}' has only {$availableQty} in stock, but you requested {$requestedQty}."
+//                         ], 200);
+//                     }
+
+    //                     // Update stock
+//                     $productSize->update(['qty' => $availableQty - $requestedQty]);
+//                 }
+
+    //                 $returnable = $item['returnable'] ?? $item['sizes'][0]['returnable'] ?? false;
+//             }
+
+    //             // Save order item
+//             $od = new OrderDetail;
+//             $od->product_id = $item['id'];
+//             $od->product_name = $item['name'];
+//             $od->product_local_name = $item['localName'];
+//             $od->product_unit = $item['unit'];
+//             $od->product_sizes_id = $item['product_sizes_id'];
+//             $od->size_name = $item['size_name'];
+//             $od->size_local_name = $item['size_local_name'];
+//             $od->dQty = $item['dQty'] ?? 0;
+//             $od->eQty = $item['eQty'] ?? 0;
+//             $od->oPrice = $item['oPrice'];
+//             $od->dPrice = $item['dPrice'];
+//             $od->total_price = $item['total_price'] ?? 0;
+//             $od->remark = $item['remark'] ?? '';
+//             $order->items()->save($od);
+
+    //             // If order is booked (not yet delivered)
+//             if ($order->orderStatus == 2) {
+//                 $productSize = ProductSize::find($item['product_sizes_id']);
+//                 if ($productSize) {
+//                     $changeStockQty = $item['dQty'] ?? 0;
+//                     $productSize->update(['booked' => $productSize->booked + $changeStockQty]);
+//                 }
+//             }
+//         }
+
+    //         // Update payment
+//         $paymentDetails = PaymentTracker::firstOrNew(['customer_id' => $request->customer_id]);
+
+    //         if ($request->orderStatus == 1) {
+//             $balanceAmount = $request->totalAmount - $request->paidAmount;
+//             $paymentDetails->created_by = $user->id;
+//             $paymentDetails->updated_by = $user->id;
+//             $paymentDetails->amount -= $balanceAmount;
+//         }
+
+    //         if ($request->orderStatus !== 1 && $request->paidAmount > 0) {
+//             $paymentDetails->amount += $request->paidAmount;
+//         }
+
+    //         $paymentDetails->save();
+//         $order->items = $order->items()->get();
+
+    //         DB::commit();
+//         return response()->json($order);
+//     } catch (\Exception $e) {
+//         DB::rollBack();
+//         return response()->json([
+//             'error_message' => 'Order creation failed.',
+//             'exception' => $e->getMessage()
+//         ], 500);
+//     }
+// }
+
     public function store(Request $request)
     {
         DB::beginTransaction();
@@ -151,6 +252,7 @@ class OrderController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Display the specified resource.
@@ -387,175 +489,6 @@ class OrderController extends Controller
         ]);
     }
 
-    /**
-     * Get detailed report totals with summary calculations
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function getReportTotals(Request $request)
-    {
-        $user = Auth::user();
-        $reportType = $request->query('reportType', 'sales'); // Default to sales report
-        $startDate = $request->query('startDate');
-        $endDate = $request->query('endDate');
-        $period = $request->query('period', 'year'); // year, quarter, month, week, custom
-
-        // Set default date range if not specified
-        if (!$startDate || !$endDate) {
-            // Default to current financial year
-            $currentYear = date('Y');
-            $startDate = date('Y-m-d', strtotime("April 1, $currentYear"));
-            $endDate = date('Y-m-d', strtotime("March 31, " . ($currentYear + 1)));
-
-            // Adjust dates based on period
-            if ($period === 'quarter') {
-                // Current quarter
-                $month = date('n');
-                $quarterStartMonth = floor(($month - 1) / 3) * 3 + 1;
-                $startDate = date('Y-m-d', strtotime("$currentYear-$quarterStartMonth-01"));
-                $endDate = date('Y-m-d', strtotime('+3 months', strtotime($startDate)));
-                $endDate = date('Y-m-d', strtotime('-1 day', strtotime($endDate)));
-            } elseif ($period === 'month') {
-                // Current month
-                $startDate = date('Y-m-01');
-                $endDate = date('Y-m-t');
-            } elseif ($period === 'week') {
-                // Current week
-                $startDate = date('Y-m-d', strtotime('monday this week'));
-                $endDate = date('Y-m-d', strtotime('sunday this week'));
-            }
-        }
-
-        // Process based on report type
-        switch ($reportType) {
-            case 'sales':
-                return $this->getSalesReport($user, $startDate, $endDate);
-            case 'expense':
-                return $this->getExpenseReport($user, $startDate, $endDate);
-            case 'profitloss':
-                return $this->getProfitLossReport($user, $startDate, $endDate);
-            default:
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid report type specified'
-                ], 400);
-        }
-    }
-
-    /**
-     * Get detailed sales report with totals
-     *
-     * @param \App\Models\User $user
-     * @param string $startDate
-     * @param string $endDate
-     * @return \Illuminate\Http\Response
-     */
-    private function getSalesReport($user, $startDate, $endDate)
-    {
-        // Get all sales orders for the period
-        $orders = Order::where('company_id', $user->company_id)
-            ->where('orderStatus', 1) // Only completed orders
-            ->whereBetween('invoiceDate', [$startDate, $endDate])
-            ->get();
-
-        // Calculate totals
-        $totalAmount = $orders->sum('totalAmount');
-        $totalPaid = $orders->sum('paidAmount');
-        $totalRemaining = $totalAmount - $totalPaid;
-
-        return response()->json([
-            'success' => true,
-            'reportType' => 'sales',
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'data' => $orders,
-            'summary' => [
-                'totalAmount' => $totalAmount,
-                'totalPaid' => $totalPaid,
-                'totalRemaining' => $totalRemaining,
-                'count' => $orders->count()
-            ]
-        ]);
-    }
-
-    /**
-     * Get detailed expense report with totals
-     *
-     * @param \App\Models\User $user
-     * @param string $startDate
-     * @param string $endDate
-     * @return \Illuminate\Http\Response
-     */
-    private function getExpenseReport($user, $startDate, $endDate)
-    {
-        // Get all expenses for the period
-        $expenses = Expense::where('company_id', $user->company_id)
-            ->where('show', 1) // Only visible expenses
-            ->whereBetween('expense_date', [$startDate, $endDate])
-            ->get();
-
-        // Calculate totals
-        $totalExpense = $expenses->sum('total_price');
-
-        return response()->json([
-            'success' => true,
-            'reportType' => 'expense',
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'data' => $expenses,
-            'summary' => [
-                'totalExpense' => $totalExpense,
-                'count' => $expenses->count()
-            ]
-        ]);
-    }
-
-    /**
-     * Get detailed profit and loss report with totals
-     *
-     * @param \App\Models\User $user
-     * @param string $startDate
-     * @param string $endDate
-     * @return \Illuminate\Http\Response
-     */
-    private function getProfitLossReport($user, $startDate, $endDate)
-    {
-        // Get all sales for the period
-        $sales = Order::where('company_id', $user->company_id)
-            ->where('orderStatus', 1) // Only completed orders
-            ->whereBetween('invoiceDate', [$startDate, $endDate])
-            ->get();
-
-        // Get all expenses for the period
-        $expenses = Expense::where('company_id', $user->company_id)
-            ->where('show', 1) // Only visible expenses
-            ->whereBetween('expense_date', [$startDate, $endDate])
-            ->get();
-
-        // Calculate totals
-        $totalSales = $sales->sum('totalAmount');
-        $totalExpense = $expenses->sum('total_price');
-        $totalProfit = $totalSales - $totalExpense;
-
-        return response()->json([
-            'success' => true,
-            'reportType' => 'profitloss',
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'data' => [
-                'sales' => $sales,
-                'expenses' => $expenses
-            ],
-            'summary' => [
-                'totalSales' => $totalSales,
-                'totalExpense' => $totalExpense,
-                'totalProfit' => $totalProfit,
-                'salesCount' => $sales->count(),
-                'expenseCount' => $expenses->count()
-            ]
-        ]);
-    }
 
     public function customerReport(Request $request)
     {
@@ -593,4 +526,5 @@ class OrderController extends Controller
         $result = $query->get();
         return response()->json($result);
     }
+
 }
