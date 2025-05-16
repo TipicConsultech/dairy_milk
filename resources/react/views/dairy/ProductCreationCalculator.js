@@ -22,10 +22,14 @@ import {
   CModalFooter,
   CSpinner
 } from '@coreui/react';
+import { useTranslation } from 'react-i18next';
 import { post } from '../../util/api';
 import ProductCalculationHistory from './ProductCalculationHistory';
 
 const ProductCreationCalculator = () => {
+  // Add translation hook
+  const { t, i18n } = useTranslation("global");
+
   // Main form state
   const [formState, setFormState] = useState({
     selectedProduct: '',
@@ -85,9 +89,9 @@ const ProductCreationCalculator = () => {
   };
 
   const productOptions = [
-    { label: 'Select Product', value: '' },
-    { label: 'Paneer', value: 'Paneer' },
-    { label: 'Tup', value: 'Tup' }
+    { label: t('LABELS.selectProduct'), value: '' },
+    { label: t('LABELS.paneer'), value: 'Paneer' },
+    { label: t('LABELS.tup'), value: 'Tup' }
   ];
 
   // Memoized calculation function for Paneer
@@ -110,13 +114,13 @@ const ProductCreationCalculator = () => {
       }
     } catch (err) {
       // Enhanced error handling
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to calculate Panner To Be Created';
+      const errorMessage = err.response?.data?.message || err.message || t('MSG.failedToCalculatePaneerToBeCreated');
       updateUiState('error', errorMessage);
       console.error('Calculation error:', err);
     } finally {
       updateUiState('isLoading', false);
     }
-  }, [tsValue, intakeValue, snfValue]);
+  }, [tsValue, intakeValue, snfValue, t]);
 
   // Memoized calculation function for Alleviation and Created Panner
   const calculateAlleviationAndCreatedPanner = useCallback(() => {
@@ -124,8 +128,8 @@ const ProductCreationCalculator = () => {
     if (!pannerToBeCreated || !pannerCreated || !intakeValue) return;
 
     try {
-      // Calculate alleviation: Paneer To be created - Paneer Created
-      const alleviation = (parseFloat(pannerToBeCreated) - parseFloat(pannerCreated)).toFixed(2);
+      // Calculate alleviation: Paneer Created - Paneer To be created (INVERTED)
+      const alleviation = (parseFloat(pannerCreated) - parseFloat(pannerToBeCreated)).toFixed(2);
       updateFormState('differenceInCreation', alleviation);
 
       // Set style based on alleviation result
@@ -136,10 +140,10 @@ const ProductCreationCalculator = () => {
       const createdPannerTS = ((parseFloat(pannerCreated) / parseFloat(intakeValue)) * 100).toFixed(2);
       updateFormState('createdPanner', createdPannerTS);
     } catch (err) {
-      updateUiState('error', 'Failed to calculate Alleviation and Created Panner');
+      updateUiState('error', t('MSG.failedToCalculateAlleviationAndCreatedPaneer'));
       console.error('Calculation error:', err);
     }
-  }, [pannerToBeCreated, pannerCreated, intakeValue]);
+  }, [pannerToBeCreated, pannerCreated, intakeValue, t]);
 
   // Memoized calculation function for Tup
   const calculateTup = useCallback(async () => {
@@ -161,13 +165,13 @@ const ProductCreationCalculator = () => {
       }
     } catch (err) {
       // Enhanced error handling
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to calculate Tup Utaar';
+      const errorMessage = err.response?.data?.message || err.message || t('MSG.failedToCalculateTupUtaar');
       updateUiState('error', errorMessage);
       console.error('Calculation error:', err);
     } finally {
       updateUiState('isLoading', false);
     }
-  }, [milkIntake, creamCreated, tupCreated]);
+  }, [milkIntake, creamCreated, tupCreated, t]);
 
   // Effect hooks for calculations
   useEffect(() => {
@@ -257,11 +261,11 @@ const ProductCreationCalculator = () => {
 
       if (response.success) {
         // First set the success message
-        updateUiState('successMessage', 'Paneer calculation stored successfully!');
+        updateUiState('successMessage', t('MSG.paneerCalculationStoredSuccess'));
         updateUiState('showConfirmModal', false);
 
         // Reset form but preserve the success message
-        const currentSuccessMessage = 'Paneer calculation stored successfully!';
+        const currentSuccessMessage = t('MSG.paneerCalculationStoredSuccess');
 
         // Reset form state first
         setFormState({
@@ -294,10 +298,10 @@ const ProductCreationCalculator = () => {
           updateUiState('successMessage', '');
         }, 5000);
       } else {
-        updateUiState('error', 'Failed to store calculation');
+        updateUiState('error', t('MSG.failedToStoreCalculation'));
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to store Paneer calculation';
+      const errorMessage = err.response?.data?.message || err.message || t('MSG.failedToStorePaneerCalculation');
       updateUiState('error', errorMessage);
       console.error('Storage error:', err);
     } finally {
@@ -319,11 +323,11 @@ const ProductCreationCalculator = () => {
 
       if (response.success) {
         // First set the success message
-        updateUiState('successMessage', 'Tup calculation stored successfully!');
+        updateUiState('successMessage', t('MSG.tupCalculationStoredSuccess'));
         updateUiState('showConfirmModal', false);
 
         // Reset form but preserve the success message
-        const currentSuccessMessage = 'Tup calculation stored successfully!';
+        const currentSuccessMessage = t('MSG.tupCalculationStoredSuccess');
 
         // Reset form state first
         setFormState({
@@ -356,10 +360,10 @@ const ProductCreationCalculator = () => {
           updateUiState('successMessage', '');
         }, 5000);
       } else {
-        updateUiState('error', 'Failed to store calculation');
+        updateUiState('error', t('MSG.failedToStoreCalculation'));
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to store Tup calculation';
+      const errorMessage = err.response?.data?.message || err.message || t('MSG.failedToStoreTupCalculation');
       updateUiState('error', errorMessage);
       console.error('Storage error:', err);
     } finally {
@@ -372,13 +376,13 @@ const ProductCreationCalculator = () => {
     // Validate that all required calculations are complete
     if (selectedProduct === 'Paneer') {
       if (!pannerToBeCreated || !pannerCreated || !differenceInCreation || !createdPanner) {
-        updateUiState('error', 'Please complete all calculations before storing');
+        updateUiState('error', t('MSG.completeAllCalculationsBeforeStoring'));
         return;
       }
       updateUiState('showConfirmModal', true);
     } else if (selectedProduct === 'Tup') {
       if (!milkIntake || !creamCreated || !tupCreated || !tupUtaar) {
-        updateUiState('error', 'Please complete all calculations before storing');
+        updateUiState('error', t('MSG.completeAllCalculationsBeforeStoring'));
         return;
       }
       updateUiState('showConfirmModal', true);
@@ -386,12 +390,11 @@ const ProductCreationCalculator = () => {
   };
 
   return (
-    <CContainer className="mt-3 px-2 px-sm-3">
+    <CContainer className="mt-0 px-0 px-sm-0">
       <CCard className="border-0 shadow-sm">
-        <CCardHeader className="bg-success text-white py-2 py-sm-3">
+        <CCardHeader className="bg-success text-white px-1 py-1 py-sm-1">
           <h4 className="mb-0 d-flex align-items-center">
-            {/* <i className="fas fa-calculator me-2"></i> */}
-            Product Creation Calculator
+            {t('LABELS.productCreationCalculator')}
           </h4>
         </CCardHeader>
 
@@ -406,7 +409,6 @@ const ProductCreationCalculator = () => {
           {/* Success Alert - Added animation for better visibility */}
           {successMessage && (
             <CAlert color="success" className="mb-3 d-flex align-items-center" style={{ animation: 'fadeIn 0.5s' }}>
-              {/* <i className="fas fa-check-circle me-2"></i> */}
               {successMessage}
             </CAlert>
           )}
@@ -414,7 +416,6 @@ const ProductCreationCalculator = () => {
           {/* Error Alert */}
           {error && (
             <CAlert color="danger" className="mb-3 d-flex align-items-center">
-              {/* <i className="fas fa-exclamation-circle me-2"></i> */}
               {error}
             </CAlert>
           )}
@@ -424,7 +425,7 @@ const ProductCreationCalculator = () => {
             <CRow className="mb-3 justify-content-center">
               <CCol xs={12} sm={10} md={8} lg={6} xl={4}>
                 <CFormLabel htmlFor="productSelection" className="fw-bold mb-1">
-                  Product Selection
+                  {t('LABELS.productSelection')}
                 </CFormLabel>
                 <CFormSelect
                   id="productSelection"
@@ -434,7 +435,7 @@ const ProductCreationCalculator = () => {
                     resetForm();
                   }}
                   options={productOptions}
-                  aria-label="Select product"
+                  aria-label={t('LABELS.selectProduct')}
                 />
               </CCol>
             </CRow>
@@ -445,91 +446,91 @@ const ProductCreationCalculator = () => {
                 {/* SNF, TS, Intake fields */}
                 <CRow className="mb-3 g-3">
                   <CCol xs={12} md={4}>
-                    <CFormLabel className="fw-bold mb-1">Intake</CFormLabel>
+                    <CFormLabel className="fw-bold mb-1">{t('LABELS.intake')}</CFormLabel>
                     <CInputGroup>
                       <CFormInput
                         value={intakeValue}
                         onChange={(e) => updateFormState('intakeValue', e.target.value)}
-                        placeholder="Enter intake amount"
+                        placeholder={t('LABELS.enterIntakeAmount')}
                         type="number"
                         step="0.01"
                         min="0"
                         required
-                        aria-label="Intake"
+                        aria-label={t('LABELS.intake')}
                       />
-                      <CInputGroupText className="bg-light">(in liter)</CInputGroupText>
+                      <CInputGroupText className="bg-light">{t('LABELS.inLiter')}</CInputGroupText>
                     </CInputGroup>
                   </CCol>
                   <CCol xs={12} sm={6} md={4}>
-                    <CFormLabel className="fw-bold mb-1">SNF</CFormLabel>
+                    <CFormLabel className="fw-bold mb-1">{t('LABELS.snf')}</CFormLabel>
                     <CFormInput
                       value={snfValue}
                       onChange={(e) => updateFormState('snfValue', e.target.value)}
-                      placeholder="Enter SNF value"
+                      placeholder={t('LABELS.enterSNFValue')}
                       type="number"
                       step="0.01"
                       min="0"
                       required
-                      aria-label="SNF"
+                      aria-label={t('LABELS.snf')}
                     />
                   </CCol>
                   <CCol xs={12} sm={6} md={4}>
-                    <CFormLabel className="fw-bold mb-1">TS</CFormLabel>
+                    <CFormLabel className="fw-bold mb-1">{t('LABELS.ts')}</CFormLabel>
                     <CFormInput
                       value={tsValue}
                       onChange={(e) => updateFormState('tsValue', e.target.value)}
-                      placeholder="Enter TS value"
+                      placeholder={t('LABELS.enterTSValue')}
                       type="number"
                       step="0.01"
                       min="0"
                       required
-                      aria-label="TS"
+                      aria-label={t('LABELS.ts')}
                     />
                   </CCol>
                 </CRow>
 
                 <CRow className="mb-3 g-3">
                   <CCol xs={12} sm={6} lg={3}>
-                    <CFormLabel className="fw-bold mb-1">Panner To be created</CFormLabel>
+                    <CFormLabel className="fw-bold mb-1">{t('LABELS.paneerToBeCreated')}</CFormLabel>
                     <CInputGroup>
                       <CFormInput
                         value={pannerToBeCreated}
                         readOnly
-                        placeholder="Calculated automatically"
+                        placeholder={t('LABELS.calculatedAutomatically')}
                         className="bg-light text-muted"
-                        aria-label="Panner To be created"
+                        aria-label={t('LABELS.paneerToBeCreated')}
                       />
-                      <CInputGroupText className="bg-light">(in kg)</CInputGroupText>
+                      <CInputGroupText className="bg-light">{t('LABELS.inKg')}</CInputGroupText>
                     </CInputGroup>
                   </CCol>
                   <CCol xs={12} sm={6} lg={3}>
-                    <CFormLabel className="fw-bold mb-1">Panner Created</CFormLabel>
+                    <CFormLabel className="fw-bold mb-1">{t('LABELS.paneerCreated')}</CFormLabel>
                     <CInputGroup>
                       <CFormInput
                         value={pannerCreated}
                         onChange={(e) => updateFormState('pannerCreated', e.target.value)}
-                        placeholder="Enter created amount"
+                        placeholder={t('LABELS.enterCreatedAmount')}
                         type="number"
                         step="0.01"
                         min="0"
                         required
-                        aria-label="Panner Created"
+                        aria-label={t('LABELS.paneerCreated')}
                       />
-                      <CInputGroupText className="bg-light">(in kg)</CInputGroupText>
+                      <CInputGroupText className="bg-light">{t('LABELS.inKg')}</CInputGroupText>
                     </CInputGroup>
                   </CCol>
                   <CCol xs={12} sm={6} lg={3}>
                     <CFormLabel className="fw-bold mb-1">
-                      Difference In Creation
+                      {t('LABELS.differenceInCreation')}
                       {differenceInCreation && (
-                        <span className="ms-1 badge bg-danger">Important</span>
+                        <span className="ms-1 badge bg-danger">{t('LABELS.important')}</span>
                       )}
                     </CFormLabel>
                     <CInputGroup>
                       <CFormInput
                         value={differenceInCreation}
                         readOnly
-                        placeholder="Calculated automatically"
+                        placeholder={t('LABELS.calculatedAutomatically')}
                         style={{
                           backgroundColor: differenceInCreation
                             ? (parseFloat(differenceInCreation) < 0 ? '#ffe6e6' : '#e6ffee')
@@ -544,22 +545,22 @@ const ProductCreationCalculator = () => {
                                : '2px solid #198754')
                             : '1px solid #ced4da'
                         }}
-                        aria-label="Difference In Creation"
+                        aria-label={t('LABELS.differenceInCreation')}
                       />
                       <CInputGroupText style={{
                         backgroundColor: '#f8f9fa',
                         fontWeight: 'bold'
-                      }}>(in kg)</CInputGroupText>
+                      }}>{t('LABELS.inKg')}</CInputGroupText>
                     </CInputGroup>
                 </CCol>
                   <CCol xs={12} sm={6} lg={3}>
-                    <CFormLabel className="fw-bold mb-1">TS of Created Panner</CFormLabel>
+                    <CFormLabel className="fw-bold mb-1">{t('LABELS.tsOfCreatedPaneer')}</CFormLabel>
                     <CFormInput
                       value={createdPanner}
                       readOnly
-                      placeholder="Calculated automatically"
+                      placeholder={t('LABELS.calculatedAutomatically')}
                       className="bg-light text-muted"
-                      aria-label="TS of Created Panner"
+                      aria-label={t('LABELS.tsOfCreatedPaneer')}
                     />
                   </CCol>
                 </CRow>
@@ -569,10 +570,9 @@ const ProductCreationCalculator = () => {
                     <CCol>
                       <CAlert color={parseFloat(differenceInCreation) < 0 ? "danger" : "success"} className="py-2 mb-0">
                         <strong>
-                          {/* <i className={parseFloat(differenceInCreation) < 0 ? "fas fa-exclamation-triangle me-2" : "fas fa-check-circle me-2"}></i> */}
                           {parseFloat(differenceInCreation) < 0
-                            ? `Deficit of ${Math.abs(parseFloat(differenceInCreation))} kg in production!`
-                            : `Surplus of ${differenceInCreation} kg in production!`}
+                            ? t('MSG.deficitInProduction', { amount: Math.abs(parseFloat(differenceInCreation)) })
+                            : t('MSG.surplusInProduction', { amount: differenceInCreation })}
                         </strong>
                       </CAlert>
                     </CCol>
@@ -586,61 +586,64 @@ const ProductCreationCalculator = () => {
               <>
                 <CRow className="mb-3 g-3">
                   <CCol xs={12} sm={6}>
-                    <CFormLabel className="fw-bold mb-1">Milk Intake</CFormLabel>
+                    <CFormLabel className="fw-bold mb-1">{t('LABELS.milkIntake')}</CFormLabel>
                     <CInputGroup>
                       <CFormInput
                         value={milkIntake}
                         onChange={(e) => updateFormState('milkIntake', e.target.value)}
-                        placeholder="Enter milk intake"
+                        placeholder={t('LABELS.enterMilkIntake')}
                         type="number"
                         step="0.01"
                         min="0"
                         required
-                        aria-label="Milk Intake"
+                        aria-label={t('LABELS.milkIntake')}
                       />
-                      <CInputGroupText className="bg-light">(in liter)</CInputGroupText>
+                      <CInputGroupText className="bg-light">{t('LABELS.inLiter')}</CInputGroupText>
                     </CInputGroup>
                   </CCol>
-                  <CCol xs={12} sm={6}>
-                    <CFormLabel className="fw-bold mb-1">Cream Created</CFormLabel>
+                <CCol xs={12} sm={6}>
+                  <CFormLabel className="fw-bold mb-1">{t('LABELS.creamCreated')}</CFormLabel>
+                  <CInputGroup>
                     <CFormInput
                       value={creamCreated}
                       onChange={(e) => updateFormState('creamCreated', e.target.value)}
-                      placeholder="Enter cream amount"
+                      placeholder={t('LABELS.enterCreamAmount')}
                       type="number"
                       step="0.01"
                       min="0"
                       required
-                      aria-label="Cream Created"
+                      aria-label={t('LABELS.creamCreated')}
                     />
-                  </CCol>
+                    <CInputGroupText className="bg-light">{t('LABELS.inKg')}</CInputGroupText>
+                  </CInputGroup>
+                </CCol>
                 </CRow>
 
                 <CRow className="g-3">
                   <CCol xs={12} sm={6}>
-                    <CFormLabel className="fw-bold mb-1">Tup Created</CFormLabel>
+                    <CFormLabel className="fw-bold mb-1">{t('LABELS.tupCreated')}</CFormLabel>
                     <CInputGroup>
                       <CFormInput
                         value={tupCreated}
                         onChange={(e) => updateFormState('tupCreated', e.target.value)}
-                        placeholder="Enter tup amount"
+                        placeholder={t('LABELS.enterTupAmount')}
                         type="number"
                         step="0.01"
                         min="0"
                         required
-                        aria-label="Tup Created"
+                        aria-label={t('LABELS.tupCreated')}
                       />
-                      <CInputGroupText className="bg-light">(in kg)</CInputGroupText>
+                      <CInputGroupText className="bg-light">{t('LABELS.inKg')}</CInputGroupText>
                     </CInputGroup>
                   </CCol>
                   <CCol xs={12} sm={6}>
-                    <CFormLabel className="fw-bold mb-1">TUP Utaar</CFormLabel>
+                    <CFormLabel className="fw-bold mb-1">{t('LABELS.tupUtaar')}</CFormLabel>
                     <CFormInput
                       value={tupUtaar}
                       readOnly
-                      placeholder="Calculated automatically"
+                      placeholder={t('LABELS.calculatedAutomatically')}
                       className="bg-light text-muted"
-                      aria-label="TUP Utaar"
+                      aria-label={t('LABELS.tupUtaar')}
                     />
                   </CCol>
                 </CRow>
@@ -659,13 +662,10 @@ const ProductCreationCalculator = () => {
                   {isLoading ? (
                     <>
                       <CSpinner size="sm" className="me-2" />
-                      Processing...
+                      {t('LABELS.processing')}
                     </>
                   ) : (
-                    <>
-                      {/* <i className="fas fa-save me-1"></i>  */}
-                      Save Calculation
-                    </>
+                    t('LABELS.saveCalculation')
                   )}
                 </CButton>
                 <CButton
@@ -674,7 +674,7 @@ const ProductCreationCalculator = () => {
                   className="px-3"
                   disabled={isLoading}
                 >
-                  <i className="fas fa-redo-alt me-1"></i> Reset
+                  {t('LABELS.reset')}
                 </CButton>
               </CCardFooter>
             )}
@@ -690,10 +690,10 @@ const ProductCreationCalculator = () => {
         aria-labelledby="confirm-modal-title"
       >
         <CModalHeader>
-          <CModalTitle id="confirm-modal-title">Confirm Calculation Storage</CModalTitle>
+          <CModalTitle id="confirm-modal-title">{t('LABELS.confirmCalculationStorage')}</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          Are you sure you want to store this calculation?
+          {t('MSG.confirmStoreCalculation')}
         </CModalBody>
         <CModalFooter>
           <CButton
@@ -701,7 +701,7 @@ const ProductCreationCalculator = () => {
             onClick={() => updateUiState('showConfirmModal', false)}
             disabled={isLoading}
           >
-            Cancel
+            {t('LABELS.cancel')}
           </CButton>
           <CButton
             color="primary"
@@ -711,10 +711,10 @@ const ProductCreationCalculator = () => {
             {isLoading ? (
               <>
                 <CSpinner size="sm" className="me-2" />
-                Processing...
+                {t('LABELS.processing')}
               </>
             ) : (
-              'Confirm'
+              t('LABELS.confirm')
             )}
           </CButton>
         </CModalFooter>
@@ -724,340 +724,3 @@ const ProductCreationCalculator = () => {
 };
 
 export default ProductCreationCalculator;
-
-//--------------------------------------------------------------------------------------
-
-// import React, { useState, useEffect } from 'react';
-// import {
-//   CCard,
-//   CCardHeader,
-//   CCardBody,
-//   CForm,
-//   CFormSelect,
-//   CFormInput,
-//   CFormLabel,
-//   CButton,
-//   CRow,
-//   CCol,
-//   CInputGroup,
-//   CInputGroupText,
-//   CContainer,
-//   CCardFooter,
-//   CAlert
-// } from '@coreui/react';
-
-// const ProductCreationCalculator = () => {
-//   const [selectedProduct, setSelectedProduct] = useState('');
-
-//   // Paneer form states
-//   const [snfValue, setSnfValue] = useState('');
-//   const [tsValue, setTsValue] = useState('');
-//   const [intakeValue, setIntakeValue] = useState('');
-//   const [pannerToBeCreated, setPannerToBeCreated] = useState('');
-//   const [pannerCreated, setPannerCreated] = useState('');
-//   const [differenceInCreation, setAlleviationInCreation] = useState(''); // New state for Alleviation In Creation
-//   const [createdPanner, setCreatedPanner] = useState('');
-
-//   // Strobing effect states
-//   const [isStrobing, setIsStrobing] = useState(false);
-//   const [currentStyle, setCurrentStyle] = useState('');
-
-//   // Tup form states
-//   const [milkIntake, setMilkIntake] = useState('');
-//   const [creamCreated, setCreamCreated] = useState('');
-//   const [tupCreated, setTupCreated] = useState('');
-//   const [tupUtaar, setTupAlleviation] = useState('');
-
-//   const productOptions = [
-//     { label: 'Select Product', value: '' },
-//     { label: 'Paneer', value: 'Paneer' },
-//     { label: 'Tup', value: 'Tup' }
-//   ];
-
-//   // Style classes for strobing effect
-//   const strobingStyles = [
-//     'bg-warning text-dark fw-bold',
-//     'bg-info text-white fw-bold',
-//     'bg-light text-primary fw-bold'
-//   ];
-
-//   // Calculate differenceInCreation whenever pannerToBeCreated or pannerCreated change
-//   useEffect(() => {
-//     if (pannerToBeCreated && pannerCreated) {
-//       const expected = parseFloat(pannerToBeCreated);
-//       const actual = parseFloat(pannerCreated);
-//       if (!isNaN(expected) && !isNaN(actual)) {
-//         const difference = (actual - expected).toFixed(2);
-//         setAlleviationInCreation(difference);
-
-//         // Start strobing when there's a value
-//         setIsStrobing(true);
-//       }
-//     } else {
-//       setAlleviationInCreation('');
-//       setIsStrobing(false);
-//     }
-//   }, [pannerToBeCreated, pannerCreated]);
-
-//   // Strobing effect timer
-//   useEffect(() => {
-//     let interval;
-//     if (isStrobing) {
-//       let index = 0;
-//       interval = setInterval(() => {
-//         setCurrentStyle(strobingStyles[index]);
-//         index = (index + 1) % strobingStyles.length;
-//       }, 800); // Change color every 800ms
-//     }
-
-//     return () => {
-//       if (interval) clearInterval(interval);
-//     };
-//   }, [isStrobing]);
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     if (selectedProduct === 'Paneer') {
-//       // Calculate TS of Created Panner (example calculation - replace with actual formula)
-//       if (tsValue && snfValue && intakeValue && pannerCreated) {
-//         const ts = parseFloat(tsValue);
-//         const snf = parseFloat(snfValue);
-//         const intake = parseFloat(intakeValue);
-//         const created = parseFloat(pannerCreated);
-
-//         if (!isNaN(ts) && !isNaN(snf) && !isNaN(intake) && !isNaN(created)) {
-//           // This is a placeholder calculation - replace with actual formula
-//           const tsOfCreatedPanner = ((ts * intake) / created).toFixed(2);
-//           setCreatedPanner(tsOfCreatedPanner);
-//         }
-//       }
-
-//       console.log({
-//         selectedProduct,
-//         snfValue,
-//         tsValue,
-//         intakeValue,
-//         pannerToBeCreated,
-//         pannerCreated,
-//         differenceInCreation,
-//         createdPanner
-//       });
-//     } else if (selectedProduct === 'Tup') {
-//       // Calculate TUP Alleviation (example calculation - replace with actual formula)
-//       if (milkIntake && creamCreated && tupCreated) {
-//         const milk = parseFloat(milkIntake);
-//         const cream = parseFloat(creamCreated);
-//         const tup = parseFloat(tupCreated);
-
-//         if (!isNaN(milk) && !isNaN(cream) && !isNaN(tup)) {
-//           // This is a placeholder calculation - replace with actual formula
-//           const calculatedAlleviation = ((cream / milk) * 100).toFixed(2) + '%';
-//           setTupAlleviation(calculatedAlleviation);
-//         }
-//       }
-
-//       console.log({
-//         selectedProduct,
-//         milkIntake,
-//         creamCreated,
-//         tupCreated,
-//         tupUtaar
-//       });
-//     }
-//     // Submit logic here
-//   };
-
-//   return (
-//     <CContainer className="mt-3">
-//       <CCard>
-//         <CCardHeader className="bg-success text-white py-2">
-//           <h4 className="mb-0">Product Creation Calculator</h4>
-//         </CCardHeader>
-//         <CCardBody className="bg-light py-3">
-//           <CForm onSubmit={handleSubmit}>
-//             {/* Product Selection Dropdown */}
-//             <CRow className="mb-3 justify-content-center">
-//               <CCol md={6} lg={4}>
-//                 <CFormLabel htmlFor="productSelection" className="fw-bold mb-1">
-//                   Product Selection
-//                 </CFormLabel>
-//                 <CFormSelect
-//                   id="productSelection"
-//                   value={selectedProduct}
-//                   onChange={(e) => setSelectedProduct(e.target.value)}
-//                   options={productOptions}
-//                 />
-//               </CCol>
-//             </CRow>
-
-//             {/* Paneer Form - Only shows when Paneer is selected */}
-//             {selectedProduct === 'Paneer' && (
-//               <>
-//                 {/* SNF, TS, Intake fields */}
-//                 <CRow className="mb-2 g-2">
-//                 <CCol md={4}>
-//                     <CFormLabel className="fw-bold mb-1">Intake</CFormLabel>
-//                     <CInputGroup>
-//                       <CFormInput
-//                         value={intakeValue}
-//                         onChange={(e) => setIntakeValue(e.target.value)}
-//                         placeholder="Enter intake amount"
-//                       />
-//                       <CInputGroupText className="bg-light">(in liter)</CInputGroupText>
-//                     </CInputGroup>
-//                   </CCol>
-//                   <CCol md={4}>
-//                     <CFormLabel className="fw-bold mb-1">SNF</CFormLabel>
-//                     <CFormInput
-//                       value={snfValue}
-//                       onChange={(e) => setSnfValue(e.target.value)}
-//                       placeholder="Enter SNF value"
-//                     />
-//                   </CCol>
-//                   <CCol md={4}>
-//                     <CFormLabel className="fw-bold mb-1">TS</CFormLabel>
-//                     <CFormInput
-//                       value={tsValue}
-//                       onChange={(e) => setTsValue(e.target.value)}
-//                       placeholder="Enter TS value"
-//                     />
-//                   </CCol>
-//                 </CRow>
-
-//                 <CRow className="g-2">
-//                   <CCol md={3}>
-//                     <CFormLabel className="fw-bold mb-1">Panner To be created</CFormLabel>
-//                     <CInputGroup>
-//                       <CFormInput
-//                         value={pannerToBeCreated}
-//                         onChange={(e) => setPannerToBeCreated(e.target.value)}
-//                         placeholder="Enter amount"
-//                       />
-//                       <CInputGroupText className="bg-light">(in kg)</CInputGroupText>
-//                     </CInputGroup>
-//                   </CCol>
-//                   <CCol md={3}>
-//                     <CFormLabel className="fw-bold mb-1">Panner Created</CFormLabel>
-//                     <CInputGroup>
-//                       <CFormInput
-//                         value={pannerCreated}
-//                         onChange={(e) => setPannerCreated(e.target.value)}
-//                         placeholder="Enter created amount"
-//                       />
-//                       <CInputGroupText className="bg-light">(in kg)</CInputGroupText>
-//                     </CInputGroup>
-//                   </CCol>
-//                   <CCol md={3}>
-//                     <CFormLabel className="fw-bold mb-1">
-//                       Alleviation In Creation
-//                       {differenceInCreation && (
-//                         <span className="ms-1 badge bg-danger">Important</span>
-//                       )}
-//                     </CFormLabel>
-//                     <CInputGroup>
-//                       <CFormInput
-//                         value={differenceInCreation}
-//                         readOnly
-//                         placeholder="Auto calculated"
-//                         className={isStrobing ? currentStyle : 'bg-light text-muted'}
-//                       />
-//                       <CInputGroupText className="bg-light">(in kg)</CInputGroupText>
-//                     </CInputGroup>
-//                   </CCol>
-//                   <CCol md={3}>
-//                     <CFormLabel className="fw-bold mb-1">TS of Created Panner</CFormLabel>
-//                     <CFormInput
-//                       value={createdPanner}
-//                       readOnly
-//                       placeholder="Auto calculated"
-//                       className="bg-light text-muted"
-//                     />
-//                   </CCol>
-//                 </CRow>
-
-//                 {differenceInCreation && (
-//                   <CRow className="mt-2">
-//                     <CCol>
-//                       <CAlert color={parseFloat(differenceInCreation) < 0 ? "danger" : "success"} className="py-2 mb-0">
-//                         <strong>
-//                           {parseFloat(differenceInCreation) < 0
-//                             ? `Deficit of ${Math.abs(parseFloat(differenceInCreation))} kg in production!`
-//                             : `Surplus of ${differenceInCreation} kg in production!`}
-//                         </strong>
-//                       </CAlert>
-//                     </CCol>
-//                   </CRow>
-//                 )}
-//               </>
-//             )}
-
-//             {/* Tup Form - Only shows when Tup is selected */}
-//             {selectedProduct === 'Tup' && (
-//               <>
-//                 <CRow className="mb-2 g-2">
-//                   <CCol md={6}>
-//                     <CFormLabel className="fw-bold mb-1">Milk Intake</CFormLabel>
-//                     <CInputGroup>
-//                       <CFormInput
-//                         value={milkIntake}
-//                         onChange={(e) => setMilkIntake(e.target.value)}
-//                         placeholder="Enter milk intake"
-//                       />
-//                       <CInputGroupText className="bg-light">(in liter)</CInputGroupText>
-//                     </CInputGroup>
-//                   </CCol>
-//                   <CCol md={6}>
-//                     <CFormLabel className="fw-bold mb-1">Cream Created</CFormLabel>
-//                     <CFormInput
-//                       value={creamCreated}
-//                       onChange={(e) => setCreamCreated(e.target.value)}
-//                       placeholder="Enter cream amount"
-//                     />
-//                   </CCol>
-//                 </CRow>
-
-//                 <CRow className="g-2">
-//                   <CCol md={6}>
-//                     <CFormLabel className="fw-bold mb-1">Tup Created</CFormLabel>
-//                     <CInputGroup>
-//                       <CFormInput
-//                         value={tupCreated}
-//                         onChange={(e) => setTupCreated(e.target.value)}
-//                         placeholder="Enter tup amount"
-//                       />
-//                       <CInputGroupText className="bg-light">(in kg)</CInputGroupText>
-//                     </CInputGroup>
-//                   </CCol>
-//                   <CCol md={6}>
-//                     <CFormLabel className="fw-bold mb-1">TUP Alleviation</CFormLabel>
-//                     <CFormInput
-//                       value={tupUtaar}
-//                       readOnly
-//                       placeholder="Auto calculated"
-//                       className="bg-light text-muted"
-//                     />
-//                   </CCol>
-//                 </CRow>
-//               </>
-//             )}
-
-//             {/* Submit Button - Only shows when a product is selected */}
-//             {selectedProduct && (
-//               <CCardFooter className="bg-transparent border-0 text-end pt-2 pb-0 px-0">
-//                 <CButton
-//                   color="primary"
-//                   type="submit"
-//                   className="px-3"
-//                 >
-//                   Calculate
-//                 </CButton>
-//               </CCardFooter>
-//             )}
-//           </CForm>
-//         </CCardBody>
-//       </CCard>
-//     </CContainer>
-//   );
-// };
-
-// export default ProductCreationCalculator;

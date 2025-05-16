@@ -21,9 +21,13 @@ import {
   CPaginationItem,
   CButtonGroup,
 } from '@coreui/react';
+import { useTranslation } from 'react-i18next';
 import { get } from '../../util/api';
 
 const ProductCalculationHistory = () => {
+  // Add translation hook
+  const { t, i18n } = useTranslation("global");
+
   // State for date range and filters
   const [dateRange, setDateRange] = useState({
     startDate: '',
@@ -51,9 +55,9 @@ const ProductCalculationHistory = () => {
 
   // Product options for filter
   const productOptions = [
-    { label: 'All Products', value: '' },
-    { label: 'Paneer', value: 'Paneer' },
-    { label: 'Tup', value: 'Tup' },
+    { label: t('LABELS.allProducts'), value: '' },
+    { label: t('LABELS.paneer'), value: 'Paneer' },
+    { label: t('LABELS.tup'), value: 'Tup' },
   ];
 
   // Update date range
@@ -131,11 +135,11 @@ const ProductCalculationHistory = () => {
           });
         }
       } else {
-        setError('Failed to load history data');
+        setError(t('MSG.failedToLoadHistoryData'));
         setHistoryData([]);
       }
     } catch (err) {
-      setError(err.message || 'Failed to load history data');
+      setError(err.message || t('MSG.failedToLoadHistoryData'));
       console.error('History fetch error:', err);
       setHistoryData([]);
     } finally {
@@ -187,9 +191,9 @@ const ProductCalculationHistory = () => {
 
   return (
     <CCard className="border-0 shadow-sm mt-4">
-      <CCardHeader className="bg-info text-white py-2 py-sm-3">
+      <CCardHeader className="bg-info text-white px-1 py-1 py-sm-1">
         <h4 className="mb-0 d-flex align-items-center">
-          Product Calculation History
+          {t('LABELS.productCalculationHistory')}
         </h4>
       </CCardHeader>
 
@@ -216,13 +220,13 @@ const ProductCalculationHistory = () => {
                 color={viewMode === 'filtered' ? 'primary' : 'outline-primary'}
                 onClick={() => setViewMode('filtered')}
               >
-                Filtered View
+                {t('LABELS.filteredView')}
               </CButton>
               <CButton
                 color={viewMode === 'all' ? 'primary' : 'outline-primary'}
                 onClick={() => setViewMode('all')}
               >
-                Show All Calculations
+                {t('LABELS.showAllCalculations')}
               </CButton>
             </CButtonGroup>
           </CCol>
@@ -232,38 +236,38 @@ const ProductCalculationHistory = () => {
         {viewMode === 'filtered' && (
           <CRow className="mb-4 g-3">
             <CCol xs={12} md={6} lg={3}>
-              <CFormLabel htmlFor="startDate" className="fw-bold mb-1">Start Date</CFormLabel>
+              <CFormLabel htmlFor="startDate" className="fw-bold mb-1">{t('LABELS.startDate')}</CFormLabel>
               <CFormInput
                 type="date"
                 id="startDate"
                 name="startDate"
                 value={dateRange.startDate}
                 onChange={handleDateChange}
-                aria-label="Start Date"
+                aria-label={t('LABELS.startDate')}
               />
             </CCol>
 
             <CCol xs={12} md={6} lg={3}>
-              <CFormLabel htmlFor="endDate" className="fw-bold mb-1">End Date</CFormLabel>
+              <CFormLabel htmlFor="endDate" className="fw-bold mb-1">{t('LABELS.endDate')}</CFormLabel>
               <CFormInput
                 type="date"
                 id="endDate"
                 name="endDate"
                 value={dateRange.endDate}
                 onChange={handleDateChange}
-                aria-label="End Date"
+                aria-label={t('LABELS.endDate')}
               />
             </CCol>
 
             <CCol xs={12} md={6} lg={3}>
-              <CFormLabel htmlFor="productType" className="fw-bold mb-1">Product Type</CFormLabel>
+              <CFormLabel htmlFor="productType" className="fw-bold mb-1">{t('LABELS.productType')}</CFormLabel>
               <CFormSelect
                 id="productType"
                 name="product_type"
                 value={filters.product_type}
                 onChange={handleFilterChange}
                 options={productOptions}
-                aria-label="Product Type"
+                aria-label={t('LABELS.productType')}
               />
             </CCol>
 
@@ -275,7 +279,7 @@ const ProductCalculationHistory = () => {
                   onClick={applyFilters}
                   disabled={isLoading}
                 >
-                  {isLoading ? <CSpinner size="sm" /> : 'Apply Filters'}
+                  {isLoading ? <CSpinner size="sm" /> : t('LABELS.applyFilters')}
                 </CButton>
 
                 <CButton
@@ -284,7 +288,7 @@ const ProductCalculationHistory = () => {
                   onClick={resetFilters}
                   disabled={isLoading}
                 >
-                  Reset
+                  {t('LABELS.reset')}
                 </CButton>
               </div>
             </CCol>
@@ -294,8 +298,8 @@ const ProductCalculationHistory = () => {
         {/* View Mode Indicator */}
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h5 className="mb-0">
-            {viewMode === 'all' ? 'Showing All Calculations' : 'Showing Filtered Calculations'}
-            {pagination.total > 0 && ` (${pagination.total} records)`}
+            {viewMode === 'all' ? t('LABELS.showingAllCalculations') : t('LABELS.showingFilteredCalculations')}
+            {pagination.total > 0 && ` (${pagination.total} ${t('LABELS.records')})`}
           </h5>
 
           {viewMode === 'all' && (
@@ -304,7 +308,7 @@ const ProductCalculationHistory = () => {
               size="sm"
               onClick={() => setViewMode('filtered')}
             >
-              Back to Filtered View
+              {t('LABELS.backToFilteredView')}
             </CButton>
           )}
         </div>
@@ -314,11 +318,11 @@ const ProductCalculationHistory = () => {
           <CTable hover bordered>
             <CTableHead className="bg-light">
               <CTableRow>
-                <CTableHeaderCell scope="col">Sr.No.</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Date</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Time</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Product Type</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Details</CTableHeaderCell>
+                <CTableHeaderCell scope="col">{t('LABELS.srNo')}</CTableHeaderCell>
+                <CTableHeaderCell scope="col">{t('LABELS.date')}</CTableHeaderCell>
+                <CTableHeaderCell scope="col">{t('LABELS.time')}</CTableHeaderCell>
+                <CTableHeaderCell scope="col">{t('LABELS.productType')}</CTableHeaderCell>
+                <CTableHeaderCell scope="col">{t('LABELS.details')}</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
 
@@ -332,7 +336,7 @@ const ProductCalculationHistory = () => {
               ) : historyData.length === 0 ? (
                 <CTableRow>
                   <CTableDataCell colSpan={5} className="text-center py-3">
-                    No records found
+                    {t('MSG.noRecordsFound')}
                   </CTableDataCell>
                 </CTableRow>
               ) : (
@@ -341,28 +345,28 @@ const ProductCalculationHistory = () => {
                     <CTableDataCell>
                       {(pagination.current_page - 1) * pagination.per_page + index + 1}
                     </CTableDataCell>
-                    <CTableDataCell>{item.formatted_date || item.date || 'N/A'}</CTableDataCell>
-                    <CTableDataCell>{item.time || 'N/A'}</CTableDataCell>
+                    <CTableDataCell>{item.formatted_date || item.date || t('LABELS.notAvailable')}</CTableDataCell>
+                    <CTableDataCell>{item.time || t('LABELS.notAvailable')}</CTableDataCell>
                     <CTableDataCell>
                       <span className={`badge ${item.product_type === 'Paneer' ? 'bg-success' : 'bg-info'}`}>
-                        {item.product_type || 'Unknown'}
+                        {item.product_type || t('LABELS.unknown')}
                       </span>
                     </CTableDataCell>
                     <CTableDataCell>
                       {item.product_type === 'Paneer' ? (
                         <div className="small">
-                          <div><strong>Intake:</strong> {item.details?.intake_value || 'N/A'} L</div>
-                          <div><strong>SNF:</strong> {item.details?.snf_value || 'N/A'}</div>
-                          <div><strong>TS:</strong> {item.details?.ts_value || 'N/A'}</div>
-                          <div><strong>Created:</strong> {item.details?.panner_created || 'N/A'} kg</div>
-                          <div><strong>Difference:</strong> {item.details?.difference_in_creation || 'N/A'} kg</div>
+                          <div><strong>{t('LABELS.intake')}:</strong> {item.details?.intake_value || t('LABELS.notAvailable')} {t('LABELS.ltr')}</div>
+                          <div><strong>{t('LABELS.snf')}:</strong> {item.details?.snf_value || t('LABELS.notAvailable')}</div>
+                          <div><strong>{t('LABELS.ts')}:</strong> {item.details?.ts_value || t('LABELS.notAvailable')}</div>
+                          <div><strong>{t('LABELS.created')}:</strong> {item.details?.panner_created || t('LABELS.notAvailable')} {t('LABELS.kg')}</div>
+                          <div><strong>{t('LABELS.difference')}:</strong> {item.details?.difference_in_creation || t('LABELS.notAvailable')} {t('LABELS.kg')}</div>
                         </div>
                       ) : (
                         <div className="small">
-                          <div><strong>Milk Intake:</strong> {item.details?.milk_intake || 'N/A'} L</div>
-                          <div><strong>Cream Created:</strong> {item.details?.cream_created || 'N/A'}</div>
-                          <div><strong>Tup Created:</strong> {item.details?.tup_created || 'N/A'} kg</div>
-                          <div><strong>Tup Utaar:</strong> {item.details?.tup_utaar || 'N/A'}%</div>
+                          <div><strong>{t('LABELS.milkIntake')}:</strong> {item.details?.milk_intake || t('LABELS.notAvailable')} {t('LABELS.ltr')}</div>
+                          <div><strong>{t('LABELS.creamCreated')}:</strong> {item.details?.cream_created || t('LABELS.notAvailable')} {t('LABELS.kg')}</div>
+                          <div><strong>{t('LABELS.tupCreated')}:</strong> {item.details?.tup_created || t('LABELS.notAvailable')} {t('LABELS.kg')}</div>
+                          <div><strong>{t('LABELS.tupUtaar')}:</strong> {item.details?.tup_utaar || t('LABELS.notAvailable')}%</div>
                         </div>
                       )}
                     </CTableDataCell>
@@ -375,9 +379,9 @@ const ProductCalculationHistory = () => {
 
         {/* Pagination */}
         {historyData.length > 0 && pagination.last_page > 1 && (
-          <CPagination className="justify-content-center mt-3" aria-label="Page navigation">
+          <CPagination className="justify-content-center mt-3" aria-label={t('LABELS.pageNavigation')}>
             <CPaginationItem
-              aria-label="Previous"
+              aria-label={t('LABELS.previous')}
               disabled={pagination.current_page === 1}
               onClick={() => handlePageChange(pagination.current_page - 1)}
             >
@@ -395,7 +399,7 @@ const ProductCalculationHistory = () => {
             ))}
 
             <CPaginationItem
-              aria-label="Next"
+              aria-label={t('LABELS.next')}
               disabled={pagination.current_page === pagination.last_page}
               onClick={() => handlePageChange(pagination.current_page + 1)}
             >

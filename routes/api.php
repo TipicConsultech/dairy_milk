@@ -31,13 +31,13 @@ use App\Http\Controllers\MailController;
 use App\Http\Controllers\MilkTanksTrackerController;
 use App\Http\Controllers\ProductMappingController;
 use App\Http\Controllers\FactoryProductCalculationController;
-   
 
-    //Factory Product Calculation API's
-    Route::get('/factoryProductsCalculation', [FactoryProductCalculationController::class, 'index']);               // Get all
-    Route::post('/factoryProductsCalculation', [FactoryProductCalculationController::class, 'store']);              // Create
-    Route::get('/factoryProductsCalculation/{factory_product_id}', [FactoryProductCalculationController::class, 'getFactoryProductById']);
-    Route::put('/factoryProductsCalculation/{factory_product_id}', [FactoryProductCalculationController::class, 'update']);
+
+//Factory Product Calculation API's
+Route::get('/factoryProductsCalculation', [FactoryProductCalculationController::class, 'index']);               // Get all
+Route::post('/factoryProductsCalculation', [FactoryProductCalculationController::class, 'store']);              // Create
+Route::get('/factoryProductsCalculation/{factory_product_id}', [FactoryProductCalculationController::class, 'getFactoryProductById']);
+Route::put('/factoryProductsCalculation/{factory_product_id}', [FactoryProductCalculationController::class, 'update']);
 
 
 
@@ -45,7 +45,7 @@ use App\Http\Controllers\FactoryProductCalculationController;
 use App\Http\Controllers\DailyTallyController;
 Route::middleware('auth:sanctum')->get('/milk-tanks/by-company', [MilkTankController::class, 'getByCompany']);
 
-   
+
 
 Route::get('/api/product-mappings/{factoryProductId}', [ProductMappingController::class, 'getProductMappings']);
 Route::post('/api/product-mappings', [ProductMappingController::class, 'createProductMapping']);
@@ -163,7 +163,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/product-size/{id}', [ProductController::class, 'getProductSize']);
 
-   
+
 
 
 
@@ -188,6 +188,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('expense', ExpenseController::class);
     Route::resource('order', OrderController::class);
     Route::get('/reportSales', [OrderController::class, 'Sales']);
+    Route::get('/report-totals', [OrderController::class, 'getReportTotals']);
+
     Route::get('/googleMapData', [OrderController::class, 'googleMapData']);
     Route::get('/totalDeliveries', [OrderController::class, 'totalDeliverie']);
     Route::get('/getCombinedProducts', [CommonController::class, 'getCombinedProducts']);

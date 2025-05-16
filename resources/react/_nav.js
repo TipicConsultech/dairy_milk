@@ -31,6 +31,7 @@ import {
   cibPostgresql,
   cilStorage,
   cilCalculator,
+  cilParagraph,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem } from '@coreui/react'
 import { getUserData } from './util/session';
@@ -255,11 +256,12 @@ export default function fetchNavItems(t1){
             to: '/CreateRetailProduct',
              className: 'ms-4'
           },
-          {
-            component: CNavItem,
-            name: t("LABELS.create_bulk_product"),
-            to: '/CreateBulkProduct',
-          },
+        //   {
+        //     component: CNavItem,
+        //     name: t("LABELS.create_bulk_product"),
+        //     to: '/CreateBulkProduct',
+        //     className: 'ms-4'
+        //   },
 
 
           // {
@@ -393,12 +395,21 @@ export default function fetchNavItems(t1){
             // icon: <CIcon icon={cilDollar} customClassName="nav-icon" />,
             className: 'ms-4',
           },
-          // {
-          //   component: CNavItem,
-          //   name: t("LABELS.customer_report"),
-          //   to: 'Reports/Customer_Report',
-          //   icon: <CIcon icon={cilAddressBook} customClassName="nav-icon" />,
-          // },
+          {
+            component: CNavItem,
+            name: t("LABELS.customer_report"),
+            to: 'Reports/Customer_Report',
+            // icon: <CIcon icon={cilAddressBook} customClassName="nav-icon" />,
+            className: 'ms-4',
+          },
+          {
+            component: CNavItem,
+            name: t("LABELS.creditreport"),
+            to: 'Reports/creditreport',
+            // icon: <CIcon icon={cilAddressBook} customClassName="nav-icon ms-4" />
+            className: 'ms-4'
+
+          },
         ],
       },
 
@@ -580,6 +591,12 @@ export default function fetchNavItems(t1){
         name: t("LABELS.dailyTallyReport"),
         to: '/dailyTalliesReport',
         icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
+      },
+      {
+        component: CNavItem,
+        name: t("LABELS.ProductCreationCalculator"),
+        to: '/ProductCreationCalculator',
+        icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
       }
 
 ]
@@ -598,7 +615,7 @@ export default function fetchNavItems(t1){
         component: CNavItem,
         name: t("LABELS.credit_report"),
         to: 'Reports/crateReport',
-        // icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+        icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
       }
 
 ]

@@ -250,6 +250,7 @@ export default function fetchRoutes(){
     { path:'/resetPassword', name: 'Update Password', element: Resetpassword },
     { path: '/updatepassword', name: 'Reset Password', element: Updatepassword },
     { path: '/dailyTalliesReport', name: 'Daily Tallies', element:DailyTallies } ,
+    { path: '/ProductCreationCalculator', name: 'ProductCreationCalculator', element:ProductCreationCalculator},
   ]
   }
   //Delivery Team
