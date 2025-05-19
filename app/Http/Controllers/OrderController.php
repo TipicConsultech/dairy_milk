@@ -389,9 +389,28 @@ class OrderController extends Controller
             return $order->orderStatus == 1; // Filter out any order with orderStatus other than 1
         });
 
-        return response()->json($result);
-    }
+        // Calculate summary data
+        $summary = [
+            'sales' => [
+                'totalAmount' => $result->sum('totalAmount'),
+                'totalPaidAmount' => $result->sum('paidAmount'),
+                'totalRemainingAmount' => $result->sum('totalAmount') - $result->sum('paidAmount'),
+            ],
+            'expense' => [
+                'totalCost' => $result->sum('totalCost'),
+            ],
+            'profitLoss' => [
+                'totalSales' => $result->sum('totalAmount'),
+                'totalExpenses' => $result->sum('totalCost'),
+                'totalProfitLoss' => $result->sum('totalAmount') - $result->sum('totalCost'),
+            ]
+        ];
 
+        return response()->json([
+            'orders' => $result,
+            'summary' => $summary
+        ]);
+    }
 
     public function totalDeliverie(Request $request)
     {

@@ -390,15 +390,13 @@ const ProductCreationCalculator = () => {
   };
 
   return (
-    <CContainer className="mt-0 px-0 px-sm-0">
+    <CContainer className="mt-0 px-0">
       <CCard className="border-0 shadow-sm">
-        <CCardHeader className="bg-success text-white px-1 py-1 py-sm-1">
-          <h4 className="mb-0 d-flex align-items-center">
-            {t('LABELS.productCreationCalculator')}
-          </h4>
+        <CCardHeader className="bg-success text-white p-2">
+          <h4 className="mb-0">{t('LABELS.productCreationCalculator')}</h4>
         </CCardHeader>
 
-        <CCardBody className="bg-light py-3">
+        <CCardBody className="bg-light p-3">
           {/* Loading overlay */}
           {isLoading && (
             <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-light bg-opacity-75" style={{ zIndex: 1000 }}>
@@ -406,24 +404,24 @@ const ProductCreationCalculator = () => {
             </div>
           )}
 
-          {/* Success Alert - Added animation for better visibility */}
+          {/* Success Alert */}
           {successMessage && (
-            <CAlert color="success" className="mb-3 d-flex align-items-center" style={{ animation: 'fadeIn 0.5s' }}>
+            <CAlert color="success" className="mb-2">
               {successMessage}
             </CAlert>
           )}
 
           {/* Error Alert */}
           {error && (
-            <CAlert color="danger" className="mb-3 d-flex align-items-center">
+            <CAlert color="danger" className="mb-2">
               {error}
             </CAlert>
           )}
 
           <CForm>
             {/* Product Selection Dropdown */}
-            <CRow className="mb-3 justify-content-center">
-              <CCol xs={12} sm={10} md={8} lg={6} xl={4}>
+            <CRow className="mb-3">
+              <CCol xs={12} md={6} className="mx-auto">
                 <CFormLabel htmlFor="productSelection" className="fw-bold mb-1">
                   {t('LABELS.productSelection')}
                 </CFormLabel>
@@ -444,7 +442,7 @@ const ProductCreationCalculator = () => {
             {selectedProduct === 'Paneer' && (
               <>
                 {/* SNF, TS, Intake fields */}
-                <CRow className="mb-3 g-3">
+                <CRow className="mb-3 g-2">
                   <CCol xs={12} md={4}>
                     <CFormLabel className="fw-bold mb-1">{t('LABELS.intake')}</CFormLabel>
                     <CInputGroup>
@@ -458,7 +456,7 @@ const ProductCreationCalculator = () => {
                         required
                         aria-label={t('LABELS.intake')}
                       />
-                      <CInputGroupText className="bg-light">{t('LABELS.inLiter')}</CInputGroupText>
+                      <CInputGroupText>{t('LABELS.inLiter')}</CInputGroupText>
                     </CInputGroup>
                   </CCol>
                   <CCol xs={12} sm={6} md={4}>
@@ -489,7 +487,7 @@ const ProductCreationCalculator = () => {
                   </CCol>
                 </CRow>
 
-                <CRow className="mb-3 g-3">
+                <CRow className="mb-3 g-2">
                   <CCol xs={12} sm={6} lg={3}>
                     <CFormLabel className="fw-bold mb-1">{t('LABELS.paneerToBeCreated')}</CFormLabel>
                     <CInputGroup>
@@ -500,7 +498,7 @@ const ProductCreationCalculator = () => {
                         className="bg-light text-muted"
                         aria-label={t('LABELS.paneerToBeCreated')}
                       />
-                      <CInputGroupText className="bg-light">{t('LABELS.inKg')}</CInputGroupText>
+                      <CInputGroupText>{t('LABELS.inKg')}</CInputGroupText>
                     </CInputGroup>
                   </CCol>
                   <CCol xs={12} sm={6} lg={3}>
@@ -516,7 +514,7 @@ const ProductCreationCalculator = () => {
                         required
                         aria-label={t('LABELS.paneerCreated')}
                       />
-                      <CInputGroupText className="bg-light">{t('LABELS.inKg')}</CInputGroupText>
+                      <CInputGroupText>{t('LABELS.inKg')}</CInputGroupText>
                     </CInputGroup>
                   </CCol>
                   <CCol xs={12} sm={6} lg={3}>
@@ -547,10 +545,7 @@ const ProductCreationCalculator = () => {
                         }}
                         aria-label={t('LABELS.differenceInCreation')}
                       />
-                      <CInputGroupText style={{
-                        backgroundColor: '#f8f9fa',
-                        fontWeight: 'bold'
-                      }}>{t('LABELS.inKg')}</CInputGroupText>
+                      <CInputGroupText>{t('LABELS.inKg')}</CInputGroupText>
                     </CInputGroup>
                 </CCol>
                   <CCol xs={12} sm={6} lg={3}>
@@ -566,9 +561,9 @@ const ProductCreationCalculator = () => {
                 </CRow>
 
                 {differenceInCreation && (
-                  <CRow className="mt-2">
+                  <CRow className="mt-1 mb-2">
                     <CCol>
-                      <CAlert color={parseFloat(differenceInCreation) < 0 ? "danger" : "success"} className="py-2 mb-0">
+                      <CAlert color={parseFloat(differenceInCreation) < 0 ? "danger" : "success"} className="py-1 mb-0">
                         <strong>
                           {parseFloat(differenceInCreation) < 0
                             ? t('MSG.deficitInProduction', { amount: Math.abs(parseFloat(differenceInCreation)) })
@@ -584,7 +579,7 @@ const ProductCreationCalculator = () => {
             {/* Tup Form - Only shows when Tup is selected */}
             {selectedProduct === 'Tup' && (
               <>
-                <CRow className="mb-3 g-3">
+                <CRow className="mb-3 g-2">
                   <CCol xs={12} sm={6}>
                     <CFormLabel className="fw-bold mb-1">{t('LABELS.milkIntake')}</CFormLabel>
                     <CInputGroup>
@@ -598,7 +593,7 @@ const ProductCreationCalculator = () => {
                         required
                         aria-label={t('LABELS.milkIntake')}
                       />
-                      <CInputGroupText className="bg-light">{t('LABELS.inLiter')}</CInputGroupText>
+                      <CInputGroupText>{t('LABELS.inLiter')}</CInputGroupText>
                     </CInputGroup>
                   </CCol>
                 <CCol xs={12} sm={6}>
@@ -614,12 +609,12 @@ const ProductCreationCalculator = () => {
                       required
                       aria-label={t('LABELS.creamCreated')}
                     />
-                    <CInputGroupText className="bg-light">{t('LABELS.inKg')}</CInputGroupText>
+                    <CInputGroupText>{t('LABELS.inKg')}</CInputGroupText>
                   </CInputGroup>
                 </CCol>
                 </CRow>
 
-                <CRow className="g-3">
+                <CRow className="g-2">
                   <CCol xs={12} sm={6}>
                     <CFormLabel className="fw-bold mb-1">{t('LABELS.tupCreated')}</CFormLabel>
                     <CInputGroup>
@@ -633,7 +628,7 @@ const ProductCreationCalculator = () => {
                         required
                         aria-label={t('LABELS.tupCreated')}
                       />
-                      <CInputGroupText className="bg-light">{t('LABELS.inKg')}</CInputGroupText>
+                      <CInputGroupText>{t('LABELS.inKg')}</CInputGroupText>
                     </CInputGroup>
                   </CCol>
                   <CCol xs={12} sm={6}>
@@ -652,16 +647,16 @@ const ProductCreationCalculator = () => {
 
             {/* Control Buttons - Only shows when a product is selected */}
             {selectedProduct && (
-              <CCardFooter className="bg-transparent border-0 text-center text-sm-end pt-4 pb-0 px-0">
+              <CCardFooter className="bg-transparent border-0 text-center text-sm-end pt-3 p-0">
                 <CButton
                   color="primary"
                   onClick={confirmStorage}
-                  className="me-2 px-3 mb-2 mb-sm-0"
+                  className="me-2 mb-1 mb-sm-0"
                   disabled={isLoading}
                 >
                   {isLoading ? (
                     <>
-                      <CSpinner size="sm" className="me-2" />
+                      <CSpinner size="sm" className="me-1" />
                       {t('LABELS.processing')}
                     </>
                   ) : (
@@ -671,7 +666,6 @@ const ProductCreationCalculator = () => {
                 <CButton
                   color="secondary"
                   onClick={resetAllFormStates}
-                  className="px-3"
                   disabled={isLoading}
                 >
                   {t('LABELS.reset')}
@@ -710,7 +704,7 @@ const ProductCreationCalculator = () => {
           >
             {isLoading ? (
               <>
-                <CSpinner size="sm" className="me-2" />
+                <CSpinner size="sm" className="me-1" />
                 {t('LABELS.processing')}
               </>
             ) : (
