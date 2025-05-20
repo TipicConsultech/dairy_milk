@@ -156,7 +156,7 @@ function RawMaterial() {
         )} */}
       </div>
 
-      <div className="table-container" style={{ height: '600px', overflow: 'auto' }}>
+      <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
         <table className="table table-hover table-bordered align-middle">
           <thead className="table-light" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
             <tr>

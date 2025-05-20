@@ -19,6 +19,7 @@ class MilkTank extends Model {
         'company_id',
         'number',
         'name',
+        'localname',
         'capacity',
         'quantity',
         'isVisible',

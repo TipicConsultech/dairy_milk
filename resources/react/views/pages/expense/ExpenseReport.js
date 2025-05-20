@@ -31,41 +31,75 @@ const AllExpenses = () => {
   const [endDate, setEndDate] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchExpenses = async () => {
-    if (!startDate || !endDate) {
-      showToast('warning', t("MSG.please_select_date_range") || 'Please select a date range');
-      return;
-    }
+  // const fetchExpenses = async () => {
+  //   if (!startDate || !endDate) {
+  //     showToast('warning', t("MSG.please_select_date_range") || 'Please select a date range');
+  //     return;
+  //   }
     
-    setIsLoading(true);
-    try {
-      const response = await getAPICall(`/api/expense?startDate=${startDate}&endDate=${endDate}`);
-      if (response.error) {
-        showToast('danger', response.error);
-      } else {
-        setExpenses(response);
-      }
-    } catch (error) {
-      showToast('danger', 'Error occurred: ' + error);
-    } finally {
-      setIsLoading(false);
+  //   setIsLoading(true);
+  //   try {
+  //     const response = await getAPICall(`/api/expense?startDate=${startDate}&endDate=${endDate}`);
+  //     if (response.error) {
+  //       showToast('danger', response.error);
+  //     } else {
+  //       setExpenses(response);
+  //     }
+  //   } catch (error) {
+  //     showToast('danger', 'Error occurred: ' + error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+  const fetchExpenses = async (filter = false) => {
+  setIsLoading(true);
+  try {
+    let url = '/api/expense';
+    if (filter && startDate && endDate) {
+      url += `?startDate=${startDate}&endDate=${endDate}`;
     }
-  };
 
+    const response = await getAPICall(url);
+
+    if (response.error) {
+      showToast('danger', response.error);
+    } else {
+      setExpenses(response);
+    }
+  } catch (error) {
+    showToast('danger', 'Error occurred: ' + error);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
+  // useEffect(() => {
+  //   // Set default date range to current month
+  //   const today = new Date();
+  //   const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+  //   const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    
+  //   setStartDate(firstDay.toISOString().split('T')[0]);
+  //   setEndDate(lastDay.toISOString().split('T')[0]);
+  // }, []);
+
+  // const handleDelete = (expense) => {
+  //   setDeleteResource(expense);
+  //   setDeleteModalVisible(true);
+  // };
   useEffect(() => {
-    // Set default date range to current month
-    const today = new Date();
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    
-    setStartDate(firstDay.toISOString().split('T')[0]);
-    setEndDate(lastDay.toISOString().split('T')[0]);
-  }, []);
+  // Set default date range to current month
+  const today = new Date();
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
-  const handleDelete = (expense) => {
-    setDeleteResource(expense);
-    setDeleteModalVisible(true);
-  };
+  setStartDate(firstDay.toISOString().split('T')[0]);
+  setEndDate(lastDay.toISOString().split('T')[0]);
+
+  fetchExpenses(); // Fetch all expenses initially
+}, []);
+
 
   const onDelete = async () => {
     try {
@@ -165,13 +199,21 @@ const AllExpenses = () => {
                   />
                 </CCol>
                 <CCol md={2} className="d-flex align-items-end">
-                  <CButton 
+                  {/* <CButton 
                     color="primary" 
                     onClick={fetchExpenses}
                     disabled={isLoading}
                   >
                     {isLoading ? t("LABELS.loading") || "Loading..." : t("LABELS.filter") || "Filter"}
-                  </CButton>
+                  </CButton> */}
+                  <CButton 
+  color="primary" 
+  onClick={() => fetchExpenses(true)} // pass `true` to apply date filtering
+  disabled={isLoading}
+>
+  {isLoading ? t("LABELS.loading") || "Loading..." : t("LABELS.filter") || "Filter"}
+</CButton>
+
                 </CCol>
                 {/* <CCol md={4} className="d-flex align-items-end justify-content-end">
                   <CButton 
@@ -184,7 +226,7 @@ const AllExpenses = () => {
               </CRow>
             </CForm>
             
-            <MantineReactTable
+            {/* <MantineReactTable
               columns={columns}
               data={expenses}
               enableFullScreenToggle={false}
@@ -210,7 +252,52 @@ const AllExpenses = () => {
                   )}
                 </div>
               )}
-            />
+            /> */}
+            <MantineReactTable
+  columns={columns}
+  data={expenses}
+  enableFullScreenToggle={false}
+  state={{ isLoading }}
+  initialState={{
+    sorting: [{ id: 'expense_date', desc: true }],
+  }}
+  renderEmptyState={() => (
+    <div className="p-4 text-center">
+      {startDate && endDate ? (
+        <div>
+          <p>{t("MSG.no_expenses_found") || "No expenses found for the selected date range."}</p>
+          <CButton 
+            color="primary" 
+            onClick={() => navigate('/expense/new')}
+            size="sm"
+          >
+            {t("LABELS.add_expense") || "Add Expense"}
+          </CButton>
+        </div>
+      ) : (
+        <p>{t("MSG.select_date_range_to_view_expenses") || "Select a date range to view expenses."}</p>
+      )}
+    </div>
+  )}
+/>
+
+{/* Total Footer */}
+{expenses.length > 0 && (
+  <div className="d-flex justify-content-between mt-3 pe-3">
+    <h5>
+      {t("LABELS.total_expense") || "Total Expense"}:{' '}
+      <strong>
+        {new Intl.NumberFormat('en-IN', {
+          style: 'currency',
+          currency: 'INR',
+        }).format(
+          expenses.reduce((total, item) => total + parseFloat(item.total_price || 0), 0)
+        )}
+      </strong>
+    </h5>
+  </div>
+)}
+
           </CCardBody>
         </CCard>
       </CCol>

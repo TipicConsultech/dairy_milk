@@ -508,9 +508,9 @@ function RawMaterial() {
         />
       </div>
 
-      <div className="table-container" style={{ height: '400px', overflow: 'auto', scrollbarWidth: 'none' }}>
+      <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
         <table className="table table-hover table-bordered align-middle">
-          <thead className="table-light" style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#f8f9fa' }}>
+          <thead className="table-light " style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#f8f9fa' }}>
             <tr>
               <th>{t('LABELS.name')}</th>
               <th>{t('LABELS.packaging')}</th>

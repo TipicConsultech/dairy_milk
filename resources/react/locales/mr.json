@@ -196,7 +196,7 @@
         "select": "निवडा",
          "g" : "ग्रा",
         "pcs": "पॅकेट",
-        "cost": "खर्च",
+        "cost": "एकूण रक्कम",
         "stockInUnit":"युनिटमधील स्टॉक",
         "new_shop": "नवीन शॉप रजिस्ट्रेशन",
         "company_name": "शॉपचे नाव",
@@ -457,7 +457,8 @@
     
     "grand_total": "एकूण",
     
-    "only_cash_collected": "फक्त रक्कम जमा केली"
+    "only_cash_collected": "फक्त रक्कम जमा केली",
+     "total_expense":"एकूण खर्च"
 
 
 

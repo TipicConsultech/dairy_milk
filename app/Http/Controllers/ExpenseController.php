@@ -19,34 +19,62 @@ class ExpenseController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
-    {   
-        $user=Auth::user();
-        $comapanyId = $user->company_id;
-        $userType = $user->type;
-        $startDate = $request->query('startDate');
-        $endDate = $request->query('endDate');
+    // public function index(Request $request)
+    // {   
+    //     $user=Auth::user();
+    //     $comapanyId = $user->company_id;
+    //     $userType = $user->type;
+    //     $startDate = $request->query('startDate');
+    //     $endDate = $request->query('endDate');
         
-        try {
-            if($userType==0||$userType==1||$userType==2){
-                    if ($startDate && $endDate) {
-                        $query=Expense::where('company_id',$comapanyId)
-                        ->whereBetween('expense_date', [$startDate, $endDate]);
-                        return $query->get();
-                        }
-                    else{
-                    return response()->json([
-                        'error' => 'Dates are not Selected properly' ]);
-                    } }
-            else{
+    //     try {
+    //         if($userType==0||$userType==1||$userType==2){
+    //                 if ($startDate && $endDate) {
+    //                     $query=Expense::where('company_id',$comapanyId)
+    //                     ->whereBetween('expense_date', [$startDate, $endDate]);
+    //                     return $query->get();
+    //                     }
+    //                 else{
+    //                 return response()->json([
+    //                     'error' => 'Dates are not Selected properly' ]);
+    //                 } }
+    //         else{
+    //         return response()->json([
+    //             'error' => 'Not Allowed', 
+    //             ]);
+    //         }  }
+    //     catch(Exception $e) {
+    //         return $e->getMessage();
+    //     }
+    // }
+public function index(Request $request)
+{
+    $user = Auth::user();
+    $companyId = $user->company_id;
+    $userType = $user->type;
+    $startDate = $request->query('startDate');
+    $endDate = $request->query('endDate');
+
+    try {
+        if (in_array($userType, [0, 1, 2])) {
+            $query = Expense::where('company_id', $companyId);
+
+            if ($startDate && $endDate) {
+                $query->whereBetween('expense_date', [$startDate, $endDate]);
+            }
+
+            return $query->get();
+        } else {
             return response()->json([
-                'error' => 'Not Allowed', 
-                ]);
-            }  }
-        catch(Exception $e) {
-            return $e->getMessage();
+                'error' => 'Not Allowed',
+            ]);
         }
+    } catch (Exception $e) {
+        return response()->json(['error' => $e->getMessage()]);
     }
+}
+
+
 
     /**
      * Store a newly created resource in storage.

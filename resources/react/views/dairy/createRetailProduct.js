@@ -400,6 +400,15 @@ const createRetailProduct = () => {
     setCreatedSummary(null);
   }, []);
 
+  const decodeUnicode = (str) => {
+  if (!str || typeof str !== 'string') return '';
+  return str.replace(/\\u[\dA-F]{4}/gi, (match) => {
+    return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
+  });
+};
+
+
+
   return (
     <CCard className="mb-4">
       <CCardHeader style={{ backgroundColor: '#d4edda'}}>
@@ -413,7 +422,7 @@ const createRetailProduct = () => {
           <CCol md={4}>
             <CFormLabel ><b>{t('LABELS.selectFactoryProduct')}</b></CFormLabel>
             <div className="position-relative" ref={factoryProductDropdownRef}>
-              <div className="position-relative">
+              {/* <div className="position-relative">
                 <CFormInput
                   type="text"
                   value={factoryProductSearch}
@@ -463,7 +472,80 @@ const createRetailProduct = () => {
                       </div>
                     ))}
                 </div>
-              )}
+              )} */}
+
+
+<div className="position-relative">
+  <CFormInput
+    type="text"
+    value={factoryProductSearch}
+    onChange={(e) => {
+      setFactoryProductSearch(e.target.value);
+      if (e.target.value) {
+        setIsFactoryProductDropdownOpen(true);
+      }
+    }}
+    onFocus={() => setIsFactoryProductDropdownOpen(true)}
+    placeholder={t('LABELS.searchSelectFactoryProduct')}
+    style={{ paddingRight: '30px' }}
+  />
+  <div
+    style={{
+      position: 'absolute',
+      top: '50%',
+      right: '10px',
+      transform: 'translateY(-50%)',
+      cursor: 'pointer'
+    }}
+    onClick={() =>
+      factoryProductSearch
+        ? clearFactoryProduct()
+        : setIsFactoryProductDropdownOpen(!isFactoryProductDropdownOpen)
+    }
+  >
+    {factoryProductSearch ? <CIcon icon={cilX} /> : <CIcon icon={cilChevronBottom} />}
+  </div>
+</div>
+
+{isFactoryProductDropdownOpen && (
+  <div
+    className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
+    style={{ maxHeight: '200px', overflowY: 'auto', zIndex: 1000 }}
+  >
+    {factoryProductData
+      .filter((product) => {
+        const name =
+          lng === 'mr'
+            ? decodeUnicode(product.localName || '')
+            : product.name || product.name;
+        return name.toLowerCase().includes(factoryProductSearch.toLowerCase());
+      })
+      .map((product, index) => {
+        const displayName =
+          lng === 'mr'
+            ? decodeUnicode(product.localName || '')
+            : product.name || product.name;
+
+        return (
+          <div
+            key={index}
+            className="p-2 cursor-pointer hover-bg-light"
+            style={{ cursor: 'pointer' }}
+            onClick={() => {
+              setFactoryProductSearch(displayName);
+              handleFactoryProductChange(product.id);
+              setIsFactoryProductDropdownOpen(false);
+            }}
+          >
+            {displayName}
+          </div>
+        );
+      })}
+  </div>
+)}
+
+
+
             </div>
           </CCol>
 
@@ -568,6 +650,9 @@ const createRetailProduct = () => {
                     </div>
                   )}
                 </div>
+   
+
+
               </CCol>
               <CCol md={3}>
                 <CFormInput
@@ -703,6 +788,9 @@ const createRetailProduct = () => {
     ) : (
       mappedRetailProducts
         .filter(item => item.name.toLowerCase().includes(newProduct.name.toLowerCase()))
+
+
+        
         .map((item, index) => (
           <div
             key={index}

@@ -45,9 +45,9 @@ const AppSidebar = () => {
       }}
     >
       <CSidebarHeader className="border-bottom">
-        <CSidebarBrand to="/">
+       <CSidebarBrand to="/" className='ms-5'>
       
-          {unfoldable?(<img src={logo} height={50} width={50} />):(<img src={logo} height={50} width={120} />)}
+          {unfoldable?(<img src={logo} height={50} width={50} />):(<img src={logo} height={50} width={90} />)}
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"

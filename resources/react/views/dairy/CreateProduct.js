@@ -367,6 +367,15 @@ const MilkForm = () => {
     position: 'relative'
   };
 
+   const decodeUnicode = (str) => {
+  if (!str || typeof str !== 'string') return '';
+  return str.replace(/\\u[\dA-F]{4}/gi, (match) => {
+    return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
+  });
+};
+
+
+
   return (
     <CCard className="mb-4">
 
@@ -383,12 +392,27 @@ const MilkForm = () => {
             <div style={inputContainerStyle}>
               <CFormSelect value={milkType} onChange={handleMilkTypeChange} style={{ appearance: 'none', WebkitAppearance: 'none', MozAppearance: 'none', backgroundImage: 'none' }}>
                 <option value="">{t('LABELS.selectTank')}</option>
-                {tankData.map((tank, idx) => (
+                {/* {tankData.map((tank, idx) => (
                   <option key={idx} value={tank.name}>
                     {tank.name}
                   </option>
-                ))}
+                ))} */}
+                {tankData.map((tank, idx) => {
+    const tankName = lng === 'en' ? tank.name : decodeUnicode(tank.localname);
+    
+    
+    return (
+      <option key={idx} value={tank.name}>
+       {tankName}
+      </option>
+    );
+  })}
+
               </CFormSelect>
+
+
+             
+
               {!milkType ? (
                 <div style={dropdownIconStyle}>
                   <CIcon icon={cilChevronBottom} size="sm" />
@@ -461,7 +485,7 @@ const MilkForm = () => {
                     </div>
                   )}
 
-                  {isDropdownOpen && (
+                  {/* {isDropdownOpen && (
                     <div
                       className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm z-index-dropdown"
                       style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
@@ -476,11 +500,14 @@ const MilkForm = () => {
                             onClick={() => {
                               // Simulate the original handleIngredientChange logic
                               const selectedItem = rawMaterialData.find((material) => material.name === item);
+                              
+
                               if (selectedItem) {
                                 setNewIngredient({
                                   ...newIngredient,
                                   id: selectedItem.id,
                                   name: item,
+      
                                   available_qty: selectedItem.available_qty,
                                   unit: selectedItem.unit
                                 });
@@ -494,8 +521,49 @@ const MilkForm = () => {
                           </div>
                         ))}
                     </div>
-                  )}
+                  )} */}
+                  {isDropdownOpen && (
+  <div
+    className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm z-index-dropdown"
+    style={{ maxHeight: '200px', overflowY: 'auto', zIndex: 1000 }}
+  >
+    {rawMaterialData
+      .filter(material => {
+        const name = lng === 'en' ? material.name : decodeUnicode(material.local_name);
+        // const tankName = lng === 'en' ? tank.name : decodeUnicode(tank.localname);
+        return name.toLowerCase().includes((newIngredient.name || '').toLowerCase());
+      })
+      .map((material, index) => {
+        const displayName = lng === 'en' ? material.name : decodeUnicode(material.local_name);
+
+        return (
+          <div
+            key={index}
+            className="p-2 cursor-pointer hover-bg-light"
+            onClick={() => {
+              setNewIngredient({
+                ...newIngredient,
+                id: material.id,
+                name: displayName,
+                available_qty: material.available_qty,
+                unit: material.unit,
+              });
+              setRawMaterialavailableQty(material.available_qty);
+              setIsDropdownOpen(false);
+              setIngError('');
+            }}
+            style={{ cursor: 'pointer' }}
+          >
+            {displayName}
+          </div>
+        );
+      })}
+  </div>
+)}
+
                 </div>
+ 
+
               </CCol>
               <CCol md={3}>
                 <CFormInput
@@ -625,7 +693,7 @@ const MilkForm = () => {
     className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
     style={{ maxHeight: '200px', overflowY: 'auto', zIndex: 1000 }}
   >
-    {productOptions.filter(item => item.toLowerCase().includes(newProduct.name.toLowerCase())).length === 0 ? (
+     {productOptions.filter(item => item.toLowerCase().includes(newProduct.name.toLowerCase())).length === 0 ? (
       <div className="p-2 text-muted text-center">{t('MSG.productNotFound')}</div>
     ) : (
       productOptions
@@ -653,9 +721,14 @@ const MilkForm = () => {
             {item}
           </div>
         ))
-    )}
+    )} 
+    
+
   </div>
 )}
+
+
+
 
                 </div>
               </CCol>

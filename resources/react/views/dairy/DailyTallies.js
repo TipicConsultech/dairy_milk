@@ -470,15 +470,19 @@ function DailyProductLog() {
                             <th>{t('LABELS.eveningEntry')}</th>
                             <td>{milkTankData.cow.eveningEntry} {t('LABELS.liters')}</td>
                           </tr>
+                          <tr>
+                <th>{t('LABELS.totalBalance')}</th>
+                <td>{cowTotals.total} {t('LABELS.liters')}</td>
+              </tr>
                         </tbody>
                       </table>
                     </CCardBody>
                   </CCard>
                 </CCol>
                 <CCol md={6}>
-                  <CCard className="h-100 border-info">
-                    <CCardHeader style={{ backgroundColor: '#e0f7fa' }}>
-                      <h6 className="mb-0 text-info">{t('LABELS.buffaloTank')}</h6>
+                  <CCard className="h-100 border-primary">
+                    <CCardHeader style={{ backgroundColor: '#e2efff' }}>
+                      <h6 className="mb-0 text-primary">{t('LABELS.buffaloTank')}</h6>
                     </CCardHeader>
                     <CCardBody>
                       <table className="table table-bordered mb-0">
@@ -495,6 +499,10 @@ function DailyProductLog() {
                             <th>{t('LABELS.eveningEntry')}</th>
                             <td>{milkTankData.buffalo.eveningEntry} {t('LABELS.liters')}</td>
                           </tr>
+                            <tr>
+                <th>{t('LABELS.totalBalance')}</th>
+                <td>{buffaloTotals.total} {t('LABELS.liters')}</td>
+              </tr>
                         </tbody>
                       </table>
                     </CCardBody>
@@ -675,9 +683,9 @@ function DailyProductLog() {
 
     {/* Buffalo Summary Card */}
     <CCol md={6}>
-      <CCard className="h-100 border-info">
-        <CCardHeader style={{ backgroundColor: '#e0f7fa' }}>
-          <h6 className="mb-0 text-info">{t('LABELS.buffaloSummary')}</h6>
+      <CCard className="h-100 border-primary">
+        <CCardHeader style={{ backgroundColor: '#e2efff' }}>
+          <h6 className="mb-0 text-primary">{t('LABELS.buffaloSummary')}</h6>
         </CCardHeader>
         <CCardBody>
           <table className="table table-bordered mb-0">

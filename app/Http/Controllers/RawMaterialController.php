@@ -295,7 +295,7 @@ public function criticalStock()
 
     $companyId = $user->company_id;
 
-    $materials = RawMaterial::select('id','name', 'unit_qty','unit')
+    $materials = RawMaterial::select('id','name', 'unit_qty','unit','local_name')
         ->where('isPackaging', $isPackaging)
         ->where('company_id', $companyId)
         ->get()
@@ -303,6 +303,7 @@ public function criticalStock()
             return [
                 'id' => $material->id,
                 'name' => $material->name,
+                'local_name' => $material->local_name,
                 'available_qty' => $material->unit_qty,
                 'unit' => $material->unit
             ];
