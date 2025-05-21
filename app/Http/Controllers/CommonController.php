@@ -389,6 +389,216 @@ class CommonController extends Controller
 //     }
 // }
 
+// public function createProduct(Request $request)
+// {
+//     $payload = $request->validate([
+//         'rawMaterials'            => ['nullable', 'array'],
+//         'rawMaterials.*.id'       => ['nullable', 'integer', 'distinct'],
+//         'rawMaterials.*.quantity' => ['nullable', 'numeric', 'min:0.01'],
+
+//         'milkTank.id'             => ['required', 'integer'],
+
+//         'productSizes'            => ['required', 'array', 'min:1'],
+//         'productSizes.*.id'       => ['required', 'integer', 'distinct'],
+//         'productSizes.*.qty'      => ['required', 'numeric', 'min:0.01'],
+//     ]);
+
+//     DB::beginTransaction();
+
+//     try {
+//         $firstProductName = null;
+//         if (!empty($payload['productSizes'])) {
+//             $firstProduct = ProductSize::find($payload['productSizes'][0]['id']);
+//             $firstProductName = $firstProduct?->name;
+//         }
+
+//         $batchPrefix = $firstProductName ? strtolower(substr($firstProductName, 0, 3)) : 'xx';
+//         $batchNo = $batchPrefix . '-' . now('Asia/Kolkata')->format('Y-m-d H-i-s');
+
+//         $user = auth()->user();
+//         $userId = $user?->id;
+//         $companyId = $user?->company_id;
+
+//         $tank = MilkTank::where('id', $payload['milkTank']['id'])->first();
+//         if (!$tank) {
+//             throw ValidationException::withMessages([
+//                 'milkTank' => "Milk‑tank ID {$payload['milkTank']['id']} not found."
+//             ]);
+//         }
+
+//         $snf = $tank->snf;
+//         $ts = $tank->ts;
+
+//         $totalRequiredMilk = 0;
+
+//         foreach ($payload['productSizes'] as $ps) {
+//             $calc = FactoryProductCalculation::where('factory_product_id', $ps['id'])->first();
+//             if (!$calc) {
+//                 throw ValidationException::withMessages([
+//                     'productSizes' => "No milk calculation rule for product-size ID {$ps['id']}."
+//                 ]);
+//             }
+//             if($calc->cal_applicable==1){
+//                   // $requiredMilk = ($ps['qty'] * $calc->divide_by) / ($snf + $ts);
+//             $requiredMilk = ceil(($ps['qty'] * ($snf + $ts)) /$calc->divide_by);
+//             $totalRequiredMilk += $requiredMilk;
+//             // Log::info('qty', ['value' => $ps['qty']]);
+//             // Log::info('divide_by', ['value' => $calc->divide_by]);
+//             // Log::info('snf', ['value' => $snf]);
+//             // Log::info('ts', ['value' => $ts]);
+//             // Log::info('requiredMilk', ['value' => $requiredMilk]);
+//             // Log::info('totalRequiredMilk (inside loop)', ['value' => $totalRequiredMilk]);
+//             }
+//             else{
+//             $requiredMilk = ceil($ps['qty']);
+//             $totalRequiredMilk += $requiredMilk;
+//             }
+          
+//         }
+
+//         if ($tank->quantity < $totalRequiredMilk) {
+//             throw ValidationException::withMessages([
+//                 'milkTank' => "Not enough milk in \"{$tank->name}\". Required: {$totalRequiredMilk}, available: {$tank->quantity}."
+//             ]);
+//         }
+
+//         $processing = MilkProcesing::create([
+//             'batch_no'         => $batchNo,
+//             'milkTank_id'      => $payload['milkTank']['id'],
+//             'rowMilk_qty'      => $totalRequiredMilk,
+//             'isProductCreated' => true,
+//             'created_by'       => $userId,
+//             'updated_by'       => $userId,
+//         ]);
+
+//         $processedIngredients = [];
+
+//         if (!empty($payload['rawMaterials'])) {
+//             foreach ($payload['rawMaterials'] as $item) {
+//                 $material = RawMaterial::lockForUpdate()->find($item['id']);
+//                 if (!$material) {
+//                     throw ValidationException::withMessages([
+//                         'rawMaterials' => "Raw‑material ID {$item['id']} not found."
+//                     ]);
+//                 }
+
+//                 if ($material->unit_qty < $item['quantity']) {
+//                     throw ValidationException::withMessages([
+//                         'rawMaterials' => "Not enough stock for \"{$material->name}\". Available: {$material->unit_qty}, requested: {$item['quantity']}."
+//                     ]);
+//                 }
+
+//                 $material->unit_qty -= $item['quantity'];
+//                 $material->save();
+
+//                 $processedIngredient = ProcessedIngredients::create([
+//                     'processing_id' => $processing->id,
+//                     'ingredient_id' => $material->id,
+//                     'quantity'      => $item['quantity'],
+//                     'misc'          => null,
+//                     'created_by'    => $userId,
+//                     'updated_by'    => $userId,
+//                 ]);
+
+//                 $processedIngredients[] = $processedIngredient->id;
+//             }
+//         }
+
+//         $tank->quantity -= $totalRequiredMilk;
+//         $tank->save();
+
+//         foreach ($payload['productSizes'] as $ps) {
+//             $size = ProductSize::find($ps['id']);
+//             if (!$size) {
+//                 throw ValidationException::withMessages([
+//                     'productSizes' => "Product‑size ID {$ps['id']} not found."
+//                 ]);
+//             }
+
+//             $size->qty += $ps['qty'];
+//             $size->save();
+
+//             if (!empty($processedIngredients)) {
+//                 foreach ($processedIngredients as $processed_id) {
+//                     ProductsTracker::create([
+//                         'product_size_id' => $size->id,
+//                         'processed_id'    => $processed_id,
+//                         'product_qty'     => $ps['qty'],
+//                         'milkUsed'        => $totalRequiredMilk,
+//                         'batch_no'        => $batchNo,
+//                         'misc'            => null,
+//                         'created_by'      => $userId,
+//                         'updated_by'      => $userId,
+//                     ]);
+//                 }
+//             } else {
+//                 ProductsTracker::create([
+//                     'product_size_id' => $size->id,
+//                     'processed_id'    => 0,
+//                     'product_qty'     => $ps['qty'],
+//                     'milkUsed'        => $totalRequiredMilk,
+//                     'batch_no'        => $batchNo,
+//                     'misc'            => null,
+//                     'created_by'      => $userId,
+//                     'updated_by'      => $userId,
+//                 ]);
+//             }
+
+//             if ($companyId) {
+//                 DailyTally::create([
+//                     'company_id'         => $companyId,
+//                     'milk_tank_id'       => $tank->id,
+//                     'tally_date'         => now()->toDateString(),
+//                     'product_type'       => 'factory',
+//                     'product_id'         => $size->id,
+//                     'product_name'       => $size->name,
+//                     'product_local_name' => $size->localName ?? null,
+//                     'quantity'           => $ps['qty'],
+//                     'unit'               => $size->unit ?? null,
+//                     'batch_no'           => $batchNo,
+//                 ]);
+//             }
+//         }
+
+//         DB::commit();
+
+//         $negativeStockMaterials = RawMaterial::where('unit_qty', '<', 0)->pluck('name')->toArray();
+//         if (!empty($negativeStockMaterials)) {
+//             throw ValidationException::withMessages([
+//                 'rawMaterials' => 'Negative stock detected in: ' . implode(', ', $negativeStockMaterials),
+//             ]);
+//         }
+
+//         $negativeMilkTanks = MilkTank::where('quantity', '<', 0)->pluck('name')->toArray();
+//         if (!empty($negativeMilkTanks)) {
+//             throw ValidationException::withMessages([
+//                 'milkTank' => 'Negative milk stock detected in: ' . implode(', ', $negativeMilkTanks),
+//             ]);
+//         }
+
+//         return response()->json([
+//             'status'  => 'success',
+//             'message' => 'Inventory updated; batch, ingredients and product tracking logged.',
+//             'batch'   => $processing->only(['id', 'batch_no']),
+//         ], 200);
+
+//     } catch (\Throwable $e) {
+//         DB::rollBack();
+//         \Log::error("Error occurred during product creation: " . $e->getMessage());
+
+//         if ($e instanceof ValidationException) {
+//             throw $e;
+//         }
+
+//         return response()->json([
+//             'status'  => 'error',
+//             'message' => 'Could not complete transaction.',
+//             'error'   => $e->getMessage(),
+//         ], 500);
+//     }
+// }
+
+
 public function createProduct(Request $request)
 {
     $payload = $request->validate([
@@ -406,20 +616,11 @@ public function createProduct(Request $request)
     DB::beginTransaction();
 
     try {
-        $firstProductName = null;
-        if (!empty($payload['productSizes'])) {
-            $firstProduct = ProductSize::find($payload['productSizes'][0]['id']);
-            $firstProductName = $firstProduct?->name;
-        }
-
-        $batchPrefix = $firstProductName ? strtolower(substr($firstProductName, 0, 3)) : 'xx';
-        $batchNo = $batchPrefix . '-' . now('Asia/Kolkata')->format('Y-m-d H-i-s');
-
         $user = auth()->user();
         $userId = $user?->id;
         $companyId = $user?->company_id;
 
-        $tank = MilkTank::where('id', $payload['milkTank']['id'])->first();
+        $tank = MilkTank::lockForUpdate()->find($payload['milkTank']['id']);
         if (!$tank) {
             throw ValidationException::withMessages([
                 'milkTank' => "Milk‑tank ID {$payload['milkTank']['id']} not found."
@@ -428,42 +629,6 @@ public function createProduct(Request $request)
 
         $snf = $tank->snf;
         $ts = $tank->ts;
-
-        $totalRequiredMilk = 0;
-
-        foreach ($payload['productSizes'] as $ps) {
-            $calc = FactoryProductCalculation::where('factory_product_id', $ps['id'])->first();
-            if (!$calc) {
-                throw ValidationException::withMessages([
-                    'productSizes' => "No milk calculation rule for product-size ID {$ps['id']}."
-                ]);
-            }
-
-            // $requiredMilk = ($ps['qty'] * $calc->divide_by) / ($snf + $ts);
-            $requiredMilk = ceil(($ps['qty'] * ($snf + $ts)) /$calc->divide_by);
-            $totalRequiredMilk += $requiredMilk;
-            Log::info('qty', ['value' => $ps['qty']]);
-            Log::info('divide_by', ['value' => $calc->divide_by]);
-            Log::info('snf', ['value' => $snf]);
-            Log::info('ts', ['value' => $ts]);
-            Log::info('requiredMilk', ['value' => $requiredMilk]);
-            Log::info('totalRequiredMilk (inside loop)', ['value' => $totalRequiredMilk]);
-        }
-
-        if ($tank->quantity < $totalRequiredMilk) {
-            throw ValidationException::withMessages([
-                'milkTank' => "Not enough milk in \"{$tank->name}\". Required: {$totalRequiredMilk}, available: {$tank->quantity}."
-            ]);
-        }
-
-        $processing = MilkProcesing::create([
-            'batch_no'         => $batchNo,
-            'milkTank_id'      => $payload['milkTank']['id'],
-            'rowMilk_qty'      => $totalRequiredMilk,
-            'isProductCreated' => true,
-            'created_by'       => $userId,
-            'updated_by'       => $userId,
-        ]);
 
         $processedIngredients = [];
 
@@ -486,7 +651,7 @@ public function createProduct(Request $request)
                 $material->save();
 
                 $processedIngredient = ProcessedIngredients::create([
-                    'processing_id' => $processing->id,
+                    'processing_id' => 0, // Will update after each product batch
                     'ingredient_id' => $material->id,
                     'quantity'      => $item['quantity'],
                     'misc'          => null,
@@ -498,27 +663,68 @@ public function createProduct(Request $request)
             }
         }
 
-        $tank->quantity -= $totalRequiredMilk;
-        $tank->save();
-
         foreach ($payload['productSizes'] as $ps) {
-            $size = ProductSize::find($ps['id']);
-            if (!$size) {
+            $productSize = ProductSize::find($ps['id']);
+            if (!$productSize) {
                 throw ValidationException::withMessages([
                     'productSizes' => "Product‑size ID {$ps['id']} not found."
                 ]);
             }
 
-            $size->qty += $ps['qty'];
-            $size->save();
+            $calc = FactoryProductCalculation::where('factory_product_id', $ps['id'])->first();
+            if (!$calc) {
+                throw ValidationException::withMessages([
+                    'productSizes' => "No milk calculation rule for product-size ID {$ps['id']}."
+                ]);
+            }
+
+            if ($calc->cal_applicable == 1) {
+                $requiredMilk = ceil(($ps['qty'] * ($snf + $ts)) / $calc->divide_by);
+            } else {
+                $requiredMilk = ceil($ps['qty']);
+            }
+
+            if ($tank->quantity < $requiredMilk) {
+                throw ValidationException::withMessages([
+                    'milkTank' => "Not enough milk in \"{$tank->name}\". Required: {$requiredMilk}, available: {$tank->quantity}."
+                ]);
+            }
+
+            // Generate separate batch number per product
+            $batchPrefix = strtolower(substr($productSize->name, 0, 3)) ?: 'xx';
+            $batchNo = $batchPrefix . '-' . now('Asia/Kolkata')->format('Y-m-d-H-i-s') . '-' . uniqid();
+
+            $processing = MilkProcesing::create([
+                'batch_no'         => $batchNo,
+                'milkTank_id'      => $tank->id,
+                'rowMilk_qty'      => $requiredMilk,
+                'isProductCreated' => true,
+                'created_by'       => $userId,
+                'updated_by'       => $userId,
+            ]);
+
+            // Update processed ingredient with processing_id
+            foreach ($processedIngredients as $processed_id) {
+                ProcessedIngredients::where('id', $processed_id)->update([
+                    'processing_id' => $processing->id
+                ]);
+            }
+
+            // Deduct milk from tank
+            $tank->quantity -= $requiredMilk;
+            $tank->save();
+
+            // Update product stock
+            $productSize->qty += $ps['qty'];
+            $productSize->save();
 
             if (!empty($processedIngredients)) {
                 foreach ($processedIngredients as $processed_id) {
                     ProductsTracker::create([
-                        'product_size_id' => $size->id,
+                        'product_size_id' => $productSize->id,
                         'processed_id'    => $processed_id,
                         'product_qty'     => $ps['qty'],
-                        'milkUsed'        => $totalRequiredMilk,
+                        'milkUsed'        => $requiredMilk,
                         'batch_no'        => $batchNo,
                         'misc'            => null,
                         'created_by'      => $userId,
@@ -527,10 +733,10 @@ public function createProduct(Request $request)
                 }
             } else {
                 ProductsTracker::create([
-                    'product_size_id' => $size->id,
+                    'product_size_id' => $productSize->id,
                     'processed_id'    => 0,
                     'product_qty'     => $ps['qty'],
-                    'milkUsed'        => $totalRequiredMilk,
+                    'milkUsed'        => $requiredMilk,
                     'batch_no'        => $batchNo,
                     'misc'            => null,
                     'created_by'      => $userId,
@@ -544,11 +750,11 @@ public function createProduct(Request $request)
                     'milk_tank_id'       => $tank->id,
                     'tally_date'         => now()->toDateString(),
                     'product_type'       => 'factory',
-                    'product_id'         => $size->id,
-                    'product_name'       => $size->name,
-                    'product_local_name' => $size->localName ?? null,
+                    'product_id'         => $productSize->id,
+                    'product_name'       => $productSize->name,
+                    'product_local_name' => $productSize->localName ?? null,
                     'quantity'           => $ps['qty'],
-                    'unit'               => $size->unit ?? null,
+                    'unit'               => $productSize->unit ?? null,
                     'batch_no'           => $batchNo,
                 ]);
             }
@@ -573,7 +779,6 @@ public function createProduct(Request $request)
         return response()->json([
             'status'  => 'success',
             'message' => 'Inventory updated; batch, ingredients and product tracking logged.',
-            'batch'   => $processing->only(['id', 'batch_no']),
         ], 200);
 
     } catch (\Throwable $e) {
