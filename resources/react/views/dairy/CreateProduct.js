@@ -271,16 +271,22 @@ const MilkForm = () => {
     if(productCalculationData?.liters && productCalculationData?.divide_by){
     // let milk_in_liter=null;
     // milk_in_liter = (e.target.value * (selectedTank.snf + selectedTank.ts)) / productCalculationData?.divide_by;
-    let rawValue = (e.target.value * (selectedTank.snf + selectedTank.ts)) / productCalculationData?.divide_by;
+    if(productCalculationData.cal_applicable===1){
+          let rawValue = (e.target.value * (selectedTank.snf + selectedTank.ts)) / productCalculationData?.divide_by;
     let milk_in_liter = (rawValue % 1) >= 0.1 ? Math.ceil(rawValue) : Math.floor(rawValue);
       setNewProduct(p => ({ ...p, liters: milk_in_liter }));
-      console.log(milk_in_liter);
+    }
+    else{
+      setNewProduct(p => ({ ...p, liters: e.target.value }));
+    }
      }
 
     if (productAvailQty !== null && parseFloat(val) == productAvailQty) {
       setProdError(t('MSG.quantityExceedsAvailableStock'));
     } else setProdError('');
   };
+
+  
 
   const addProduct = () => {
     if (newProduct.name && newProduct.quantity && !prodError) {

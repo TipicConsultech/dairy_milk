@@ -13,6 +13,7 @@ class FactoryProductCalculation extends Model
 
     protected $fillable = [
         'factory_product_id',
+        'cal_applicable',
         'liters',
         'divide_by',
     ];
