@@ -37,21 +37,39 @@ const CreditReport2 = () => {
   const { t, i18n } = useTranslation("global");
   const lng = i18n.language;
 
-  useEffect(() => {
-    const fetchReport = async () => {
-      try {
-        const reportData = await getAPICall('/api/creditReport');
-        if(reportData) {
-          const filteredData = reportData.filter(r => r.totalPayment != 0 || r.items?.filter(i => i.quantity > 0).length > 0).sort((c1,c2)=> c1.name.localeCompare(c2.name));
-          setReport(filteredData);
-          setFilteredReport(filteredData);
-        }
-      } catch (error) {
-        showToast('danger', 'Error occurred ' + error);
+//   useEffect(() => {
+//     const fetchReport = async () => {
+//       try {
+//         const reportData = await getAPICall('/api/creditReport');
+//         if(reportData) {
+//           const filteredData = reportData.filter(r => r.totalPayment != 0 || r.items?.filter(i => i.quantity > 0).length > 0).sort((c1,c2)=> c1.name.localeCompare(c2.name));
+//           setReport(filteredData);
+//           setFilteredReport(filteredData);
+//         }
+//       } catch (error) {
+//         showToast('danger', 'Error occurred ' + error);
+//       }
+//     };
+//     fetchReport();
+//   }, []);
+useEffect(() => {
+  const fetchReport = async () => {
+    try {
+      const response = await getAPICall('/api/creditReport');
+      if(response && response.data) {
+        const filteredData = response.data.filter(r =>
+          r.totalPayment != 0 || r.items?.filter(i => i.quantity > 0).length > 0
+        ).sort((c1, c2) => c1.name.localeCompare(c2.name));
+
+        setReport(filteredData);
+        setFilteredReport(filteredData);
       }
-    };
-    fetchReport();
-  }, []);
+    } catch (error) {
+      showToast('danger', 'Error occurred ' + error);
+    }
+  };
+  fetchReport();
+}, []);
 
   // if(searchTerm?.length > 0){
   //   filteredReport = report.filter(r => r.name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -93,11 +111,11 @@ const CreditReport2 = () => {
           <CCardBody>
             {/* ** Search Input Box ** */}
             <CForm>
-              <CFormInput 
-                type="text" 
-                placeholder={t('LABELS.search')} 
-                value={searchTerm} 
-                onChange={(e) => {setSearchTerm(e.target.value); onSearchChange(e.target.value); e.preventDefault();}} 
+              <CFormInput
+                type="text"
+                placeholder={t('LABELS.search')}
+                value={searchTerm}
+                onChange={(e) => {setSearchTerm(e.target.value); onSearchChange(e.target.value); e.preventDefault();}}
               />
             </CForm>
             <div className='table-responsive'>

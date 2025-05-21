@@ -24,19 +24,19 @@ class OrderController extends Controller
     {
         $user = Auth::user();
         $invoiceType = $request->query('invoiceType');
-        if($invoiceType > -1){
+        if ($invoiceType > -1) {
             $orderStatus = $request->query('orderStatus');
-            if($orderStatus > -1){
+            if ($orderStatus > -1) {
                 $orders = Order::with(['customer:id,name,mobile', 'user:id,name,mobile', 'items'])
-                ->where('company_id', $user->company_id)
-                ->where('invoiceType',$invoiceType)
-                ->where('orderStatus',$orderStatus)
-                ->orderBy('id', 'desc')->paginate(25);
+                    ->where('company_id', $user->company_id)
+                    ->where('invoiceType', $invoiceType)
+                    ->where('orderStatus', $orderStatus)
+                    ->orderBy('id', 'desc')->paginate(25);
                 return $orders;
             }
-            $orders = Order::with(['customer:id,name,mobile', 'user:id,name,mobile', 'items'])->where('company_id', $user->company_id)->where('invoiceType',$invoiceType)->orderBy('id', 'desc')->paginate(25);
+            $orders = Order::with(['customer:id,name,mobile', 'user:id,name,mobile', 'items'])->where('company_id', $user->company_id)->where('invoiceType', $invoiceType)->orderBy('id', 'desc')->paginate(25);
             return $orders;
-        }else{
+        } else {
             $orders = Order::with(['customer:id,name,mobile', 'user:id,name,mobile', 'items'])->where('company_id', $user->company_id)->orderBy('id', 'desc')->paginate(25);
             return $orders;
         }
@@ -48,19 +48,19 @@ class OrderController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-//     public function store(Request $request)
+    //     public function store(Request $request)
 // {
 //     DB::beginTransaction();
 
-//     try {
+    //     try {
 //         $user = Auth::user();
 //         $profit = 0;
 
-//         foreach ($request->items as $item) {
+    //         foreach ($request->items as $item) {
 //             $profit += $item['total_price'] - (($item['dqty'] ?? 0) * ($item['bPrice'] ?? 0));
 //         }
 
-//         $order = Order::create(
+    //         $order = Order::create(
 //             array_merge(
 //                 $request->all(),
 //                 [
@@ -72,7 +72,7 @@ class OrderController extends Controller
 //             )
 //         );
 
-//         foreach ($request->items as $item) {
+    //         foreach ($request->items as $item) {
 //             // Check if orderStatus is 1 (Delivery) and qty is sufficient
 //             if ($request->orderStatus == 1) {
 //                 $productSize = ProductSize::find($item['product_sizes_id']);
@@ -80,21 +80,21 @@ class OrderController extends Controller
 //                     $availableQty = $productSize->qty;
 //                     $requestedQty = $item['dQty'] ?? 0;
 
-//                     if ($availableQty - $requestedQty < 0) {
+    //                     if ($availableQty - $requestedQty < 0) {
 //                         DB::rollBack();
 //                         return response()->json([
 //                             'error_message' => "The product '{$item['name']}' has only {$availableQty} in stock, but you requested {$requestedQty}."
 //                         ], 200);
 //                     }
 
-//                     // Update stock
+    //                     // Update stock
 //                     $productSize->update(['qty' => $availableQty - $requestedQty]);
 //                 }
 
-//                 $returnable = $item['returnable'] ?? $item['sizes'][0]['returnable'] ?? false;
+    //                 $returnable = $item['returnable'] ?? $item['sizes'][0]['returnable'] ?? false;
 //             }
 
-//             // Save order item
+    //             // Save order item
 //             $od = new OrderDetail;
 //             $od->product_id = $item['id'];
 //             $od->product_name = $item['name'];
@@ -111,7 +111,7 @@ class OrderController extends Controller
 //             $od->remark = $item['remark'] ?? '';
 //             $order->items()->save($od);
 
-//             // If order is booked (not yet delivered)
+    //             // If order is booked (not yet delivered)
 //             if ($order->orderStatus == 2) {
 //                 $productSize = ProductSize::find($item['product_sizes_id']);
 //                 if ($productSize) {
@@ -121,24 +121,24 @@ class OrderController extends Controller
 //             }
 //         }
 
-//         // Update payment
+    //         // Update payment
 //         $paymentDetails = PaymentTracker::firstOrNew(['customer_id' => $request->customer_id]);
 
-//         if ($request->orderStatus == 1) {
+    //         if ($request->orderStatus == 1) {
 //             $balanceAmount = $request->totalAmount - $request->paidAmount;
 //             $paymentDetails->created_by = $user->id;
 //             $paymentDetails->updated_by = $user->id;
 //             $paymentDetails->amount -= $balanceAmount;
 //         }
 
-//         if ($request->orderStatus !== 1 && $request->paidAmount > 0) {
+    //         if ($request->orderStatus !== 1 && $request->paidAmount > 0) {
 //             $paymentDetails->amount += $request->paidAmount;
 //         }
 
-//         $paymentDetails->save();
+    //         $paymentDetails->save();
 //         $order->items = $order->items()->get();
 
-//         DB::commit();
+    //         DB::commit();
 //         return response()->json($order);
 //     } catch (\Exception $e) {
 //         DB::rollBack();
@@ -149,109 +149,109 @@ class OrderController extends Controller
 //     }
 // }
 
-public function store(Request $request)
-{
-    DB::beginTransaction();
+    public function store(Request $request)
+    {
+        DB::beginTransaction();
 
-    try {
-        $user = Auth::user();
-        $profit = 0;
+        try {
+            $user = Auth::user();
+            $profit = 0;
 
-        // ✅ First: Pre-check all quantities if orderStatus == 1
-        if ($request->orderStatus == 1) {
+            // ✅ First: Pre-check all quantities if orderStatus == 1
+            if ($request->orderStatus == 1) {
+                foreach ($request->items as $item) {
+                    $productSize = ProductSize::find($item['product_sizes_id']);
+                    $requestedQty = $item['dQty'] ?? 0;
+
+                    if (!$productSize) {
+                        DB::rollBack();
+                        return response()->json([
+                            'error_message' => "Product size not found for '{$item['name']}'."
+                        ], 200);
+                    }
+
+                    if ($productSize->qty < $requestedQty) {
+                        DB::rollBack();
+                        return response()->json([
+                            'error_message' => "The product '{$item['name']}' has only {$productSize->qty} in stock, but you requested {$requestedQty}."
+                        ], 200);
+                    }
+                }
+            }
+
+            // ✅ Now safe to calculate profit and create order
+            foreach ($request->items as $item) {
+                $profit += $item['total_price'] - (($item['dqty'] ?? 0) * ($item['bPrice'] ?? 0));
+            }
+
+            $order = Order::create(array_merge($request->all(), [
+                'profit' => $profit,
+                'company_id' => $user->company_id,
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+            ]));
+
             foreach ($request->items as $item) {
                 $productSize = ProductSize::find($item['product_sizes_id']);
-                $requestedQty = $item['dQty'] ?? 0;
 
-                if (!$productSize) {
-                    DB::rollBack();
-                    return response()->json([
-                        'error_message' => "Product size not found for '{$item['name']}'."
-                    ], 200);
+                if ($request->orderStatus == 1 && $productSize) {
+                    $availableQty = $productSize->qty;
+                    $requestedQty = $item['dQty'] ?? 0;
+                    $productSize->update(['qty' => $availableQty - $requestedQty]);
                 }
 
-                if ($productSize->qty < $requestedQty) {
-                    DB::rollBack();
-                    return response()->json([
-                        'error_message' => "The product '{$item['name']}' has only {$productSize->qty} in stock, but you requested {$requestedQty}."
-                    ], 200);
+                // Save order item
+                $od = new OrderDetail;
+                $od->product_id = $item['id'];
+                $od->product_name = $item['name'];
+                $od->product_local_name = $item['localName'];
+                $od->product_unit = $item['unit'];
+                $od->product_sizes_id = $item['product_sizes_id'];
+                $od->size_name = $item['size_name'];
+                $od->size_local_name = $item['size_local_name'];
+                $od->dQty = $item['dQty'] ?? 0;
+                $od->eQty = $item['eQty'] ?? 0;
+                $od->oPrice = $item['oPrice'];
+                $od->dPrice = $item['dPrice'];
+                $od->total_price = $item['total_price'] ?? 0;
+                $od->remark = $item['remark'] ?? '';
+                $order->items()->save($od);
+
+                // Booking if not yet delivered
+                if ($order->orderStatus == 2 && $productSize) {
+                    $changeStockQty = $item['dQty'] ?? 0;
+                    $productSize->update(['booked' => $productSize->booked + $changeStockQty]);
                 }
             }
-        }
 
-        // ✅ Now safe to calculate profit and create order
-        foreach ($request->items as $item) {
-            $profit += $item['total_price'] - (($item['dqty'] ?? 0) * ($item['bPrice'] ?? 0));
-        }
+            // Payment logic
+            $paymentDetails = PaymentTracker::firstOrNew(['customer_id' => $request->customer_id]);
 
-        $order = Order::create(array_merge($request->all(), [
-            'profit' => $profit,
-            'company_id' => $user->company_id,
-            'created_by' => $user->id,
-            'updated_by' => $user->id,
-        ]));
-
-        foreach ($request->items as $item) {
-            $productSize = ProductSize::find($item['product_sizes_id']);
-
-            if ($request->orderStatus == 1 && $productSize) {
-                $availableQty = $productSize->qty;
-                $requestedQty = $item['dQty'] ?? 0;
-                $productSize->update(['qty' => $availableQty - $requestedQty]);
+            if ($request->orderStatus == 1) {
+                $balanceAmount = $request->totalAmount - $request->paidAmount;
+                $paymentDetails->created_by = $user->id;
+                $paymentDetails->updated_by = $user->id;
+                $paymentDetails->amount -= $balanceAmount;
             }
 
-            // Save order item
-            $od = new OrderDetail;
-            $od->product_id = $item['id'];
-            $od->product_name = $item['name'];
-            $od->product_local_name = $item['localName'];
-            $od->product_unit = $item['unit'];
-            $od->product_sizes_id = $item['product_sizes_id'];
-            $od->size_name = $item['size_name'];
-            $od->size_local_name = $item['size_local_name'];
-            $od->dQty = $item['dQty'] ?? 0;
-            $od->eQty = $item['eQty'] ?? 0;
-            $od->oPrice = $item['oPrice'];
-            $od->dPrice = $item['dPrice'];
-            $od->total_price = $item['total_price'] ?? 0;
-            $od->remark = $item['remark'] ?? '';
-            $order->items()->save($od);
-
-            // Booking if not yet delivered
-            if ($order->orderStatus == 2 && $productSize) {
-                $changeStockQty = $item['dQty'] ?? 0;
-                $productSize->update(['booked' => $productSize->booked + $changeStockQty]);
+            if ($request->orderStatus !== 1 && $request->paidAmount > 0) {
+                $paymentDetails->amount += $request->paidAmount;
             }
+
+            $paymentDetails->save();
+
+            $order->items = $order->items()->get();
+
+            DB::commit();
+            return response()->json($order);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'error_message' => 'Order creation failed.',
+                'exception' => $e->getMessage()
+            ], 500);
         }
-
-        // Payment logic
-        $paymentDetails = PaymentTracker::firstOrNew(['customer_id' => $request->customer_id]);
-
-        if ($request->orderStatus == 1) {
-            $balanceAmount = $request->totalAmount - $request->paidAmount;
-            $paymentDetails->created_by = $user->id;
-            $paymentDetails->updated_by = $user->id;
-            $paymentDetails->amount -= $balanceAmount;
-        }
-
-        if ($request->orderStatus !== 1 && $request->paidAmount > 0) {
-            $paymentDetails->amount += $request->paidAmount;
-        }
-
-        $paymentDetails->save();
-
-        $order->items = $order->items()->get();
-
-        DB::commit();
-        return response()->json($order);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'error_message' => 'Order creation failed.',
-            'exception' => $e->getMessage()
-        ], 500);
     }
-}
 
 
     /**
@@ -279,29 +279,29 @@ public function store(Request $request)
     {
         $user = Auth::user();
         $order = Order::find($id);
-        if($order->orderStatus == $request->orderStatus){
+        if ($order->orderStatus == $request->orderStatus) {
             return response()->json([
-                'success'=> false,
+                'success' => false,
                 'message' => 'Operation is alredy performed',
             ]);
         }
         //Cancele order
-        if($order && $request->orderStatus == "0"){
+        if ($order && $request->orderStatus == "0") {
             $order->items = $order->items()->get();
             //Cancel alredady delivered
-            if($order->orderStatus == "1"){
-                foreach($order->items as $item){
+            if ($order->orderStatus == "1") {
+                foreach ($order->items as $item) {
                     $productSize = ProductSize::find($item['product_sizes_id']);
-                    if($productSize){
-                        $productSize->update(['stock'=> $productSize->stock + $item['dQty']]);
+                    if ($productSize) {
+                        $productSize->update(['stock' => $productSize->stock + $item['dQty']]);
                     }
-                    //Update Customer Jar & payment tracker 
+                    //Update Customer Jar & payment tracker
                     $returnable = $productSize['returnable'];
                     //update jar tracker
-                    if($returnable){
+                    if ($returnable) {
                         $returnQty = ($item['dQty'] ?? 0) - ($item['eQty'] ?? 0);
                         $jarTracker = JarTracker::where('customer_id', $order['customer_id'])->where('product_sizes_id', $productSize->id)->first();
-                        if($jarTracker){
+                        if ($jarTracker) {
                             $jarTracker->quantity -= $returnQty;
                             $jarTracker->save();
                         }
@@ -310,34 +310,34 @@ public function store(Request $request)
                 $paymentDetails = PaymentTracker::firstOrNew(array('customer_id' => $order->customer_id));
                 $paymentDetails->amount += $order->totalAmount;
                 $paymentDetails->save();
-            }else{
+            } else {
                 //Canceling booked (but not delivered) order
-                foreach($order->items as $item){
+                foreach ($order->items as $item) {
                     $productSize = ProductSize::find($item['product_sizes_id']);
-                    $productSize->update(['booked'=> $productSize->booked - $item['dQty']]);
+                    $productSize->update(['booked' => $productSize->booked - $item['dQty']]);
                 }
             }
         }
         //Advance booking is being marked as delivered
-        if($order && $request->orderStatus == "1" && $order->orderStatus == "2" && $request->invoiceType == "2"){
+        if ($order && $request->orderStatus == "1" && $order->orderStatus == "2" && $request->invoiceType == "2") {
             $order->items = $order->items()->get();
-            foreach($order->items as $item){
+            foreach ($order->items as $item) {
                 $productSize = ProductSize::find($item['product_sizes_id']);
-                if($productSize){
-                    $productSize->update(['stock'=> $productSize->stock - $item['dQty']]);
-                    $productSize->update(['booked'=> $productSize->booked - $item['dQty']]);
+                if ($productSize) {
+                    $productSize->update(['stock' => $productSize->stock - $item['dQty']]);
+                    $productSize->update(['booked' => $productSize->booked - $item['dQty']]);
 
                     //Update Customer Jar & payment tracker
                     //is product returnable
                     $returnable = $productSize['returnable'];
                     //update jar tracker
-                    if($returnable){
+                    if ($returnable) {
                         $returnQty = ($item['dQty'] ?? 0) - ($item['eQty'] ?? 0);
                         $jarTracker = JarTracker::where('customer_id', $order['customer_id'])->where('product_sizes_id', $productSize->id)->first();
-                        if($jarTracker){
+                        if ($jarTracker) {
                             $jarTracker->quantity += $returnQty;
                             $jarTracker->save();
-                        }else{
+                        } else {
                             JarTracker::create([
                                 'product_name' => $item['product_name'],
                                 'product_local_name' => $item['product_local_name'],
@@ -346,7 +346,7 @@ public function store(Request $request)
                                 'quantity' => $returnQty,
                                 'created_by' => $user->id,
                                 'updated_by' => $user->id,
-                                ]);
+                            ]);
                         }
                     }
                 }
@@ -376,118 +376,137 @@ public function store(Request $request)
         $user = Auth::user();
         $startDate = $request->query('startDate');
         $endDate = $request->query('endDate');
-        
+
         $query = Order::whereNotIn('orderStatus', [0, 2])
-                    ->where('company_id', $user->company_id)
-                       ->where('orderStatus',1) ;// Initial filter for orderStatus = 1
-        
+            ->where('company_id', $user->company_id)
+            ->where('orderStatus', 1);// Initial filter for orderStatus = 1
+
         if ($startDate && $endDate) {
             $query->whereBetween('invoiceDate', [$startDate, $endDate]);
         }
-        
+
         $result = $query->get()->filter(function ($order) {
             return $order->orderStatus == 1; // Filter out any order with orderStatus other than 1
         });
-        
-        return response()->json($result);
-    }
 
+        // Calculate summary data
+        $summary = [
+            'sales' => [
+                'totalAmount' => $result->sum('totalAmount'),
+                'totalPaidAmount' => $result->sum('paidAmount'),
+                'totalRemainingAmount' => $result->sum('totalAmount') - $result->sum('paidAmount'),
+            ],
+            'expense' => [
+                'totalCost' => $result->sum('totalCost'),
+            ],
+            'profitLoss' => [
+                'totalSales' => $result->sum('totalAmount'),
+                'totalExpenses' => $result->sum('totalCost'),
+                'totalProfitLoss' => $result->sum('totalAmount') - $result->sum('totalCost'),
+            ]
+        ];
+
+        return response()->json([
+            'orders' => $result,
+            'summary' => $summary
+        ]);
+    }
 
     public function totalDeliverie(Request $request)
     {
         $user = Auth::user();
         $startDate = $request->query('startDate');
         $endDate = $request->query('endDate');
-    
+
         $query = Order::where('company_id', $user->company_id)
-                       ->where('orderStatus',2) // Initial filter for orderStatus = 2 => Pending delivery
-                       ->where('invoiceType',2) ;// Initial filter for invoicetype = 2 => advance booking
-        
+            ->where('orderStatus', 2) // Initial filter for orderStatus = 2 => Pending delivery
+            ->where('invoiceType', 2);// Initial filter for invoicetype = 2 => advance booking
+
         if ($startDate && $endDate) {
             $query->whereBetween('deliveryDate', [$startDate, $endDate]);
         }
-        
+
         $result = $query->get()->filter(function ($order) {
             return $order->orderStatus == 2; // Filter out any order with orderStatus other than 1
         });
-        
+
         return response()->json($result);
     }
-   
-   /**
- * Get the monthly sales totals for the financial year.
- *
- * @return \Illuminate\Http\Response
- */
-public function getMonthlyReport()
-{
-    $user = Auth::user();
-    
-    // Get the current year and set the financial year (April to March)
-    $currentYear = date('Y');
-    $financialYearStart = date('Y-m-d', strtotime("April 1, $currentYear"));
-    $financialYearEnd = date('Y-m-d', strtotime("March 31, " . ($currentYear + 1)));
-    
-    // Fetch and process monthly expenses for the financial year
-    $monthlyExpense = Expense::select(
-        DB::raw('SUM(total_price) as total_expense'),
-        DB::raw('MONTH(expense_date) as month')
-    )
-    ->where('show', 1) // Only consider visible expenses
-    ->where('company_id', $user->company_id)
-    ->whereBetween('expense_date', [$financialYearStart, $financialYearEnd]) // Filter by financial year
-    ->groupBy(DB::raw('MONTH(expense_date)'))
-    ->get()
-    ->keyBy('month')
-    ->toArray();
 
-    // Initialize an array with 12 zeros for expenses
-    $expenseData = array_fill(0, 12, 0);
+    /**
+     * Get the monthly sales totals for the financial year.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getMonthlyReport()
+    {
+        $user = Auth::user();
 
-    // Fill in the expense data
-    foreach ($monthlyExpense as $month => $data) {
-        $expenseData[$month - 1] = $data['total_expense'];
-    }
+        // Get the current year and set the financial year (April to March)
+        $currentYear = date('Y');
+        $financialYearStart = date('Y-m-d', strtotime("April 1, $currentYear"));
+        $financialYearEnd = date('Y-m-d', strtotime("March 31, " . ($currentYear + 1)));
 
-    // Fetch and process monthly sales for the financial year
-    $monthlySales = Order::select(
-        DB::raw('SUM(totalAmount) as total_sales'),
-        DB::raw('MONTH(invoiceDate) as month')
-    )
-    ->where('company_id', $user->company_id)
-    ->where('orderStatus', 1) // Only consider completed orders
-    ->whereBetween('invoiceDate', [$financialYearStart, $financialYearEnd]) // Filter by financial year
-    ->groupBy(DB::raw('MONTH(invoiceDate)'))
-    ->get()
-    ->keyBy('month')
-    ->toArray();
+        // Fetch and process monthly expenses for the financial year
+        $monthlyExpense = Expense::select(
+            DB::raw('SUM(total_price) as total_expense'),
+            DB::raw('MONTH(expense_date) as month')
+        )
+            ->where('show', 1) // Only consider visible expenses
+            ->where('company_id', $user->company_id)
+            ->whereBetween('expense_date', [$financialYearStart, $financialYearEnd]) // Filter by financial year
+            ->groupBy(DB::raw('MONTH(expense_date)'))
+            ->get()
+            ->keyBy('month')
+            ->toArray();
 
-    // Initialize an array with 12 zeros for sales
-    $salesData = array_fill(0, 12, 0);
+        // Initialize an array with 12 zeros for expenses
+        $expenseData = array_fill(0, 12, 0);
 
-    // Fill in the sales data
-    foreach ($monthlySales as $month => $data) {
-        $salesData[$month - 1] = $data['total_sales'];
-    }
-
-    // Calculate the Profit and Loss (PL) data for the financial year
-    $PLdata = array_fill(0, 12, 0);
-    foreach ($monthlySales as $month => $sales) {
-        if (isset($monthlyExpense[$month])) {
-            $expense = $monthlyExpense[$month];
-            $PLdata[$month - 1] = $sales['total_sales'] - $expense['total_expense'];
-        } else {
-            $PLdata[$month - 1] = $sales['total_sales'];
+        // Fill in the expense data
+        foreach ($monthlyExpense as $month => $data) {
+            $expenseData[$month - 1] = $data['total_expense'];
         }
-    }
 
-    return response()->json([
-        'success' => true,
-        'monthlySales' => $salesData,
-        'monthlyExpense' => $expenseData,
-        'monthlyPandL' => $PLdata,
-    ]);
-}
+        // Fetch and process monthly sales for the financial year
+        $monthlySales = Order::select(
+            DB::raw('SUM(totalAmount) as total_sales'),
+            DB::raw('MONTH(invoiceDate) as month')
+        )
+            ->where('company_id', $user->company_id)
+            ->where('orderStatus', 1) // Only consider completed orders
+            ->whereBetween('invoiceDate', [$financialYearStart, $financialYearEnd]) // Filter by financial year
+            ->groupBy(DB::raw('MONTH(invoiceDate)'))
+            ->get()
+            ->keyBy('month')
+            ->toArray();
+
+        // Initialize an array with 12 zeros for sales
+        $salesData = array_fill(0, 12, 0);
+
+        // Fill in the sales data
+        foreach ($monthlySales as $month => $data) {
+            $salesData[$month - 1] = $data['total_sales'];
+        }
+
+        // Calculate the Profit and Loss (PL) data for the financial year
+        $PLdata = array_fill(0, 12, 0);
+        foreach ($monthlySales as $month => $sales) {
+            if (isset($monthlyExpense[$month])) {
+                $expense = $monthlyExpense[$month];
+                $PLdata[$month - 1] = $sales['total_sales'] - $expense['total_expense'];
+            } else {
+                $PLdata[$month - 1] = $sales['total_sales'];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'monthlySales' => $salesData,
+            'monthlyExpense' => $expenseData,
+            'monthlyPandL' => $PLdata,
+        ]);
+    }
 
 
     public function customerReport(Request $request)
@@ -498,16 +517,16 @@ public function getMonthlyReport()
 
         $user = Auth::user();
         $companyId = $user->company_id;
-    
+
         $query = Order::with(['customer:id,name,mobile', 'user:id,name,mobile', 'items'])->where('company_id', $companyId)->where('orderStatus', 1);
-        if($id > 0){
+        if ($id > 0) {
             $query->where('customer_id', $id);
         }
-        
+
         if ($startDate && $endDate) {
             $query->whereBetween('deliveryDate', [$startDate, $endDate]);
         }
-        
+
         $result = $query->get();
         return response()->json($result);
     }
@@ -516,13 +535,13 @@ public function getMonthlyReport()
     {
         $startDate = $request->query('startDate');
         $endDate = $request->query('endDate');
-    
+
         $query = Order::with(['customer:id,name', 'user:id,name,mobile', 'items'])->where('orderStatus', 1);
-        
+
         if ($startDate && $endDate) {
             $query->whereBetween('deliveryDate', [$startDate, $endDate]);
         }
-        
+
         $result = $query->get();
         return response()->json($result);
     }
