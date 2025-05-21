@@ -61,6 +61,7 @@ class ProductMappingController extends Controller
             return [
                 'id' => $size->id,
                 'name' => $size->product->name,
+                'localName' => $size->localName,
                 'label_value' => $size->label_value,
                 'unit' => $size->unit,
                 'product_id' => $size->product_id,

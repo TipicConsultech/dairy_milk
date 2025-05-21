@@ -142,3 +142,30 @@ export async function getAPICall(api) {
 export async function deleteAPICall(api) {
   return await getOrDelete(host + api, 'DELETE')
 }
+
+export const get = async (url, params = {}) => {
+  try {
+    const queryParams = new URLSearchParams(params).toString();
+    const fullUrl = queryParams ? `${url}?${queryParams}` : url;
+
+    const response = await fetch(fullUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      credentials: 'include', // Include cookies for authentication
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch data');
+    }
+
+    return data;
+  } catch (error) {
+    console.error('API request failed:', error);
+    throw error;
+  }
+};

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MilkTankController;
+use App\Http\Controllers\ProductCalculationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -29,15 +30,18 @@ use App\Http\Controllers\CompanyReceiptController;
 use App\Http\Controllers\MailController;
 use App\Http\Controllers\MilkTanksTrackerController;
 use App\Http\Controllers\ProductMappingController;
-// Dairy
-// use App\Http\Controllers\MilkTankController;
+use App\Http\Controllers\FactoryProductCalculationController;
 
 
-// ini_set('display_errors', 1);
-// ini_set('display_startup_errors', 1);
-// error_reporting(E_ALL);
+//Factory Product Calculation API's
+Route::get('/factoryProductsCalculation', [FactoryProductCalculationController::class, 'index']);               // Get all
+Route::post('/factoryProductsCalculation', [FactoryProductCalculationController::class, 'store']);              // Create
+Route::get('/factoryProductsCalculation/{factory_product_id}', [FactoryProductCalculationController::class, 'getFactoryProductById']);
+Route::put('/factoryProductsCalculation/{factory_product_id}', [FactoryProductCalculationController::class, 'update']);
 
-//-
+
+
+
 use App\Http\Controllers\DailyTallyController;
 Route::middleware('auth:sanctum')->get('/milk-tanks/by-company', [MilkTankController::class, 'getByCompany']);
 
@@ -48,7 +52,7 @@ Route::post('/api/product-mappings', [ProductMappingController::class, 'createPr
 Route::delete('/api/product-mappings/{id}', [ProductMappingController::class, 'deleteProductMapping']);
 
 Route::post('/reset-password-link', [MailController::class, 'sendEmail']);
-Route::post('/newPassword',[MailController::class, 'resetPassword']);
+Route::post('/newPassword', [MailController::class, 'resetPassword']);
 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -114,8 +118,20 @@ Route::post('/uploadCSVRawMaterial', [RawMaterialController::class, 'uploadCsvRa
 Route::post('/uploadBulk', [RawMaterialController::class, 'bulkUpdate']);
 // Route::get('/serchRawMaterials', [RawMaterialController::class, 'searchByName']);
 
-//Private 
+//Private
 Route::post('/rawMaterialAdd', [RawMaterialController::class, 'store'])->middleware('auth:sanctum');
+
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
+Route::post('/calculate/predict/paneer', [ProductCalculationController::class, 'calculatePaneer']);
+Route::post('/calculate/predict/tup', [ProductCalculationController::class, 'calculateTup']);
+Route::post('/store/paneer', [ProductCalculationController::class, 'storePaneerCalculation']);
+Route::post('/store/tup', [ProductCalculationController::class, 'storeTupCalculation']);
+Route::get('/history', [ProductCalculationController::class, 'getHistory']);
+Route::get('/product-calculations/all', [ProductCalculationController::class, 'getAllCalculations']);
+Route::get('/calculations/date-range', [ProductCalculationController::class, 'getCalculationsByDateRange']);
 
 
 //public API's
@@ -141,7 +157,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/productInBatch', [ProductsTrackerController::class, 'productInBatch']);
     Route::post('/batchByProductId', [ProductsTrackerController::class, 'BatchByProductId']);
     Route::get('/milk-tanks/trackers/grouped', [MilkTanksTrackerController::class, 'getGroupedQuantities']);
-  
+
     //DailyTallies
     Route::get('/daily-tallies', [DailyTallyController::class, 'index']);
 
@@ -153,8 +169,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/getProductsWithVisibleSizes', [ProductController::class, 'getProductsWithVisibleSizes']); // TODO - Need to remove not used
     Route::post('/newRetailProduct', [CommonController::class, 'newRetailProduct']);
-    Route::post('/createProduct', [CommonController::class, 'createProduct']); 
-    Route::get('/getProductsByProductType', [ProductController::class, 'getProductsByProductType']);  
+    Route::post('/createProduct', [CommonController::class, 'createProduct']);
+    Route::get('/getProductsByProductType', [ProductController::class, 'getProductsByProductType']);
     Route::get('/getProductsByProductTypeForRetail', [ProductController::class, 'getProductsByProductTypeForRetail']);
 });
 
@@ -172,6 +188,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('expense', ExpenseController::class);
     Route::resource('order', OrderController::class);
     Route::get('/reportSales', [OrderController::class, 'Sales']);
+    Route::get('/report-totals', [OrderController::class, 'getReportTotals']);
+
     Route::get('/googleMapData', [OrderController::class, 'googleMapData']);
     Route::get('/totalDeliveries', [OrderController::class, 'totalDeliverie']);
     Route::get('/getCombinedProducts', [CommonController::class, 'getCombinedProducts']);
@@ -221,7 +239,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     //FinalProductInventory
     Route::get('/finalProductInventory', [ProductsTrackerController::class, 'getFinalProductInventory']);
     Route::get('/searchByProductNameFinalInventry', [ProductsTrackerController::class, 'searchByProductNameFinalInventry']);
-    Route::get('/detailsForCompany', [CompanyInfoController::class,'plansAndPartners']);
+    Route::get('/detailsForCompany', [CompanyInfoController::class, 'plansAndPartners']);
     //RazorPay API's
     Route::post('/create-order', [RazorpayController::class, 'createOrder']);
     Route::post('/verify-payment', [RazorpayController::class, 'verifyPayment']);

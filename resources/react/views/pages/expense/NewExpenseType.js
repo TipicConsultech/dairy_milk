@@ -10,6 +10,7 @@ import {
   CFormCheck,
   CFormInput,
   CFormLabel,
+  CFormSelect,
   CFormTextarea,
   CRow,
 } from '@coreui/react'
@@ -28,6 +29,7 @@ const NewExpenseType = () => {
     name: '',
     slug: '',
     localName: '',
+     expense_category : '',
     desc: '',
     show: true,
   })
@@ -71,6 +73,7 @@ const NewExpenseType = () => {
       name: '',
       slug: '',
       localName: '',
+       expense_category : '',
       desc: '',
       show: true,
     })
@@ -110,6 +113,21 @@ const NewExpenseType = () => {
                   required
                   feedbackInvalid="Please provide local name."
                 />
+              </div>
+               <div className="mb-3">
+                <CFormLabel htmlFor="expense_category"><b>{t("LABELS.expense_category")}</b></CFormLabel>
+                <CFormSelect
+                  id="expense_category"
+                  name="expense_category"
+                  value={state.expense_category}
+                  onChange={handleChange}
+                  required
+                  feedbackInvalid="Please select an expense category."
+                >
+                  <option value="">-- Select Category --</option>
+                  <option value="Operational Expense">Operational Expense</option>
+                  <option value="Capital Expense">Capital Expense</option>
+                </CFormSelect>
               </div>
               <div className="mb-3">
                 <CFormLabel htmlFor="desc"><b>{t("LABELS.short_description")}</b></CFormLabel>

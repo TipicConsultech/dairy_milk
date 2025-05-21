@@ -17,6 +17,8 @@ import ConfirmationModal from '../../common/ConfirmationModal';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../common/toast/ToastContext';
 import { useTranslation } from 'react-i18next';
+import CIcon from '@coreui/icons-react';
+import { cilMoney } from '@coreui/icons';
 
 const AllExpenses = () => {
   const navigate = useNavigate();
@@ -125,15 +127,24 @@ const AllExpenses = () => {
   
 
   const columns = [
-    { 
-      accessorKey: 'expense_date', 
-      header: t("LABELS.date") || 'Date',
-      Cell: ({ cell }) => {
-        const date = new Date(cell.getValue());
-        return date.toLocaleDateString();
-      }
-    },
+   {
+  accessorKey: 'expense_date', 
+  header: t("LABELS.date") || 'Date',
+  Cell: ({ cell }) => {
+    const date = new Date(cell.getValue());
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // months are 0-indexed
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+},
+
     { accessorKey: 'name', header: t("LABELS.expense_name") || 'Expense Name' },
+    {
+    accessorKey: 'expense_type.expense_category',
+    header: t("LABELS.expense_category") || 'Expense Category',
+    Cell: ({ cell }) => cell.getValue() || '-', // fallback if null
+  },
     { 
       accessorKey: 'price', 
       header: t("LABELS.price_per_unit") || 'Price Per Unit',
@@ -206,6 +217,7 @@ const AllExpenses = () => {
                   >
                     {isLoading ? t("LABELS.loading") || "Loading..." : t("LABELS.filter") || "Filter"}
                   </CButton> */}
+                  <CCol md={4} className="d-flex align-items-end gap-2 mt-2">
                   <CButton 
   color="primary" 
   onClick={() => fetchExpenses(true)} // pass `true` to apply date filtering
@@ -213,6 +225,18 @@ const AllExpenses = () => {
 >
   {isLoading ? t("LABELS.loading") || "Loading..." : t("LABELS.filter") || "Filter"}
 </CButton>
+ <CButton 
+    color="secondary" 
+    variant="outline"
+    onClick={() => {
+      setStartDate('');
+      setEndDate('');
+      fetchExpenses(); // no filter = fetch all
+    }}
+  >
+    {t("LABELS.reset") || "Reset"}
+  </CButton>
+  </CCol>
 
                 </CCol>
                 {/* <CCol md={4} className="d-flex align-items-end justify-content-end">
@@ -253,6 +277,49 @@ const AllExpenses = () => {
                 </div>
               )}
             /> */}
+
+{/* Total Footer
+{expenses.length > 0 && (
+  <div className="d-flex justify-content-between mt-3 pe-3">
+    <h5>
+      {t("LABELS.total_expense") || "Total Expense"}:{' '}
+      <strong>
+        {new Intl.NumberFormat('en-IN', {
+          style: 'currency',
+          currency: 'INR',
+        }).format(
+          expenses.reduce((total, item) => total + parseFloat(item.total_price || 0), 0)
+        )}
+      </strong>
+    </h5>
+  </div>
+)} */}
+{expenses.length > 0 && (
+  <CCard className="mt-4 shadow-sm border-0">
+    <CCardBody className="d-flex justify-content-end align-items-center">
+      <div className="d-flex align-items-center">
+        <CIcon
+          icon={cilMoney} // Make sure to import the icon
+          size="xl"
+          className="me-3 text-success"
+        />
+        <h5 className="mb-0">
+          {t("LABELS.total_expense") || "Total Expense"}:
+        </h5> &nbsp;&nbsp;&nbsp;
+      </div>
+      <h4 className="mb-0 fw-bold text-success">
+        {new Intl.NumberFormat('en-IN', {
+          style: 'currency',
+          currency: 'INR',
+        }).format(
+          expenses.reduce((total, item) => total + parseFloat(item.total_price || 0), 0)
+        )}
+      </h4>
+    </CCardBody>
+  </CCard>
+)}
+
+
             <MantineReactTable
   columns={columns}
   data={expenses}
@@ -281,22 +348,7 @@ const AllExpenses = () => {
   )}
 />
 
-{/* Total Footer */}
-{expenses.length > 0 && (
-  <div className="d-flex justify-content-between mt-3 pe-3">
-    <h5>
-      {t("LABELS.total_expense") || "Total Expense"}:{' '}
-      <strong>
-        {new Intl.NumberFormat('en-IN', {
-          style: 'currency',
-          currency: 'INR',
-        }).format(
-          expenses.reduce((total, item) => total + parseFloat(item.total_price || 0), 0)
-        )}
-      </strong>
-    </h5>
-  </div>
-)}
+
 
           </CCardBody>
         </CCard>

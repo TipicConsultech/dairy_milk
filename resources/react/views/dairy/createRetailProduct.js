@@ -47,7 +47,9 @@ const createRetailProduct = () => {
   const [batch, setBatch] = useState([])
   const [mappedRetailProducts, setMappedRetailProducts] = useState([]);
 
-  const [ingredientOptions, setIngredientOptions] = useState([])
+  const [ingredientOptions, setIngredientOptions] = useState([]);
+  console.log(ingredientOptions);
+  
   const [newIngredient, setNewIngredient] = useState({id:'', name: '', quantity: '', available_qty: '', unit: '' })
   const [newProducts, setNewProducts] = useState({ name: '', unit: '' })
 
@@ -114,15 +116,36 @@ const createRetailProduct = () => {
     }
   }
 
+  // const fetchRawMaterials = async () => {
+  //   try {
+  //     const res = await getAPICall('/api/getRawMaterialsByParam/1')
+  //     setRawMaterialData(res.quantity)
+  //     setIngredientOptions(res.quantity.map(item => item.name))
+  //   } catch (err) {
+  //     console.error('Error fetching raw materials:', err)
+  //   }
+  // }
   const fetchRawMaterials = async () => {
-    try {
-      const res = await getAPICall('/api/getRawMaterialsByParam/1')
-      setRawMaterialData(res.quantity)
-      setIngredientOptions(res.quantity.map(item => item.name))
-    } catch (err) {
-      console.error('Error fetching raw materials:', err)
-    }
+  try {
+    const res = await getAPICall('/api/getRawMaterialsByParam/1');
+    setRawMaterialData(res.quantity);
+
+    const formattedOptions = res.quantity.map(item => {
+      const name =
+        lng === 'mr'
+          ? decodeUnicode(item?.local_name || '') || item?.name || 'Unnamed'
+          : item?.name || 'Unnamed';
+      return {
+        ...item,
+        displayName: name
+      };
+    });
+
+    setIngredientOptions(formattedOptions);
+  } catch (err) {
+    console.error('Error fetching raw materials:', err);
   }
+};
 
   const handleFactoryProductChange = async(factoryProductId) => {
     setFactoryProductId(factoryProductId);
@@ -169,25 +192,45 @@ const createRetailProduct = () => {
     }
   }
 
+  // const handleIngredientChange = (ingredient) => {
+  //   const selectedItem = rawMaterialData.find((item) => item.name === ingredient)
+
+  //   if (selectedItem) {
+  //     setNewIngredient({
+  //       ...newIngredient,
+  //       id: selectedItem.id,
+  //       name: ingredient,
+  //       available_qty: selectedItem.available_qty,
+  //       unit: selectedItem.unit
+  //     })
+  //     setRawMaterialavailableQty(selectedItem.available_qty)
+  //   } else {
+  //     setNewIngredient({ name: '', quantity: '', available_qty: '', unit: '' })
+  //     setRawMaterialavailableQty(null)
+  //   }
+
+  //   setIngError('')
+  // }
   const handleIngredientChange = (ingredient) => {
-    const selectedItem = rawMaterialData.find((item) => item.name === ingredient)
-
-    if (selectedItem) {
-      setNewIngredient({
-        ...newIngredient,
-        id: selectedItem.id,
-        name: ingredient,
-        available_qty: selectedItem.available_qty,
-        unit: selectedItem.unit
-      })
-      setRawMaterialavailableQty(selectedItem.available_qty)
-    } else {
-      setNewIngredient({ name: '', quantity: '', available_qty: '', unit: '' })
-      setRawMaterialavailableQty(null)
-    }
-
-    setIngError('')
+  if (ingredient) {
+    setNewIngredient({
+      ...newIngredient,
+      id: ingredient.id,
+      name: lng === 'mr'
+        ? decodeUnicode(ingredient?.local_name || '') || ingredient.name
+        : ingredient.name,
+      available_qty: ingredient.available_qty,
+      unit: ingredient.unit
+    });
+    setRawMaterialavailableQty(ingredient.available_qty);
+  } else {
+    setNewIngredient({ name: '', quantity: '', available_qty: '', unit: '' });
+    setRawMaterialavailableQty(null);
   }
+
+  setIngError('');
+};
+
 
   const clearIngredient = () => {
     setNewIngredient({ id: '', name: '', quantity: '', available_qty: '', unit: '' });
@@ -229,7 +272,7 @@ const createRetailProduct = () => {
   const fetchProducts = async () => {
     try {
       const res = await getAPICall('/api/getProductsByProductTypeForRetail');
-      console.log("API Response:", res.products);
+      // console.log("API Response:", res.products);
 
       const filtered = res.products.filter(p => p.isFactory === 0);
 
@@ -260,13 +303,23 @@ const createRetailProduct = () => {
       qty: product.qty || null, // Ensure qty is present if needed
     };
   
+    // setNewProduct({
+    //   name: product.name || '',
+    //   quantity: '',
+    //   unit: sizeOption.unit,
+    //   sizeId: sizeOption.id,
+    //   sizeOptions: [sizeOption],
+    // });
     setNewProduct({
-      name: product.name || '',
-      quantity: '',
-      unit: sizeOption.unit,
-      sizeId: sizeOption.id,
-      sizeOptions: [sizeOption],
-    });
+    ...newProduct,
+    id: product.id,
+    name: lng === 'mr'
+      ? decodeUnicode(product?.localName || '') || product.name
+      : product.name,
+    unit: product.unit,
+    label_value: product.label_value,
+    qty: product.qty
+  });
   
     setProductAvailQty(sizeOption.qty || null); // Store qty for validation if needed
     setProdError('');
@@ -627,13 +680,13 @@ const createRetailProduct = () => {
                     {newIngredient.name ? <CIcon icon={cilX} /> : <CIcon icon={cilChevronBottom} />}
                   </div>
 
-                  {isIngredientsDropdownOpen && (
+                  {/* {isIngredientsDropdownOpen && (
                     <div
                       className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
                       style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
                     >
                       {ingredientOptions
-                        .filter(item => item.toLowerCase().includes(newIngredient.name.toLowerCase()))
+                        .filter(item => item.toLowerCase().includes(newIngredient.name))
                         .map((item, index) => (
                           <div
                             key={index}
@@ -648,7 +701,49 @@ const createRetailProduct = () => {
                           </div>
                         ))}
                     </div>
-                  )}
+                  )} */}
+ {isIngredientsDropdownOpen && (
+  <div
+    className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
+    style={{ maxHeight: '200px', overflowY: 'auto', zIndex: 1000 }}
+  >
+    {ingredientOptions
+        .filter(item => {
+    const name = lng === 'mr'
+      ? decodeUnicode(item?.local_name || '') 
+      : item?.name || '';
+    return name.toLowerCase().includes((newIngredient.name || '').toLowerCase());
+  })
+  .map((item, index) => {
+    const displayName = lng === 'mr'
+      ? decodeUnicode(item?.local_name || '')
+      : item?.name || '';
+
+        return (
+          <div
+            key={index}
+            className="p-2 text-dark"
+            style={{ cursor: 'pointer', backgroundColor: '#fff' }}
+            onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+            onMouseLeave={e => e.currentTarget.style.backgroundColor = '#fff'}
+            onClick={() => {
+              handleIngredientChange(item);
+              setIsIngredientsDropdownOpen(false);
+            }}
+          >
+            {displayName || "no data will show"}
+          </div>
+        );
+      })}
+  </div>
+)}
+
+
+
+
+
+                
+
                 </div>
    
 
@@ -778,7 +873,7 @@ const createRetailProduct = () => {
                     {newProduct.name ? <CIcon icon={cilX} /> : <CIcon icon={cilChevronBottom} />}
                   </div>
 
-                {isProductsDropdownOpen && (
+                {/* {isProductsDropdownOpen && (
   <div
     className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
     style={{ maxHeight: '200px', overflowY: 'auto', zIndex: 1000 }}
@@ -802,13 +897,51 @@ const createRetailProduct = () => {
             }}
           >
             {item.name} 
-            {/* ({item.label_value} {item.unit}) */}
+           
           </div>
         ))
     )}
   </div>
+)} */}
+
+
+
+{isProductsDropdownOpen && (
+  <div
+    className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
+    style={{ maxHeight: '200px', overflowY: 'auto', zIndex: 1000 }}
+  >
+    {mappedRetailProducts.filter(item => item.name.toLowerCase().includes(newProduct.name.toLowerCase())).length === 0 ? (
+      <div className="p-2 text-muted text-center">{t('MSG.productNotFound')}</div>
+    ) : (
+      mappedRetailProducts
+        .filter(item => item.name.toLowerCase().includes(newProduct.name.toLowerCase()))
+        .map((item, index) => {
+          const marathiName = decodeUnicode(item?.localName || '');
+          const displayName = `${item.name}${marathiName ? ` (${marathiName})` : ''}`;
+
+          return (
+            <div
+              key={index}
+              className="p-2 cursor-pointer hover-bg-light"
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                handleProductSelect(item); // <-- This will pass full object
+                setIsProductsDropdownOpen(false);
+              }}
+            >
+              {displayName}
+              {/* Optionally: {item.label_value} {item.unit} */}
+            </div>
+          );
+        })
+    )}
+  </div>
 )}
 
+
+
+ {/* ({item.label_value} {item.unit}) */}
                 </div>
               </CCol>
 

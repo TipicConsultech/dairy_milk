@@ -524,7 +524,7 @@ const CustomerReport = () => {
                         <CTableDataCell colSpan={2} className="text-end">
                           {t('LABELS.grand_total')}
                         </CTableDataCell>
-                        <CTableDataCell>
+                        <CTableDataCell >
                           <div className="total-products-summary">
                             {Object.keys(productTotals).map(key => (
                               <div key={key} className="total-product-item">
@@ -552,22 +552,25 @@ const CustomerReport = () => {
                             ))}
                           </div>
                         </CTableDataCell>
-                        <CTableDataCell>
+                        <CTableDataCell >
                           <CBadge color="success" shape="rounded-pill" className="px-3 py-2">
                             ₹{grandTotalCollection.toLocaleString()}
                           </CBadge>
                         </CTableDataCell>
-                        <CTableDataCell>
+
+                       <CTableDataCell >
                           <CBadge color="danger" shape="rounded-pill" className="px-3 py-2">
                             ₹{(grandTotalBill - grandTotalCollection).toLocaleString()}
                           </CBadge>
                         </CTableDataCell>
-                        <CTableDataCell>
+                        <CTableDataCell >
                           <CBadge color="primary" shape="rounded-pill" className="px-3 py-2">
                             ₹{grandTotalBill.toLocaleString()}
                           </CBadge>
                         </CTableDataCell>
                       </CTableRow>
+       
+
                     </CTableBody>
                   </CTable>
                 </div>

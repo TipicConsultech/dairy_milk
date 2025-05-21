@@ -78,7 +78,7 @@ function DailyProductLog() {
     try {
       // Use either passed tankIds or state tankIds
       const idsToUse = tankIdsToUse || tankIds;
-      
+
       if (!idsToUse.cow || !idsToUse.buffalo) {
         console.warn('Tank IDs not available yet');
         return;
@@ -247,10 +247,24 @@ function DailyProductLog() {
   const filteredBuffaloRetail = getFilteredData('buffalo', 'retail');
   const filteredBuffaloFactory = getFilteredData('buffalo', 'factory');
 
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-    setCalendarVisible(false);
-  };
+  const handleDateChange = async (date) => {
+  setSelectedDate(date);
+  setCalendarVisible(false);
+
+  setLoading(true);
+  try {
+    await Promise.all([
+      fetchProductData(),
+      fetchMilkTankData(date) // Pass the selected date
+    ]);
+  } catch (error) {
+    console.error('Error fetching data for selected date:', error);
+    setError(t('MSG.failedToLoadData'));
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const toggleCalendar = () => {
     setCalendarVisible(!calendarVisible);
@@ -413,7 +427,7 @@ function DailyProductLog() {
                     </div>
                     <div>
                       <span style={{ display: 'inline-block', width: '12px', height: '12px', backgroundColor: '#0d6efd', marginRight: '4px', borderRadius: '2px' }}></span>
-                      <span>{t('LABELS.selected')}</span>
+                      <span>{t('LABELS.selected')} / {t('LABELS.current')} </span>
                     </div>
                   </div>
                 </div>
@@ -510,12 +524,12 @@ function DailyProductLog() {
                 </CCol>
               </CRow>
             </div>
-           
+
             {/* Product Log Section */}
             <div className="mb-2">
               <CRow>
                 <CCol md={6}>
-                 
+
                   <div className="mb-2" style={{ height: '250px', overflow: 'auto' }}>
                     <CCard className="h-100 border">
                       <CCardHeader style={{ backgroundColor: '#E6E6FA', position: 'sticky', top: 0, zIndex: 2 }}>
@@ -580,7 +594,7 @@ function DailyProductLog() {
                   </div>
                 </CCol>
                 <CCol md={6}>
-                  
+
                   <div className="mb-2" style={{ height: '250px', overflow: 'auto' }}>
                     <CCard className="h-100 border">
                       <CCardHeader style={{ backgroundColor: '#E6E6FA', position: 'sticky', top: 0, zIndex: 2 }}>
@@ -646,7 +660,7 @@ function DailyProductLog() {
                 </CCol>
               </CRow>
             </div>
-            
+
             {/* Summary Card */}
            <div className="mt-2">
   <CRow>
