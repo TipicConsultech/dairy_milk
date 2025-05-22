@@ -281,9 +281,9 @@ const MilkForm = () => {
     }
      }
 
-    if (productAvailQty !== null && parseFloat(val) == productAvailQty) {
-      setProdError(t('MSG.quantityExceedsAvailableStock'));
-    } else setProdError('');
+    // if (productAvailQty !== null && parseFloat(val) == productAvailQty) {
+    //   setProdError(t('MSG.quantityExceedsAvailableStock'));
+    // } else setProdError('');
   };
 
   
@@ -305,12 +305,13 @@ const MilkForm = () => {
         alert(t('MSG.enterValidQuantity'));
         return;
     }
+   
 
-    const selectedTank = tankData.find(t => t.name === milkType);
-    if (!selectedTank) {
-        alert(t('MSG.selectedMilkTankNotFound'));
-        return;
-    }
+    // const selectedTank = tankData.find(t => t.name === milkType);
+    // if (!selectedTank) {
+    //     alert(t('MSG.selectedMilkTankNotFound'));
+    //     return;
+    // }
 
     // Prepare milk tank data as an object with `id` and `quantity`
     const milkTankData = {

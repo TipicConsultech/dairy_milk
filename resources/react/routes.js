@@ -210,6 +210,11 @@ export default function fetchRoutes(){
     { path: '/Reports/crateReport', name: 'Credit Report', element: CreditReport },
     { path: '/dailyTalliesReport', name: 'Daily Tallies', element:DailyTallies } ,
 
+      { path: '/Reports/creditreport', name: 'Credit Report', element:creditreport2 } ,
+      { path: '/Reports/Customer_Report', name: 'Customer Report', element: CustomerReport },
+
+
+
     { path:'/CreateRetailProduct', name: 'Create Retail Product', element: CreateRetailProduct },
     { path:'/CreateBulkProduct', name: 'Create Bulk Product', element: CreateBulkProduct },
 

@@ -477,19 +477,33 @@ const [dropdownOpen, setDropdownOpen] = useState(false);
   // If used as a modal component
   if (isOpen !== undefined) {
     return (
+      // <CModal 
+      //   visible={isOpen} 
+      //   onClose={onClose}
+      //   size="lg"
+      //   alignment="center"
+      // >
+      //   <CModalHeader>
+      //     <CModalTitle>{t('LABELS.create_new_product')}</CModalTitle>
+      //   </CModalHeader>
+      //   <CModalBody>
+      //     {renderForm()}
+      //   </CModalBody>
+      // </CModal>
       <CModal 
-        visible={isOpen} 
-        onClose={onClose}
-        size="lg"
-        alignment="center"
-      >
-        <CModalHeader>
-          <CModalTitle>{t('LABELS.create_new_product')}</CModalTitle>
-        </CModalHeader>
-        <CModalBody>
-          {renderForm()}
-        </CModalBody>
-      </CModal>
+  visible={isOpen} 
+  onClose={onClose}
+  size="lg"
+  alignment="center"
+  backdrop="static" // Prevent closing on outside click
+>
+  <CModalHeader>
+    <CModalTitle>{t('LABELS.create_new_product')}</CModalTitle>
+  </CModalHeader>
+  <CModalBody>
+    {renderForm()}
+  </CModalBody>
+</CModal>
     )
   }
 
