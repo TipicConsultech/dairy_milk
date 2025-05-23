@@ -315,96 +315,193 @@ class ProductCalculationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getCalculationsByDateRange(Request $request)
-    {
-        // Validate date range
-        $validator = Validator::make($request->all(), [
-            'startDate' => 'required|date_format:Y-m-d',
-            'endDate' => 'required|date_format:Y-m-d|after_or_equal:startDate',
-            'product_type' => 'nullable|string'
-        ]);
+    // public function getCalculationsByDateRange(Request $request)
+    // {
+    //     // Validate date range
+    //     $validator = Validator::make($request->all(), [
+    //         'startDate' => 'required|date_format:Y-m-d',
+    //         'endDate' => 'required|date_format:Y-m-d|after_or_equal:startDate',
+    //         'product_type' => 'nullable|string'
+    //     ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $validator->errors()
-            ], 422);
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Validation error',
+    //             'errors' => $validator->errors()
+    //         ], 422);
+    //     }
+
+    //     try {
+    //         // Parse dates
+    //         $startDate = Carbon::parse($request->input('startDate'))->startOfDay();
+    //         $endDate = Carbon::parse($request->input('endDate'))->endOfDay();
+
+    //         // Build query
+    //         $query = ProductCalculation::whereBetween('created_at', [$startDate, $endDate]);
+
+    //         // Filter by product type if provided
+    //         if ($request->has('product_type') && $request->input('product_type') !== '') {
+    //             $query->where('product_type', $request->input('product_type'));
+    //         }
+
+    //         // Filter by user ID if authenticated
+    //         if (Auth::check()) {
+    //             $query->where('user_id', Auth::id());
+    //         }
+
+    //         // Get results with pagination
+    //         $calculations = $query->orderBy('created_at', 'desc')->paginate(10);
+
+    //         // Format the results
+    //         $formattedCalculations = [];
+    //         foreach ($calculations as $calculation) {
+    //             $entry = [
+    //                 'id' => $calculation->id,
+    //                 'product_type' => $calculation->product_type,
+    //                 'date' => Carbon::parse($calculation->created_at)->format('Y-m-d'),
+    //                 'formatted_date' => Carbon::parse($calculation->created_at)->format('d F, Y'),
+    //                 'time' => Carbon::parse($calculation->created_at)->format('H:i:s'),
+    //             ];
+
+    //             // Add product-specific details
+    //             if ($calculation->product_type === 'Paneer') {
+    //                 $entry['details'] = [
+    //                     'snf_value' => $calculation->snf_value,
+    //                     'ts_value' => $calculation->ts_value,
+    //                     'intake_value' => $calculation->intake_value,
+    //                     'panner_to_be_created' => $calculation->panner_to_be_created,
+    //                     'panner_created' => $calculation->panner_created,
+    //                     'difference_in_creation' => $calculation->difference_in_creation,
+    //                     'created_panner_ts' => $calculation->created_panner_ts,
+    //                 ];
+    //             } else if ($calculation->product_type === 'Tup') {
+    //                 $entry['details'] = [
+    //                     'milk_intake' => $calculation->milk_intake,
+    //                     'cream_created' => $calculation->cream_created,
+    //                     'tup_created' => $calculation->tup_created,
+    //                     'tup_utaar' => $calculation->tup_utaar,
+    //                 ];
+    //             }
+
+    //             $formattedCalculations[] = $entry;
+    //         }
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $formattedCalculations,
+    //             'pagination' => [
+    //                 'total' => $calculations->total(),
+    //                 'per_page' => $calculations->perPage(),
+    //                 'current_page' => $calculations->currentPage(),
+    //                 'last_page' => $calculations->lastPage(),
+    //             ]
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Failed to retrieve calculations by date range',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+   public function getCalculationsByDateRange(Request $request)
+{
+    try {
+        $query = ProductCalculation::query();
+
+        // Filter by user ID if authenticated
+        if (Auth::check()) {
+            $query->where('user_id', Auth::id());
         }
 
-        try {
-            // Parse dates
+        // Optional date range filtering
+        if ($request->filled('startDate') && $request->filled('endDate')) {
+            // Validate date input
+            $validator = Validator::make($request->all(), [
+                'startDate' => 'required|date_format:Y-m-d',
+                'endDate' => 'required|date_format:Y-m-d|after_or_equal:startDate',
+                'product_type' => 'nullable|string'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
             $startDate = Carbon::parse($request->input('startDate'))->startOfDay();
             $endDate = Carbon::parse($request->input('endDate'))->endOfDay();
+            $query->whereBetween('created_at', [$startDate, $endDate]);
 
-            // Build query
-            $query = ProductCalculation::whereBetween('created_at', [$startDate, $endDate]);
-
-            // Filter by product type if provided
-            if ($request->has('product_type') && $request->input('product_type') !== '') {
+            // Apply product type filter if provided
+            if ($request->filled('product_type')) {
                 $query->where('product_type', $request->input('product_type'));
             }
-
-            // Filter by user ID if authenticated
-            if (Auth::check()) {
-                $query->where('user_id', Auth::id());
-            }
-
-            // Get results with pagination
-            $calculations = $query->orderBy('created_at', 'desc')->paginate(10);
-
-            // Format the results
-            $formattedCalculations = [];
-            foreach ($calculations as $calculation) {
-                $entry = [
-                    'id' => $calculation->id,
-                    'product_type' => $calculation->product_type,
-                    'date' => Carbon::parse($calculation->created_at)->format('Y-m-d'),
-                    'formatted_date' => Carbon::parse($calculation->created_at)->format('d F, Y'),
-                    'time' => Carbon::parse($calculation->created_at)->format('H:i:s'),
-                ];
-
-                // Add product-specific details
-                if ($calculation->product_type === 'Paneer') {
-                    $entry['details'] = [
-                        'snf_value' => $calculation->snf_value,
-                        'ts_value' => $calculation->ts_value,
-                        'intake_value' => $calculation->intake_value,
-                        'panner_to_be_created' => $calculation->panner_to_be_created,
-                        'panner_created' => $calculation->panner_created,
-                        'difference_in_creation' => $calculation->difference_in_creation,
-                        'created_panner_ts' => $calculation->created_panner_ts,
-                    ];
-                } else if ($calculation->product_type === 'Tup') {
-                    $entry['details'] = [
-                        'milk_intake' => $calculation->milk_intake,
-                        'cream_created' => $calculation->cream_created,
-                        'tup_created' => $calculation->tup_created,
-                        'tup_utaar' => $calculation->tup_utaar,
-                    ];
-                }
-
-                $formattedCalculations[] = $entry;
-            }
-
-            return response()->json([
-                'success' => true,
-                'data' => $formattedCalculations,
-                'pagination' => [
-                    'total' => $calculations->total(),
-                    'per_page' => $calculations->perPage(),
-                    'current_page' => $calculations->currentPage(),
-                    'last_page' => $calculations->lastPage(),
-                ]
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve calculations by date range',
-                'error' => $e->getMessage()
-            ], 500);
+        } elseif ($request->filled('product_type')) {
+            // ✅ New logic: product selected but no date range
+            $query->where('product_type', $request->input('product_type'));
         }
+
+        // Get results with pagination
+        $calculations = $query->orderBy('created_at', 'desc')->paginate(10);
+
+        // Format the results
+        $formattedCalculations = [];
+        foreach ($calculations as $calculation) {
+            $entry = [
+                'id' => $calculation->id,
+                'product_type' => $calculation->product_type,
+                'date' => Carbon::parse($calculation->created_at)->format('Y-m-d'),
+                'formatted_date' => Carbon::parse($calculation->created_at)->format('d F, Y'),
+                'time' => Carbon::parse($calculation->created_at)->format('H:i:s'),
+            ];
+
+            if ($calculation->product_type === 'Paneer') {
+                $entry['details'] = [
+                    'snf_value' => $calculation->snf_value,
+                    'ts_value' => $calculation->ts_value,
+                    'intake_value' => $calculation->intake_value,
+                    'panner_to_be_created' => $calculation->panner_to_be_created,
+                    'panner_created' => $calculation->panner_created,
+                    'difference_in_creation' => $calculation->difference_in_creation,
+                    'created_panner_ts' => $calculation->created_panner_ts,
+                ];
+            } else if ($calculation->product_type === 'Tup') {
+                $entry['details'] = [
+                    'milk_intake' => $calculation->milk_intake,
+                    'cream_created' => $calculation->cream_created,
+                    'tup_created' => $calculation->tup_created,
+                    'tup_utaar' => $calculation->tup_utaar,
+                ];
+            }
+
+            $formattedCalculations[] = $entry;
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $formattedCalculations,
+            'pagination' => [
+                'total' => $calculations->total(),
+                'per_page' => $calculations->perPage(),
+                'current_page' => $calculations->currentPage(),
+                'last_page' => $calculations->lastPage(),
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to retrieve calculations',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
+
 
     /**
      * Get all product calculations without pagination.
