@@ -187,6 +187,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('expenseType', ExpenseTypeController::class);
     Route::resource('expense', ExpenseController::class);
     Route::resource('order', OrderController::class);
+    Route::get('/reportProductWiseEarnings', [OrderController::class, 'productWiseEarnings']);
     Route::get('/reportSales', [OrderController::class, 'Sales']);
     Route::get('/report-totals', [OrderController::class, 'getReportTotals']);
 

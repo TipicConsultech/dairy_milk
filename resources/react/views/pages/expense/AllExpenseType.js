@@ -457,6 +457,7 @@ const AllExpenseType = () => {
               columns={columns}
               data={expenseType}
               enableFullScreenToggle={false}
+              initialState={{ density: 'xs' }}
             />
           </CCardBody>
         </CCard>

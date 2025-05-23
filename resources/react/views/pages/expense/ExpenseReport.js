@@ -325,9 +325,10 @@ const AllExpenses = () => {
   data={expenses}
   enableFullScreenToggle={false}
   state={{ isLoading }}
-  initialState={{
-    sorting: [{ id: 'expense_date', desc: true }],
-  }}
+   initialState={{
+            density: 'xs',
+            sorting: [{ id: 'expense_date', desc: true }],
+          }}
   renderEmptyState={() => (
     <div className="p-4 text-center">
       {startDate && endDate ? (

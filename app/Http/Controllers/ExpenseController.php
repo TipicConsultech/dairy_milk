@@ -62,7 +62,8 @@ public function index(Request $request)
 
     try {
         if (in_array($userType, [0, 1, 2])) {
-            $query = Expense::where('company_id', $companyId);
+            $query = Expense::with('expenseType') // eager load expenseType
+                ->where('company_id', $companyId);
 
             if ($startDate && $endDate) {
                 $query->whereBetween('expense_date', [$startDate, $endDate]);
@@ -78,6 +79,7 @@ public function index(Request $request)
         return response()->json(['error' => $e->getMessage()]);
     }
 }
+
 
 
     /**
