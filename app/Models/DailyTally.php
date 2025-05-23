@@ -19,6 +19,7 @@ class DailyTally extends Model
         'product_local_name',
         'quantity',
         'unit',
+        'required_milk',
         'batch_no'
     ];
 
