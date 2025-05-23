@@ -514,7 +514,26 @@
   "emptyTank": "टँक रिकामी करा",
   "totals": "एकूण",
   "no_matching_records": "कोणतेही जुळणारे रेकॉर्ड आढळले नाहीत",
-  "no_records_found": "कोणतेही रेकॉर्ड आढळले नाहीत"
+  "no_records_found": "कोणतेही रेकॉर्ड आढळले नाहीत",
+
+  
+      "edit_expense": "खर्च संपादित करा",
+      "editing_mode": "संपादन मोड",
+      
+      "enter_expense_description": "खर्चाचे वर्णन प्रविष्ट करा",
+      
+      "add_to_list": "यादीत जोडा",
+      "update_in_list": "यादीत अपडेट करा",
+      "cancel_edit": "संपादन रद्द करा",
+ 
+      "expenses_list": "खर्चांची यादी",
+      
+      "editing": "संपादित करत आहे...",
+     
+      "submit_all_expenses": "सर्व खर्च सबमिट करा",
+      "confirm_submission": "सबमिशन पुष्ट करा",
+     
+      "confirm_submit": "सबमिट पुष्ट करा"
 
 
     },
@@ -655,7 +674,27 @@
         "failedToCalculateTupUtaar": "तूप उतार गणना करण्यात अपयशी",
 
         "noRecordsFound": "कोणत्याही नोंदी सापडल्या नाहीत",
-        "failedToLoadHistoryData": "इतिहास डेटा लोड करण्यात अयशस्वी"
+        "failedToLoadHistoryData": "इतिहास डेटा लोड करण्यात अयशस्वी",
+
+            
+      "select_expense_type_validation": "कृपया खर्च प्रकार निवडा",
+      "expense_description_validation": "कृपया खर्चाचे वर्णन प्रविष्ट करा",
+      "select_date_validation": "कृपया वैध तारीख निवडा",
+      "price_validation": "कृपया वैध किंमत प्रविष्ट करा",
+      "quantity_validation": "कृपया वैध प्रमाण प्रविष्ट करा",
+      "expense_added_to_list": "खर्च यादीत यशस्वीरित्या जोडला गेला",
+      "expense_updated_successfully": "खर्च यशस्वीरित्या अपडेट केला गेला",
+      "expense_loaded_for_editing": "खर्च संपादनासाठी लोड केला गेला",
+      "edit_cancelled": "संपादन रद्द केले गेले",
+      "expense_removed_from_list": "खर्च यादीतून काढला गेला",
+      "fill_required_fields": "कृपया सर्व आवश्यक फील्ड भरा",
+    
+      "add_atleast_one_expense": "कृपया यादीत किमान एक खर्च जोडा",
+      "expenses_submitted_successfully": "{{count}} खर्च यशस्वीरित्या सबमिट केले गेले",
+      "partial_expenses_submitted": "{{total}} पैकी {{success}} खर्च यशस्वीरित्या सबमिट केले गेले",
+ 
+      "confirm_submit_expenses": "तुम्हाला खात्री आहे की तुम्ही सर्व {{count}} खर्च सबमिट करू इच्छिता?",
+      "complete_edit_before_submit": "सर्व खर्च सबमिट करण्यापूर्वी कृपया वर्तमान संपादन पूर्ण करा किंवा रद्द करा"
 
 
 

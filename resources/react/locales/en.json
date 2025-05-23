@@ -521,7 +521,26 @@
   "totals": "Totals",
   "no_matching_records": "No matching records found",
   "no_records_found": "No records found",
-  "current": "Current"
+  "current": "Current",
+
+   
+      "edit_expense": "Edit Expense",
+      "editing_mode": "Editing Mode",
+     
+      "enter_expense_description": "Enter expense description",
+      
+      "add_to_list": "Add to List",
+      "update_in_list": "Update in List",
+      "cancel_edit": "Cancel Edit",
+      
+      "expenses_list": "Expenses List",
+     
+      "editing": "Editing...",
+      "remove": "Remove",
+      "submit_all_expenses": "Submit All Expenses",
+      "confirm_submission": "Confirm Submission",
+      
+      "confirm_submit": "Confirm Submit"
 
 
 
@@ -659,7 +678,28 @@
             "failedToCalculateTupUtaar": "Failed to calculate Tup Utaar",
 
             "noRecordsFound": "No records found",
-            "failedToLoadHistoryData": "Failed to load history data"
+            "failedToLoadHistoryData": "Failed to load history data",
+
+             
+      "select_expense_type_validation": "Please select an expense type",
+      "expense_description_validation": "Please enter expense description",
+      "select_date_validation": "Please select a valid date",
+      "price_validation": "Please enter a valid price",
+      "quantity_validation": "Please enter a valid quantity",
+      "expense_added_to_list": "Expense added to list successfully",
+      "expense_updated_successfully": "Expense updated successfully",
+      "expense_loaded_for_editing": "Expense loaded for editing",
+      "edit_cancelled": "Edit cancelled",
+      "expense_removed_from_list": "Expense removed from list",
+      "fill_required_fields": "Please fill all required fields",
+      
+      "error_occured_please_try_again_later_msg": "Error occurred, please try again later",
+      "add_atleast_one_expense": "Please add at least one expense to the list",
+      "expenses_submitted_successfully": "{{count}} expenses submitted successfully",
+      "partial_expenses_submitted": "{{success}} out of {{total}} expenses submitted successfully",
+    
+      "confirm_submit_expenses": "Are you sure you want to submit all {{count}} expenses?",
+      "complete_edit_before_submit": "Please complete or cancel the current edit before submitting all expenses"
 
     }
    }
