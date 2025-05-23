@@ -69,7 +69,7 @@
     "edit_factory_product":"Edit Factory Product",
     "show":"Show",
     "save_changes":"Save Changes",
-    "milk_required":"Milk Calculated",
+    "milk_required":"Milk Required",
     "Kilogram":"kilogram (kg)",
     "grams":"gram (gm)",
     "liter":"Liter (ltr)",
@@ -201,6 +201,7 @@
     "dailyProductLog":"Daily Product Log",
     "milk_for_product": "Milk for Product",
     "product": "Product",
+    "stock_product":"Product",
     "quantity": "Quantity",
     "gram": "Gram",
     "Date": "Date",
@@ -273,7 +274,7 @@
 "processed_milk_quantity": "Processed Milk",
 "processing_date": "Processing Date",
 "currentCapacity": "Capacity",
-"available_stock": "Available Stock",
+"available_stock": "Stock",
 
 "Productcreate": "Product Creation",
 "create_bulk_product": "Create Bulk Product",
@@ -448,9 +449,13 @@
   "ProductCreationCalculator": "Product Calculator",
   "Capacity":"Capacity ",
   "p&l":"P & L Report",
-  "p&lreport":"P & L Report",
+  "p&lreport":"Financial Report",
   "creditreport" : "Credit Report",
   
+  "productUpdateSuccess":" All Selected Raw Materials updated successfully",
+  "change_password":"Change Password",
+  "setting":"Setting",
+  "logout":"Log Out",
     
     "transaction_details": "Transaction Details",
     
