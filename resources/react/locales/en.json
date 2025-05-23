@@ -699,7 +699,13 @@
       "partial_expenses_submitted": "{{success}} out of {{total}} expenses submitted successfully",
     
       "confirm_submit_expenses": "Are you sure you want to submit all {{count}} expenses?",
-      "complete_edit_before_submit": "Please complete or cancel the current edit before submitting all expenses"
+      "complete_edit_before_submit": "Please complete or cancel the current edit before submitting all expenses",
+
+      "quantityCannotBeZero": "Milk quantity cannot be zero",
+        "snfCannotBeZero": "SNF value cannot be zero", 
+        "tsCannotBeZero": "TS value cannot be zero",
+        "snfCannotBeNegative": "SNF value cannot be negative",
+        "tsCannotBeNegative": "TS value cannot be negative"
 
     }
    }

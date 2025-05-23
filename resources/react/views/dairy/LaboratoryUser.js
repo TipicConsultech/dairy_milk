@@ -124,21 +124,61 @@ const LaboratoryUser = () => {
     }));
   }, []);
 
+  // Enhanced validation function
+  const validateInputs = useCallback((tankFormData) => {
+    // Check if all fields are filled
+    if (!tankFormData.quantity || !tankFormData.snf || !tankFormData.ts) {
+      return { isValid: false, message: t('MSG.allFieldsRequired') };
+    }
+
+    const quantity = parseFloat(tankFormData.quantity);
+    const snf = parseFloat(tankFormData.snf);
+    const ts = parseFloat(tankFormData.ts);
+
+    // Check for NaN values (invalid numbers)
+    if (isNaN(quantity) || isNaN(snf) || isNaN(ts)) {
+      return { isValid: false, message: t('MSG.invalidNumberFormat') };
+    }
+
+    // Check for exactly zero values (0.1, 0.5 etc. should be allowed)
+    if (quantity === 0) {
+      return { isValid: false, message: t('MSG.quantityCannotBeZero') };
+    }
+
+    if (snf === 0) {
+      return { isValid: false, message: t('MSG.snfCannotBeZero') };
+    }
+
+    if (ts === 0) {
+      return { isValid: false, message: t('MSG.tsCannotBeZero') };
+    }
+
+    // Check for negative values
+    if (quantity < 0) {
+      return { isValid: false, message: t('MSG.quantityCannotBeNegative') };
+    }
+
+    if (snf < 0) {
+      return { isValid: false, message: t('MSG.snfCannotBeNegative') };
+    }
+
+    if (ts < 0) {
+      return { isValid: false, message: t('MSG.tsCannotBeNegative') };
+    }
+
+    return { isValid: true, message: '' };
+  }, [t]);
+
   const handleSaveMilkParams = useCallback(async (tankId) => {
     if (!tankId || !formData[tankId]) return;
 
     try {
       const tankFormData = formData[tankId];
 
-      // Validate inputs
-      if (!tankFormData.quantity || !tankFormData.snf || !tankFormData.ts) {
-        showNotification('warning', t('MSG.allFieldsRequired'));
-        return;
-      }
-
-      // Check for negative quantity
-      if (parseFloat(tankFormData.quantity) < 0) {
-        showNotification('warning', t('MSG.quantityCannotBeNegative'));
+      // Validate inputs using the enhanced validation function
+      const validation = validateInputs(tankFormData);
+      if (!validation.isValid) {
+        showNotification('warning', validation.message);
         return;
       }
 
@@ -172,7 +212,7 @@ const LaboratoryUser = () => {
       }
       console.error('Error updating milk parameters:', err);
     }
-  }, [formData, currentUser, showNotification, resetForm, fetchMilkTanks, t]);
+  }, [formData, currentUser, showNotification, resetForm, fetchMilkTanks, validateInputs, t]);
 
   // Function to handle opening the confirmation modal
   const handleRemoveMilkTank = useCallback((tankId, tankName) => {
@@ -221,6 +261,24 @@ const LaboratoryUser = () => {
       tankId: null,
       tankName: ''
     });
+  }, []);
+
+  // Enhanced input validation function for real-time validation
+  const validateAndFormatInput = useCallback((value, field) => {
+    let inputValue = value;
+
+    // Remove any negative signs
+    inputValue = inputValue.replace(/^-/, '');
+
+    // Ensure the value has only one decimal point and up to two decimal places
+    inputValue = inputValue.replace(/^(\d*\.?\d{0,2}).*$/, '$1');
+
+    // Allow values like 0.1, 0.5, etc. but prevent multiple leading zeros like 00.5
+    if (inputValue.length > 1 && inputValue.startsWith('00')) {
+      inputValue = '0' + inputValue.substring(2);
+    }
+
+    return inputValue;
   }, []);
 
   // Pure functions moved outside of component render
@@ -421,82 +479,76 @@ const LaboratoryUser = () => {
                         </div>
                       </div>
 
-                      {/* Input form */}
+                      {/* Input form with enhanced validation */}
                       <CForm>
-                       <CRow className="g-3 mb-3">
-  <CCol xs={12}>
-    <CFormInput
-      type="number"
-      value={tankFormData.quantity}
-      onChange={(e) => handleFormChange(tank.id, 'quantity', e.target.value)}
-      placeholder={t('LABELS.milkQtyToAdd')}
-      min="0"
-      className="form-control-lg"
-      onInput={(e) => {
-        let inputValue = e.target.value;
+                        <CRow className="g-3 mb-3">
+                          <CCol xs={12}>
+                            <CFormInput
+                              type="number"
+                              value={tankFormData.quantity}
+                              onChange={(e) => {
+                                const validatedValue = validateAndFormatInput(e.target.value, 'quantity');
+                                handleFormChange(tank.id, 'quantity', validatedValue);
+                              }}
+                              placeholder={t('LABELS.milkQtyToAdd')}
+                              min="0"
+                              step="0.01"
+                              className="form-control-lg"
+                              onKeyDown={(e) => {
+                                // Prevent minus sign
+                                if (e.key === '-') {
+                                  e.preventDefault();
+                                }
+                              }}
+                            />
+                          </CCol>
 
-        // Ensure the value has only one decimal point and up to two decimal places
-        inputValue = inputValue.replace(/^(\d*\.?\d{0,2}).*$/, '$1');
+                          <CCol xs={6}>
+                            <div className="d-flex align-items-center">
+                              <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '40px' }}>{t('LABELS.snf')}</CFormLabel>
+                              <CFormInput
+                                type="number"
+                                step="0.01"
+                                value={tankFormData.snf}
+                                onChange={(e) => {
+                                  const validatedValue = validateAndFormatInput(e.target.value, 'snf');
+                                  handleFormChange(tank.id, 'snf', validatedValue);
+                                }}
+                                min="0"
+                                placeholder={t('LABELS.snfValue')}
+                                onKeyDown={(e) => {
+                                  // Prevent minus sign
+                                  if (e.key === '-') {
+                                    e.preventDefault();
+                                  }
+                                }}
+                              />
+                            </div>
+                          </CCol>
 
-        // Update the value only if it's valid (no negative sign or more than two decimals)
-        if (inputValue !== e.target.value) {
-          e.target.value = inputValue;
-        }
-      }}
-    />
-  </CCol>
-
-  <CCol xs={6}>
-    <div className="d-flex align-items-center">
-      <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '40px' }}>{t('LABELS.snf')}</CFormLabel>
-      <CFormInput
-        type="number"
-        step="0.01"
-        value={tankFormData.snf}
-        onChange={(e) => handleFormChange(tank.id, 'snf', e.target.value)}
-        min="0"
-        placeholder={t('LABELS.snfValue')}
-        onInput={(e) => {
-          let inputValue = e.target.value;
-
-          // Ensure the value has only one decimal point and up to two decimal places
-          inputValue = inputValue.replace(/^(\d*\.?\d{0,2}).*$/, '$1');
-
-          // Update the value only if it's valid (no negative sign or more than two decimals)
-          if (inputValue !== e.target.value) {
-            e.target.value = inputValue;
-          }
-        }}
-      />
-    </div>
-  </CCol>
-
-  <CCol xs={6}>
-    <div className="d-flex align-items-center">
-      <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '40px' }}>{t('LABELS.ts')}</CFormLabel>
-      <CFormInput
-        type="number"
-        step="0.01"
-        value={tankFormData.ts}
-        onChange={(e) => handleFormChange(tank.id, 'ts', e.target.value)}
-        min="0"
-        placeholder={t('LABELS.tsValue')}
-        onInput={(e) => {
-          let inputValue = e.target.value;
-
-          // Ensure the value has only one decimal point and up to two decimal places
-          inputValue = inputValue.replace(/^(\d*\.?\d{0,2}).*$/, '$1');
-
-          // Update the value only if it's valid (no negative sign or more than two decimals)
-          if (inputValue !== e.target.value) {
-            e.target.value = inputValue;
-          }
-        }}
-      />
-    </div>
-  </CCol>
-</CRow>
-
+                          <CCol xs={6}>
+                            <div className="d-flex align-items-center">
+                              <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '40px' }}>{t('LABELS.ts')}</CFormLabel>
+                              <CFormInput
+                                type="number"
+                                step="0.01"
+                                value={tankFormData.ts}
+                                onChange={(e) => {
+                                  const validatedValue = validateAndFormatInput(e.target.value, 'ts');
+                                  handleFormChange(tank.id, 'ts', validatedValue);
+                                }}
+                                min="0"
+                                placeholder={t('LABELS.tsValue')}
+                                onKeyDown={(e) => {
+                                  // Prevent minus sign
+                                  if (e.key === '-') {
+                                    e.preventDefault();
+                                  }
+                                }}
+                              />
+                            </div>
+                          </CCol>
+                        </CRow>
 
                         <CRow className="g-3">
                           <CCol xs={6}>
@@ -568,4 +620,3 @@ const LaboratoryUser = () => {
 };
 
 export default LaboratoryUser;
-  

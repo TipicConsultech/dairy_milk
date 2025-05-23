@@ -591,12 +591,12 @@
         "tsWillBeZero": "TS शून्य होईल",
         "thisActionCannotBeUndone": "ही क्रिया पूर्ववत केली जाऊ शकत नाही",
         "milkParamsUpdatedSuccess":"दूध मापदंड यशस्वीरीत्या सुरक्षित झाले!",
-        "quantityCannotBeNegative":"नकारात्मक मात्रा अमान्य आहे",
+        
         "failedToFetchMilkTanks": "दूध टँक डेटा प्राप्त करण्यात अयशस्वी",
         "errorConnectingToServer": "सर्व्हरशी कनेक्शन त्रुटी. कृपया आपले नेटवर्क तपासा",
         "userInfoMissing": "वापरकर्ता माहिती किंवा कंपनी आयडी आढळली नाही",
         "errorInitializingData": "अॅप्लिकेशन डेटा आरंभ करताना त्रुटी",
-        "allFieldsRequired": "सर्व फील्ड भरणे आवश्यक आहे",
+        
         "failedToUpdateMilkParams": "दूध मापदंड बदल करण्यात अयशस्वी",
         "invalidInputQuantity": "अवैध इनपुट: मात्रा धनात्मक संख्या असणे आवश्यक आहे",
         "tankEmptiedSuccess": "टँक यशस्वीरित्या रिकामा केला",
@@ -694,7 +694,15 @@
       "partial_expenses_submitted": "{{total}} पैकी {{success}} खर्च यशस्वीरित्या सबमिट केले गेले",
  
       "confirm_submit_expenses": "तुम्हाला खात्री आहे की तुम्ही सर्व {{count}} खर्च सबमिट करू इच्छिता?",
-      "complete_edit_before_submit": "सर्व खर्च सबमिट करण्यापूर्वी कृपया वर्तमान संपादन पूर्ण करा किंवा रद्द करा"
+      "complete_edit_before_submit": "सर्व खर्च सबमिट करण्यापूर्वी कृपया वर्तमान संपादन पूर्ण करा किंवा रद्द करा",
+
+      "quantityCannotBeZero": "दुधाचे प्रमाण शून्य असू शकत नाही",
+    "snfCannotBeZero": "SNF मूल्य शून्य असू शकत नाही",
+    "tsCannotBeZero": "TS मूल्य शून्य असू शकत नाही",
+    "snfCannotBeNegative": "SNF मूल्य ऋण असू शकत नाही",
+    "tsCannotBeNegative": "TS मूल्य ऋण असू शकत नाही",
+    "quantityCannotBeNegative": "दुधाचे प्रमाण ऋण असू शकत नाही",
+    "allFieldsRequired": "सर्व फील्ड आवश्यक आहेत"
 
 
 
