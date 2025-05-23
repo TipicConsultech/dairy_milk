@@ -5,9 +5,11 @@ import CIcon from '@coreui/icons-react';
 import { cilLockLocked } from '@coreui/icons';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../common/toast/ToastContext';
+import { useTranslation } from 'react-i18next';
 
 const Newpassword = () => {
   const { showToast } = useToast();
+  const { t } = useTranslation("global");
   const [email, setEmail] = useState('');
   const oldPasswordRef = useRef();
   const [newPassword, setNewPassword] = useState('');
@@ -75,11 +77,11 @@ const Newpassword = () => {
       <CCol xs={12}>
         <CCard className='mb-3'>
           <CCardHeader>
-            <strong>Change Password</strong>
+            <strong>{t('LABELS.change_password')}</strong>
           </CCardHeader>
           <CCardBody>
             <CForm noValidate validated={validated} onSubmit={handlePassUpdate}>
-              <p className="text-body-secondary">Your current password is required to change to a new password</p>
+              <p className="text-body-secondary">{t('LABELS.password_message')}</p>
               
               <CInputGroup className="mb-4">
                 <CInputGroupText>
@@ -89,7 +91,7 @@ const Newpassword = () => {
                   ref={oldPasswordRef}
                   id="oldPassword"
                   type="password"
-                  placeholder="Enter Current Password"
+                  placeholder={t('LABELS.enter_old_password')}
                   autoComplete="current-password"
                   feedbackInvalid="Please provide your current password."
                   required
@@ -104,7 +106,7 @@ const Newpassword = () => {
                   onChange={handleNewPasswordChange}
                   id="newPassword"
                   type="password"
-                  placeholder="Enter new password"
+                  placeholder={t('LABELS.enter_new_password')}
                   autoComplete="new-password"
                   required
                 />
@@ -119,14 +121,14 @@ const Newpassword = () => {
                   id="reEnterPassword"
                   type="password"
                   invalid={isInvalid}
-                  placeholder="Re-enter new password"
+                  placeholder={t('LABELS.reenter_new_password')}
                   autoComplete="re-enter-new-password"
                   required
                 />
                 <CFormFeedback invalid>Please re-enter the new password.</CFormFeedback>
               </CInputGroup>
 
-              <CButton type="submit" color="primary">Update Password</CButton>
+              <CButton type="submit" color="primary">{t('LABELS.update_password')}</CButton>
             </CForm>
           </CCardBody>
         </CCard>

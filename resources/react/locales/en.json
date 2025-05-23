@@ -456,7 +456,11 @@
   "change_password":"Change Password",
   "setting":"Setting",
   "logout":"Log Out",
-    
+"password_message":"Your current password is required to change to a new password",
+"enter_old_password":"Enter Current Password",
+"enter_new_password":"Enter New Password",
+"reenter_new_password":"Re Enter New Password ",
+"update_password":"Update Password",
     "transaction_details": "Transaction Details",
     
     "grand_total": "Grand Total",
