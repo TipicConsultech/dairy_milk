@@ -7,6 +7,25 @@ import 'simplebar-react/dist/simplebar.min.css'
 
 import { CBadge, CNavLink, CSidebarNav } from '@coreui/react'
 
+// Final dark gray scrollbar style
+const scrollbarStyle = `
+  .simplebar-track.simplebar-vertical {
+    opacity: 1 !important;
+    background: transparent !important; /* Transparent track */
+    width: 8px !important;
+  }
+
+  .simplebar-scrollbar::before {
+    background-color: #fff !important; /* White thumb */
+    border-radius: 4px;
+  }
+
+  .simplebar-scrollbar {
+    display: block !important;
+  }
+`
+
+
 export const AppSidebarNav = ({ items }) => {
   const navLink = (name, icon, badge, indent = false) => {
     return (
@@ -18,7 +37,7 @@ export const AppSidebarNav = ({ items }) => {
                 <span className="nav-icon-bullet"></span>
               </span>
             )}
-        {name && name}
+        {name}
         {badge && (
           <CBadge color={badge.color} className="ms-auto">
             {badge.text}
@@ -45,22 +64,26 @@ export const AppSidebarNav = ({ items }) => {
   }
 
   const navGroup = (item, index) => {
-    const { component, name, icon, items, to, ...rest } = item
+    const { component, name, icon, items, ...rest } = item
     const Component = component
     return (
       <Component compact as="div" key={index} toggler={navLink(name, icon)} {...rest}>
-        {item.items?.map((item, index) =>
-          item.items ? navGroup(item, index) : navItem(item, index, true),
+        {items?.map((child, idx) =>
+          child.items ? navGroup(child, idx) : navItem(child, idx, true),
         )}
       </Component>
     )
   }
 
   return (
-    <CSidebarNav as={SimpleBar}>
-      {items &&
-        items.map((item, index) => (item.items ? navGroup(item, index) : navItem(item, index)))}
-    </CSidebarNav>
+    <>
+      <style>{scrollbarStyle}</style>
+      <CSidebarNav as={SimpleBar} style={{ height: '100%' }}>
+        {items?.map((item, index) =>
+          item.items ? navGroup(item, index) : navItem(item, index),
+        )}
+      </CSidebarNav>
+    </>
   )
 }
 
