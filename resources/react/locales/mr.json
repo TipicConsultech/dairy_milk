@@ -130,7 +130,7 @@
     "edit_factory_product":"फॅक्टरी उत्पादन संपादित करा",
     "show":"उत्पादन दाखवा",
     "save_changes":"बदल जतन करा",
-   "milk_required":"लागणाऱ्या दुधाची बेरीज",
+   "milk_required":"लागणारे दुध",
 
    "Kilogram":"किलोग्रॅम (kg)",
     "grams":"ग्रॅम (gm)",
@@ -189,6 +189,7 @@
         "save": "सेव्ह",
         "milk_for_product": "उत्पादनासाठी दूध",
         "product": "उत्पादन",
+        "stock_product":"एकूण उत्पादन",
         "quantity": "संख्या",
         "gram": "ग्राम",
         "Date": "तारीख",
@@ -442,15 +443,23 @@
   "cowSummary": "गाईचा सारांश",
   "buffaloSummary": "म्हशीचा सारांश",
   "totalBalance": "एकूण शिल्लक",
-  "quantityUsed": "वापरलेली मात्रा",
+  "quantityUsed": "दूध वापरलेली मात्रा",
   "wasteMilk": "वाया गेलेले दूध",
   "remainingBalance": "उरलेली शिल्ल",
   "return"  : "घेतले",
+  "change_password":"पासवर्ड बदला",
+  "enter_old_password":"वर्तमान पासवर्ड प्रविष्ट करा",
+"enter_new_password":"नवीन पासवर्ड प्रविष्ट करा",
+"reenter_new_password":"नवीन पासवर्ड पुन्हा प्रविष्ट करा",
+"update_password":"पासवर्ड बदला",
+"password_message":"तुमचा सध्याचा पासवर्ड नवीन पासवर्डमध्ये बदलण्यासाठी आवश्यक आहे.",
+  "setting":"सेटिंग",
+  "logout":"लॉग आऊट",
   "RawMaterialsInventory":"कच्च्या मालाची यादी",
-  "productUpdateSuccess": "✅ उत्पादन यशस्वीरित्या अद्यतनित झाले!",
+   "productUpdateSuccess":" सर्व निवडलेली  कच्चा माल यादी बदल केली ",
   "overCapacityWarning": "तुम्ही या घटकासाठी परवानगी असलेल्या जास्तीत जास्त क्षमतेपेक्षा जास्त प्रविष्ट केले आहे.",
   "itemCapacityExceeded": "तुम्ही {quantity} प्रमाणात <strong>{name}</strong> मध्ये जोडण्याचा प्रयत्न करत आहात, पण केवळ <strong>{remaining}</strong> एवढेच उरलेले आहे (मर्यादा <strong>{capacity}</strong>).",
-  "p&lreport":"नफा आणि तोटा रिपोर्ट",
+  "p&lreport":"फायनांसियल रिपोर्ट",
   "creditreport":"क्रेडिट रिपोर्ट",
   "transaction_details": "व्यवहार तपशील",
   "grand_total": "एकूण",
@@ -510,7 +519,26 @@
   "emptyTank": "टँक रिकामी करा",
   "totals": "एकूण",
   "no_matching_records": "कोणतेही जुळणारे रेकॉर्ड आढळले नाहीत",
-  "no_records_found": "कोणतेही रेकॉर्ड आढळले नाहीत"
+  "no_records_found": "कोणतेही रेकॉर्ड आढळले नाहीत",
+
+  
+      "edit_expense": "खर्च संपादित करा",
+      "editing_mode": "संपादन मोड",
+      
+      "enter_expense_description": "खर्चाचे वर्णन प्रविष्ट करा",
+      
+      "add_to_list": "यादीत जोडा",
+      "update_in_list": "यादीत अपडेट करा",
+      "cancel_edit": "संपादन रद्द करा",
+ 
+      "expenses_list": "खर्चांची यादी",
+      
+      "editing": "संपादित करत आहे...",
+     
+      "submit_all_expenses": "सर्व खर्च सबमिट करा",
+      "confirm_submission": "सबमिशन पुष्ट करा",
+     
+      "confirm_submit": "सबमिट पुष्ट करा"
 
 
     },
@@ -568,12 +596,12 @@
         "tsWillBeZero": "TS शून्य होईल",
         "thisActionCannotBeUndone": "ही क्रिया पूर्ववत केली जाऊ शकत नाही",
         "milkParamsUpdatedSuccess":"दूध मापदंड यशस्वीरीत्या सुरक्षित झाले!",
-        "quantityCannotBeNegative":"नकारात्मक मात्रा अमान्य आहे",
+        
         "failedToFetchMilkTanks": "दूध टँक डेटा प्राप्त करण्यात अयशस्वी",
         "errorConnectingToServer": "सर्व्हरशी कनेक्शन त्रुटी. कृपया आपले नेटवर्क तपासा",
         "userInfoMissing": "वापरकर्ता माहिती किंवा कंपनी आयडी आढळली नाही",
         "errorInitializingData": "अॅप्लिकेशन डेटा आरंभ करताना त्रुटी",
-        "allFieldsRequired": "सर्व फील्ड भरणे आवश्यक आहे",
+        
         "failedToUpdateMilkParams": "दूध मापदंड बदल करण्यात अयशस्वी",
         "invalidInputQuantity": "अवैध इनपुट: मात्रा धनात्मक संख्या असणे आवश्यक आहे",
         "tankEmptiedSuccess": "टँक यशस्वीरित्या रिकामा केला",
@@ -651,7 +679,35 @@
         "failedToCalculateTupUtaar": "तूप उतार गणना करण्यात अपयशी",
 
         "noRecordsFound": "कोणत्याही नोंदी सापडल्या नाहीत",
-        "failedToLoadHistoryData": "इतिहास डेटा लोड करण्यात अयशस्वी"
+        "failedToLoadHistoryData": "इतिहास डेटा लोड करण्यात अयशस्वी",
+
+            
+      "select_expense_type_validation": "कृपया खर्च प्रकार निवडा",
+      "expense_description_validation": "कृपया खर्चाचे वर्णन प्रविष्ट करा",
+      "select_date_validation": "कृपया वैध तारीख निवडा",
+      "price_validation": "कृपया वैध किंमत प्रविष्ट करा",
+      "quantity_validation": "कृपया वैध प्रमाण प्रविष्ट करा",
+      "expense_added_to_list": "खर्च यादीत यशस्वीरित्या जोडला गेला",
+      "expense_updated_successfully": "खर्च यशस्वीरित्या अपडेट केला गेला",
+      "expense_loaded_for_editing": "खर्च संपादनासाठी लोड केला गेला",
+      "edit_cancelled": "संपादन रद्द केले गेले",
+      "expense_removed_from_list": "खर्च यादीतून काढला गेला",
+      "fill_required_fields": "कृपया सर्व आवश्यक फील्ड भरा",
+    
+      "add_atleast_one_expense": "कृपया यादीत किमान एक खर्च जोडा",
+      "expenses_submitted_successfully": "{{count}} खर्च यशस्वीरित्या सबमिट केले गेले",
+      "partial_expenses_submitted": "{{total}} पैकी {{success}} खर्च यशस्वीरित्या सबमिट केले गेले",
+ 
+      "confirm_submit_expenses": "तुम्हाला खात्री आहे की तुम्ही सर्व {{count}} खर्च सबमिट करू इच्छिता?",
+      "complete_edit_before_submit": "सर्व खर्च सबमिट करण्यापूर्वी कृपया वर्तमान संपादन पूर्ण करा किंवा रद्द करा",
+
+      "quantityCannotBeZero": "दुधाचे प्रमाण शून्य असू शकत नाही",
+    "snfCannotBeZero": "SNF मूल्य शून्य असू शकत नाही",
+    "tsCannotBeZero": "TS मूल्य शून्य असू शकत नाही",
+    "snfCannotBeNegative": "SNF मूल्य ऋण असू शकत नाही",
+    "tsCannotBeNegative": "TS मूल्य ऋण असू शकत नाही",
+    "quantityCannotBeNegative": "दुधाचे प्रमाण ऋण असू शकत नाही",
+    "allFieldsRequired": "सर्व फील्ड आवश्यक आहेत"
 
 
 

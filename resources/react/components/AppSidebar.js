@@ -9,7 +9,7 @@ import {
   CSidebarBrand,
   CSidebarFooter,
   CSidebarHeader,
-  CSidebarToggler,
+  // CSidebarToggler,
 } from '@coreui/react'
 
 import { AppSidebarNav } from './AppSidebarNav'
@@ -20,6 +20,9 @@ import { useTranslation } from 'react-i18next'
 // sidebar nav config
 import fetchNavItems from '../_nav'
 
+// import the CSS for scrollbar styling
+import '../components/SidebarStyles.css'
+
 const AppSidebar = () => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
@@ -27,15 +30,12 @@ const AppSidebar = () => {
   const [navigation, setNavigation] = useState([])
   const { t } = useTranslation("global")
 
-  useEffect(()=>{
-    const navItems = fetchNavItems(t);
-    setNavigation(navItems);
-  },[t])
-  
-
+  useEffect(() => {
+    const navItems = fetchNavItems(t)
+    setNavigation(navItems)
+  }, [t])
 
   return (
-    
     <CSidebar
       className="border-end no-print custom-scrollbar"
       colorScheme="dark"
@@ -48,9 +48,12 @@ const AppSidebar = () => {
     >
 
       <CSidebarHeader className="border-bottom">
-       <CSidebarBrand to="/" className='ms-5'>
-      
-          {unfoldable?(<img src={logo} height={50} width={50} />):(<img src={logo} height={50} width={90} />)}
+        <CSidebarBrand to="/" className="ms-5">
+          {unfoldable ? (
+            <img src={logo} height={50} width={50} alt="logo" />
+          ) : (
+            <img src={logo} height={50} width={90} alt="logo" />
+          )}
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"
@@ -58,14 +61,15 @@ const AppSidebar = () => {
           onClick={() => dispatch({ type: 'set', sidebarShow: false })}
         />
       </CSidebarHeader>
+
       <AppSidebarNav items={navigation} />
+
       <CSidebarFooter className="border-top d-none d-lg-flex">
         {/* <CSidebarToggler
           onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
         /> */}
       </CSidebarFooter>
     </CSidebar>
-    
   )
 }
 

@@ -290,6 +290,10 @@ const AllProducts = ( ) => {
         columns={columns} 
         data={data} 
         enableFullScreenToggle={false}
+     initialState={{
+        density: 'xs', // ✅ Set default row density to "Compact"
+      }}
+   
       />
     </CRow>
     </div>

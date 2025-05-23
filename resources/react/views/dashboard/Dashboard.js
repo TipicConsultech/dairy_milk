@@ -92,7 +92,7 @@ const Dashboard = (Props) => {
 <CInputGroup size="sm">
 <CFormInput
         style={{ borderColor: '#007BFF', color: '#0d6efd' }} // blue border & text
-        placeholder={t('LABELS.search')}
+        placeholder={t('LABELS.search_name')}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
@@ -107,7 +107,7 @@ const Dashboard = (Props) => {
               <CTable className="min-w-[600px]">
                 <CTableHead style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 2 }}>
                   <CTableRow>
-                    <CTableHeaderCell scope="col" style={{ width: '25%' }}>{t('LABELS.product')}</CTableHeaderCell>
+                    <CTableHeaderCell scope="col" style={{ width: '25%' }}>{t('LABELS.stock_product')}</CTableHeaderCell>
                     <CTableHeaderCell scope="col" className="text-center" style={{ width: '25%' }}>
                       {t('LABELS.currentCapacity')} 
                     </CTableHeaderCell>

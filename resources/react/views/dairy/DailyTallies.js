@@ -297,32 +297,30 @@ function DailyProductLog() {
   };
 
   // Calculate totals for summary
-  const calculateTotals = (tankData, factoryData) => {
-    const total = tankData.openingBalance + tankData.morningEntry + tankData.eveningEntry;
+ const calculateTotals = (tankData, factoryData) => {
+  const total = tankData.openingBalance + tankData.morningEntry + tankData.eveningEntry;
 
-    // Calculate product quantity from factory data
-    let totalQuantity = 0;
+  let totalRequiredMilk = 0;
 
-    // Sum the numeric part of all factory product sizes
-    factoryData.forEach(product => {
-      if (product.quantity && product.unit) {
-        const numericPart = parseFloat(product.quantity);
-        if (!isNaN(numericPart)) {
-          totalQuantity += numericPart;
-        }
-      }
-    });
+  // Sum required_milk instead of product quantity
+  factoryData.forEach(product => {
+    const requiredMilk = parseFloat(product.required_milk);
+    if (!isNaN(requiredMilk)) {
+      totalRequiredMilk += requiredMilk;
+    }
+  });
 
-    const waste_quantity = tankData.waste || 0;
-    const remaining = total - (totalQuantity + waste_quantity);
+  const waste_quantity = tankData.waste || 0;
+  const remaining = total - (totalRequiredMilk + waste_quantity);
 
-    return {
-      total,
-      productQuantity: totalQuantity.toFixed(2),
-      remaining,
-      waste_quantity
-    };
+  return {
+    total,
+    requiredMilk: totalRequiredMilk.toFixed(2),
+    remaining,
+    waste_quantity
   };
+};
+
 
   const cowTotals = calculateTotals(milkTankData.cow, filteredCowFactory);
   const buffaloTotals = calculateTotals(milkTankData.buffalo, filteredBuffaloFactory);
@@ -679,7 +677,7 @@ function DailyProductLog() {
               </tr>
               <tr>
                 <th>{t('LABELS.quantityUsed')}</th>
-                <td>{cowTotals.productQuantity} {t('LABELS.liters')}</td>
+                <td>{cowTotals.requiredMilk} {t('LABELS.liters')}</td>
               </tr>
               <tr>
                 <th>{t('LABELS.wasteMilk')}</th>
@@ -710,7 +708,7 @@ function DailyProductLog() {
               </tr>
               <tr>
                 <th>{t('LABELS.quantityUsed')}</th>
-                <td>{buffaloTotals.productQuantity} {t('LABELS.liters')}</td>
+                <td>{buffaloTotals.requiredMilk} {t('LABELS.liters')}</td>
               </tr>
               <tr>
                 <th>{t('LABELS.wasteMilk')}</th>

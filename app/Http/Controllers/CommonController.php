@@ -692,7 +692,7 @@ public function createProduct(Request $request)
 
             // Generate separate batch number per product
             $batchPrefix = strtolower(substr($productSize->name, 0, 3)) ?: 'xx';
-            $batchNo = $batchPrefix . '-' . now('Asia/Kolkata')->format('Y-m-d-H-i-s') . '-' . uniqid();
+            $batchNo = $batchPrefix . '-' . now('Asia/Kolkata')->format('Y-m-d-H-i-s');
 
             $processing = MilkProcesing::create([
                 'batch_no'         => $batchNo,
@@ -755,6 +755,7 @@ public function createProduct(Request $request)
                     'product_local_name' => $productSize->localName ?? null,
                     'quantity'           => $ps['qty'],
                     'unit'               => $productSize->unit ?? null,
+                    'required_milk'      => $requiredMilk ,
                     'batch_no'           => $batchNo,
                 ]);
             }
@@ -908,6 +909,7 @@ public function newRetailProduct(Request $request)
                     'product_local_name' => $item['localName'],
                     'quantity'           => $item['requestedQty'],
                     'unit'               => $item['unit'],
+                    'required_milk'      => 0 ,
                     'batch_no'           => $retailBatchNo,
                     'created_at'         => now(),
                     'updated_at'         => now(),
