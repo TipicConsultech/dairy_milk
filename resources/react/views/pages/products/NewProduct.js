@@ -20,7 +20,7 @@ import { getAPICall, post } from '../../../util/api'
 import { useToast } from '../../common/toast/ToastContext';
 import { useTranslation } from 'react-i18next';
 
-const ProductForm = ({ isOpen, onClose }) => {
+const ProductForm = ({ isOpen, onClose,fetchProducts }) => {
      const { t, i18n } = useTranslation("global");
    const [factoryProductData, setFactoryProductData] = useState([])
    const [selectedFactorySizeId, setSelectedFactorySizeId] = useState('');
@@ -182,6 +182,8 @@ const [dropdownOpen, setDropdownOpen] = useState(false);
       if (resp) {
         showToast('success', 'Product added successfully');
         handleClear()
+        fetchProducts()
+        // fetchProducts
         onClose && onClose()
       } else {
         showToast('danger', 'Error occured, please try again later.');

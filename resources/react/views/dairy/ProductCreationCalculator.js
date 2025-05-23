@@ -30,6 +30,8 @@ const ProductCreationCalculator = () => {
   // Add translation hook
   const { t, i18n } = useTranslation("global");
 
+  const [refreshHistory, setRefreshHistory] = useState(false);
+
   // Main form state
   const [formState, setFormState] = useState({
     selectedProduct: '',
@@ -110,6 +112,7 @@ const ProductCreationCalculator = () => {
 
       // Process response data
       if (response && response.pannerToBeCreated !== undefined) {
+        
         updateFormState('pannerToBeCreated', response.pannerToBeCreated.toFixed(2));
       }
     } catch (err) {
@@ -159,8 +162,11 @@ const ProductCreationCalculator = () => {
         tupCreated: parseFloat(tupCreated)
       });
 
+         setRefreshHistory(prev => !prev);
+
       // Process response data
       if (response && response.tupUtaar !== undefined) {
+     
         updateFormState('tupUtaar', response.tupUtaar.toFixed(2));
       }
     } catch (err) {
@@ -261,6 +267,7 @@ const ProductCreationCalculator = () => {
 
       if (response.success) {
         // First set the success message
+         setRefreshHistory(prev => !prev);
         updateUiState('successMessage', t('MSG.paneerCalculationStoredSuccess'));
         updateUiState('showConfirmModal', false);
 
@@ -323,6 +330,7 @@ const ProductCreationCalculator = () => {
 
       if (response.success) {
         // First set the success message
+         setRefreshHistory(prev => !prev);
         updateUiState('successMessage', t('MSG.tupCalculationStoredSuccess'));
         updateUiState('showConfirmModal', false);
 
@@ -675,7 +683,8 @@ const ProductCreationCalculator = () => {
           </CForm>
         </CCardBody>
       </CCard>
-      <ProductCalculationHistory />
+
+      <ProductCalculationHistory  refreshTrigger={refreshHistory}/>
 
       {/* Confirmation Modal */}
       <CModal

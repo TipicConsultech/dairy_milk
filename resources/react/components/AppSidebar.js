@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+// import './sidebar.css'
+
 
 import {
   CCloseButton,
@@ -35,7 +37,7 @@ const AppSidebar = () => {
   return (
     
     <CSidebar
-      className="border-end no-print"
+      className="border-end no-print custom-scrollbar"
       colorScheme="dark"
       position="fixed"
       unfoldable={unfoldable}
@@ -44,6 +46,7 @@ const AppSidebar = () => {
         dispatch({ type: 'set', sidebarShow: visible })
       }}
     >
+
       <CSidebarHeader className="border-bottom">
        <CSidebarBrand to="/" className='ms-5'>
       

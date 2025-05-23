@@ -439,7 +439,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { get } from '../../util/api';
 
-const ProductCalculationHistory = () => {
+const ProductCalculationHistory = ({ refreshTrigger }) => {
   const { t } = useTranslation("global");
 
   const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
@@ -527,6 +527,7 @@ const ProductCalculationHistory = () => {
     const response = await get(endpoint, params);
 
     if (response.success) {
+      setHistoryData(response.data);
       setHistoryData(Array.isArray(response.data) ? response.data : []);
       if (response.pagination) {
         setPagination({
@@ -547,6 +548,10 @@ const ProductCalculationHistory = () => {
     setIsLoading(false);
   }
 };
+
+ useEffect(() => {
+    fetchHistory();
+  }, [refreshTrigger]);
 
 
   const applyFilters = () => fetchHistory(1);

@@ -55,5 +55,9 @@ class ProductSize extends Model
         return $this->hasOne(ProductMapping::class, 'retail_productSize_id', 'id');
     }
     
+    public function factoryMapping()
+{
+    return $this->hasOne(ProductMapping::class, 'retail_product_id', 'id');
+}
 
 }

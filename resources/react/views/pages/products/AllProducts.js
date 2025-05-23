@@ -14,7 +14,7 @@ import { host } from '../../../util/constants';
 import { getToken, getUserData } from '../../../util/session';
 
 
-const AllProducts = () => {
+const AllProducts = ( ) => {
    const { t, i18n } = useTranslation("global");
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
@@ -264,6 +264,7 @@ const AllProducts = () => {
           <ProductForm 
         isOpen={showModal} 
         onClose={() => setShowModal(false)} 
+        fetchProducts ={fetchProducts }
       />
           <div className="p-3">
    <CRow>
@@ -281,6 +282,7 @@ const AllProducts = () => {
           visible={editModalVisible}
           setVisible={setEditModalVisible}
           onSuccess={fetchProducts}
+          
         />
       )}
       

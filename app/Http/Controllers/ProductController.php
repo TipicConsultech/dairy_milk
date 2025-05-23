@@ -28,18 +28,35 @@ class ProductController extends Controller
      * 
      */
 
-     public function getRetailProduct($id)
-     {
-        $product = ProductSize::find($id);
+    //  public function getRetailProduct($id)
+    //  {
+    //     $product = ProductSize::find($id);
     
-        if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
-        }
+    //     if (!$product) {
+    //         return response()->json(['message' => 'Product not found'], 404);
+    //     }
     
-        return response()->json([
-            'data' => $product
-        ]);
+    //     return response()->json([
+    //         'data' => $product
+    //     ]);
+    // }
+    public function getRetailProduct($id)
+{
+    // Load the retail product along with the mapped factory product
+    $product = ProductSize::with('productMapping.factoryProductSize')->find($id);
+
+    if (!$product) {
+        return response()->json(['message' => 'Product not found'], 404);
     }
+
+    return response()->json([
+        'data' => $product,
+        'mapped_factory_product' => $product->productMapping?->factoryProductSize
+    ]);
+}
+
+
+
     public function showAll()
     {
         $products = ProductSize::select('id','name','qty','unit')
@@ -478,6 +495,72 @@ public function store(Request $request)
 //     ]);
 // }
 
+// public function updateProductSize(Request $request, $id)
+// {
+//     $productSize = ProductSize::find($id);
+
+//     if (!$productSize) {
+//         return response()->json(['message' => 'ProductSize not found'], 404);
+//     }
+
+//     $validated = $request->validate([
+//         'product_id' => 'required|integer|exists:products,id',
+//         'name' => 'required|string',
+//         'localName' => 'nullable|string',
+//         'bPrice' => 'required|numeric',
+//         'oPrice' => 'required|numeric',
+//         'dPrice' => 'required|numeric',
+//         'unit' => 'required|string',
+//         'label_value' => 'nullable|numeric',
+//         'unit_multiplier' => 'nullable|numeric',
+//         'qty' => 'required|numeric',
+//         'default_qty' => 'nullable|numeric',
+//         'max_stock' => 'nullable|numeric',
+//         'booked' => 'nullable|numeric',
+//         'company_id' => 'nullable|integer',
+//         'created_by' => 'nullable|integer',
+//         'updated_by' => 'nullable|integer',
+//         'returnable' => 'boolean',
+//         'show' => 'boolean',
+//         'product_type' => 'nullable|numeric',
+//         'mapped_factory_product_size_id' => 'nullable|exists:product_sizes,id',
+//     ]);
+
+//     // Update ProductSize
+//     $productSize->update($validated);
+
+//     // ✅ Handle Product Mapping if it's a Retail Product (product_type = 2)
+//     if (isset($validated['product_type']) && $validated['product_type'] == 2) {
+//         if ($request->filled('mapped_factory_product_size_id')) {
+//             // Check if mapping already exists
+//             $existingMapping = ProductMapping::where('retail_productSize_id', $productSize->id)->first();
+
+//             if ($existingMapping) {
+//                 // Update existing mapping
+//                 $existingMapping->factory_productSize_id = $request->mapped_factory_product_size_id;
+//                 $existingMapping->save();
+//             } else {
+//                 // Create new mapping
+//                 ProductMapping::create([
+//                     'factory_productSize_id' => $request->mapped_factory_product_size_id,
+//                     'retail_productSize_id' => $productSize->id,
+//                 ]);
+//             }
+//         } else {
+//             // If no factory product size selected, optionally delete mapping
+//             ProductMapping::where('retail_productSize_id', $productSize->id)->delete();
+//         }
+//     } else {
+//         // If product_type is not 2, remove mapping if it exists
+//         ProductMapping::where('retail_productSize_id', $productSize->id)->delete();
+//     }
+
+//     return response()->json([
+//         'message' => 'ProductSize updated successfully',
+//         'data' => $productSize
+//     ]);
+// }
+
 public function updateProductSize(Request $request, $id)
 {
     $productSize = ProductSize::find($id);
@@ -509,40 +592,66 @@ public function updateProductSize(Request $request, $id)
         'mapped_factory_product_size_id' => 'nullable|exists:product_sizes,id',
     ]);
 
-    // Update ProductSize
+    // If oPrice is present, override bPrice and dPrice to match it
+if ($request->has('oPrice')) {
+    $validated['bPrice'] = $validated['oPrice'];
+    $validated['dPrice'] = $validated['oPrice'];
+}
+
+// Auto-calculate unit_multiplier for gm or ml
+$unit = strtolower($validated['unit']);
+if (in_array($unit, ['gm', 'ml']) && !empty($validated['label_value'])) {
+    $validated['unit_multiplier'] = $validated['label_value'] / 1000;
+}
+
+    // ✅ Update ProductSize
     $productSize->update($validated);
 
-    // ✅ Handle Product Mapping if it's a Retail Product (product_type = 2)
+    // ✅ Update the related Product table using product_id from ProductSize
+    $product = $productSize->product;
+    if ($product) {
+        $product->update([
+            'name' => $validated['name'],
+            'localName' => $validated['localName'] ?? $product->localName,
+            'unit' => $validated['unit'] ?? $product->unit,
+        ]);
+    }
+
+    // ✅ Handle Product Mapping
     if (isset($validated['product_type']) && $validated['product_type'] == 2) {
         if ($request->filled('mapped_factory_product_size_id')) {
-            // Check if mapping already exists
             $existingMapping = ProductMapping::where('retail_productSize_id', $productSize->id)->first();
-
             if ($existingMapping) {
-                // Update existing mapping
                 $existingMapping->factory_productSize_id = $request->mapped_factory_product_size_id;
                 $existingMapping->save();
             } else {
-                // Create new mapping
                 ProductMapping::create([
                     'factory_productSize_id' => $request->mapped_factory_product_size_id,
                     'retail_productSize_id' => $productSize->id,
                 ]);
             }
         } else {
-            // If no factory product size selected, optionally delete mapping
             ProductMapping::where('retail_productSize_id', $productSize->id)->delete();
         }
     } else {
-        // If product_type is not 2, remove mapping if it exists
         ProductMapping::where('retail_productSize_id', $productSize->id)->delete();
     }
 
+    // Load mapping for response
+    $productSize->load('productMapping.factoryProductSize');
+
     return response()->json([
-        'message' => 'ProductSize updated successfully',
-        'data' => $productSize
+        'message' => 'ProductSize and related Product updated successfully',
+        'data' => $productSize,
+        'mapped_factory_product' => $productSize->productMapping?->factoryProductSize
     ]);
 }
+
+
+
+
+
+
 
 
 public function uploadProductExcel(Request $request)
