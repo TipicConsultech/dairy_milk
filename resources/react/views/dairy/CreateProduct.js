@@ -857,12 +857,14 @@ const MilkForm = () => {
               {/* Mobile View: unit and + button in the same row */}
               <CCol xs={12} className="d-flex d-md-none justify-content-between align-items-center gap-3">
                 <CFormInput
-                  type="text"
-                  value={newProduct.unit}
-                  placeholder={t('LABELS.unit')}
-                  disabled
-                  className="w-80"
-                />
+    value={
+      newProduct?.liters
+        ? newProduct.liters + ' ltr'
+        : ''
+    }
+    placeholder={t('LABELS.milk_required')}
+    disabled
+  />
                 <CButton
                   color="success"
                   variant="outline"

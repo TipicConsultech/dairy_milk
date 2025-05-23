@@ -959,10 +959,15 @@ const createRetailProduct = () => {
                <CCol md={3}>
                <CFormInput
   placeholder={t('LABELS.unit')}
-  value={
-    newProduct && newProduct.label_value && newProduct.unit
-      ? `${newProduct.unit}`
-      : ''
+  // value={
+  //   newProduct && newProduct.label_value && newProduct.unit
+  //     ? `${newProduct.unit}`
+  //     : ''
+  // }
+   value={
+    newProduct && newProduct.label_value && newProduct.unit=="gm"||"kg"
+      ? "pcs"
+      : "liter"
   }
   onChange={handleProductQty}
   className={prodError ? 'is-invalid' : ''}
