@@ -692,7 +692,7 @@ public function createProduct(Request $request)
 
             // Generate separate batch number per product
             $batchPrefix = strtolower(substr($productSize->name, 0, 3)) ?: 'xx';
-            $batchNo = $batchPrefix . '-' . now('Asia/Kolkata')->format('Y-m-d-H-i-s') . '-' . uniqid();
+            $batchNo = $batchPrefix . '-' . now('Asia/Kolkata')->format('Y-m-d-H-i-s');
 
             $processing = MilkProcesing::create([
                 'batch_no'         => $batchNo,

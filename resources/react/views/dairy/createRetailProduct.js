@@ -365,8 +365,8 @@ const createRetailProduct = () => {
   const addProduct = () => {
     console.log('Adding product:', newProduct);
   
-    if (newProduct.name && newProduct.quantity && newProduct.sizeId && !prodError) {
-      const selectedSize = newProduct.sizeOptions.find(size => size.id === newProduct.sizeId);
+    if (newProduct.name && newProduct.quantity && newProduct.id ) {
+      const selectedSize = newProduct.id
       const sizeDisplay = selectedSize ? `${selectedSize.label_value} ${selectedSize.unit}` : '';
   
       setProducts(prev => [...prev, {
@@ -399,7 +399,7 @@ const createRetailProduct = () => {
     : [];
 
     const productsData = products.map(prod => ({
-      id: prod.sizeId,
+      id: prod.id,
       name: prod.name,
       qty: parseFloat(prod.quantity),
     }));
@@ -931,7 +931,7 @@ const createRetailProduct = () => {
               }}
             >
               {displayName}
-              {/* Optionally: {item.label_value} {item.unit} */}
+          
             </div>
           );
         })
@@ -956,8 +956,23 @@ const createRetailProduct = () => {
                 {prodError && <div className="text-danger mt-1">{prodError}</div>}
               </CCol>
 
+               <CCol md={3}>
+               <CFormInput
+  placeholder={t('LABELS.unit')}
+  value={
+    newProduct && newProduct.label_value && newProduct.unit
+      ? `${newProduct.unit}`
+      : ''
+  }
+  onChange={handleProductQty}
+  className={prodError ? 'is-invalid' : ''}
+  disabled
+/>
+                {prodError && <div className="text-danger mt-1">{prodError}</div>}
+              </CCol>
+
               {/* Desktop View: Separate columns */}
-              <CCol md={3} className="d-none d-md-block">
+              {/* <CCol md={3} className="d-none d-md-block">
                 <CFormSelect
                   value={newProduct.sizeId || ''}
                   onChange={handleSizeChange}
@@ -969,14 +984,14 @@ const createRetailProduct = () => {
                     </option>
                   ))}
                 </CFormSelect>
-              </CCol>
+              </CCol> */}
 
               <CCol md={2} className="d-none d-md-block">
                 <CButton
                   color="success"
                   variant="outline"
                   onClick={addProduct}
-                  disabled={!!prodError || !newProduct.name || !newProduct.quantity || !newProduct.sizeId}
+                  disabled={!newProduct.name || !newProduct.quantity || !newProduct.id}
                 >
                   <CIcon icon={cilPlus} />
                 </CButton>
@@ -984,7 +999,7 @@ const createRetailProduct = () => {
 
               {/* Mobile View: Unit dropdown and + button in one row */}
               <CCol xs={12} className="d-flex d-md-none justify-content-between align-items-center gap-3">
-                <CFormSelect
+                {/* <CFormSelect
                   value={newProduct.sizeId || ''}
                   onChange={handleSizeChange}
                   disabled={!newProduct.sizeOptions || newProduct.sizeOptions.length === 0}
@@ -995,14 +1010,25 @@ const createRetailProduct = () => {
                       {size.unit}
                     </option>
                   ))}
-                </CFormSelect>
+                </CFormSelect> */}
+                <CFormInput
+  placeholder={t('LABELS.unit')}
+  value={
+    newProduct && newProduct.label_value && newProduct.unit
+      ? ` ${newProduct.unit}`
+      : ''
+  }
+  onChange={handleProductQty}
+  className={prodError ? 'is-invalid' : ''}
+  disabled
+/>
+                {prodError && <div className="text-danger mt-1">{prodError}</div>}
 
                 <CButton
                   color="success"
                   variant="outline"
                   onClick={addProduct}
-                  disabled={!!prodError || !newProduct.name || !newProduct.quantity || !newProduct.sizeId}
-                  className="w-auto"
+                  disabled={!newProduct.name || !newProduct.quantity || !newProduct.id}
                 >
                   <CIcon icon={cilPlus} />
                 </CButton>
@@ -1023,7 +1049,7 @@ const createRetailProduct = () => {
 
                 {/* Unit Display: quarter on mobile, 3 cols on desktop */}
                 <CCol xs={3} md={3} className="d-flex align-items-center">
-                  {p.sizeDisplay}
+                 {p.unit}
                 </CCol>
 
                 {/* Delete Button: quarter on mobile, 2 cols on desktop */}
