@@ -538,8 +538,8 @@
       "submit_all_expenses": "सर्व खर्च सबमिट करा",
       "confirm_submission": "सबमिशन पुष्ट करा",
      
-      "confirm_submit": "सबमिट पुष्ट करा"
-
+      "confirm_submit": "सबमिट पुष्ट करा",
+     "singleProductUpdateSuccess":"कच्चा माल यशस्वीरित्या बदल केला"
 
     },
 
@@ -552,6 +552,7 @@
 
 
     "MSG": {
+  
       "productNotFound": "उत्पादन सापडले नाही",
         "order_is_delivered_msg": "ऑर्डर डिलिव्हर झाली",
         "error_occured_msg": "त्रुटी आली",

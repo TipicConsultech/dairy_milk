@@ -34,6 +34,7 @@ function RawMaterial() {
   const [loading, setLoading] = useState(false);
   const [failedItems, setFailedItems] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
+  const [showAlertSingleProduct, setShowAlertSingleProduct] = useState(false);
   const [failAlert, setFailAlert] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   
@@ -106,10 +107,18 @@ function RawMaterial() {
     if (showAlert) {
       const timer = setTimeout(() => {
         setShowAlert(false);
+        setShowAlertSingleProduct(false);
       }, 4000);
       return () => clearTimeout(timer);
     }
-  }, [showAlert]);
+     if (showAlertSingleProduct) {
+      const timer = setTimeout(() => {
+      
+        setShowAlertSingleProduct(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showAlert,showAlertSingleProduct]);
 
   useEffect(() => {
     if (failAlert) {
@@ -149,7 +158,7 @@ function RawMaterial() {
             setFailedItems(resp?.failed)
         }
         else if(resp?.updated){
-            setShowAlert(true);
+            setShowAlertSingleProduct(true);
             setQuantities({});
             setFailedItems([]);
             searchMaterials();
@@ -320,6 +329,11 @@ function RawMaterial() {
       {showAlert && (
         <CAlert color="success" onDismiss={() => setShowAlert(false)}>
           <div>✅{t('LABELS.productUpdateSuccess')}</div>  
+        </CAlert>
+      )}
+      {showAlertSingleProduct && (
+        <CAlert color="success" onDismiss={() =>setShowAlertSingleProduct(false)}>
+          <div>✅{t('LABELS.singleProductUpdateSuccess')}</div>  
         </CAlert>
       )}
       {failAlert && (

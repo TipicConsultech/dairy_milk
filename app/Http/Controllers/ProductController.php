@@ -213,15 +213,25 @@ class ProductController extends Controller
   
 public function store(Request $request)
 {
-    $request->validate([
+    $validated=$request->validate([
         'name' => 'required',
         'localName' => 'required',
         'multiSize' => 'required',
         'show' => 'required',
         'unit' => 'nullable',
+        'lable_value'=>'required|integer'
     ]);
 
     $user = Auth::user();
+    $unitMultiplier=0;
+
+    $unit = strtolower($validated['unit']);
+if (in_array($unit, ['gm', 'ml']) && !empty($validated['lable_value'])) {
+    $unitMultiplier = $validated['lable_value'] / 1000;
+}
+else{
+    $unitMultiplier= $validated['lable_value'];
+}
 
     // Create product
     $product = Product::create([
@@ -249,7 +259,8 @@ public function store(Request $request)
         $sz->returnable = $size['returnable'];
         $sz->isFactory = $size['isFactory'] ?? 0;
         $sz->qty = $size['qty'];
-        $sz->unit_multiplier = $size['unit_multiplier'];
+        $sz->label_value=$validated['lable_value'];
+        $sz->unit_multiplier = $unitMultiplier;
         $sz->product_type = $size['product_type'];
         $sz->show = $size['show'];
         $sz->company_id = $user->company_id;
