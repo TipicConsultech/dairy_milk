@@ -289,9 +289,9 @@ const AllProducts = () => {
         data={data} 
         enableFullScreenToggle={false}
      initialState={{
-        density: 'comfortable', // ✅ Set default row density to "Compact"
+        density: 'xs', // ✅ Set default row density to "Compact"
       }}
-     enableDensityToggle={false}
+   
       />
     </CRow>
     </div>
