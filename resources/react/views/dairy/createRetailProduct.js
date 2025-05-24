@@ -351,6 +351,9 @@ const createRetailProduct = () => {
     setProdError('');
   };
 
+  console.log(selectedBatch);
+  
+
   const handleProductQty = e => {
     const val = e.target.value;
     setNewProduct(p => ({ ...p, quantity: val }));
@@ -624,17 +627,12 @@ const createRetailProduct = () => {
           </CCol>
 
           <CCol md={2}>
-            <CFormLabel><b>{t('LABELS.totalQty')} ({selectedBatch?.unit})</b></CFormLabel>
+            <CFormLabel><b>{t('LABELS.totalQty')} </b></CFormLabel>
             <CFormInput
               type="text"
               placeholder={t('LABELS.quantity')}
-               value={selectedBatch?.product_qty}
-              // value={
-              //   selectedBatch
-              //     ? `${selectedBatch?.product_qty} (${selectedBatch?.unit})`
-              //     : ''
-              // }
-              disabled
+               value={selectedBatch!==null ? selectedBatch?.product_qty :`${t('LABELS.quantity')}`}
+               disabled
             />
           </CCol>
 
@@ -949,6 +947,8 @@ const createRetailProduct = () => {
                 <CFormInput
                   type="number"
                   placeholder={t('LABELS.enterQuantity')}
+
+                  
                   value={newProduct.quantity}
                   onChange={handleProductQty}
                   className={prodError ? 'is-invalid' : ''}
@@ -1004,19 +1004,8 @@ const createRetailProduct = () => {
 
               {/* Mobile View: Unit dropdown and + button in one row */}
               <CCol xs={12} className="d-flex d-md-none justify-content-between align-items-center gap-3">
-                {/* <CFormSelect
-                  value={newProduct.sizeId || ''}
-                  onChange={handleSizeChange}
-                  disabled={!newProduct.sizeOptions || newProduct.sizeOptions.length === 0}
-                  className="w-80"
-                >
-                  {newProduct.sizeOptions && newProduct.sizeOptions.map((size, i) => (
-                    <option key={i} value={size.id}>
-                      {size.unit}
-                    </option>
-                  ))}
-                </CFormSelect> */}
-                <CFormInput
+               
+                {/* <CFormInput
   placeholder={t('LABELS.unit')}
   value={
     newProduct && newProduct.label_value && newProduct.unit
@@ -1026,7 +1015,7 @@ const createRetailProduct = () => {
   onChange={handleProductQty}
   className={prodError ? 'is-invalid' : ''}
   disabled
-/>
+/> */}
                 {prodError && <div className="text-danger mt-1">{prodError}</div>}
 
                 <CButton
