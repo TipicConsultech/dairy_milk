@@ -2066,9 +2066,10 @@ const fetchReportData = async () => {
                   <div className="d-flex">
                     <Button fetchReportData={fetchReportData} />
                     <CButton color="info" className="ms-2" onClick={handleDownloadCSV}>
-                      ⬇ Download CSV
+                      Download 
                     </CButton>
                   </div>
+                 
                 </div>
               </div>
               
@@ -2078,17 +2079,17 @@ const fetchReportData = async () => {
                   <div className="col-12">
                     <Custom setStateCustom={setStateCustom} />
                   </div>
-                  <div className="col-6">
+                  <div className="col-12">
                     <Dropdown
                       setSelectedOption={setSelectedOption}
                       ReportOptions={ReportOptions}
                       selectedOption={selectedOption}
                     />
                   </div>
-                  <div className="col-6 d-flex justify-content-start">
+                  <div className="col-12 d-flex justify-content-start">
                     <Button fetchReportData={fetchReportData} />
                     <CButton color="info" className="ms-2" onClick={handleDownloadCSV}>
-                    ⬇ Download CSV
+                    Download 
                     </CButton>
                   </div>
                 </div>
@@ -2124,7 +2125,7 @@ const fetchReportData = async () => {
                 <div className="d-flex mx-1">
                   <Button fetchReportData={fetchReportData} />
                   <CButton color="info" className="ms-2" onClick={handleDownloadCSV}>
-                    ⬇ Download CSV
+                    Download
                   </CButton>
                 </div>
               </div>
@@ -2135,17 +2136,17 @@ const fetchReportData = async () => {
                   <div className="col-12">
                     <Week setStateWeek={setStateWeek} />
                   </div>
-                  <div className="col-6">
+                  <div className="col-12">
                     <Dropdown
                       setSelectedOption={setSelectedOption}
                       ReportOptions={ReportOptions}
                       selectedOption={selectedOption}
                     />
                   </div>
-                  <div className="col-6 d-flex justify-content-start">
+                  <div className="col-12 d-flex justify-content-start">
                     <Button fetchReportData={fetchReportData} />
                     <CButton color="info" className="ms-2" onClick={handleDownloadCSV}>
-                    ⬇ Download CSV
+                    Download 
                     </CButton>
                   </div>
                 </div>
@@ -2183,7 +2184,7 @@ const fetchReportData = async () => {
                 <div className="flex-fill mx-1 d-flex">
                   <Button fetchReportData={fetchReportData} />
                   <CButton color="info" className="ms-2" style={{height:'38px'}} onClick={handleDownloadCSV}>
-                    ⬇ Download CSV
+                  Download
                   </CButton>
                 </div>
               </div>
@@ -2194,17 +2195,17 @@ const fetchReportData = async () => {
                   <div className="col-12">
                     <Months setStateMonth={setStateMonth} />
                   </div>
-                  <div className="col-6">
+                  <div className="col-12">
                     <Dropdown
                       setSelectedOption={setSelectedOption}
                       ReportOptions={ReportOptions}
                       selectedOption={selectedOption}
                     />
                   </div>
-                  <div className="col-6 d-flex justify-content-start">
+                  <div className="col-12 d-flex justify-content-start">
                     <Button fetchReportData={fetchReportData} />
                     <CButton color="info" className="ms-2" onClick={handleDownloadCSV}>
-                    ⬇ Download CSV
+                   Download
                     </CButton>
                   </div>
                 </div>
@@ -2238,7 +2239,7 @@ const fetchReportData = async () => {
                 <div className='px-2 d-flex'>
                   <Button fetchReportData={fetchReportData}/>
                   <CButton color="info" className="ms-2" onClick={handleDownloadCSV}>
-                    ⬇ Download CSV
+                    Download
                   </CButton>
                 </div>
               </div>
@@ -2249,17 +2250,17 @@ const fetchReportData = async () => {
                   <div className="col-12">
                     <Quarter setStateQuarter={setStateQuarter} />
                   </div>
-                  <div className="col-6">
+                  <div className="col-12">
                     <Dropdown
                       setSelectedOption={setSelectedOption}
                       ReportOptions={ReportOptions}
                       selectedOption={selectedOption}
                     />
                   </div>
-                  <div className="col-6 d-flex justify-content-start">
+                  <div className="col-12 d-flex justify-content-start">
                     <Button fetchReportData={fetchReportData} />
                     <CButton color="info" className="ms-2" onClick={handleDownloadCSV}>
-                    ⬇ Download CSV
+                    Download
                     </CButton>
                   </div>
                 </div>
@@ -2295,7 +2296,7 @@ const fetchReportData = async () => {
                 <div className='mx-1 mt-2 d-flex'>
                   <Button fetchReportData={fetchReportData}/>
                   <CButton color="info" className="ms-2" onClick={handleDownloadCSV}>
-                    ⬇ Download CSV
+                    Download
                   </CButton>
                 </div>
               </div>
@@ -2306,17 +2307,17 @@ const fetchReportData = async () => {
                   <div className="col-12">
                     <Year setStateYear={setStateYear} />
                   </div>
-                  <div className="col-6">
+                  <div className="col-12">
                     <Dropdown
                       setSelectedOption={setSelectedOption}
                       ReportOptions={ReportOptions}
                       selectedOption={selectedOption}
                     />
                   </div>
-                  <div className="col-6 d-flex justify-content-start">
+                  <div className="col-12 d-flex justify-content-start">
                     <Button fetchReportData={fetchReportData} />
                     <CButton color="info" className="ms-2" onClick={handleDownloadCSV}>
-                    ⬇ Download CSV
+                    Download 
                     </CButton>
                   </div>
                 </div>
