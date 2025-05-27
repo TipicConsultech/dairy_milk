@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\MilkTank;
 use App\Models\MilkTanksTracker;
+use App\Models\Expense;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -41,8 +42,12 @@ class MilkTankController extends Controller
             'capacity' => 'required|integer',
             'quantity' => 'required|numeric',
             'isVisible' => 'required|boolean',
-            'snf' => 'required|numeric',
-            'ts' => 'required|numeric'
+            'snf' => 'nullable|numeric',
+            'ts' => 'nullable|numeric',
+            'avg_degree' => 'required|numeric',
+            'avg_fat' => 'required|numeric',
+            'avg_rate' => 'required|numeric',
+            'total_amount'=>'required|numeric'
         ]);
 
         if ($validator->fails()) {
@@ -60,6 +65,11 @@ class MilkTankController extends Controller
         $milkTank->isVisible = $request->isVisible;
         $milkTank->snf = $request->snf;
         $milkTank->ts = $request->ts;
+        $milkTank->avg_degree = $request->avg_degree;
+        $milkTank->avg_fat = $request->avg_fat;
+        $milkTank->avg_rate = $request->avg_rate;
+        $milkTank->total_amount = $request->total_amount;
+
         $milkTank->created_by = Auth::id();
         $milkTank->save();
         return response()->json([
@@ -300,6 +310,10 @@ class MilkTankController extends Controller
             $milkTank->quantity = 0;
             $milkTank->snf = 0;
             $milkTank->ts = 0;
+            $milkTank->avg_degree = 0;
+            $milkTank->avg_fat = 0;
+            $milkTank->avg_rate = 0;
+            $milkTank->total_amount = 0;
             $milkTank->updated_by = Auth::id();
             $milkTank->save();
 
@@ -312,7 +326,11 @@ class MilkTankController extends Controller
                 'added_quantity' => $addedQuantity,
                 'updated_quantity'=> $previousQuantity + $addedQuantity,  // No new quantity added when emptying the tank
                 'snf' => 0,              // SNF is set to 0 when emptying the tank
-                'ts' => 0,               // TS is set to 0 when emptying the tank
+                'ts' => 0,  
+                'avg_degree' => 0,  
+                'avg_fat' => 0, 
+                'avg_rate' => 0,   
+                'total_amount'=>0,          // TS is set to 0 when emptying the tank
                 'updated_by' => Auth::id(),
             ]);
             
@@ -344,113 +362,235 @@ class MilkTankController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function laboratoryUpdate(Request $request, $id): JsonResponse
-    {
-        try {
+    // public function laboratoryUpdate(Request $request, $id): JsonResponse
+    // {
+    //     try {
 
-            $user = Auth::user();
-            $companyId = $user->company_id;
-            $milkTank = MilkTank::findOrFail($id);
+    //         $user = Auth::user();
+    //         $companyId = $user->company_id;
+    //         $milkTank = MilkTank::findOrFail($id);
 
-            if ($user->company_id != $milkTank->company_id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You are not authorized to empty this tank'
-                ], 403);
-            }
+    //         if ($user->company_id != $milkTank->company_id) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'You are not authorized to empty this tank'
+    //             ], 403);
+    //         }
             
 
-            $validator = Validator::make($request->all(), [
-                'added_quantity' => 'required|numeric|min:0.01',
-                'new_snf' => 'required|numeric|min:0',
-                'new_ts' => 'required|numeric|min:0'
-            ]);
+    //         $validator = Validator::make($request->all(), [
+    //             'added_quantity' => 'required|numeric|min:0.01',
+    //             'new_snf' => 'required|numeric|min:0',
+    //             'new_ts' => 'required|numeric|min:0'
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors()
-                ], 422);
-            }
+    //         ]);
 
-            // Get current values
-            $currentQuantity = $milkTank->quantity;
-            $currentSNF = $milkTank->snf;
-            $currentTS = $milkTank->ts;
+    //         if ($validator->fails()) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'errors' => $validator->errors()
+    //             ], 422);
+    //         }
 
-            // Get new values from request
-            $addedQuantity = $request->added_quantity;
-            $newSNF = $request->new_snf;
-            $newTS = $request->new_ts;
+    //         // Get current values
+    //         $currentQuantity = $milkTank->quantity;
+    //         $currentSNF = $milkTank->snf;
+    //         $currentTS = $milkTank->ts;
 
-            // Calculate new total quantity
-            $totalQuantity = $currentQuantity + $addedQuantity;
+    //         // Get new values from request
+    //         $addedQuantity = $request->added_quantity;
+    //         $newSNF = $request->new_snf;
+    //         $newTS = $request->new_ts;
 
-            // Check if the new total quantity exceeds the capacity
-            if ($totalQuantity > $milkTank->capacity) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Added quantity exceeds tank capacity',
-                    'data' => [
-                        'current_quantity' => $currentQuantity,
-                        'capacity' => $milkTank->capacity,
-                        'available_space' => $milkTank->capacity - $currentQuantity
-                    ]
-                ], 422);
-            }
+    //         // Calculate new total quantity
+    //         $totalQuantity = $currentQuantity + $addedQuantity;
 
-            // Calculate weighted average for SNF and TS
-            $calculatedSNF = (($currentQuantity * $currentSNF) + ($addedQuantity * $newSNF)) / $totalQuantity;
-            $calculatedTS = (($currentQuantity * $currentTS) + ($addedQuantity * $newTS)) / $totalQuantity;
+    //         // Check if the new total quantity exceeds the capacity
+    //         if ($totalQuantity > $milkTank->capacity) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Added quantity exceeds tank capacity',
+    //                 'data' => [
+    //                     'current_quantity' => $currentQuantity,
+    //                     'capacity' => $milkTank->capacity,
+    //                     'available_space' => $milkTank->capacity - $currentQuantity
+    //                 ]
+    //             ], 422);
+    //         }
 
-            // Round to 2 decimal places for better readability
-            $calculatedSNF = round($calculatedSNF, 2);
-            $calculatedTS = round($calculatedTS, 2);
+    //         // Calculate weighted average for SNF and TS
+    //         $calculatedSNF = (($currentQuantity * $currentSNF) + ($addedQuantity * $newSNF)) / $totalQuantity;
+    //         $calculatedTS = (($currentQuantity * $currentTS) + ($addedQuantity * $newTS)) / $totalQuantity;
 
-            // Update milk tank with new values
-            $milkTank->quantity = $totalQuantity;
-            $milkTank->snf = $calculatedSNF;
-            $milkTank->ts = $calculatedTS;
-            $milkTank->updated_by = Auth::id();
-            $milkTank->save();
+    //         // Round to 2 decimal places for better readability
+    //         $calculatedSNF = round($calculatedSNF, 2);
+    //         $calculatedTS = round($calculatedTS, 2);
 
-            MilkTanksTracker::create([
-                'company_id' => $companyId,
-                'milk_tank_id' => $milkTank->id,
-                'opening_balance' => $currentQuantity,
-                'added_quantity' => $addedQuantity,
-                'updated_quantity'=> $totalQuantity,
-                'snf' => $calculatedSNF,
-                'ts' => $calculatedTS,
-                'updated_by' => Auth::id(), // assumes auth middleware
-            ]);
+    //         // Update milk tank with new values
+    //         $milkTank->quantity = $totalQuantity;
+    //         $milkTank->snf = $calculatedSNF;
+    //         $milkTank->ts = $calculatedTS;
+    //         $milkTank->updated_by = Auth::id();
+    //         $milkTank->save();
+
+    //         MilkTanksTracker::create([
+    //             'company_id' => $companyId,
+    //             'milk_tank_id' => $milkTank->id,
+    //             'opening_balance' => $currentQuantity,
+    //             'added_quantity' => $addedQuantity,
+    //             'updated_quantity'=> $totalQuantity,
+    //             'snf' => $calculatedSNF,
+    //             'ts' => $calculatedTS,
+    //             'updated_by' => Auth::id(), // assumes auth middleware
+    //         ]);
         
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Laboratory update successful',
-                'data' => [
-                    'milk_tank' => $milkTank,
-                    'calculation' => [
-                        'previous_quantity' => $currentQuantity,
-                        'added_quantity' => $addedQuantity,
-                        'new_total_quantity' => $totalQuantity,
-                        'previous_snf' => $currentSNF,
-                        'new_milk_snf' => $newSNF,
-                        'calculated_snf' => $calculatedSNF,
-                        'previous_ts' => $currentTS,
-                        'new_milk_ts' => $newTS,
-                        'calculated_ts' => $calculatedTS
-                    ]
-                ]
-            ]);
-        } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Laboratory update successful',
+    //             'data' => [
+    //                 'milk_tank' => $milkTank,
+    //                 'calculation' => [
+    //                     'previous_quantity' => $currentQuantity,
+    //                     'added_quantity' => $addedQuantity,
+    //                     'new_total_quantity' => $totalQuantity,
+    //                     'previous_snf' => $currentSNF,
+    //                     'new_milk_snf' => $newSNF,
+    //                     'calculated_snf' => $calculatedSNF,
+    //                     'previous_ts' => $currentTS,
+    //                     'new_milk_ts' => $newTS,
+    //                     'calculated_ts' => $calculatedTS
+    //                 ]
+    //             ]
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Milk tank not found or error updating: ' . $e->getMessage()
+    //         ], 404);
+    //     }
+    // }
+
+public function laboratoryUpdate(Request $request, $id): JsonResponse
+{
+    try {
+        $user = Auth::user();
+        $companyId = $user->company_id;
+        $milkTank = MilkTank::findOrFail($id);
+
+
+        $milk_type=null;
+        if($milkTank->number==101){
+         $milk_type="Cow Milk";
+        }
+       else if($milkTank->number==102){
+            $milk_type="Buffalow Milk";
+        }
+        else if($milkTank->number==103){
+           $milk_type="Skim Milk"; 
+        }
+
+        if ($user->company_id != $milkTank->company_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Milk tank not found or error updating: ' . $e->getMessage()
-            ], 404);
+                'message' => 'You are not authorized to update this tank'
+            ], 403);
         }
+
+        $validator = Validator::make($request->all(), [
+            'added_quantity' => 'required|numeric|min:0.01',
+            'avg_degree' => 'required|numeric',
+            'avg_fat' => 'required|numeric',
+            'avg_rate' => 'required|numeric',
+
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Get current values
+        $currentQuantity = $milkTank->quantity;
+        $addedQuantity = $request->added_quantity;
+        $totalQuantity = $currentQuantity + $addedQuantity;
+
+        // Check capacity
+        if ($totalQuantity > $milkTank->capacity) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Added quantity exceeds tank capacity',
+                'data' => [
+                    'current_quantity' => $currentQuantity,
+                    'capacity' => $milkTank->capacity,
+                    'available_space' => $milkTank->capacity - $currentQuantity
+                ]
+            ], 422);
+        }
+
+        // Update milk tank with new values
+        $milkTank->quantity = $totalQuantity;
+        $milkTank->avg_degree = $request->avg_degree;
+        $milkTank->number = $milkTank->number;
+        $milkTank->avg_fat = $request->avg_fat;
+        $milkTank->avg_rate = $request->avg_rate;
+        $milkTank->total_amount = $addedQuantity * $request->avg_rate;
+        $milkTank->updated_by = Auth::id();
+        $milkTank->update();
+
+        MilkTanksTracker::create([
+            'company_id' => $companyId,
+            'milk_tank_id' => $milkTank->id,
+            'opening_balance' => $currentQuantity,
+            'added_quantity' => $addedQuantity,
+            'updated_quantity' => $totalQuantity,
+            'avg_degree' => $request->avg_degree,
+            'avg_fat' => $request->avg_fat,
+            'avg_rate' => $request->avg_rate,
+            'total_amount' => $addedQuantity * $request->avg_rate,
+            'updated_by' => Auth::id(),
+        ]);
+
+     Expense::create([
+    'name' => $milk_type,
+    'expense_date' => now(), // or use Carbon::now() if needed
+    'price' => round($request->avg_rate, 2),
+    'qty' => round($addedQuantity, 2),
+    'total_price' => round($addedQuantity * $request->avg_rate, 2),
+    'expense_id' => 16, // If you have a specific ID for "Milk" expense type, set it here
+    'show' => true,
+    'company_id' => $companyId,
+    'created_by' => Auth::id(),
+    'updated_by' => Auth::id(),
+    'desc' => null,
+]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Laboratory update successful',
+            'data' => [
+                'milk_tank' => $milkTank,
+                'calculation' => [
+                    'previous_quantity' => $currentQuantity,
+                    'added_quantity' => $addedQuantity,
+                    'new_total_quantity' => $totalQuantity,
+                ]
+            ]
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Milk tank not found or error updating: ' . $e->getMessage()
+        ], 404);
     }
+}
+
+
+
+
+
+
 
 public function getByCompany()
 {

@@ -19,6 +19,10 @@ class MilkTanksTracker extends Model
         'updated_quantity',
         'snf',
         'ts',
+        'avg_degree',
+        'avg_fat',
+        'avg_rate',
+        'total_amount',
         'updated_by',
     ];
 

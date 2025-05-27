@@ -38,7 +38,9 @@ const LaboratoryUser = () => {
   const [confirmModal, setConfirmModal] = useState({
     visible: false,
     tankId: null,
-    tankName: ''
+    tankName: '',
+    //  tankName: tank.name,
+  tankNumber: null,
   });
 
   // Memoized helper functions to prevent recreating on every render
@@ -55,6 +57,8 @@ const LaboratoryUser = () => {
   const fetchMilkTanks = useCallback(async (companyId) => {
     try {
       const response = await getAPICall('/api/milk-tanks');
+      console.log(response);
+      
 
       if (response.success) {
         const filteredTanks = response.data.filter(tank => tank.company_id === companyId);
@@ -127,44 +131,44 @@ const LaboratoryUser = () => {
   // Enhanced validation function
   const validateInputs = useCallback((tankFormData) => {
     // Check if all fields are filled
-    if (!tankFormData.quantity || !tankFormData.snf || !tankFormData.ts) {
-      return { isValid: false, message: t('MSG.allFieldsRequired') };
-    }
+    // if (!tankFormData.quantity || !tankFormData.snf || !tankFormData.ts) {
+    //   return { isValid: false, message: t('MSG.allFieldsRequired') };
+    // }
 
-    const quantity = parseFloat(tankFormData.quantity);
-    const snf = parseFloat(tankFormData.snf);
-    const ts = parseFloat(tankFormData.ts);
+    // const quantity = parseFloat(tankFormData.quantity);
+    // const snf = parseFloat(tankFormData.snf);
+    // const ts = parseFloat(tankFormData.ts);
 
-    // Check for NaN values (invalid numbers)
-    if (isNaN(quantity) || isNaN(snf) || isNaN(ts)) {
-      return { isValid: false, message: t('MSG.invalidNumberFormat') };
-    }
+    // // Check for NaN values (invalid numbers)
+    // if (isNaN(quantity) || isNaN(snf) || isNaN(ts)) {
+    //   return { isValid: false, message: t('MSG.invalidNumberFormat') };
+    // }
 
-    // Check for exactly zero values (0.1, 0.5 etc. should be allowed)
-    if (quantity === 0) {
-      return { isValid: false, message: t('MSG.quantityCannotBeZero') };
-    }
+    // // Check for exactly zero values (0.1, 0.5 etc. should be allowed)
+    // if (quantity === 0) {
+    //   return { isValid: false, message: t('MSG.quantityCannotBeZero') };
+    // }
 
-    if (snf === 0) {
-      return { isValid: false, message: t('MSG.snfCannotBeZero') };
-    }
+    // // if (snf === 0) {
+    // //   return { isValid: false, message: t('MSG.snfCannotBeZero') };
+    // // }
 
-    if (ts === 0) {
-      return { isValid: false, message: t('MSG.tsCannotBeZero') };
-    }
+    // // if (ts === 0) {
+    // //   return { isValid: false, message: t('MSG.tsCannotBeZero') };
+    // // }
 
-    // Check for negative values
-    if (quantity < 0) {
-      return { isValid: false, message: t('MSG.quantityCannotBeNegative') };
-    }
+    // // Check for negative values
+    // if (quantity < 0) {
+    //   return { isValid: false, message: t('MSG.quantityCannotBeNegative') };
+    // }
 
-    if (snf < 0) {
-      return { isValid: false, message: t('MSG.snfCannotBeNegative') };
-    }
+    // if (snf < 0) {
+    //   return { isValid: false, message: t('MSG.snfCannotBeNegative') };
+    // }
 
-    if (ts < 0) {
-      return { isValid: false, message: t('MSG.tsCannotBeNegative') };
-    }
+    // if (ts < 0) {
+    //   return { isValid: false, message: t('MSG.tsCannotBeNegative') };
+    // }
 
     return { isValid: true, message: '' };
   }, [t]);
@@ -187,8 +191,12 @@ const LaboratoryUser = () => {
       // Prepare data for API
       const data = {
         added_quantity: parseFloat(tankFormData.quantity),
-        new_snf: parseFloat(tankFormData.snf),
-        new_ts: parseFloat(tankFormData.ts)
+        // new_snf: parseFloat(tankFormData.snf),
+        // new_ts: parseFloat(tankFormData.ts)
+       avg_degree: tankFormData.avg_degree,
+       avg_fat:tankFormData.avg_fat,
+       avg_rate:tankFormData.avg_rate,
+       total_amount:tankFormData.total_amount
       };
 
       // Call API endpoint
@@ -395,6 +403,10 @@ const LaboratoryUser = () => {
     width: '14px'
   };
 
+
+
+ 
+
   // Render component
   return (
     <CContainer fluid className="p-0">
@@ -470,7 +482,7 @@ const LaboratoryUser = () => {
                       </div>
 
                       {/* Metrics display */}
-                      <div className="text-center mb-3">
+                      {/* <div className="text-center mb-3">
                         <div className="d-inline-flex justify-content-center gap-3">
                           <div className="metric-badge" style={snfBadgeStyle}>
                             {t('LABELS.snfColon')} {tank.snf}%
@@ -479,12 +491,12 @@ const LaboratoryUser = () => {
                             {t('LABELS.tsColon')} {tank.ts}%
                           </div>
                         </div>
-                      </div>
+                      </div> */}
 
                       {/* Input form with enhanced validation */}
                       <CForm>
                         <CRow className="g-3 mb-3">
-                          <CCol xs={12}>
+                          {/* <CCol xs={12}>
                             <CFormInput
                               type="number"
                               value={tankFormData.quantity}
@@ -503,9 +515,34 @@ const LaboratoryUser = () => {
                                 }
                               }}
                             />
-                          </CCol>
+                          </CCol> */}
+{(tank.number === 101 || tank.number === 102) && (
+  <CCol xs={12}>
+    <div className="align-items-center">
+      <CFormInput
+        type="number"
+        step="0.01"
+        min="0"
+        className="form-control-lg"
+        value={formData[tank.id]?.quantity || ''}
+        onChange={(e) => {
+          const validatedValue = validateAndFormatInput(e.target.value, 'quantity');
+          handleFormChange(tank.id, 'quantity', validatedValue);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === '-') e.preventDefault();
+        }}
+        placeholder={t('LABELS.milkQtyToAdd')}
+      />
+    </div>
+  </CCol>
+)}
 
-                          <CCol xs={6}>
+
+
+
+
+                          {/* <CCol xs={6}>
                             <div className="d-flex align-items-center">
                               <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '40px' }}>{t('LABELS.snf')}</CFormLabel>
                               <CFormInput
@@ -526,12 +563,14 @@ const LaboratoryUser = () => {
                                 }}
                               />
                             </div>
-                          </CCol>
+                          </CCol> */}
 
-                          <CCol xs={6}>
-                            <div className="d-flex align-items-center">
+                          {/* <CCol xs={6}>
+                            <div className=" align-items-center">
                               <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '40px' }}>{t('LABELS.ts')}</CFormLabel>
+                              
                               <CFormInput
+                             
                                 type="number"
                                 step="0.01"
                                 value={tankFormData.ts}
@@ -549,10 +588,239 @@ const LaboratoryUser = () => {
                                 }}
                               />
                             </div>
+                          </CCol> */}
+
+
+                          {/* New Flow */}
+
+                          {/* <CCol xs={6}>
+                            <div className=" align-items-center">
+                              <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '100%' }}>Average Degree</CFormLabel>
+                              <CFormInput
+                                type="number"
+                                step="0.01"
+                                value={tankFormData.avg_degree}
+                                onChange={(e) => {
+                                  const validatedValue = validateAndFormatInput(e.target.value, 'ts');
+                                  handleFormChange(tank.id, 'ts', validatedValue);
+                                }}
+                                min="0"
+                                placeholder='Average Degree'
+                                onKeyDown={(e) => {
+                                  // Prevent minus sign
+                                  if (e.key === '-') {
+                                    e.preventDefault();
+                                  }
+                                }}
+                              />
+                            </div>
                           </CCol>
+
+                          <CCol xs={6}>
+                            <div className=" align-items-center">
+                              <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '100%' }}>Average Fat</CFormLabel>
+                              <CFormInput
+                                type="number"
+                                step="0.01"
+                                value={tankFormData.avg_fat}
+                                onChange={(e) => {
+                                  const validatedValue = validateAndFormatInput(e.target.value, 'ts');
+                                  handleFormChange(tank.id, 'ts', validatedValue);
+                                }}
+                                min="0"
+                                placeholder='Average Fat'
+                                onKeyDown={(e) => {
+                                  // Prevent minus sign
+                                  if (e.key === '-') {
+                                    e.preventDefault();
+                                  }
+                                }}
+                              />
+                            </div>
+                          </CCol>  
+
+                            <CCol xs={6}>
+                            <div className=" align-items-center">
+                              <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '100%' }}>Average Rate</CFormLabel>
+                              <CFormInput
+                                type="number"
+                                step="0.01"
+                                value={tankFormData.avg_rate}
+                                onChange={(e) => {
+                                  const validatedValue = validateAndFormatInput(e.target.value, 'ts');
+                                  handleFormChange(tank.id, 'ts', validatedValue);
+                                }}
+                                min="0"
+                                placeholder='Average Rate'
+                                onKeyDown={(e) => {
+                                  // Prevent minus sign
+                                  if (e.key === '-') {
+                                    e.preventDefault();
+                                  }
+                                }}
+                              />
+                            </div>
+                          </CCol>  
+
+
+                            <CCol xs={6}>
+                            <div className=" align-items-center">
+                              <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '100%' }}>Average Amount</CFormLabel>
+                              <CFormInput
+                                type="number"
+                                step="0.01"
+                                value={tankFormData.total_amount}
+                                onChange={(e) => {
+                                  const validatedValue = validateAndFormatInput(e.target.value, 'ts');
+                                  handleFormChange(tank.id, 'ts', validatedValue);
+                                }}
+                                min="0"
+                                placeholder='Average Amount'
+                                onKeyDown={(e) => {
+                                  // Prevent minus sign
+                                  if (e.key === '-') {
+                                    e.preventDefault();
+                                  }
+                                }}
+                              />
+                            </div>
+                          </CCol>     */}
+
+
+{(tank.number === 101 || tank.number === 102) && (
+<>
+                          <CCol xs={6}>
+  <div className="align-items-center">
+    <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '100%' }}>
+      {t('LABELS.avgDegree')}
+    </CFormLabel>
+    <CFormInput
+      type="number"
+      step="0.01"
+      min="0"
+      value={formData[tank.id]?.avg_degree || ''}
+      onChange={(e) =>
+        handleFormChange(tank.id, 'avg_degree', validateAndFormatInput(e.target.value, 'avg_degree'))
+      }
+      onKeyDown={(e) => {
+        if (e.key === '-') e.preventDefault();
+      }}
+      placeholder={t('LABELS.avgDegree')}
+    />
+  </div>
+</CCol>
+
+<CCol xs={6}>
+  <div className="align-items-center">
+    <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '100%' }}>
+      {t('LABELS.avgFat')}
+    </CFormLabel>
+    <CFormInput
+      type="number"
+      step="0.01"
+      min="0"
+      value={formData[tank.id]?.avg_fat || ''}
+      onChange={(e) =>
+        handleFormChange(tank.id, 'avg_fat', validateAndFormatInput(e.target.value, 'avg_fat'))
+      }
+      onKeyDown={(e) => {
+        if (e.key === '-') e.preventDefault();
+      }}
+      placeholder={t('LABELS.avgFat')}
+    />
+  </div>
+</CCol>
+
+<CCol xs={6}>
+  <div className="align-items-center">
+    <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '100%' }}>
+      {t('LABELS.avgRate')}
+    </CFormLabel>
+    <CFormInput
+      type="number"
+      step="0.01"
+      min="0"
+      value={formData[tank.id]?.avg_rate || ''}
+      onChange={(e) =>
+        handleFormChange(tank.id, 'avg_rate', validateAndFormatInput(e.target.value, 'avg_rate'))
+      }
+      onKeyDown={(e) => {
+        if (e.key === '-') e.preventDefault();
+      }}
+      placeholder={t('LABELS.avgRate')}
+    />
+  </div>
+</CCol>
+
+
+
+<CCol xs={6}>
+  <div className="align-items-center">
+    <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '100%' }}>
+      {t('LABELS.totalAmount')}
+    </CFormLabel>
+    <CFormInput
+      type="number"
+      step="0.01"
+      readOnly
+      value={(
+        (parseFloat(formData[tank.id]?.avg_rate || 0) *
+          parseFloat(formData[tank.id]?.quantity || 0)).toFixed(2)
+      )}
+      placeholder={t('LABELS.totalAmount')}
+    />
+  </div>
+</CCol>
+
+</>
+              )}
+
+
+
+{(tank.number === 103) && (
+
+<>
+<CCol xs={6}>
+      <div className="align-items-center">
+        <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '100%' }}>
+          {t('LABELS.avgDegree')}
+        </CFormLabel>
+        <CFormInput
+          type="number"
+          readOnly
+          // className="form-control-plaintext"
+          value={tank.avg_degree || 0}
+          placeholder={t('LABELS.avgDegree')}
+        />
+      </div>
+    </CCol>
+
+    <CCol xs={6}>
+      <div className="align-items-center">
+        <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '100%' }}>
+          {t('LABELS.avgFat')}
+        </CFormLabel>
+        <CFormInput
+          type="number"
+          readOnly
+          // className="form-control-plaintext"
+          value={tank.avg_fat || 0}
+          placeholder={t('LABELS.avgFat')}
+        />
+      </div>
+    </CCol>
+
+</>
+
+)}
+
+
+
                         </CRow>
 
                         <CRow className="g-3">
+
+                          {(tank.number === 101 || tank.number === 102) && (
                           <CCol xs={6}>
                             <CButton
                               color="primary"
@@ -562,6 +830,7 @@ const LaboratoryUser = () => {
                               {t('LABELS.save')}
                             </CButton>
                           </CCol>
+                          )}
                           <CCol xs={6}>
                             <CButton
                               color="danger"
@@ -603,8 +872,17 @@ const LaboratoryUser = () => {
           <p>{t('MSG.emptyTankWarning', { tankName: formatMilkType(confirmModal.tankName) })}</p>
           <ul>
             <li>{t('MSG.quantityWillBeZero')}</li>
-            <li>{t('MSG.snfWillBeZero')}</li>
-            <li>{t('MSG.tsWillBeZero')}</li>
+            {/* <li>{t('MSG.snfWillBeZero')}</li>
+            <li>{t('MSG.tsWillBeZero')}</li> */}
+            {confirmModal.tankNumber === 103 && (
+  <>
+    <li>{t('MSG.avgdegreeBeZero')}</li>
+    <li>{t('MSG.avgfatBeZero')}</li>
+  </>
+)}
+            <li>{t('MSG.avgdegreeBeZero')}</li>
+            <li>{t('MSG.avgfatBeZero')}</li>
+            <li>{t('MSG.avgrateBeZero')}</li>
           </ul>
           <p className="text-danger fw-bold">{t('MSG.thisActionCannotBeUndone')}</p>
         </CModalBody>
