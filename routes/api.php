@@ -31,6 +31,26 @@ use App\Http\Controllers\MailController;
 use App\Http\Controllers\MilkTanksTrackerController;
 use App\Http\Controllers\ProductMappingController;
 use App\Http\Controllers\FactoryProductCalculationController;
+use App\Http\Controllers\ProductFormulaController;
+
+Route::middleware('auth:sanctum')->group(function () {
+ Route::get('/product-formulas', [ProductFormulaController::class, 'index']);
+    Route::get('/product-formulas/product/{productId}', [ProductFormulaController::class, 'getByProductId']);
+    Route::get('/product-formulas/{id}', [ProductFormulaController::class, 'show']);
+    Route::post('/product-formulas', [ProductFormulaController::class, 'store']);
+    Route::put('/product-formulas/{id}', [ProductFormulaController::class, 'update']);
+    Route::patch('/product-formulas/{id}', [ProductFormulaController::class, 'update']);
+});
+
+// Route::prefix('product-formulas')->group(function () {
+//     Route::get('/product-formulas', [ProductFormulaController::class, 'index']);
+//     Route::get('/product-formulas/product/{productId}', [ProductFormulaController::class, 'getByProductId']);
+//     Route::get('/product-formulas/{id}', [ProductFormulaController::class, 'show']);
+//     Route::post('/product-formulas', [ProductFormulaController::class, 'store']);
+//     Route::put('/product-formulas/{id}', [ProductFormulaController::class, 'update']);
+//     Route::patch('/product-formulas/{id}', [ProductFormulaController::class, 'update']);
+// });
+
 
 
 //Factory Product Calculation API's
