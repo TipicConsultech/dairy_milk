@@ -545,8 +545,12 @@
       "confirm_submission": "Confirm Submission",
       
       "confirm_submit": "Confirm Submit",
-     "singleProductUpdateSuccess":"Raw material Updated Successfully ."
+     "singleProductUpdateSuccess":"Raw material Updated Successfully .",
 
+     "avgDegree"	:"Average Degree",
+     "avgFat"	:"Average Fat",
+     "avgRate":"Average Rate",
+     "totalAmount":	"Total Amount"
 
 
 
@@ -711,7 +715,11 @@
         "snfCannotBeZero": "SNF value cannot be zero", 
         "tsCannotBeZero": "TS value cannot be zero",
         "snfCannotBeNegative": "SNF value cannot be negative",
-        "tsCannotBeNegative": "TS value cannot be negative"
+        "tsCannotBeNegative": "TS value cannot be negative",
+
+        "avgdegreeBeZero" : "Avrage Degree will be set to zero",
+        "avgfatBeZero":"Avrage Fat will be set to zero",
+        "avgrateBeZero":"Avrage Rate will be set to zero"
 
     }
    }

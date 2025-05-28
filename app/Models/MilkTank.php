@@ -25,6 +25,10 @@ class MilkTank extends Model {
         'isVisible',
         'snf',
         'ts',
+        'avg_dregree',
+        'avg_fat',
+        'avg_rate',
+        'total_amount',
         'created_by',
         'updated_by'
     ];

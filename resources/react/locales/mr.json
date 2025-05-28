@@ -539,7 +539,17 @@
       "confirm_submission": "सबमिशन पुष्ट करा",
      
       "confirm_submit": "सबमिट पुष्ट करा",
-     "singleProductUpdateSuccess":"कच्चा माल यशस्वीरित्या बदल केला"
+     "singleProductUpdateSuccess":"कच्चा माल यशस्वीरित्या बदल केला",
+
+
+     "avgDegree"	:"सरासरी डिग्री",
+     "avgFat"	:"सरासरी फॅट ",
+     "avgRate":"सरासरी दर",
+     "totalAmount":	"एकूण रक्कम"
+
+
+
+
 
     },
 
@@ -708,7 +718,11 @@
     "snfCannotBeNegative": "SNF मूल्य ऋण असू शकत नाही",
     "tsCannotBeNegative": "TS मूल्य ऋण असू शकत नाही",
     "quantityCannotBeNegative": "दुधाचे प्रमाण ऋण असू शकत नाही",
-    "allFieldsRequired": "सर्व फील्ड आवश्यक आहेत"
+    "allFieldsRequired": "सर्व फील्ड आवश्यक आहेत",
+
+    "avgdegreeBeZero": "सरासरी डिग्री शून्य म्हणून सेट केली जाईल",
+  "avgfatBeZero": "सरासरी फॅट  शून्य म्हणून सेट केली जाईल",
+  "avgrateBeZero": "सरासरी दर शून्य म्हणून सेट केला जाईल"
 
 
 
