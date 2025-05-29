@@ -73,7 +73,7 @@ const DairyFarmInventory=React.lazy(() => import('./views/dairy/DairyFarmInvento
 const DeliveryRecord=React.lazy(() => import('./views/dairy/DeliveryRecord'))
 const DailyTallies=React.lazy(() => import('./views/dairy/DailyTallies'))
 
-const CreateFactoryProduct=React.lazy(() => import('./views/dairy/CreateFactory'))
+const CreateProductFromProduct=React.lazy(() => import('./views/dairy/CreateProductFromProduct'))
 
 const LaboratoryUser=React.lazy(() => import('./views/dairy/LaboratoryUser'))
 const FinalProductInvenrty = React.lazy(()=>import('./views/dairy/FinalProductInvenrty'))
@@ -173,7 +173,7 @@ export default function fetchRoutes(){
       { path: '/dailyTalliesReport', name: 'Daily Tallies', element:DailyTallies } ,
       { path: '/Reports/creditreport', name: 'Credit Report', element:creditreport2 } ,
 
- { path:'/CreateFactory', name: 'Create Factory Product', element: CreateFactoryProduct },
+ { path:'/CreateProductFromProduct', name: 'Create Factory Product', element: CreateProductFromProduct },
 
       //RawMaterial
       { path: '/rawMaterial', name: 'Raw Material', element: RawMaterial },
@@ -230,7 +230,7 @@ export default function fetchRoutes(){
       { path: '/MilkProcessing', name: 'MilkProcessing', element:MilkProcessing },
       { path: '/DairyFarmInventory', name: 'DairyFarmInventory', element:DairyFarmInventory } ,
 
-      { path:'/CreateFactory', name: 'Create Factory Product', element: CreateFactoryProduct },
+      { path:'/CreateProductFromProduct', name: 'Create Factory Product', element: CreateProductFromProduct },
 
       //RawMaterial
       { path: '/rawMaterial', name: 'Raw Material', element: RawMaterial },

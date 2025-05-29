@@ -277,9 +277,8 @@ import { getAPICall, post } from '../../util/api'
 import CIcon from '@coreui/icons-react'
 import { cilPlus, cilTrash, cilChevronBottom, cilX } from '@coreui/icons'
 import { useTranslation } from 'react-i18next'
-import CreateProductFromProduct from './CreateProductFromProduct'
 
-const CreateFactoryProduct = () => {
+const MilkForm = () => {
   const { t, i18n } = useTranslation("global")
   const lng = i18n.language;
 
@@ -566,81 +565,7 @@ const CreateFactoryProduct = () => {
   };
 
   const handleSubmit = async () => {
-    if (!milkType  || parseFloat(milkAmount) > availableQty) {
-        alert(t('MSG.enterValidQuantity'));
-        return;
-    }
    
-
-    // const selectedTank = tankData.find(t => t.name === milkType);
-    // if (!selectedTank) {
-    //     alert(t('MSG.selectedMilkTankNotFound'));
-    //     return;
-    // }
-
-    // Prepare milk tank data as an object with `id` and `quantity`
-    const milkTankData = {
-        id: selectedTank.id,
-        //quantity: parseFloat(milkAmount), // Assuming you want to update the quantity with the milkAmount
-    };
-
-    // Ensure ingredients and products are in the correct format
-    const ingredientsData = ingredients.length > 0
-  ? ingredients.map(ing => ({
-      id: ing.id,
-      name: ing.name,
-      quantity: parseFloat(ing.quantity),
-    }))
-  : [];
-    const productsData = products.map(prod => ({
-        id: prod.id,
-        name: prod.name,
-        unit: prod.unit,
-        qty: parseFloat(prod.quantity),
-    }));
-
-    // Create a summary string for alert
-    const createdSummary = productsData
-      .map(prod => `${prod.name} ${prod.qty} Kg`)
-      .join(', ');
-
-    try {
-        // 1️⃣ Call the createProduct API with properly structured data
-        await post('/api/createProduct', {
-            milkTank: milkTankData, // Send milkTank as an object with id and quantity
-            rawMaterials: ingredientsData, // Ensure rawMaterials contains id
-            productSizes: productsData, // Format the products as required
-        });
-
-        // alert(`Product ${productsData?.prod?.name} created and stocks updated successfully.`);
-
-
-        const now = new Date();
-        const formattedTime = now.toLocaleString(); // gives date + time in readable format
-
-        const summaryText = productsData
-          .map(prod => `${prod.name} ${prod.qty} ${prod.unit}`)
-          .join(', ');
-
-        setCreatedSummary({
-          text: `${summaryText} ${t('MSG.createdSuccessfully')}`,
-          time: formattedTime,
-        });
-
-        // Reset form
-        setMilkAmount('');
-        setMilkType('');
-        setAvailableQty(null);
-        setError('');
-        setIngredients([]);
-        setProducts([]);
-        fetchTankData();
-        fetchRawMaterials();
-        fetchProducts();
-    } catch (err) {
-        console.error('Error in submission:', err);
-        alert(t('MSG.selectAppropriateProductAndClick'));
-    }
   };
 
   useEffect(() => {
@@ -681,87 +606,151 @@ const [productType, setProductType] = useState("milk")
 
 const [milkEntries, setMilkEntries] = useState([]);
 
+const milkFormattedData = milkEntries.reduce((acc, entry, index) => {
+  acc[`milk_${index}`] = entry.quantity
+  acc[`milk_${index}_fat`] = parseFloat(entry.fat) || 0
+  acc[`milk_${index}_lacto`] = parseFloat(entry.lacto) || 0
+  return acc
+}, {})
+console.log('Formatted Milk Data:', milkFormattedData)
 
   return (
-    <CCard className="mb-4">
+    // <CCard className="mb-4">
 
-      <CCardHeader style={{ backgroundColor: '#d4edda'}}>
-        <div style={{ display: 'flex', justifyContent: 'start', alignItems: 'center' }}>
-          {/* <h5 className="mb-0" >{t('LABELS.create_product')}</h5> */}
+     
 
-          <CButton   onClick={() => setProductType("milk")}><b>Create Product From Milk</b></CButton>
-           <CButton   onClick={() => setProductType("product")}><b>Create Product Form Product</b></CButton>
-        </div>
-      </CCardHeader>
 
-      {productType === 'milk' && (
+
+
 <>
-      
-
-      <CCardBody>
-        <CRow className="g-3 align-items-end mb-0">
-          <CCol md={3}>
-            <CFormLabel><b>&nbsp;&nbsp;{t('LABELS.selectMilkStorage')}</b></CFormLabel>
-         
-          </CCol>
-          <CCol md={4}>
-          <div style={inputContainerStyle}>
-              <CFormSelect value={milkType} onChange={handleMilkTypeChange} style={{ appearance: 'none', WebkitAppearance: 'none', MozAppearance: 'none', backgroundImage: 'none' }}>
-                <option value="">{t('LABELS.selectTank')}</option>
-                {/* {tankData.map((tank, idx) => (
-                  <option key={idx} value={tank.name}>
-                    {tank.name}
-                  </option>
-                ))} */}
-                {tankData.map((tank, idx) => {
-    const tankName = lng === 'en' ? tank.name : decodeUnicode(tank.localname);
     
-    
-    return (
-      <option key={idx} value={tank.name}>
-       {tankName}
-      </option>
-    );
-  })}
 
-              </CFormSelect> 
-        
 
-             
+  <CCardBody>
+     <CRow className="g-3 align-items-end mb-0">
+  <CCol md={3}>
+    <CFormLabel><b>{t('LABELS.selectMilkStorage')}</b></CFormLabel>
+  </CCol>
 
-              {!milkType ? (
-                <div style={dropdownIconStyle}>
-                  <CIcon icon={cilChevronBottom} size="sm" />
-                </div>
-              ) : (
-                <div style={clearButtonStyle} onClick={clearMilkType}>
-                  <CIcon icon={cilX} size="sm" />
-                </div>
-              )}
-            </div>
-            </CCol>
-          <CCol md={4}>
-            {/* <CFormLabel><b>{t('LABELS.enterMilkForProduct')}</b></CFormLabel> */}
-            <CFormInput
-              type="number"
-              value={milkAmount}
-              onChange={handleMilkAmountChange}
-              placeholder={
-                availableQty !== null ? t('LABELS.availableQuantityLtrs', { qty: availableQty }) : t('LABELS.enterMilkForProduct')
-              }
-              className={error ? 'is-invalid' : ''}
-              disabled
-            />
-            {error && <div className="text-danger mt-1">{error}</div>}
-          </CCol>
+  <CCol md={4}>
+    <div style={inputContainerStyle}>
+      <CFormSelect
+        value={milkType}
+        onChange={handleMilkTypeChange}
+        style={{ appearance: 'none', backgroundImage: 'none' }}
+      >
+        <option value="">{t('LABELS.selectTank')}</option>
+        {tankData.map((tank, idx) => {
+          const tankName = lng === 'en' ? tank.name : decodeUnicode(tank.localname);
+          return (
+            <option key={idx} value={tank.name}>
+              {tankName}
+            </option>
+          );
+        })}
+      </CFormSelect>
 
-          {/* <CCol md={2}>
-            <div><b>{t('LABELS.ltrs')}</b></div>
-          </CCol> */}
+      {!milkType ? (
+        <div style={dropdownIconStyle}><CIcon icon={cilChevronBottom} size="sm" /></div>
+      ) : (
+        <div style={clearButtonStyle} onClick={() => {
+          setMilkType('');
+          setSelectedTank(null);
+          setAvailableQty(null);
+          setMilkAmount('');
+          setError('');
+        }}>
+          <CIcon icon={cilX} size="sm" />
+        </div>
+      )}
+    </div>
+  </CCol>
 
-          <CCol md={2}>
-          </CCol>
-        </CRow>
+  <CCol md={3}>
+    <CFormInput
+      type="number"
+      placeholder={
+        availableQty !== null
+          ? `${t('LABELS.availableQuantity')}: ${availableQty} ltr`
+          : t('LABELS.enterMilkForProduct')
+      }
+      value={milkAmount}
+      onChange={(e) => {
+        const value = e.target.value;
+        setMilkAmount(value);
+        if (availableQty !== null && parseFloat(value) > availableQty) {
+          setError(t('MSG.quantityExceedsAvailableMilk'));
+        } else {
+          setError('');
+        }
+      }}
+      className={error ? 'is-invalid' : ''}
+    />
+    {error && <div className="text-danger mt-1">{error}</div>}
+  </CCol>
+
+  <CCol md={2} className="d-flex ">
+    <CButton
+      color="success"
+      variant="outline"
+     onClick={() => {
+  if (!milkType || !selectedTank || !milkAmount || error) return;
+
+  setMilkEntries(prev => [
+    ...prev,
+    {
+      name: milkType,
+      fat: selectedTank.avg_fat ?? '-',     // use avg_fat
+      lacto: selectedTank.avg_degree ?? '-', // use avg_degree
+      quantity: milkAmount,
+      id: selectedTank.id
+    }
+  ]);
+
+  // Reset
+  setMilkType('');
+  setSelectedTank(null);
+  setAvailableQty(null);
+  setMilkAmount('');
+  setError('');
+}}
+      disabled={!milkType || !milkAmount || !!error}
+    >
+      <CIcon icon={cilPlus} />
+    </CButton>
+  </CCol>
+</CRow>
+
+{milkEntries.length > 0 && milkEntries.map((entry, index) => (
+  <CRow key={index} className="mb-2 mt-2 p-2 bg-light rounded">
+
+    <CCol xs={8} md={4}>
+      <b>{entry.name}</b>
+      <div className="text-muted small d-md-none">
+        {entry.quantity} Ltr&nbsp;&nbsp;FAT: {entry.fat || '-'}&nbsp;&nbsp;LACTO: {entry.lacto || '-'}
+      </div>
+    </CCol>
+    <CCol className="d-none d-md-block" md={2}>{entry.quantity} Ltr</CCol>
+    <CCol className="d-none d-md-block" md={2}>FAT: {entry.fat || '-'}</CCol>
+    <CCol className="d-none d-md-block" md={2}>LACTO: {entry.lacto || '-'}</CCol>
+    <CCol xs={4} md={2} className="text-end">
+      <CButton
+        color="danger"
+        variant="outline"
+        onClick={() => {
+          setMilkEntries(prev => prev.filter((_, i) => i !== index));
+        }}
+      >
+        <CIcon icon={cilTrash} />
+      </CButton>
+    </CCol>
+  </CRow>
+))}
+
+
+
+
+
 
         {/* Ingredients */}
         <CCard className="mb-4 mt-3">
@@ -1207,22 +1196,12 @@ const [milkEntries, setMilkEntries] = useState([]);
 )}
       </CCardBody>
       </>
-
-)}
-
- {productType === 'product' && (
-<>
-    
-  <CreateProductFromProduct />
-
  
-      </>
- )}
 
 
-    </CCard>
+    // </CCard>
   )
 }
 
-export default CreateFactoryProduct
+export default MilkForm
 

@@ -107,7 +107,7 @@ class MilkTankController extends Controller
     
         $companyId = $user->company_id;
     
-        $tanks = MilkTank::select('id', 'name', 'capacity', 'quantity','snf','ts','localname')
+        $tanks = MilkTank::select('id', 'name', 'capacity', 'quantity','snf','ts','localname','avg_degree','avg_fat','avg_rate')
             ->where('company_id', $companyId)
             ->get()
             ->map(function ($tank) {
@@ -117,7 +117,12 @@ class MilkTankController extends Controller
                     'localname' => $tank->localname,
                     'snf'=>$tank->snf,
                     'ts'=>$tank->ts,
-                    'available_qty' => $tank->quantity
+                    'available_qty' => $tank->quantity,
+                     'avg_degree' => $tank->avg_degree,
+                     'avg_fat' => $tank->avg_fat,
+                     'avg_rate' => $tank->avg_rate,
+
+
                 ];
             });
     

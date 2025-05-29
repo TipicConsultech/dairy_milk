@@ -31,6 +31,27 @@ use App\Http\Controllers\MailController;
 use App\Http\Controllers\MilkTanksTrackerController;
 use App\Http\Controllers\ProductMappingController;
 use App\Http\Controllers\FactoryProductCalculationController;
+use App\Http\Controllers\ProductFormulaController;
+use App\Http\Controllers\ProductComponentController;
+
+Route::middleware('auth:sanctum')->group(function () {
+ Route::get('/product-formulas', [ProductFormulaController::class, 'index']);
+    Route::get('/product-formulas/product/{productId}', [ProductFormulaController::class, 'getByProductId']);
+    Route::get('/product-formulas/{id}', [ProductFormulaController::class, 'show']);
+    Route::post('/product-formulas', [ProductFormulaController::class, 'store']);
+    Route::put('/product-formulas/{id}', [ProductFormulaController::class, 'update']);
+    Route::patch('/product-formulas/{id}', [ProductFormulaController::class, 'update']);
+});
+
+// Route::prefix('product-formulas')->group(function () {
+//     Route::get('/product-formulas', [ProductFormulaController::class, 'index']);
+//     Route::get('/product-formulas/product/{productId}', [ProductFormulaController::class, 'getByProductId']);
+//     Route::get('/product-formulas/{id}', [ProductFormulaController::class, 'show']);
+//     Route::post('/product-formulas', [ProductFormulaController::class, 'store']);
+//     Route::put('/product-formulas/{id}', [ProductFormulaController::class, 'update']);
+//     Route::patch('/product-formulas/{id}', [ProductFormulaController::class, 'update']);
+// });
+
 
 
 //Factory Product Calculation API's
@@ -109,6 +130,19 @@ Route::middleware(['auth:sanctum'])->prefix('raw-materials')->group(function () 
 });
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/searchRawMaterials', [RawMaterialController::class, 'searchByName']);
+    Route::get('/commonProductInFormula', [ProductController::class, 'getCommonProductSizes']);
+
+});
+
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/productComponents', [ProductComponentController::class, 'index']);
+    Route::post('/productComponents', [ProductComponentController::class, 'store']);
+    Route::get('/productComponents/{productId}', [ProductComponentController::class, 'getByProductId']);
+    Route::post('/productCalculations', [commonController::class, 'evaluateFormula']);
+
+    
 });
 
 
