@@ -412,16 +412,24 @@ const MilkForm = () => {
   });
 };
 
+const [productType, setProductType] = useState("milk")
 
 
   return (
     <CCard className="mb-4">
 
       <CCardHeader style={{ backgroundColor: '#d4edda'}}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h5 className="mb-0" >{t('LABELS.create_product')}</h5>
+        <div style={{ display: 'flex', justifyContent: 'start', alignItems: 'center' }}>
+          {/* <h5 className="mb-0" >{t('LABELS.create_product')}</h5> */}
+
+          <CButton   onClick={() => setProductType("milk")}><b>Create Product From Milk</b></CButton>
+           <CButton   onClick={() => setProductType("product")}><b>Create Product Form Product</b></CButton>
         </div>
       </CCardHeader>
+
+      {productType === 'milk' && (
+<>
+      <h4>Create Factory Product From Milk</h4>
 
       <CCardBody>
         <CRow className="g-3 align-items-end mb-0">
@@ -931,6 +939,528 @@ const MilkForm = () => {
   </CAlert>
 )}
       </CCardBody>
+      </>
+
+)}
+
+
+{productType === 'product' &&(
+
+<>
+<h4>Create Product From Product</h4>
+ <CCardBody>
+        <CRow className="g-3 align-items-end mb-0">
+          <CCol md={3}>
+            <CFormLabel><b>&nbsp;&nbsp;{t('LABELS.selectMilkStorage')}</b></CFormLabel>
+         
+          </CCol>
+          <CCol md={4}>
+          <div style={inputContainerStyle}>
+              <CFormSelect value={milkType} onChange={handleMilkTypeChange} style={{ appearance: 'none', WebkitAppearance: 'none', MozAppearance: 'none', backgroundImage: 'none' }}>
+                <option value="">{t('LABELS.selectTank')}</option>
+                {/* {tankData.map((tank, idx) => (
+                  <option key={idx} value={tank.name}>
+                    {tank.name}
+                  </option>
+                ))} */}
+                {tankData.map((tank, idx) => {
+    const tankName = lng === 'en' ? tank.name : decodeUnicode(tank.localname);
+    
+    
+    return (
+      <option key={idx} value={tank.name}>
+       {tankName}
+      </option>
+    );
+  })}
+
+              </CFormSelect>
+
+
+             
+
+              {!milkType ? (
+                <div style={dropdownIconStyle}>
+                  <CIcon icon={cilChevronBottom} size="sm" />
+                </div>
+              ) : (
+                <div style={clearButtonStyle} onClick={clearMilkType}>
+                  <CIcon icon={cilX} size="sm" />
+                </div>
+              )}
+            </div>
+            </CCol>
+          <CCol md={4}>
+            {/* <CFormLabel><b>{t('LABELS.enterMilkForProduct')}</b></CFormLabel> */}
+            <CFormInput
+              type="number"
+              value={milkAmount}
+              onChange={handleMilkAmountChange}
+              placeholder={
+                availableQty !== null ? t('LABELS.availableQuantityLtrs', { qty: availableQty }) : t('LABELS.enterMilkForProduct')
+              }
+              className={error ? 'is-invalid' : ''}
+              disabled
+            />
+            {error && <div className="text-danger mt-1">{error}</div>}
+          </CCol>
+
+          {/* <CCol md={2}>
+            <div><b>{t('LABELS.ltrs')}</b></div>
+          </CCol> */}
+
+          <CCol md={2}>
+          </CCol>
+        </CRow>
+
+        {/* Ingredients */}
+        <CCard className="mb-4 mt-3">
+          <CCardHeader style={{ backgroundColor: '#E6E6FA'}}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h5 className="mb-0" >{t('LABELS.ingredientsUsed')}</h5>
+            </div>
+          </CCardHeader>
+
+          <CCardBody>
+            <CRow className="g-2 align-items-center mb-3">
+              <CCol md={4}>
+                <div className="position-relative" ref={ingredientsDropdownRef} style={inputContainerStyle}>
+                  <CFormInput
+                    type="text"
+                    value={newIngredient.name}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewIngredient({...newIngredient, name: value});
+                      // Keep the dropdown open when typing
+                      if (value) {
+                        setIsDropdownOpen(true);
+                      }
+                    }}
+                    onFocus={() => setIsDropdownOpen(true)}
+                    placeholder={t('LABELS.searchOrSelectIngredient')}
+                   
+                  />
+
+                  {!newIngredient.name ? (
+                    <div style={dropdownIconStyle}>
+                      <CIcon icon={cilChevronBottom} size="sm" />
+                    </div>
+                  ) : (
+                    <div style={clearButtonStyle} onClick={clearIngredient}>
+                      <CIcon icon={cilX} size="sm" />
+                    </div>
+                  )}
+
+                  {/* {isDropdownOpen && (
+                    <div
+                      className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm z-index-dropdown"
+                      style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
+                    >
+                      {ingredientOptions
+                        .filter(item => item.toLowerCase().includes(newIngredient.name.toLowerCase()))
+                        .map((item, index) => (
+                          <div
+                            key={index}
+                            className="p-2 cursor-pointer hover-bg-light"
+                            style={{cursor: 'pointer'}}
+                            onClick={() => {
+                              // Simulate the original handleIngredientChange logic
+                              const selectedItem = rawMaterialData.find((material) => material.name === item);
+                              
+
+                              if (selectedItem) {
+                                setNewIngredient({
+                                  ...newIngredient,
+                                  id: selectedItem.id,
+                                  name: item,
+      
+                                  available_qty: selectedItem.available_qty,
+                                  unit: selectedItem.unit
+                                });
+                                setRawMaterialavailableQty(selectedItem.available_qty);
+                              }
+                              setIsDropdownOpen(false);
+                              setIngError('');
+                            }}
+                          >
+                            {item}
+                          </div>
+                        ))}
+                    </div>
+                  )} */}
+                  {isDropdownOpen && (
+  <div
+    className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm z-index-dropdown"
+    style={{ maxHeight: '200px', overflowY: 'auto', zIndex: 1000 }}
+  >
+    {rawMaterialData
+      .filter(material => {
+        const name = lng === 'en' ? material.name : decodeUnicode(material.local_name);
+        // const tankName = lng === 'en' ? tank.name : decodeUnicode(tank.localname);
+        return name.toLowerCase().includes((newIngredient.name || '').toLowerCase());
+      })
+      .map((material, index) => {
+        const displayName = lng === 'en' ? material.name : decodeUnicode(material.local_name);
+
+        return (
+          <div
+            key={index}
+            className="p-2 cursor-pointer hover-bg-light"
+            onClick={() => {
+              setNewIngredient({
+                ...newIngredient,
+                id: material.id,
+                name: displayName,
+                available_qty: material.available_qty,
+                unit: material.unit,
+              });
+              setRawMaterialavailableQty(material.available_qty);
+              setIsDropdownOpen(false);
+              setIngError('');
+            }}
+            style={{ cursor: 'pointer' }}
+          >
+            {displayName}
+          </div>
+        );
+      })}
+  </div>
+)}
+
+                </div>
+ 
+
+              </CCol>
+              <CCol md={3}>
+                <CFormInput
+                  type="number"
+                  placeholder={
+                    rawMaterialavailableQty !== null
+                      ? t('LABELS.availableQuantityValue', { qty: rawMaterialavailableQty })
+                      : t('LABELS.availableQuantity')
+                  }
+                  value={newIngredient.quantity}
+                  onChange={handleIngredientQtyChange}
+                  className={ingError ? 'is-invalid' : ''}
+                />
+                {ingError && <div className="text-danger mt-1">{ingError}</div>}
+              </CCol>
+
+              {/* Desktop View */}
+              <CCol md={3} className="d-none d-md-block">
+                <CFormInput
+                  type="text"
+                  placeholder={t('LABELS.unit')}
+                  value={newIngredient.unit}
+                  disabled
+                />
+              </CCol>
+
+              <CCol md={2} className="d-none d-md-block">
+                <CButton
+                  color="success"
+                  variant="outline"
+                  onClick={addIngredient}
+                  disabled={!!ingError || !newIngredient.name || !newIngredient.quantity}
+                >
+                  <CIcon icon={cilPlus} />
+                </CButton>
+              </CCol>
+
+              {/* Mobile View */}
+              <CCol xs={12} className="d-flex d-md-none justify-content-between align-items-center gap-3">
+                <CFormInput
+                  type="text"
+                  placeholder={t('LABELS.unit')}
+                  value={newIngredient.unit}
+                  disabled
+                  className="w-80"
+                />
+                <CButton
+                  color="success"
+                  variant="outline"
+                  onClick={addIngredient}
+                  disabled={!!ingError || !newIngredient.name || !newIngredient.quantity}
+                  className="w-auto"
+                >
+                  <CIcon icon={cilPlus} />
+                </CButton>
+              </CCol>
+            </CRow>
+
+            {ingredients.map((ing, idx) => (
+              <CRow className="g-3 align-items-center mb-2" key={idx}>
+
+                {/* Name: full width on mobile, 4 cols on desktop */}
+                <CCol xs={12} md={4}>
+                  <CFormInput value={ing.name} readOnly />
+                </CCol>
+
+                {/* Quantity: half width on mobile, 3 cols on desktop */}
+                <CCol xs={6} md={3}>
+                  <CFormInput value={ing.quantity} readOnly />
+                </CCol>
+
+                {/* Unit: 3 cols on mobile, 1 on desktop */}
+                <CCol xs={3} md={1} className="d-flex align-items-center">
+                  {ing.unit}
+                </CCol>
+
+                {/* Delete Button: 3 cols on mobile, 2 on desktop */}
+                <CCol xs={3} md={2} className="d-flex justify-content-end">
+                  <CButton color="danger" variant="outline" onClick={() => removeIngredient(idx)}>
+                    <CIcon icon={cilTrash} />
+                  </CButton>
+                </CCol>
+
+              </CRow>
+            ))}
+          </CCardBody>
+        </CCard>
+
+        {/* Products */}
+        <CCard className="mb-4 mt-3">
+          <CCardHeader style={{ backgroundColor: '#f8d7da'}}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h5 className="mb-0" >{t('LABELS.products')}</h5>
+            </div>
+          </CCardHeader>
+
+          <CCardBody>
+            <CRow className="g-2 align-items-center mb-3">
+              <CCol md={4}>
+                <div className="position-relative" ref={productsDropdownRef} style={inputContainerStyle}>
+                  <CFormInput
+                    type="text"
+                    value={newProduct.name}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewProduct({...newProduct, name: value});
+                      if (value) {
+                        setIsProductsDropdownOpen(true);
+                      }
+                    }}
+                    onFocus={() => setIsProductsDropdownOpen(true)}
+                    placeholder={t('LABELS.searchOrSelectProduct')}
+                  />
+
+                  {!newProduct.name ? (
+                    <div style={dropdownIconStyle}>
+                      <CIcon icon={cilChevronBottom} size="sm" />
+                    </div>
+                  ) : (
+                    <div style={clearButtonStyle} onClick={clearProduct}>
+                      <CIcon icon={cilX} size="sm" />
+                    </div>
+                  )}
+
+                 {/* {isProductsDropdownOpen && (
+  <div
+    className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
+    style={{ maxHeight: '200px', overflowY: 'auto', zIndex: 1000 }}
+  >
+     {productOptions.filter(item => item.toLowerCase().includes(newProduct.name.toLowerCase())).length === 0 ? (
+      <div className="p-2 text-muted text-center">{t('MSG.productNotFound')}</div>
+    ) : (
+      productOptions
+        .filter(item => item.toLowerCase().includes(newProduct.name.toLowerCase()))
+        .map((item, index) => (
+          <div
+            key={index}
+            className="p-2 cursor-pointer hover-bg-light"
+            style={{ cursor: 'pointer' }}
+            onClick={() => {
+              const selectedItem = prductsData.find(p => p.name === item);
+              if (selectedItem) {
+                setNewProduct({
+                  id: selectedItem.id,
+                  name: item,
+                  quantity: '',
+                  unit: selectedItem.unit || '',
+                  liters:null
+                });
+                setProductAvailQty(selectedItem.quantity);
+              }
+              setIsProductsDropdownOpen(false);
+              setProdError('');
+            }}
+          >
+            {item}
+          </div>
+        ))
+    )} 
+    
+
+  </div>
+)} */}
+
+{isProductsDropdownOpen && (
+  <div
+    className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm"
+    style={{ maxHeight: '200px', overflowY: 'auto', zIndex: 1000 }}
+  >
+    {prductsData.filter(p => {
+      const displayName = i18n.language === 'mr' ? p.localName : p.name;
+      return displayName?.toLowerCase().includes(newProduct.name.toLowerCase());
+    }).length === 0 ? (
+      <div className="p-2 text-muted text-center">{t('MSG.productNotFound')}</div>
+    ) : (
+      prductsData
+        .filter(p => {
+          const displayName = i18n.language === 'mr' ? p.localName : p.name;
+          return displayName?.toLowerCase().includes(newProduct.name.toLowerCase());
+        })
+        .map((p, index) => {
+          const displayName = i18n.language === 'mr' ? p.localName : p.name;
+          return (
+            <div
+              key={index}
+              className="p-2 cursor-pointer hover-bg-light"
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                setNewProduct({
+                  id: p.id,
+                  name: p.name, // Always keep 'name' in backend value
+                  quantity: '',
+                  unit: p.unit || '',
+                  liters: null
+                });
+                setProductAvailQty(p.quantity);
+                setIsProductsDropdownOpen(false);
+                setProdError('');
+              }}
+            >
+              {displayName}
+            </div>
+          );
+        })
+    )}
+  </div>
+)}
+
+
+
+
+                </div>
+              </CCol>
+
+              <CCol md={3}>
+                <CFormInput
+                  type="number"
+                  placeholder={productAvailQty!==null ? t('LABELS.availableQuantityValue', { qty: productAvailQty }) : t('LABELS.availableQuantity')}
+                  value={newProduct.quantity}
+                  onChange={handleProductQty}
+                  className={prodError ? 'is-invalid' : ''}
+                />
+                {prodError && <div className="text-danger mt-1">{prodError}</div>}
+              </CCol>
+
+              {/* Desktop View: unit and + button in separate columns */}
+              <CCol md={3} className="d-none d-md-block">
+  <CFormInput
+    value={
+      newProduct?.liters
+        ? newProduct.liters + ' ltr'
+        : ''
+    }
+    placeholder={t('LABELS.milk_required')}
+    disabled
+  />
+</CCol>
+
+              <CCol md={2} className="d-none d-md-block">
+                <CButton
+                  color="success"
+                  variant="outline"
+                  onClick={addProduct}
+                  disabled={!!prodError || !newProduct.name || !newProduct.quantity}
+                >
+                  <CIcon icon={cilPlus} />
+                </CButton>
+              </CCol>
+
+              {/* Mobile View: unit and + button in the same row */}
+              <CCol xs={12} className="d-flex d-md-none justify-content-between align-items-center gap-3">
+                <CFormInput
+    value={
+      newProduct?.liters
+        ? newProduct.liters + ' ltr'
+        : ''
+    }
+    placeholder={t('LABELS.milk_required')}
+    disabled
+  />
+                <CButton
+                  color="success"
+                  variant="outline"
+                  onClick={addProduct}
+                  disabled={!!prodError || !newProduct.name || !newProduct.quantity}
+                  className="w-auto"
+                >
+                  <CIcon icon={cilPlus} />
+                </CButton>
+              </CCol>
+            </CRow>
+
+            {products.map((p, idx) => (
+              <CRow className="g-3 align-items-center mb-2" key={idx}>
+
+                {/* Product Name: full width on mobile, 4 cols on desktop */}
+                <CCol xs={12} md={4}>
+                  <CFormInput value={p.name+' '+`(${p.unit} )`} readOnly />
+                </CCol>
+
+                {/* Quantity: half on mobile, 3 cols on desktop */}
+                <CCol xs={6} md={3}>
+                  <CFormInput value={p.quantity} readOnly />
+                </CCol>
+
+                {/* Unit: quarter on mobile, 1 col on desktop */}
+                <CCol xs={3} md={1} className="d-flex align-items-center">
+                  {p.liters+ " "+"ltr"}
+                </CCol>
+
+                {/* Delete Button: quarter on mobile, 2 cols on desktop */}
+                <CCol xs={3} md={2} className="d-flex justify-content-end">
+                  <CButton color="danger" variant="outline" onClick={() => removeProduct(idx)}>
+                    <CIcon icon={cilTrash} />
+                  </CButton>
+                </CCol>
+
+              </CRow>
+            ))}
+
+          </CCardBody>
+        </CCard>
+
+        <CButton color="primary" onClick={handleSubmit} disabled={!!error}>
+          {t('LABELS.submit')}
+        </CButton>
+
+        {/* {createdSummary && (
+          <CAlert color='success' className='mt-2'>
+            <div className="">
+              <strong>{t('LABELS.productCreated')}:</strong>
+              <p>{createdSummary.text}</p>
+              <p className=" mt-1">{t('LABELS.createdAt')}: {createdSummary.time}</p>
+            </div>
+          </CAlert>
+        )} */}
+        {createdSummary && (
+  <CAlert color='success' className='mt-2'>
+    <div>
+      <strong>{t('LABELS.productCreated')}:</strong>
+      <p>{createdSummary.text}</p>
+      <p className="mt-1">{t('LABELS.createdAt')}: {formatDate(createdSummary.time || new Date())}</p>
+    </div>
+  </CAlert>
+)}
+      </CCardBody>
+</>
+
+)}
+
+
     </CCard>
   )
 }

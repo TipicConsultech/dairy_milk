@@ -106,6 +106,14 @@ export default function fetchNavItems(t1){
         to: '/dashboard',
         icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
       },
+
+        {
+        component: CNavItem,
+        name: "Create Factory Product",
+        to: '/CreateFactory',
+        icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+      },
+
       // {
       //   component: CNavItem,
       //   name: t('LABELS.dailyTallyReport'),
