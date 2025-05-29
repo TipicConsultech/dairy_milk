@@ -32,6 +32,7 @@ use App\Http\Controllers\MilkTanksTrackerController;
 use App\Http\Controllers\ProductMappingController;
 use App\Http\Controllers\FactoryProductCalculationController;
 use App\Http\Controllers\ProductFormulaController;
+use App\Http\Controllers\ProductComponentController;
 
 Route::middleware('auth:sanctum')->group(function () {
  Route::get('/product-formulas', [ProductFormulaController::class, 'index']);
@@ -129,6 +130,19 @@ Route::middleware(['auth:sanctum'])->prefix('raw-materials')->group(function () 
 });
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/searchRawMaterials', [RawMaterialController::class, 'searchByName']);
+    Route::get('/commonProductInFormula', [ProductController::class, 'getCommonProductSizes']);
+
+});
+
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/productComponents', [ProductComponentController::class, 'index']);
+    Route::post('/productComponents', [ProductComponentController::class, 'store']);
+    Route::get('/productComponents/{productId}', [ProductComponentController::class, 'getByProductId']);
+    Route::post('/productCalculations', [commonController::class, 'evaluateFormula']);
+
+    
 });
 
 

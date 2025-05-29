@@ -31,6 +31,7 @@ public function getByProductId($productId)
     $validated = $request->validate([
         'product_id' => 'required|exists:product_sizes,id',
         'step' => 'required|integer',
+        'formula_name'=>'required|string',
         'formula' => 'required|string',
         'description' => 'nullable|string',
     ]);
@@ -50,6 +51,7 @@ public function getByProductId($productId)
     $validated = $request->validate([
         'product_id' => 'sometimes|exists:product_sizes,id',
         'step' => 'sometimes|integer',
+        'formula_name'=>'required|string',
         'formula' => 'sometimes|string',
         'description' => 'nullable|string',
     ]);

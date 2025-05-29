@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductFormula extends Model
 {
-    protected $fillable = ['product_id', 'step', 'formula','company_id','description'];
+    protected $fillable = ['product_id', 'step','formula_name', 'formula','company_id','description'];
 
     public function productSize()
     {

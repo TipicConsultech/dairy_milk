@@ -17,6 +17,9 @@ use Illuminate\Support\Collection;
 use App\Models\FactoryProductCalculation;
 use App\Models\DailyTally;
 use Illuminate\Support\Facades\Log;
+use NXP\MathExecutor;
+use App\Models\ProductFormula;
+
 
 
 
@@ -944,6 +947,43 @@ if ($trackerRecord) {
         \Log::error("Error in newRetailProduct: " . $e->getMessage());
         return response()->json(['error' => $e->getMessage()], 500);
     }
+}
+
+function evaluateFormula(Request $request) {
+
+    $request->product_id;
+    $request->values;
+
+ 
+    try {
+
+    
+    $executor = new MathExecutor();
+
+    // Set variables for the formula
+    foreach ($request->values as $key => $value) {
+        $executor->setVar($key, $value);
+    }
+   $comapny_id=Auth::user()->company_id;
+    $formula=ProductFormula::where('company_id',$comapny_id)
+    ->where('product_id',$request->product_id)->first();
+$formulaString = preg_replace('/[^\x20-\x7E]/', '', $formula->formula);
+    // Execute and return result
+    $result = $executor->execute($formulaString);
+
+    return response()->json([
+        // 'result' => $result
+         'result' => $result
+        
+    ]);
+
+} catch (Exception $e) {
+    return response()->json([
+        'error' => 'Formula evaluation failed',
+        'message' => $e->getMessage()
+    ], 400);
+}
+
 }
 
 

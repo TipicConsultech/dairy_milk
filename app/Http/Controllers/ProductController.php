@@ -15,6 +15,9 @@ use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use App\Models\ProductComponents;
+use App\Models\ProductFormula;
+
 
 class ProductController extends Controller
 {
@@ -24,22 +27,30 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      * 
-     * 
-     * 
      */
+    
+public function getCommonProductSizes()
+{
+    $companyId = auth()->user()->company_id;
 
-    //  public function getRetailProduct($id)
-    //  {
-    //     $product = ProductSize::find($id);
-    
-    //     if (!$product) {
-    //         return response()->json(['message' => 'Product not found'], 404);
-    //     }
-    
-    //     return response()->json([
-    //         'data' => $product
-    //     ]);
-    // }
+    $productSizes = ProductSize::where('company_id', $companyId)
+        ->whereIn('id', function ($query) use ($companyId) {
+            $query->select('product_id')
+                ->from('product_formulas')
+                ->where('company_id', $companyId);
+        })
+        ->whereIn('id', function ($query) use ($companyId) {
+            $query->select('product_id')
+                ->from('product_components')
+                ->where('company_id', $companyId);
+        })
+        ->get();
+
+    return response()->json($productSizes);
+}
+
+
+
     public function getRetailProduct($id)
 {
     // Load the retail product along with the mapped factory product
