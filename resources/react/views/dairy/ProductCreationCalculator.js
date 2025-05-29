@@ -23,12 +23,17 @@ import {
   CSpinner
 } from '@coreui/react';
 import { useTranslation } from 'react-i18next';
-import { post } from '../../util/api';
+import { getAPICall, post } from '../../util/api';
 import ProductCalculationHistory from './ProductCalculationHistory';
+import CIcon from '@coreui/icons-react';
+import { cilChevronBottom, cilPlus, cilTrash, cilX } from '@coreui/icons';
 
 const ProductCreationCalculator = () => {
   // Add translation hook
-  const { t, i18n } = useTranslation("global");
+  // const { t, i18n } = useTranslation("global");
+
+  const { t, i18n } = useTranslation("global")
+  const lng = i18n.language
 
   const [refreshHistory, setRefreshHistory] = useState(false);
 
@@ -397,6 +402,99 @@ const ProductCreationCalculator = () => {
     }
   };
 
+
+
+
+
+   
+
+
+
+  const [milkType, setMilkType] = useState('')
+  const [milkAmount, setMilkAmount] = useState('')
+  const [availableQty, setAvailableQty] = useState(null)
+  const [tankData, setTankData] = useState([])
+  const [selectedTank, setSelectedTank] = useState(null)
+  const [milkEntries, setMilkEntries] = useState([])
+  const [errorr, setError] = useState('')
+
+  const inputContainerStyle = {
+    position: 'relative'
+  }
+
+  const dropdownIconStyle = {
+    position: 'absolute',
+    right: '10px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    pointerEvents: 'none',
+    zIndex: 1
+  }
+
+  const clearButtonStyle = {
+    position: 'absolute',
+    right: '10px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    cursor: 'pointer',
+    zIndex: 1
+  }
+
+  const decodeUnicode = (str) => {
+    if (!str || typeof str !== 'string') return ''
+    return str.replace(/\\u[\dA-F]{4}/gi, match =>
+      String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16))
+    )
+  }
+
+  useEffect(() => {
+    const fetchTankData = async () => {
+      const res = await getAPICall('/api/milk-tanks-byname/names')
+      setTankData(res.quantity)
+    }
+    fetchTankData()
+  }, [])
+
+  const handleMilkTypeChange = (e) => {
+    const selected = e.target.value
+    setMilkType(selected)
+    setMilkAmount('')
+    setError('')
+    const tank = tankData.find(t => t.name === selected)
+    if (tank) {
+      setAvailableQty(tank.available_qty)
+      setSelectedTank(tank)
+    } else {
+      setAvailableQty(null)
+      setSelectedTank(null)
+    }
+  }
+
+  const handleMilkAmountChange = (e) => {
+    const value = e.target.value
+    setMilkAmount(value)
+    if (availableQty !== null && parseFloat(value) > availableQty) {
+      setError(t('MSG.quantityExceedsAvailableMilk'))
+    } else {
+      setError('')
+    }
+  }
+
+  const clearMilkType = () => {
+    setMilkType('')
+    setSelectedTank(null)
+    setAvailableQty(null)
+    setMilkAmount('')
+    setError('')
+  }
+
+
+
+
+
+
+
+
   return (
     <CContainer className="mt-0 px-0">
       <CCard className="border-0 shadow-sm">
@@ -444,6 +542,122 @@ const ProductCreationCalculator = () => {
                   aria-label={t('LABELS.selectProduct')}
                 />
               </CCol>
+
+
+{/* <h1>dsuydgusygd</h1> */}
+
+   <>
+      <CCardBody>
+        <CRow className="g-3 align-items-end mb-0">
+          <CCol md={3}>
+            <CFormLabel><b>{t('LABELS.selectMilkStorage')}</b></CFormLabel>
+          </CCol>
+
+          <CCol md={4}>
+            <div style={inputContainerStyle}>
+              <CFormSelect value={milkType} onChange={handleMilkTypeChange} style={{ appearance: 'none', backgroundImage: 'none' }}>
+                <option value="">{t('LABELS.selectTank')}</option>
+                {tankData.map((tank, idx) => {
+                  const tankName = lng === 'en' ? tank.name : decodeUnicode(tank.localname)
+                  return (
+                    <option key={idx} value={tank.name}>
+                      {tankName}
+                    </option>
+                  )
+                })}
+              </CFormSelect>
+              {!milkType ? (
+                <div style={dropdownIconStyle}><CIcon icon={cilChevronBottom} size="sm" /></div>
+              ) : (
+                <div style={clearButtonStyle} onClick={clearMilkType}>
+                  <CIcon icon={cilX} size="sm" />
+                </div>
+              )}
+            </div>
+          </CCol>
+
+          <CCol md={3}>
+            <CFormInput
+              type="number"
+              value={milkAmount}
+              onChange={handleMilkAmountChange}
+              placeholder={
+                availableQty !== null
+                  ? `${t('LABELS.availableQuantity')}: ${availableQty} ltr`
+                  : t('LABELS.enterMilkForProduct')
+              }
+              className={errorr ? 'is-invalid' : ''}
+            />
+            {errorr && <div className="text-danger mt-1">{errorr}</div>}
+          </CCol>
+
+          <CCol md={2} className="d-flex">
+            <CButton
+              color="success"
+              variant="outline"
+              onClick={() => {
+                if (!milkType || !selectedTank || !milkAmount || errorr) return
+                setMilkEntries(prev => [
+                  ...prev,
+                  {
+                    name: milkType,
+                    fat: selectedTank.avg_fat ?? '-',
+                    lacto: selectedTank.avg_degree ?? '-',
+                    quantity: milkAmount,
+                    id: selectedTank.id
+                  }
+                ])
+                clearMilkType()
+                setMilkAmount('')
+              }}
+              disabled={!milkType || !milkAmount || !!error}
+            >
+              <CIcon icon={cilPlus} />
+            </CButton>
+          </CCol>
+        </CRow>
+
+        {milkEntries.length > 0 && milkEntries.map((entry, index) => (
+          <CRow key={index} className="mb-2 mt-2 p-2 bg-light rounded">
+            <CCol xs={8} md={4}>
+              <b>{entry.name}</b>
+              <div className="text-muted small d-md-none">
+                {entry.quantity} Ltr&nbsp;&nbsp;FAT: {entry.fat || '-'}&nbsp;&nbsp;LACTO: {entry.lacto || '-'}
+              </div>
+            </CCol>
+            <CCol className="d-none d-md-block" md={2}>{entry.quantity} Ltr</CCol>
+            <CCol className="d-none d-md-block" md={2}>FAT: {entry.fat || '-'}</CCol>
+            <CCol className="d-none d-md-block" md={2}>LACTO: {entry.lacto || '-'}</CCol>
+            <CCol xs={4} md={2} className="text-end">
+              <CButton
+                color="danger"
+                variant="outline"
+                onClick={() => {
+                  setMilkEntries(prev => prev.filter((_, i) => i !== index))
+                }}
+              >
+                <CIcon icon={cilTrash} />
+              </CButton>
+            </CCol>
+          </CRow>
+        ))}
+      </CCardBody>
+    </>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             </CRow>
 
             {/* Paneer Form - Only shows when Paneer is selected */}
@@ -682,7 +896,20 @@ const ProductCreationCalculator = () => {
             )}
           </CForm>
         </CCardBody>
+
+
+
+
+
       </CCard>
+
+
+
+
+
+
+
+
 
       <ProductCalculationHistory  refreshTrigger={refreshHistory}/>
 
