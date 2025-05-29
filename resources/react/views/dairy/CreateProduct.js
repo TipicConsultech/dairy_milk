@@ -50,7 +50,7 @@ const ProductFormulaExecutor = () => {
   }, []);
 
 
-  const 
+  
 
   const handleChange = (e) => {
     setInputs(prev => ({
