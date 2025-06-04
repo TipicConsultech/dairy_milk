@@ -470,6 +470,7 @@
   "productSelection": "उत्पादन निवड",
   "paneer": "पनीर",
   "tup": "तूप",
+  "cream":"क्रीम",
   "intake": "आवक",
   "enterIntakeAmount": "आवक प्रमाण प्रविष्ट करा",
   "inLiter": "(लिटरमध्ये)",
@@ -487,7 +488,7 @@
   "enterMilkIntake": "दूध आवक प्रविष्ट करा",
   "creamCreated": "क्रीम निर्मित",
   "enterCreamAmount": "क्रीम प्रमाण प्रविष्ट करा",
-  "tupCreated": "तूप निर्मित",
+  "tupCreated": "स्किम्ड मिल्क निर्मित",
   "enterTupAmount": "तूप प्रमाण प्रविष्ट करा",
   "tupUtaar": "तूप उतार",
   "processing": "प्रक्रिया करत आहे...",
@@ -539,7 +540,7 @@
       "confirm_submission": "सबमिशन पुष्ट करा",
      
       "confirm_submit": "सबमिट पुष्ट करा",
-     "singleProductUpdateSuccess":"कच्चा माल यशस्वीरित्या बदल केला",
+     "singleProductUpdateSuccess":"उत्पादन  यशस्वीरित्या बदल केला",
 
 
      "avgDegree"	:"सरासरी डिग्री",

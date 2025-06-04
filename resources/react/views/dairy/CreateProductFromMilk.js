@@ -75,7 +75,6 @@ const MilkForm = () => {
   const [createdSummary, setCreatedSummary] = useState(null);
   const[selectedTank,setSelectedTank]= useState(null);
   const[productCalculationData,setProductCalculationData]= useState(null);
-  console.log(selectedTank); 
   const [productType, setProductType] = useState("milk")
   const [milkEntries, setMilkEntries] = useState([]);
   const [calculatedResult, setCalculatedResult] = useState(null);
@@ -83,12 +82,11 @@ const MilkForm = () => {
 
 const milkFormattedData = milkEntries.reduce((acc, entry, index) => {
   acc[`milk_${index}`] = entry.quantity
+  acc[`milk_${index}_id`] = entry.id
   acc[`milk_${index}_fat`] = parseFloat(entry.fat) || 0
   acc[`milk_${index}_lacto`] = parseFloat(entry.lacto) || 0
   return acc
 }, {})
-console.log('Formatted Milk Data:', milkFormattedData)
-  
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -133,8 +131,8 @@ console.log('Formatted Milk Data:', milkFormattedData)
 
   const fetchRawMaterials = async () => {
     try {
-      const res = await getAPICall('/api/getRawMaterialsByParam/0')
-      setRawMaterialData(res.quantity)
+      const res = await getAPICall('/api/getRawMaterialsByParam/1')
+      setRawMaterialData(res.quantity);   
       setIngredientOptions(res.quantity.map(item => item.name))
     } catch (err) {
       console.error('Error fetching raw materials:', err)
@@ -313,18 +311,18 @@ console.log('Formatted Milk Data:', milkFormattedData)
   };
 
   const handleSabmit = async () => {
-  //   let data={
-  //   product_id:newProduct.id,
-  //   values:milkFormattedData
-  //   }
-  //   try{
-  //    const resp=await post('/api/productCalculations',data)
-  //    console.log(resp);
-  //    setCalculatedResult(resp);
-  //   }
-  //   catch(e){
-  //  console.log(e);
-  //   }
+   let data = {
+  factoryProductId: newProduct.id,
+  product_quantity: calculatedResult.result,
+  values: milkFormattedData,
+  rawMaterials: newIngredient?.id ? [newIngredient] : null
+};
+    try{
+     const resp=await post('/api/createProduct',data) 
+    }
+    catch(e){
+   console.log(e);
+    }
    
   };
 
@@ -339,7 +337,7 @@ console.log('Formatted Milk Data:', milkFormattedData)
      setCalculatedResult(resp);
     }
     catch(e){
-   console.log(e);
+   setCalculatedResult(null);
     }
    
   };
@@ -385,9 +383,9 @@ console.log('Formatted Milk Data:', milkFormattedData)
 <>
   <CCardBody>
      <CRow className="g-3 align-items-end mb-0">
-  <CCol md={3}>
+  {/* <CCol md={3}>
     <CFormLabel><b>{t('LABELS.selectMilkStorage')}</b></CFormLabel>
-  </CCol>
+  </CCol> */}
 
   <CCol md={4}>
     <div style={inputContainerStyle}>
@@ -459,6 +457,8 @@ console.log('Formatted Milk Data:', milkFormattedData)
       name: milkType,
       fat: selectedTank.avg_fat ?? '-',     // use avg_fat
       lacto: selectedTank.avg_degree ?? '-', // use avg_degree
+      snf:selectedTank.snf ?? '-',
+      ts:selectedTank.ts ?? '-',
       quantity: milkAmount,
       id: selectedTank.id
     }
@@ -479,18 +479,22 @@ console.log('Formatted Milk Data:', milkFormattedData)
 </CRow>
 
 {milkEntries.length > 0 && milkEntries.map((entry, index) => (
-  <CRow key={index} className="mb-2 mt-2 p-2 bg-light rounded">
+  <CCardBody>
+  <CRow key={index} className=" bg-light rounded">
 
-    <CCol xs={8} md={4}>
+    <CCol xs={3} md={2}>
       <b>{entry.name}</b>
-      <div className="text-muted small d-md-none">
+      <div className="text-muted text-bold small d-md-none">
         {entry.quantity} Ltr&nbsp;&nbsp;FAT: {entry.fat || '-'}&nbsp;&nbsp;LACTO: {entry.lacto || '-'}
       </div>
     </CCol>
-    <CCol className="d-none d-md-block" md={2}>{entry.quantity} Ltr</CCol>
+    <CCol className="d-none d-md-block" md={2}>QUANTITY: {entry.quantity}</CCol>
     <CCol className="d-none d-md-block" md={2}>FAT: {entry.fat || '-'}</CCol>
     <CCol className="d-none d-md-block" md={2}>LACTO: {entry.lacto || '-'}</CCol>
-    <CCol xs={4} md={2} className="text-end">
+    <CCol className="d-none d-md-block" md={1}>SNF: {entry.snf || '-'}</CCol>
+    <CCol className="d-none d-md-block" md={1}>TS: {entry.ts || '-'}</CCol>
+
+    <CCol xs={4} md={1} className="text-end">
       <CButton
         color="danger"
         variant="outline"
@@ -502,6 +506,7 @@ console.log('Formatted Milk Data:', milkFormattedData)
       </CButton>
     </CCol>
   </CRow>
+  </CCardBody>
 ))}
 
 
@@ -944,7 +949,7 @@ console.log('Formatted Milk Data:', milkFormattedData)
           </CCardBody>
         </CCard>
 
-        <CButton color="primary" onClick={handleCalculated} disabled={!!error}>
+        <CButton color="primary" onClick={handleSabmit} disabled={!!error}>
           {t('LABELS.submit')}
         </CButton>
 

@@ -492,7 +492,8 @@
   "enterMilkIntake": "Enter milk intake",
   "creamCreated": "Cream Created",
   "enterCreamAmount": "Enter cream amount",
-  "tupCreated": "Tup Created",
+  "tupCreated": "Skim Milk Created",
+  "cream":"cream",
   "enterTupAmount": "Enter tup amount",
   "tupUtaar": "TUP Utaar",
   "processing": "Processing...",
@@ -545,7 +546,7 @@
       "confirm_submission": "Confirm Submission",
       
       "confirm_submit": "Confirm Submit",
-     "singleProductUpdateSuccess":"Raw material Updated Successfully .",
+     "singleProductUpdateSuccess":"Product created Successfully .",
 
      "avgDegree"	:"Average Degree",
      "avgFat"	:"Average Fat",

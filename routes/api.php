@@ -1,9 +1,8 @@
 <?php
-
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MilkTankController;
 use App\Http\Controllers\ProductCalculationController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
@@ -33,6 +32,8 @@ use App\Http\Controllers\ProductMappingController;
 use App\Http\Controllers\FactoryProductCalculationController;
 use App\Http\Controllers\ProductFormulaController;
 use App\Http\Controllers\ProductComponentController;
+
+
 
 Route::middleware('auth:sanctum')->group(function () {
  Route::get('/product-formulas', [ProductFormulaController::class, 'index']);
@@ -204,11 +205,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/getProductsWithVisibleSizes', [ProductController::class, 'getProductsWithVisibleSizes']); // TODO - Need to remove not used
     Route::post('/newRetailProduct', [CommonController::class, 'newRetailProduct']);
     Route::post('/createProduct', [CommonController::class, 'createProduct']);
+    Route::post('/confirmProduct', [CommonController::class, 'confirmProduct']);
+    Route::get('/unConfirmProduct', [CommonController::class, 'unConfirmProduct']);
     Route::get('/getProductsByProductType', [ProductController::class, 'getProductsByProductType']);
     Route::get('/getProductsByProductTypeForRetail', [ProductController::class, 'getProductsByProductTypeForRetail']);
 });
 
-
+Route::middleware(['auth:sanctum'])->get('/getRawMaterialsByParam/{isPackaging}', [RawMaterialController::class, 'getRawMaterialsByParam']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/changePassword', [AuthController::class, 'changePassword']);
@@ -238,7 +241,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::resource('subSubCategory', SubSubCategoryController::class);
     Route::resource('customer', CustomerController::class);
     Route::get('/searchCustomer', [CustomerController::class, 'search']);
-    Route::get('/getRawMaterialsByParam/{isPackaging}', [RawMaterialController::class, 'getRawMaterialsByParam']);
+    // Route::get('/getRawMaterialsByParam/{isPackaging}', [RawMaterialController::class, 'getRawMaterialsByParam']);
     Route::get('/customerHistory', [CustomerController::class, 'history']);
 
     Route::get('/customerBookings', [CustomerController::class, 'booking']);

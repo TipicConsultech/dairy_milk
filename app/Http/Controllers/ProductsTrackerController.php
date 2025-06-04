@@ -65,6 +65,7 @@ class ProductsTrackerController extends Controller
     // ]);
     $batches = ProductsTracker::with('productSize')
     ->where('product_size_id', $request->id)
+    ->where('isProcessed',1)
     ->latest()
     ->take(2)
     ->get()

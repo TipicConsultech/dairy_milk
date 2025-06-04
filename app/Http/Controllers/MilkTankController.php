@@ -517,10 +517,17 @@ public function laboratoryUpdate(Request $request, $id): JsonResponse
             ], 422);
         }
 
+
+
         // Get current values
         $currentQuantity = $milkTank->quantity;
         $addedQuantity = $request->added_quantity;
         $totalQuantity = $currentQuantity + $addedQuantity;
+
+
+       
+        $weightavg_fat=($milkTank->avg_fat*$currentQuantity) +($milkTank->avg_fat*qty)   ;
+
 
         // Check capacity
         if ($totalQuantity > $milkTank->capacity) {

@@ -96,9 +96,9 @@ const ProductCreationCalculator = () => {
   };
 
   const productOptions = [
-    { label: t('LABELS.selectProduct'), value: '' },
-    { label: t('LABELS.paneer'), value: 'Paneer' },
-    { label: t('LABELS.tup'), value: 'Tup' }
+    { label: t('LABELS.selectProduct'), value:0 },
+    { label: t('LABELS.paneer'), value:10 },
+    { label: t('LABELS.cream'), value:16 }
   ];
 
   // Memoized calculation function for Paneer
@@ -470,6 +470,22 @@ const ProductCreationCalculator = () => {
     }
   }
 
+  const handleCalculated = async (id) => {
+      let data={
+      product_id:id,
+      values:milkFormattedData
+      }
+      try{
+       const resp=await post('/api/productCalculations',data)
+       console.log(resp);
+       setCalculatedResult(resp);
+      }
+      catch(e){
+     console.log(e);
+      }
+     
+    };
+
   const handleMilkAmountChange = (e) => {
     const value = e.target.value
     setMilkAmount(value)
@@ -488,6 +504,13 @@ const ProductCreationCalculator = () => {
     setError('')
   }
 
+  const milkFormattedData = milkEntries.reduce((acc, entry, index) => {
+  acc[`milk_${index}`] = entry.quantity
+  acc[`milk_${index}_fat`] = parseFloat(entry.fat) || 0
+  acc[`milk_${index}_lacto`] = parseFloat(entry.lacto) || 0
+  return acc
+}, {})
+console.log('Formatted Milk Data:', milkFormattedData)
 
 
 
@@ -524,13 +547,16 @@ const ProductCreationCalculator = () => {
             </CAlert>
           )}
 
-          <CForm>
+          <CForm className='g-3 align-items-end mb-0'>
             {/* Product Selection Dropdown */}
-            <CRow className="mb-3">
-              <CCol xs={12} md={6} className="mx-auto">
-                <CFormLabel htmlFor="productSelection" className="fw-bold mb-1">
+            <CRow className='mb-3 '>
+             <CFormLabel htmlFor="productSelection" className="fw-bold mb-15">
                   {t('LABELS.productSelection')}
                 </CFormLabel>
+            </CRow>
+            <CRow className="mb-3">
+              <CCol xs={12} md={4} className="ml-40">
+               
                 <CFormSelect
                   id="productSelection"
                   value={selectedProduct}
@@ -548,10 +574,11 @@ const ProductCreationCalculator = () => {
 
    <>
       <CCardBody>
-        <CRow className="g-3 align-items-end mb-0">
-          <CCol md={3}>
+         <CCol md={3} style={{marginBottom:'10px'}}>
             <CFormLabel><b>{t('LABELS.selectMilkStorage')}</b></CFormLabel>
           </CCol>
+        <CRow className="g-3 align-items-end mb-0">
+         
 
           <CCol md={4}>
             <div style={inputContainerStyle}>
@@ -661,9 +688,9 @@ const ProductCreationCalculator = () => {
             </CRow>
 
             {/* Paneer Form - Only shows when Paneer is selected */}
-            {selectedProduct === 'Paneer' && (
+            {selectedProduct == 10 && (
               <>
-                {/* SNF, TS, Intake fields */}
+                {/* SNF, TS, Intake fields
                 <CRow className="mb-3 g-2">
                   <CCol xs={12} md={4}>
                     <CFormLabel className="fw-bold mb-1">{t('LABELS.intake')}</CFormLabel>
@@ -707,7 +734,7 @@ const ProductCreationCalculator = () => {
                       aria-label={t('LABELS.ts')}
                     />
                   </CCol>
-                </CRow>
+                </CRow> */}
 
                 <CRow className="mb-3 g-2">
                   <CCol xs={12} sm={6} lg={3}>
@@ -770,7 +797,7 @@ const ProductCreationCalculator = () => {
                       <CInputGroupText>{t('LABELS.inKg')}</CInputGroupText>
                     </CInputGroup>
                 </CCol>
-                  <CCol xs={12} sm={6} lg={3}>
+                  {/* <CCol xs={12} sm={6} lg={3}>
                     <CFormLabel className="fw-bold mb-1">{t('LABELS.tsOfCreatedPaneer')}</CFormLabel>
                     <CFormInput
                       value={createdPanner}
@@ -779,7 +806,7 @@ const ProductCreationCalculator = () => {
                       className="bg-light text-muted"
                       aria-label={t('LABELS.tsOfCreatedPaneer')}
                     />
-                  </CCol>
+                  </CCol> */}
                 </CRow>
 
                 {differenceInCreation && (
@@ -799,11 +826,11 @@ const ProductCreationCalculator = () => {
             )}
 
             {/* Tup Form - Only shows when Tup is selected */}
-            {selectedProduct === 'Tup' && (
+            {selectedProduct == 16 && (
               <>
                 <CRow className="mb-3 g-2">
-                  <CCol xs={12} sm={6}>
-                    <CFormLabel className="fw-bold mb-1">{t('LABELS.milkIntake')}</CFormLabel>
+                  {/* <CCol xs={12} sm={6}> */}
+                    {/* <CFormLabel className="fw-bold mb-1">{t('LABELS.milkIntake')}</CFormLabel>
                     <CInputGroup>
                       <CFormInput
                         value={milkIntake}
@@ -816,8 +843,8 @@ const ProductCreationCalculator = () => {
                         aria-label={t('LABELS.milkIntake')}
                       />
                       <CInputGroupText>{t('LABELS.inLiter')}</CInputGroupText>
-                    </CInputGroup>
-                  </CCol>
+                    </CInputGroup> */}
+                  {/* </CCol> */}
                 <CCol xs={12} sm={6}>
                   <CFormLabel className="fw-bold mb-1">{t('LABELS.creamCreated')}</CFormLabel>
                   <CInputGroup>
@@ -853,7 +880,7 @@ const ProductCreationCalculator = () => {
                       <CInputGroupText>{t('LABELS.inKg')}</CInputGroupText>
                     </CInputGroup>
                   </CCol>
-                  <CCol xs={12} sm={6}>
+                  {/* <CCol xs={12} sm={6}>
                     <CFormLabel className="fw-bold mb-1">{t('LABELS.tupUtaar')}</CFormLabel>
                     <CFormInput
                       value={tupUtaar}
@@ -862,7 +889,7 @@ const ProductCreationCalculator = () => {
                       className="bg-light text-muted"
                       aria-label={t('LABELS.tupUtaar')}
                     />
-                  </CCol>
+                  </CCol> */}
                 </CRow>
               </>
             )}
@@ -911,7 +938,7 @@ const ProductCreationCalculator = () => {
 
 
 
-      <ProductCalculationHistory  refreshTrigger={refreshHistory}/>
+      {/* <ProductCalculationHistory  refreshTrigger={refreshHistory}/> */}
 
       {/* Confirmation Modal */}
       <CModal
@@ -928,7 +955,8 @@ const ProductCreationCalculator = () => {
         <CModalFooter>
           <CButton
             color="secondary"
-            onClick={() => updateUiState('showConfirmModal', false)}
+            // onClick={() => updateUiState('showConfirmModal', false)}
+             onClick={() => handleCalculated()}
             disabled={isLoading}
           >
             {t('LABELS.cancel')}

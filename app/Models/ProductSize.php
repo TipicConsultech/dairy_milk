@@ -13,6 +13,8 @@ class ProductSize extends Model
         'id',
         'product_id',
         'product_type',
+        'isTankStorage',
+        'tank_id',
         'name',
         'localName',
         'unit',

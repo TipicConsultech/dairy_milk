@@ -12,18 +12,24 @@ class ProductsTracker extends Model
     protected $fillable = [
         'product_size_id',
         'processed_id',
-        'packaging_id',
+        'product_qty',
+        'predicted_qty',
+        'current_qty',
+        'isProcessed',
         'product_qty',
         'milkUsed',
         'batch_no',
+        'company_id',
         'misc',
         'created_by',
         'updated_by',
     ];
 
+  
     protected $casts = [
-        'misc' => 'array',
-    ];
+    'processed_id' => 'array',
+      'misc' => 'array',
+];
 
     public function factoryProduct()
 {

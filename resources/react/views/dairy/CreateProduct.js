@@ -10,12 +10,18 @@ import {
   CButton,
   CCardHeader,
   CAlert,
+  CTabPanel,
+  CTabContent,
+  CTabList,
+  CTabs,
+  CTab,
 } from '@coreui/react'
 import { getAPICall, post } from '../../util/api'
 import CIcon from '@coreui/icons-react'
 import { cilPlus, cilTrash, cilChevronBottom, cilX } from '@coreui/icons'
 import { useTranslation } from 'react-i18next'
-import CreateProductFromProduct from './CreateProductFromProduct'
+import ConfirmProduct from './confirmProduct'
+import MilkForm from './CreateProductFromMilk'
 
 const CreateFactoryProduct = () => {
   const { t, i18n } = useTranslation("global")
@@ -434,18 +440,24 @@ const [milkEntries, setMilkEntries] = useState([]);
   return (
     <CCard className="mb-4">
 
-      <CCardHeader style={{ backgroundColor: '#d4edda'}}>
+      {/* <CCardHeader style={{ backgroundColor: '#d4edda'}}>
         <div style={{ display: 'flex', justifyContent: 'start', alignItems: 'center' }}>
-          {/* <h5 className="mb-0" >{t('LABELS.create_product')}</h5> */}
+     
 
           <CButton   onClick={() => setProductType("milk")}><b>Create Product From Milk</b></CButton>
            <CButton   onClick={() => setProductType("product")}><b>Create Product Form Product</b></CButton>
         </div>
-      </CCardHeader>
+      </CCardHeader> */}
+      <CTabs defaultActiveItemKey="product_from_milk">
+      <CTabList variant="tabs">
+        <CTab itemKey="product_from_milk">Product From Milk</CTab>
+        <CTab itemKey="product_from_product">Product From Product</CTab>
+        <CTab itemKey="confirm_product">Confirm Product</CTab>
 
-      {productType === 'milk' && (
-<>
-      
+        
+      </CTabList>
+      <CTabContent>
+      <CTabPanel className="p-3" itemKey="product_from_product">
 
       <CCardBody>
         <CRow className="g-3 align-items-end mb-0">
@@ -475,9 +487,6 @@ const [milkEntries, setMilkEntries] = useState([]);
 
               </CFormSelect> 
         
-
-             
-
               {!milkType ? (
                 <div style={dropdownIconStyle}>
                   <CIcon icon={cilChevronBottom} size="sm" />
@@ -490,7 +499,7 @@ const [milkEntries, setMilkEntries] = useState([]);
             </div>
             </CCol>
           <CCol md={4}>
-            {/* <CFormLabel><b>{t('LABELS.enterMilkForProduct')}</b></CFormLabel> */}
+            
             <CFormInput
               type="number"
               value={milkAmount}
@@ -503,10 +512,6 @@ const [milkEntries, setMilkEntries] = useState([]);
             />
             {error && <div className="text-danger mt-1">{error}</div>}
           </CCol>
-
-          {/* <CCol md={2}>
-            <div><b>{t('LABELS.ltrs')}</b></div>
-          </CCol> */}
 
           <CCol md={2}>
           </CCol>
@@ -955,21 +960,27 @@ const [milkEntries, setMilkEntries] = useState([]);
   </CAlert>
 )}
       </CCardBody>
-      </>
-
-)}
-
- {productType === 'product' && (
-<>
-    
-  <CreateProductFromProduct />
+</CTabPanel>
 
  
-      </>
- )}
+ <CTabPanel className="p-3" itemKey="product_from_milk">
+ 
+  <MilkForm/>
 
 
-    </CCard>
+</CTabPanel>
+
+ <CTabPanel className="p-3" itemKey="confirm_product">
+ 
+
+  <ConfirmProduct/>
+
+
+</CTabPanel>
+ </CTabContent>
+
+</CTabs>
+  </CCard>
   )
 }
 
