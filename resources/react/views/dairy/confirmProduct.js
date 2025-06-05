@@ -31,6 +31,7 @@ function ConfirmProduct() {
   const [failedItems, setFailedItems] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
   const [showAlertSingleProduct, setShowAlertSingleProduct] = useState(false);
+  const [message,setMessage]=useState(null);
   const [failAlert, setFailAlert] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   console.log('table data',tableData);
@@ -105,14 +106,14 @@ function ConfirmProduct() {
       const timer = setTimeout(() => {
         setShowAlert(false);
         setShowAlertSingleProduct(false);
-      }, 4000);
+      }, 15000);
       return () => clearTimeout(timer);
     }
      if (showAlertSingleProduct) {
       const timer = setTimeout(() => {
       
         setShowAlertSingleProduct(false);
-      }, 4000);
+      }, 15000);
       return () => clearTimeout(timer);
     }
   }, [showAlert,showAlertSingleProduct]);
@@ -121,7 +122,7 @@ function ConfirmProduct() {
     if (failAlert) {
       const timer = setTimeout(() => {
         setFailAlert(false);
-      }, 4000);
+      }, 8000);
       return () => clearTimeout(timer);
     }
   }, [failAlert]);
@@ -164,9 +165,12 @@ function ConfirmProduct() {
       if(resp?.failed){
         setFailedItems(resp?.failed);
         setFailAlert(true);
+        setMessage(null);
+
       }
       else if(resp?.updated || resp?.message === "Product confirmed successfully."){
         setShowAlertSingleProduct(true);
+        setMessage(resp);
         // Clear only the specific item's quantity
         setQuantities(prev => {
           const newQuantities = { ...prev };
@@ -179,6 +183,7 @@ function ConfirmProduct() {
     } catch (e) {
       console.error('Error confirming product:', e);
       alert('Failed to confirm product');
+      setMessage(null)
     }
   };
 
@@ -304,10 +309,19 @@ function ConfirmProduct() {
         </CAlert>
       )}
       {showAlertSingleProduct && (
-        <CAlert color="success" onDismiss={() =>setShowAlertSingleProduct(false)}>
-          <div>✅{t('LABELS.singleProductUpdateSuccess')}</div>  
-        </CAlert>
-      )}
+  <div
+    className="alert alert-success alert-dismissible fade show"
+    role="alert"
+    onClick={() => setShowAlertSingleProduct(false)}
+    style={{ cursor: 'pointer' }}
+  >
+    ✅ {message.message} <br />
+    🧪 <strong>Product:</strong> {message.product_name} ({message.product_local_name}) <br />
+    📦 <strong>Batch:</strong> {message.batch_name} <br />
+    📊 <strong>Quantity:</strong> {message.created_qty} <br />
+    🕒 <strong>Date:</strong> {message.timestamp}
+  </div>
+)}
       {failAlert && (
         <CAlert color="warning" onDismiss={() => setFailAlert(false)} className="d-flex align-items-center mb-2">
           <CIcon icon={cilWarning} className="flex-shrink-0 me-2" width={24} height={24} />

@@ -78,7 +78,7 @@ const MilkForm = () => {
   const [productType, setProductType] = useState("milk")
   const [milkEntries, setMilkEntries] = useState([]);
   const [calculatedResult, setCalculatedResult] = useState(null);
-
+  const[showAlertSingleProduct,setShowAlertSingleProduct ]=useState(false);
 
 const milkFormattedData = milkEntries.reduce((acc, entry, index) => {
   acc[`milk_${index}`] = entry.quantity
@@ -311,6 +311,7 @@ const milkFormattedData = milkEntries.reduce((acc, entry, index) => {
   };
 
   const handleSabmit = async () => {
+     
    let data = {
   factoryProductId: newProduct.id,
   product_quantity: calculatedResult.result,
@@ -318,10 +319,22 @@ const milkFormattedData = milkEntries.reduce((acc, entry, index) => {
   rawMaterials: newIngredient?.id ? [newIngredient] : null
 };
     try{
-     const resp=await post('/api/createProduct',data) 
+     const resp=await post('/api/createProduct',data) ;
+      if (resp.status === 201) {
+        // Clear form and reset state
+        setMilkEntries([]);
+        setProducts([]);
+        setNewProduct({ name: '', quantity: '', unit: '', liters: null });
+        setPrductsData([]);
+        setCalculatedResult(null);  
+        setNewIngredient({id:'', name: '', quantity: '', available_qty: '', unit: '' });
+        setShowAlertSingleProduct(true);
+        // setRawMaterialData([]);
+    }
     }
     catch(e){
    console.log(e);
+   setShowAlertSingleProduct(false);
     }
    
   };
@@ -383,10 +396,12 @@ const milkFormattedData = milkEntries.reduce((acc, entry, index) => {
 <>
   <CCardBody>
      <CRow className="g-3 align-items-end mb-0">
-  {/* <CCol md={3}>
-    <CFormLabel><b>{t('LABELS.selectMilkStorage')}</b></CFormLabel>
-  </CCol> */}
+   {showAlertSingleProduct && (
+          <CAlert color="success" >
+            <div>✅{t('LABELS.singleProductUpdateSuccess')}</div>  
+          </CAlert>
 
+        )}   
   <CCol md={4}>
     <div style={inputContainerStyle}>
       <CFormSelect
@@ -860,31 +875,31 @@ const milkFormattedData = milkEntries.reduce((acc, entry, index) => {
 
               {/* Desktop View: unit and + button in separate columns */}
 
-              <CCol md={2} className="d-none d-md-block">
+              <CCol md={3} className="d-none d-md-block">
               <CFormInput
               value={
               calculatedResult?.result
-              ? Math.floor(calculatedResult?.result * 10) / 10
-              : 'Calculating...'
+              ? "Calculated Qty : "+ Math.floor(calculatedResult?.result * 10) / 10
+              : 'Calculate '
                }
-             placeholder={t('LABELS.milk_required')}
+            //  placeholder={t('LABELS.milk_required')}
              disabled
               />
 
             </CCol>
-              <CCol md={2} className="d-none d-md-block">
+              <CCol md={3} className="d-none d-md-block">
               <CFormInput
              value={
               calculatedResult
               ?  newProduct.unit
-              : 'unit'
+              : 'Unit'
                }
-             placeholder={t('LABELS.milk_required')}
+            //  placeholder={t('LABELS.milk_required')}
              disabled
               />
             </CCol>
 
-              <CCol md={2} className="d-none d-md-block">
+              {/* <CCol md={2} className="d-none d-md-block">
                 <CButton
                   color="success"
                   variant="outline"
@@ -893,11 +908,11 @@ const milkFormattedData = milkEntries.reduce((acc, entry, index) => {
                 >
                   <CIcon icon={cilPlus} />
                 </CButton>
-              </CCol>
+              </CCol> */}
 
               {/* Mobile View: unit and + button in the same row */}
               <CCol xs={12} className="d-flex d-md-none justify-content-between align-items-center gap-3">
-                <CFormInput
+                {/* <CFormInput
     value={
       newProduct?.liters
         ? newProduct.liters + ' ltr'
@@ -905,8 +920,31 @@ const milkFormattedData = milkEntries.reduce((acc, entry, index) => {
     }
     placeholder={t('LABELS.milk_required')}
     disabled
-  />
-                <CButton
+  /> */}
+
+ 
+              <CFormInput
+              value={
+              calculatedResult?.result
+              ? "Calculated Qty : "+ Math.floor(calculatedResult?.result * 10) / 10 +  " "+ newProduct?.unit
+              : 'Calculate '
+               }
+            //  placeholder={t('LABELS.milk_required')}
+             disabled
+              />
+
+              <CCol md={3} className="d-none d-md-block">
+              <CFormInput
+             value={
+              calculatedResult
+              ?  newProduct.unit
+              : 'Unit'
+               }
+             placeholder={t('LABELS.milk_required')}
+             disabled
+              />
+            </CCol>
+                {/* <CButton
                   color="success"
                   variant="outline"
                   onClick={addProduct}
@@ -914,7 +952,7 @@ const milkFormattedData = milkEntries.reduce((acc, entry, index) => {
                   className="w-auto"
                 >
                   <CIcon icon={cilPlus} />
-                </CButton>
+                </CButton> */}
               </CCol>
             </CRow>
 

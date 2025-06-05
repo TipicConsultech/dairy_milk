@@ -18,6 +18,8 @@ class ProductsTracker extends Model
         'isProcessed',
         'product_qty',
         'milkUsed',
+        'product_qty_used',
+        'req_product_id',
         'batch_no',
         'company_id',
         'misc',

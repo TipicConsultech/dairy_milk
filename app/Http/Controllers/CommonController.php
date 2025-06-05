@@ -837,19 +837,31 @@ public function confirmProduct(Request $request)
             ], 422);
         }
 
-        // Fetch related milk processing record
-        $milkProcessing = MilkProcesing::where('id', $productTracker->processed_id[0] ?? null)
-            ->lockForUpdate()
-            ->first();
+        // Check if this is milk-based production or product-to-product transformation
+        $isMilkBasedProduction = !is_null($productTracker->processed_id) && !empty($productTracker->processed_id);
 
-        if (!$milkProcessing) {
-            DB::rollBack();
-            return response()->json([
-                'message' => 'Milk processing record not found.',
-            ], 404);
+        $milkProcessing = null;
+        $milkTankId = null;
+        $requiredMilk = 0;
+
+        if ($isMilkBasedProduction) {
+            // Original milk-based production flow
+            $milkProcessing = MilkProcesing::where('id', $productTracker->processed_id[0] ?? null)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$milkProcessing) {
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'Milk processing record not found.',
+                ], 404);
+            }
+
+            $milkTankId = $milkProcessing->milkTank_id;
+            $requiredMilk = $milkProcessing->rowMilk_qty;
         }
 
-        // Fetch product size record
+        // Fetch product size record (common for both flows)
         $productSize = ProductSize::where('id', $productTracker->product_size_id)
             ->lockForUpdate()
             ->first();
@@ -859,62 +871,60 @@ public function confirmProduct(Request $request)
             return response()->json([
                 'message' => 'Product size not found.',
             ], 404);
-        } 
+        }
 
-
-        // ✅ Update product size quantity by adding actual quantity
+        // ✅ Update product size quantity by adding actual quantity (common for both flows)
         $productSize->qty += $payload['actual_quantity'];
         $productSize->save();
 
-        if ($productSize->isTankStorage == 1) {
-    $SkimTank = MilkTank::where('id', $productSize->tank_id)->first();
+        // Handle tank storage calculation (only for milk-based production)
+        if ($isMilkBasedProduction && $productSize->isTankStorage == 1) {
+            $SkimTank = MilkTank::where('id', $productSize->tank_id)->first();
 
-    $Formula = ProductFormula::where('formula_name', 'calculate_skim_milk')
-        ->where('company_id', $companyId)
-        ->first();
+            $Formula = ProductFormula::where('formula_name', 'calculate_skim_milk')
+                ->where('company_id', $companyId)
+                ->first();
 
-    if ($Formula && $SkimTank) {
-        $executor = new MathExecutor();
+            if ($Formula && $SkimTank) {
+                $executor = new MathExecutor();
 
-        // Custom truncate function
-        $executor->addFunction('truncate', function ($val) {
-            return floor($val * 10) / 10;
-        });
+                // Custom truncate function
+                $executor->addFunction('truncate', function ($val) {
+                    return floor($val * 10) / 10;
+                });
 
-        // Prepare variables
-        $variables = [
-            'total_milk' => $productTracker->milkUsed,
-            'calculated_creame' => $payload['actual_quantity'],
-        ];
+                // Prepare variables
+                $variables = [
+                    'total_milk' => $productTracker->milkUsed,
+                    'calculated_creame' => $payload['actual_quantity'],
+                ];
 
-        // Assign variables to executor
-        foreach ($variables as $key => $value) {
-            $executor->setVar($key, $value);
+                // Assign variables to executor
+                foreach ($variables as $key => $value) {
+                    $executor->setVar($key, $value);
+                }
+
+                // Clean formula string
+                $formulaString = preg_replace('/[^\x20-\x7E]/', '', $Formula->formula);
+
+                // Optional: Wrap bracketed expressions in truncate()
+                $formulaString = preg_replace_callback('/\(([^()]+)\)/', function ($matches) {
+                    return 'truncate(' . $matches[1] . ')';
+                }, $formulaString);
+
+                // Execute formula
+                try {
+                    $calculatedValue = $executor->execute($formulaString);
+                    $SkimTank->quantity += $calculatedValue;
+                    $SkimTank->update();
+                } catch (\Exception $e) {
+                    // Handle evaluation error
+                    throw new \RuntimeException("Formula evaluation failed: " . $e->getMessage());
+                }
+            }
         }
 
-        // Clean formula string
-        $formulaString = preg_replace('/[^\x20-\x7E]/', '', $Formula->formula);
-
-        // Optional: Wrap bracketed expressions in truncate()
-        $formulaString = preg_replace_callback('/\(([^()]+)\)/', function ($matches) {
-            return 'truncate(' . $matches[1] . ')';
-        }, $formulaString);
-
-        // Execute formula
-        try {
-            $calculatedValue = $executor->execute($formulaString);
-             $SkimTank->quantity+= $calculatedValue;
-              $SkimTank->update();
-        } catch (\Exception $e) {
-            // Handle evaluation error
-            throw new \RuntimeException("Formula evaluation failed: " . $e->getMessage());
-        }
-
-        // You can now use $calculatedValue as needed
-    }
-}
-
-        // ✅ Update product tracker
+        // ✅ Update product tracker (common for both flows)
         $productTracker->update([
             'product_qty' => $payload['actual_quantity'],
             'current_qty' => $payload['actual_quantity'],
@@ -922,25 +932,36 @@ public function confirmProduct(Request $request)
             'updated_by'  => Auth::user()->id,
         ]);
 
-        // ✅ Create daily tally
-        DailyTally::create([
-            'company_id'         => $companyId,
-            'milk_tank_id'       => $milkProcessing->milkTank_id,
-            'tally_date'         => now()->format('Y-m-d'),
-            'product_type'       => 'factory',
-            'product_id'         => $productSize->id,
-            'product_name'       => $productSize->name,
-            'product_local_name' => $productSize->localName,
-            'quantity'           => $payload['actual_quantity'],
-            'unit'               => $productSize->unit,
-            'required_milk'      => $milkProcessing->rowMilk_qty,
-            'batch_no'           => $productTracker->batch_no,
-        ]);
+        // ✅ Create daily tally (only for milk-based production)
+        if ($isMilkBasedProduction) {
+            // Original milk-based daily tally
+            DailyTally::create([
+                'company_id'         => $companyId,
+                'milk_tank_id'       => $milkTankId,
+                'tally_date'         => now()->format('Y-m-d'),
+                'product_type'       => 'factory',
+                'product_id'         => $productSize->id,
+                'product_name'       => $productSize->name,
+                'product_local_name' => $productSize->localName,
+                'quantity'           => $payload['actual_quantity'],
+                'unit'               => $productSize->unit,
+                'required_milk'      => $requiredMilk,
+                'batch_no'           => $productTracker->batch_no,
+            ]);
+        }
+        // Note: No daily tally created for product-to-product transformation 
+        // as it doesn't involve milk processing
 
         DB::commit();
 
         return response()->json([
             'message' => 'Product confirmed successfully.',
+            'production_type' => $isMilkBasedProduction ? 'milk_based' : 'product_transformation',
+            'batch_name' => $productTracker->batch_no,
+            'product_name' => $productSize->name,
+            'product_local_name' => $productSize->localName,
+            'created_qty' => $payload['actual_quantity'],
+            'timestamp' => now()->format('d-m-Y'),
         ]);
     } catch (\Exception $e) {
         DB::rollBack();
@@ -951,7 +972,6 @@ public function confirmProduct(Request $request)
         ], 500);
     }
 }
-
 
 
 
@@ -1168,7 +1188,8 @@ foreach ($payload['values'] as $key => $value) {
             'milkTankNames'    => $milkTankNames,
             'batch_name'       => $batchName,
             'product_tracker'  => $prductTracker,
-            'message'          => 'Product created and quantities deducted successfully.'
+            'message'          => 'Product created and quantities deducted successfully.',
+            'status'           =>201
         ], 201);
     } catch (\Exception $e) {
         DB::rollBack();
@@ -1218,6 +1239,160 @@ function evaluateFormula(Request $request) {
             'error' => 'Formula evaluation failed',
             'message' => $e->getMessage()
         ], 400);
+    }
+}
+
+public function createProductFromProduct(Request $request)
+{
+    $payload = $request->validate([
+        'factoryProductId'        => ['required', 'integer'],
+        'factoryProductIdQty'     => ['required', 'numeric', 'min:0.01'],
+        'dependedProductId'       => ['required', 'integer'],
+        'dependedProductQty'      => ['required', 'numeric', 'min:0.01'],
+        'Ingradians'              => ['nullable', 'array'],
+        'Ingradians.*.id'         => ['required_with:Ingradians', 'integer'],
+        'Ingradians.*.qty'        => ['required_with:Ingradians', 'numeric', 'min:0.01'],
+    ]);
+
+    $userCompanyId = Auth::user()->company_id;
+
+    // Step 1: Validate Factory Product (the product being created)
+    $factoryProduct = ProductSize::where('id', $payload['factoryProductId'])
+        ->where('company_id', $userCompanyId)
+        ->lockForUpdate()
+        ->first();
+
+    if (!$factoryProduct) {
+        return response()->json(['message' => 'Invalid factoryProductId'], 422);
+    }
+
+    // Step 2: Validate Depended Product (the product being consumed)
+    $dependedProduct = ProductSize::where('id', $payload['dependedProductId'])
+        ->where('company_id', $userCompanyId)
+        ->lockForUpdate()
+        ->first();
+
+    if (!$dependedProduct) {
+        return response()->json(['message' => 'Invalid dependedProductId'], 422);
+    }
+
+    // Check if depended product has sufficient quantity
+    if ($payload['dependedProductQty'] > $dependedProduct->qty) {
+        return response()->json([
+            'message' => 'Insufficient quantity for depended product ID: ' . $payload['dependedProductId'],
+            'available' => $dependedProduct->qty,
+            'requested' => $payload['dependedProductQty']
+        ], 422);
+    }
+
+    // Step 3: Validate Raw Materials (Ingredients)
+    $rawMaterialsToDeduct = [];
+
+    if (!empty($payload['Ingradians'])) {
+        $rawMaterialIds = collect($payload['Ingradians'])->pluck('id')->toArray();
+
+        $rawMaterialsFromDB = RawMaterial::whereIn('id', $rawMaterialIds)
+            ->where('company_id', $userCompanyId)
+            ->lockForUpdate()
+            ->get()->keyBy('id');
+
+        foreach ($payload['Ingradians'] as $ingredient) {
+            $dbMaterial = $rawMaterialsFromDB[$ingredient['id']] ?? null;
+
+            if (!$dbMaterial) {
+                return response()->json([
+                    'message' => 'Invalid ingredient ID: ' . $ingredient['id']
+                ], 422);
+            }
+
+            if ($ingredient['qty'] > $dbMaterial->unit_qty) {
+                return response()->json([
+                    'message' => 'Insufficient ingredient quantity for ID: ' . $ingredient['id'],
+                    'available' => $dbMaterial->unit_qty,
+                    'requested' => $ingredient['qty']
+                ], 422);
+            }
+
+            $rawMaterialsToDeduct[] = [
+                'model' => $dbMaterial,
+                'deduct_qty' => $ingredient['qty']
+            ];
+        }
+    }
+
+    // Step 4: Generate Batch Name
+    $timestamp = Carbon::now()->format('d-m-Y-H-i-s');
+    $prefix = strtoupper(substr($factoryProduct->name, 0, 3));
+    $batchName = $prefix . '-' . $timestamp;
+
+    // Step 5: Perform Deduction Transaction
+    try {
+        DB::beginTransaction();
+
+        // Deduct depended product quantity
+        if (($dependedProduct->qty - $payload['dependedProductQty']) < 0) {
+            throw new \Exception("Depended product {$dependedProduct->id} cannot go negative.");
+        }
+
+        $dependedProduct->qty -= $payload['dependedProductQty'];
+        $dependedProduct->save();
+
+        // Deduct raw materials (ingredients)
+        foreach ($rawMaterialsToDeduct as $rmData) {
+            $rm = $rmData['model'];
+            $deductQty = $rmData['deduct_qty'];
+
+            if (($rm->unit_qty - $deductQty) < 0) {
+                throw new \Exception("Raw material {$rm->id} cannot go negative.");
+            }
+
+            $rm->unit_qty -= $deductQty;
+            $rm->save();
+        }
+
+        // Create ProductsTracker record
+        $productTracker = ProductsTracker::create([
+            'product_size_id'     => $factoryProduct->id,
+            'company_id'          => Auth::user()->company_id,
+            'processed_id'        => null, // Set to null as per requirement
+            'product_qty'         => null,
+            'predicted_qty'       => $payload['factoryProductIdQty'],
+            'current_qty'         => null,
+            'product_qty_used'    => $payload['dependedProductQty'],
+            'req_product_id'      => $payload['dependedProductId'],
+            'milkUsed'            => 0, // No milk used in this process
+            'batch_no'            => $batchName,
+            'misc'                => null,
+            'created_by'          => Auth::user()->id,
+            'updated_by'          => Auth::user()->id,
+        ]);
+
+        DB::commit();
+
+        return response()->json([
+            'factoryProductId'    => $payload['factoryProductId'],
+            'factoryProductIdQty' => $payload['factoryProductIdQty'],
+            'dependedProductId'   => $payload['dependedProductId'],
+            'dependedProductQty'  => $payload['dependedProductQty'],
+            'Ingradians'          => $payload['Ingradians'] ?? [],
+            'batch_name'          => $batchName,
+            'product_tracker'     => $productTracker,
+            'depended_product_info' => [
+                'id' => $dependedProduct->id,
+                'name' => $dependedProduct->name,
+                'remaining_quantity' => $dependedProduct->qty
+            ],
+            'message'             => 'Product created from product and quantities deducted successfully.',
+            'status'              => 201
+        ], 201);
+        
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        return response()->json([
+            'message' => 'Transaction failed.',
+            'error'   => $e->getMessage()
+        ], 500);
     }
 }
 
