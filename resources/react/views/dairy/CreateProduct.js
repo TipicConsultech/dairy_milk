@@ -44,6 +44,7 @@ const CreateFactoryProduct = () => {
   
     return `${day}/${month}/${year} ${formattedHours}:${minutes}:${seconds} ${ampm}`;
   };
+    const[showAlertSingleProduct,setShowAlertSingleProduct ]=useState(false);
   
   const [milkType, setMilkType] = useState('')
   const [milkAmount, setMilkAmount] = useState('')
@@ -426,6 +427,17 @@ const CreateFactoryProduct = () => {
     setCreatedSummary(null); // Clear it on load or refresh
   }, []);
 
+   useEffect(() => {
+       
+         if (showAlertSingleProduct) {
+          const timer = setTimeout(() => {
+          
+            setShowAlertSingleProduct(false);
+          }, 5000);
+          return () => clearTimeout(timer);
+        }
+      }, [showAlertSingleProduct]);
+
   // Custom dropdown styles
   const dropdownIconStyle = {
     position: 'absolute',
@@ -466,22 +478,24 @@ console.log('required product',newReqProduct);
   const handleSubmit = async () => {
    let data = {
   factoryProductId: newProduct.id,
-  product_quantity: calculatedResult.result,
-  values: milkFormattedData,
-  rawMaterials: newIngredient?.id ? [newIngredient] : null
+  factoryProductIdQty:calculatedResult,
+  dependedProductId: newReqProduct.id,
+  dependedProductQty:newReqProduct.quantity
 };
     try{
-     const resp=await post('/api/createProduct',data) ;
+     const resp=await post('/api/createProductFromProduct',data) ;
       if (resp.status === 201) {
         // Clear form and reset state
         setMilkEntries([]);
         setProducts([]);
         setNewProduct({ name: '', quantity: '', unit: '', liters: null });
+        setNewReqProduct({ name: '', quantity: '', unit: '', liters: null });
         setPrductsData([]);
         setCalculatedResult(null);  
         setNewIngredient({id:'', name: '', quantity: '', available_qty: '', unit: '' });
         setShowAlertSingleProduct(true);
         // setRawMaterialData([]);
+        setShowAlertSingleProduct(true);
     }
     }
     catch(e){
@@ -543,6 +557,13 @@ console.log('required product',newReqProduct);
 
           <CCardBody>
             <CRow className="g-2 align-items-center mb-3">
+
+              {showAlertSingleProduct && (
+                        <CAlert color="success" >
+                          <div>✅{t('LABELS.singleProductUpdateSuccess')}</div>  
+                        </CAlert>
+              
+                      )}   
               <CCol md={4}>
                 <div className="position-relative" ref={requiredProductsDropdownRef} style={inputContainerStyle}>
                   <CFormInput

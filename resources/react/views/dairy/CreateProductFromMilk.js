@@ -107,6 +107,17 @@ const milkFormattedData = milkEntries.reduce((acc, entry, index) => {
     };
   }, []);
 
+   useEffect(() => {
+     
+       if (showAlertSingleProduct) {
+        const timer = setTimeout(() => {
+        
+          setShowAlertSingleProduct(false);
+        }, 5000);
+        return () => clearTimeout(timer);
+      }
+    }, [showAlertSingleProduct]);
+
   useEffect(() => {
     fetchTankData()
     fetchRawMaterials()
