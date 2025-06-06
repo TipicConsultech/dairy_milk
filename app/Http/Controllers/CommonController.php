@@ -22,89 +22,159 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 
 
-
-
-
 class CommonController extends Controller
 {
+   public function newRetailProduct(Request $request)
+{
+    $batchId = $request->batch;
+    $productSizes = $request->productSizes;
+    $rawMaterials = $request->rawMaterials;
+    $factoryProductId = $request->factoryProductId;
+
+    $user = auth()->user();
+    if (!$user) {
+        return response()->json(['error' => 'Authentication required'], 401);
+    }
+
+    DB::beginTransaction();
+
+    try {
+        // === Step 1: Get batch_no from products_tracker using batch ID ===
+        $productTracker = DB::table('products_tracker')->where('id', $batchId)->first();
+        if (!$productTracker) {
+            throw new \Exception("Product tracker not found for batch ID: {$batchId}");
+        }
+
+        $batchNo = $productTracker->batch_no;
+
+        // === Step 2: Get milk_tank_id from milk_processing using batch_no ===
+        $milkProcessing = DB::table('milk_processing')->where('batch_no', $batchNo)->first();
+        if (!$milkProcessing) {
+            throw new \Exception("Milk processing not found for batch_no: {$batchNo}");
+        }
+
+        $milkTankId = $milkProcessing->milkTank_id;
+
+        // === Step 3: Deduct raw materials ===
+        foreach ($rawMaterials as $material) {
+            $materialRecord = RawMaterial::find($material['id']);
+            if (!$materialRecord) {
+                throw new \Exception("Raw material with ID {$material['id']} not found");
+            }
+
+            $newQty = $materialRecord->unit_qty - $material['quantity'];
+            if ($newQty < 0) {
+                throw new \Exception("Not enough quantity of {$material['name']} (ID: {$material['id']})");
+            }
+
+            $materialRecord->unit_qty = $newQty;
+            $materialRecord->save();
+        }
+
+        // === Step 4: Calculate real quantities from productSizes ===
+        $totalRealQty = 0;
+        $realQuantities = [];
+
+        foreach ($productSizes as $product) {
+            $productSize = ProductSize::find($product['id']);
+            if (!$productSize) {
+                throw new \Exception("Product size with ID {$product['id']} not found");
+            }
+
+            $unitMultiplier = $productSize->unit_multiplier ?? 1;
+            $realQty = $unitMultiplier * $product['qty'];
+            $totalRealQty += $realQty;
+
+            $realQuantities[] = [
+                'id' => $product['id'],
+                'realQty' => $realQty,
+                'requestedQty' => $product['qty'],
+                'productName' => $productSize->name,
+                'localName' => $productSize->localName ?? $productSize->local_name ?? null,
+                'unit' => $productSize->unit ?? 'pcs'
+            ];
+        }
+
+        // === Step 5: Deduct from factory product ===
+        $factoryProduct = ProductSize::find($factoryProductId);
+        if (!$factoryProduct) {
+            throw new \Exception("Factory product with ID {$factoryProductId} not found");
+        }
+
+        $newFactoryQty = $factoryProduct->qty - $totalRealQty;
+        $factoryProduct->qty = $newFactoryQty;
+        $factoryProduct->save();
+
+        // === Step 6: Add qty to productSizes and log in daily_tallies ===
+        $updatedProducts = [];
+        $retailBatchNo = 'retail-' . now()->format('Y-m-d-H-i-s');
+
+        foreach ($realQuantities as $item) {
+            $productSize = ProductSize::find($item['id']);
+            if ($productSize) {
+                $previousQty = $productSize->qty;
+                $productSize->qty = $previousQty + $item['requestedQty'];
+                $productSize->save();
+
+                $updatedProducts[] = [
+                    'product_name' => $item['productName'],
+                    'created_quantity' => $item['requestedQty'],
+                    'previous_quantity' => $previousQty,
+                    'updated_quantity' => $productSize->qty,
+                ];
+
+                DailyTally::create([
+                    'company_id'         => $user->company_id,
+                    'milk_tank_id'       => $milkTankId,
+                    'tally_date'         => now()->toDateString(),
+                    'product_type'       => 'retail',
+                    'product_id'         => $productSize->id,
+                    'product_name'       => $item['productName'],
+                    'product_local_name' => $item['localName'],
+                    'quantity'           => $item['requestedQty'],
+                    'unit'               => $item['unit'],
+                    'required_milk'      => 0 ,
+                    'batch_no'           => $retailBatchNo,
+                    'created_at'         => now(),
+                    'updated_at'         => now(),
+                ]);
+            }
+        }
+
+        DB::commit();
+
+        // 7-5-25 for product qty deduct
+        // Deduct used quantity from products_tracker and factory ProductSize ===
+$trackerRecord = ProductsTracker::find($batchId);
+if ($trackerRecord) {
+    $newTrackerQty = $trackerRecord->product_qty - $totalRealQty;
+    if ($newTrackerQty < 0) {
+        throw new \Exception("Not enough product quantity in tracker to complete packaging. Available: {$trackerRecord->product_qty}, Required: {$totalRealQty}");
+    }
+
+    $trackerRecord->product_qty = $newTrackerQty;
+    $trackerRecord->save();
+}
+
+        return response()->json([
+            'success' => true,
+            'deducted_real_quantity' => $totalRealQty,
+            'message' => $updatedProducts,
+            'batch_no' => $retailBatchNo
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error("Error in newRetailProduct: " . $e->getMessage());
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
 
 
 
     public function getCombinedProducts()
     {
-        // $retail = ProductSize::select(
-        //     'id',
-        //     'name',
-        //     'localName as local_name',
-        //     'unit',
-        //     'qty as quantity',
-        //     'dPrice as price',
-        //     'show as is_visible',
-        //     'product_type'
-        // )
-        // ->get()
-        // ->map(function ($item) {
-        //     if($item->product_type==2){
-        //     $item->source_type = 'retail';
-        //     }
-        //     else if($item->product_type==1){
-        //     $item->source_type = 'factory';
-        //     }
-        //     else if($item->product_type==0){
-        //     $item->source_type = 'delivery';  
-        //     }
-           
-        //     // $item->is_visible = true;
-        //     return $item;
-        // });
-    
-        // $factory = FactoryProduct::select(
-        //     'id',
-        //     'name',
-        //     'local_name',
-        //     'unit',
-        //     'quantity',
-        //     'price',
-        //     'is_visible'
-        // )
-        // ->get()
-        // ->map(function ($item) {
-        //     $item->source_type = 'factory';
-        //     return $item;
-        // });
-
-        // $retailArray = $retail->map(function ($item) {
-        //     return [
-        //         'id' => $item->id,
-        //         'name' => $item->name,
-        //         'local_name' => $item->local_name,
-        //         'unit' => $item->unit,
-        //         'quantity' => $item->quantity,
-        //         'price' => $item->price,
-        //         'is_visible' => (bool) $item->is_visible,
-        //         'source_type' => $item->source_type,
-        //     ];
-        // });
-        
-        // $factoryArray = $factory->map(function ($item) {
-        //     return [
-        //         'id' => $item->id,
-        //         'name' => $item->name,
-        //         'local_name' => $item->local_name,
-        //         'unit' => $item->unit,
-        //         'quantity' => $item->quantity,
-        //         'price' => $item->price,
-        //         'is_visible' => $item->is_visible,
-        //         'source_type' => 'factory',
-        //     ];
-        // });
-    
-        // $combined = $retailArray->merge($factoryArray)->values();
-    
-        // return response()->json([
-        //     'data' => $retailArray
-        // ]);
-            // Ensure the user is authenticated
+       
     $user = auth()->user();
     if (!$user) {
         return response()->json(['error' => 'Unauthorized'], 401);
@@ -877,6 +947,7 @@ public function confirmProduct(Request $request)
         $productSize->qty += $payload['actual_quantity'];
         $productSize->save();
 
+        $SkimTank = null;
         // Handle tank storage calculation (only for milk-based production)
         if ($isMilkBasedProduction && $productSize->isTankStorage == 1) {
             $SkimTank = MilkTank::where('id', $productSize->tank_id)->first();
@@ -953,16 +1024,19 @@ public function confirmProduct(Request $request)
         // as it doesn't involve milk processing
 
         DB::commit();
+return response()->json(array_merge([
+    'status'=>201,
+    'message' => 'Product Created successfully.',
+    'production_type' => $isMilkBasedProduction ? 'milk_based' : 'product_transformation',
+    'unit'=>$productSize->unit,
+    'batch_name' => $productTracker->batch_no,
+    'product_name' => $productSize->name,
+    'product_local_name' => $productSize->localName,
+    'created_qty' => $payload['actual_quantity'],
+    'predicted_qty'=>$productTracker->predicted_qty,
+    'timestamp' => now()->format('d-m-Y'),
+], ($SkimTank) ? ['skim_milk' => $calculatedValue] : []));
 
-        return response()->json([
-            'message' => 'Product confirmed successfully.',
-            'production_type' => $isMilkBasedProduction ? 'milk_based' : 'product_transformation',
-            'batch_name' => $productTracker->batch_no,
-            'product_name' => $productSize->name,
-            'product_local_name' => $productSize->localName,
-            'created_qty' => $payload['actual_quantity'],
-            'timestamp' => now()->format('d-m-Y'),
-        ]);
     } catch (\Exception $e) {
         DB::rollBack();
 

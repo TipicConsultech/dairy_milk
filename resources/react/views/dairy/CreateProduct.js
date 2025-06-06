@@ -15,6 +15,10 @@ import {
   CTabList,
   CTabs,
   CTab,
+  CNavLink,
+  CNavItem,
+  CNav,
+  CTabPane,
 } from '@coreui/react'
 import { getAPICall, post } from '../../util/api'
 import CIcon from '@coreui/icons-react'
@@ -46,6 +50,7 @@ const CreateFactoryProduct = () => {
   };
     const[showAlertSingleProduct,setShowAlertSingleProduct ]=useState(false);
   
+  const [activeKey, setActiveKey] = useState('product_from_milk')
   const [milkType, setMilkType] = useState('')
   const [milkAmount, setMilkAmount] = useState('')
   const [availableQty, setAvailableQty] = useState(null)
@@ -352,7 +357,9 @@ const CreateFactoryProduct = () => {
   const removeProduct = idx => {
     setProducts(prev => prev.filter((_, i) => i !== idx));
   };
-
+ 
+  console.log(activeKey);
+  
   // const handleSubmit = async () => {
   //   if (!milkType  || parseFloat(milkAmount) > availableQty) {
   //       alert(t('MSG.enterValidQuantity'));
@@ -536,19 +543,52 @@ console.log('required product',newReqProduct);
            <CButton   onClick={() => setProductType("product")}><b>Create Product Form Product</b></CButton>
         </div>
       </CCardHeader> */}
-      <CTabs defaultActiveItemKey="product_from_milk">
+
+       <CNav variant="tabs">
+        <CNavItem>
+          <CNavLink
+            active={activeKey === 'product_from_milk'}
+            onClick={() => setActiveKey('product_from_milk')}
+          >
+            Product From Milk
+          </CNavLink>
+        </CNavItem>
+        <CNavItem>
+          <CNavLink
+            active={activeKey === 'product_from_product'}
+            onClick={() => setActiveKey('product_from_product')}
+          >
+            Product From Product
+          </CNavLink>
+        </CNavItem>
+        <CNavItem>
+          <CNavLink
+            active={activeKey === 'confirm_product'}
+            onClick={() => setActiveKey('confirm_product')}
+          >
+            Confirm Product
+          </CNavLink>
+        </CNavItem>
+      </CNav>
+
+      {/* <CTabs activeItemKey={activeKey} onActiveItemChange={(item) => console.log(item.itemKey)} >
       <CTabList variant="tabs">
         <CTab itemKey="product_from_milk">Product From Milk</CTab>
         <CTab itemKey="product_from_product">Product From Product</CTab>
         <CTab itemKey="confirm_product">Confirm Product</CTab>
 
         
-      </CTabList>
+      </CTabList> */}
       <CTabContent>
-      <CTabPanel className="p-3" itemKey="product_from_product">
-
+     <CTabPane
+          visible={activeKey === 'product_from_product'}
+          key={`tab-product-${activeKey}`}
+          className="p-3"
+        >
+          {activeKey === 'product_from_product' && (
+<>
       <CCardBody>
-      <CCard className="mb-4 mt-3">
+      <CCard className="mb-4">
           <CCardHeader style={{ backgroundColor: '#f8d7da'}}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h5 className="mb-0" >{t('LABELS.products')}</h5>
@@ -769,46 +809,6 @@ console.log('required product',newReqProduct);
                     </div>
                   )}
 
-
-                  
-
-                  {/* {isDropdownOpen && (
-                    <div
-                      className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm z-index-dropdown"
-                      style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
-                    >
-                      {ingredientOptions
-                        .filter(item => item.toLowerCase().includes(newIngredient.name.toLowerCase()))
-                        .map((item, index) => (
-                          <div
-                            key={index}
-                            className="p-2 cursor-pointer hover-bg-light"
-                            style={{cursor: 'pointer'}}
-                            onClick={() => {
-                              // Simulate the original handleIngredientChange logic
-                              const selectedItem = rawMaterialData.find((material) => material.name === item);
-                              
-
-                              if (selectedItem) {
-                                setNewIngredient({
-                                  ...newIngredient,
-                                  id: selectedItem.id,
-                                  name: item,
-      
-                                  available_qty: selectedItem.available_qty,
-                                  unit: selectedItem.unit
-                                });
-                                setRawMaterialavailableQty(selectedItem.available_qty);
-                              }
-                              setIsDropdownOpen(false);
-                              setIngError('');
-                            }}
-                          >
-                            {item}
-                          </div>
-                        ))}
-                    </div>
-                  )} */}
                   {isDropdownOpen && (
   <div
     className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm z-index-dropdown"
@@ -817,7 +817,7 @@ console.log('required product',newReqProduct);
     {rawMaterialData
       .filter(material => {
         const name = lng === 'en' ? material.name : decodeUnicode(material.local_name);
-        // const tankName = lng === 'en' ? tank.name : decodeUnicode(tank.localname);
+      
         return name.toLowerCase().includes((newIngredient.name || '').toLowerCase());
       })
       .map((material, index) => {
@@ -943,7 +943,7 @@ console.log('required product',newReqProduct);
         <CCard className="mb-4 mt-3">
           <CCardHeader style={{ backgroundColor: '#f8d7da'}}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h5 className="mb-0" >{t('LABELS.products')}</h5>
+              <h5 className="mb-0" >{t('LABELS.product_to_be_created')}</h5>
             </div>
           </CCardHeader>
 
@@ -1069,13 +1069,12 @@ console.log('required product',newReqProduct);
 
               
 
-              {/* Desktop View: unit and + button in separate columns */}
-              <CCol md={3} className="d-none d-md-block">
+  {/* Desktop View: unit and + button in separate columns */}
+  <CCol md={3} className="d-none d-md-block">
   <CFormInput
     value={
       calculatedResult ? 'Calculated Qty : '+ calculatedResult
         : 'Calculating ..'
-
     }
    
     disabled
@@ -1095,25 +1094,19 @@ console.log('required product',newReqProduct);
 
               {/* Mobile View: unit and + button in the same row */}
               <CCol xs={12} className="d-flex d-md-none justify-content-between align-items-center gap-3">
-                <CFormInput
+                
+  <CFormInput
     value={
-      newProduct?.liters
-        ? newProduct.liters + ' ltr'
-        : ''
+      calculatedResult ? 'Calculated Qty : '+ calculatedResult
+        : 'Calculating ..'
+
     }
-    placeholder={t('LABELS.milk_required')}
+   
     disabled
   />
-                <CButton
-                  color="success"
-                  variant="outline"
-                  onClick={addProduct}
-                  disabled={!!prodError || !newProduct.name || !newProduct.quantity}
-                  className="w-auto"
-                >
-                  <CIcon icon={cilPlus} />
-                </CButton>
-              </CCol>
+</CCol>
+             
+              
             </CRow>
 
             {products.map((p, idx) => (
@@ -1170,26 +1163,32 @@ console.log('required product',newReqProduct);
   </CAlert>
 )}
       </CCardBody>
-</CTabPanel>
+</>)}
+ </CTabPane>
 
+  <CTabPane
+          visible={activeKey === 'product_from_milk'}
+          key={`tab-milk-${activeKey}`}
+          className="p-3"
+        >
+          {activeKey === 'product_from_milk' && (
+            <MilkForm/>
+          )}
+  </CTabPane>
+
+ <CTabPane
+          visible={activeKey === 'confirm_product'}
+          key={`tab-confirm-${activeKey}`}
+          className="p-3"
+        >
+          {activeKey === 'confirm_product' && (
+           <ConfirmProduct/>
+          )}
+        </CTabPane>
  
- <CTabPanel className="p-3" itemKey="product_from_milk">
- 
-  <MilkForm/>
-
-
-</CTabPanel>
-
- <CTabPanel className="p-3" itemKey="confirm_product">
- 
-
-  <ConfirmProduct/>
-
-
-</CTabPanel>
  </CTabContent>
 
-</CTabs>
+
   </CCard>
   )
 }

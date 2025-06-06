@@ -10,6 +10,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Models\ProductFormula;
+use NXP\Exception\MathExecutorException;
+use NXP\MathExecutor;
+
+
 
 class MilkTankController extends Controller
 {
@@ -475,6 +480,61 @@ class MilkTankController extends Controller
     //         ], 404);
     //     }
     // }
+public function evaluateFormula($formulaName, $companyId, $values) {
+    try {
+        $executor = new MathExecutor();
+
+        // Custom truncate function: only 1 digit after decimal (no rounding)
+        $executor->addFunction('truncate', function ($val) {
+            return floor($val * 10) / 10;
+        });
+
+        // Set variables
+        foreach ($values as $key => $value) {
+            $executor->setVar($key, $value);
+        }
+        
+        $formula = ProductFormula::where('company_id', $companyId)
+            ->where('formula_name', $formulaName)
+            ->first();
+
+        if (!$formula) {
+            throw new \Exception("Formula '{$formulaName}' not found for company {$companyId}");
+        }
+
+        $formulaString = preg_replace('/[^\x20-\x7E]/', '', $formula->formula);
+        
+        \Log::info('Formula Evaluation', [
+            'name' => $formulaName,
+            'original' => $formula->formula,
+            'cleaned' => $formulaString,
+            'values' => $values
+        ]);
+
+        // REMOVE or fix this problematic regex - it's likely causing issues
+        // $formulaString = preg_replace_callback('/\(([^()]+)\)/', function ($matches) {
+        //     return 'truncate(' . $matches[1] . ')';
+        // }, $formulaString);
+
+        $result = $executor->execute($formulaString);
+        
+        \Log::info('Formula Result', [
+            'name' => $formulaName,
+            'result' => $result
+        ]);
+
+        return $result;
+        
+    } catch (\Exception $e) {
+        \Log::error('Formula evaluation failed', [
+            'formula_name' => $formulaName,
+            'company_id' => $companyId,
+            'values' => $values,
+            'error' => $e->getMessage()
+        ]);
+        throw $e;
+    }
+}
 
 public function laboratoryUpdate(Request $request, $id): JsonResponse
 {
@@ -524,13 +584,7 @@ public function laboratoryUpdate(Request $request, $id): JsonResponse
         $addedQuantity = $request->added_quantity;
         $totalQuantity = $currentQuantity + $addedQuantity;
 
-
-       
-        $weightavg_fat=($milkTank->avg_fat*$currentQuantity) +($milkTank->avg_fat*qty)   ;
-
-
-        // Check capacity
-        if ($totalQuantity > $milkTank->capacity) {
+         if ($totalQuantity > $milkTank->capacity) {
             return response()->json([
                 'success' => false,
                 'message' => 'Added quantity exceeds tank capacity',
@@ -542,13 +596,36 @@ public function laboratoryUpdate(Request $request, $id): JsonResponse
             ], 422);
         }
 
+
+       
+        $weightavg_fat = floor((($milkTank->avg_fat * $currentQuantity) + ($request->avg_fat * $addedQuantity)) / $totalQuantity * 10) / 10;
+        $weightavg_degree = floor((($milkTank->avg_degree * $currentQuantity) + ($request->avg_degree * $addedQuantity)) / $totalQuantity * 10) / 10;
+        $weightavg_rate = floor((($milkTank->avg_rate * $currentQuantity) + ($request->avg_rate * $addedQuantity)) / $totalQuantity * 10) / 10;
+       
+        $valuesA = [
+        'avg_fat' => $weightavg_fat,
+        'avg_lacto' => $weightavg_degree
+         ];
+        
+        $calculated_snf=$this->evaluateFormula('calculated_snf',$companyId,$valuesA);
+        $snf=floor($calculated_snf*10)/10;
+        $valuesB = [
+        'avg_fat' => $weightavg_fat,
+        'calculated_snf' => $snf
+         ];
+        $calcuated_ts=$this->evaluateFormula('calculated_ts',$companyId,$valuesB);
+        $ts=floor( $calcuated_ts*10)/10;
+
+
         // Update milk tank with new values
         $milkTank->quantity = $totalQuantity;
-        $milkTank->avg_degree = $request->avg_degree;
+        $milkTank->avg_degree = $weightavg_degree;
         $milkTank->number = $milkTank->number;
-        $milkTank->avg_fat = $request->avg_fat;
-        $milkTank->avg_rate = $request->avg_rate;
-        $milkTank->total_amount = $addedQuantity * $request->avg_rate;
+        $milkTank->avg_fat = $weightavg_fat;
+        $milkTank->avg_rate = $weightavg_rate;
+        $milkTank->snf = $snf;
+        $milkTank->ts = $ts;
+        $milkTank->total_amount = $totalQuantity* $weightavg_rate;
         $milkTank->updated_by = Auth::id();
         $milkTank->update();
 
@@ -565,19 +642,22 @@ public function laboratoryUpdate(Request $request, $id): JsonResponse
             'updated_by' => Auth::id(),
         ]);
 
-     Expense::create([
+
+ Expense::create([
     'name' => $milk_type,
     'expense_date' => now(), // or use Carbon::now() if needed
     'price' => round($request->avg_rate, 2),
     'qty' => round($addedQuantity, 2),
-    'total_price' => round($addedQuantity * $request->avg_rate, 2),
-    'expense_id' => 16, // If you have a specific ID for "Milk" expense type, set it here
+    'total_price' => floor(($addedQuantity * $request->avg_rate)*10)/10,
+    'expense_id' => 16, 
     'show' => true,
     'company_id' => $companyId,
     'created_by' => Auth::id(),
     'updated_by' => Auth::id(),
     'desc' => null,
 ]);
+
+
         return response()->json([
             'success' => true,
             'message' => 'Laboratory update successful',

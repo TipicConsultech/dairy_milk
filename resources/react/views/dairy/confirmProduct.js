@@ -106,14 +106,14 @@ function ConfirmProduct() {
       const timer = setTimeout(() => {
         setShowAlert(false);
         setShowAlertSingleProduct(false);
-      }, 15000);
+      }, 60000);
       return () => clearTimeout(timer);
     }
      if (showAlertSingleProduct) {
       const timer = setTimeout(() => {
       
         setShowAlertSingleProduct(false);
-      }, 15000);
+      }, 60000);
       return () => clearTimeout(timer);
     }
   }, [showAlert,showAlertSingleProduct]);
@@ -168,7 +168,7 @@ function ConfirmProduct() {
         setMessage(null);
 
       }
-      else if(resp?.updated || resp?.message === "Product confirmed successfully."){
+      else if(resp?.updated || resp?.status === 201){
         setShowAlertSingleProduct(true);
         setMessage(resp);
         // Clear only the specific item's quantity
@@ -315,13 +315,17 @@ function ConfirmProduct() {
     onClick={() => setShowAlertSingleProduct(false)}
     style={{ cursor: 'pointer' }}
   >
-    ✅ {message.message} <br />
-    🧪 <strong>Product:</strong> {message.product_name} ({message.product_local_name}) <br />
-    📦 <strong>Batch:</strong> {message.batch_name} <br />
-    📊 <strong>Quantity:</strong> {message.created_qty} <br />
-    🕒 <strong>Date:</strong> {message.timestamp}
+    ✅ – 🧪 <strong>{message.product_name}</strong> ({message.product_local_name}) Created  Successfully – 📦 <strong>Batch No :</strong>{message.batch_name} – 🕒 <strong>Date</strong> {message.timestamp}
+    <br />
+    📊 <strong>Output:</strong> Actually <strong>{message.created_qty}&nbsp; {message.unit}</strong> created vs Predicted <strong>{Number(message.predicted_qty).toFixed(2)} &nbsp; {message.unit}</strong>
+    {message?.skim_milk && (
+      <>
+        <br />🥛 <strong>Skim Milk:</strong> {message.skim_milk}  liter Created
+      </>
+    )}
   </div>
 )}
+
       {failAlert && (
         <CAlert color="warning" onDismiss={() => setFailAlert(false)} className="d-flex align-items-center mb-2">
           <CIcon icon={cilWarning} className="flex-shrink-0 me-2" width={24} height={24} />
@@ -329,14 +333,14 @@ function ConfirmProduct() {
         </CAlert>
       )}
 
-      {failedItems.map((item, index) => (
+      {/* {failedItems.map((item, index) => (
         <CAlert key={index} color="warning" className="d-flex align-items-center mb-2">
           <CIcon icon={cilWarning} className="flex-shrink-0 me-2" width={24} height={24} />
           <div>
             Looks like you're trying to add {item.quantity} to <strong>{item.name}</strong>, but only <strong>{item.capacity - item.current_quantity}</strong> more can fit (limit <strong>{item.capacity}</strong>).
           </div>
         </CAlert>
-      ))}
+      ))} */}
 
       <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
         <table className="table table-hover table-bordered align-middle">
@@ -352,7 +356,7 @@ function ConfirmProduct() {
             {tableData.map((item) => (
               <tr key={item.id}>
                 <td>{item.batch_no}</td>
-                <td>{item.predicted_qty}</td>
+                <td>{Number(item.predicted_qty).toFixed(2)}</td>
                 <td>
                   <input
                     type="number"
