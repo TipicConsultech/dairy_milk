@@ -18,7 +18,7 @@ import {
   CSpinner
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilArrowThickToBottom, cilArrowThickToTop, cilSettings, cilWarning, cilPlus, cilX } from '@coreui/icons';
+import { cilArrowThickToBottom, cilArrowThickToTop, cilSettings, cilWarning, cilPlus, cilX, cilCheckCircle } from '@coreui/icons';
 import { getUserData } from '../../util/session';
 import { useTranslation } from 'react-i18next';
 
@@ -294,6 +294,19 @@ function ConfirmProduct() {
       setSubmitting(false);
     }
   };
+
+  // Empty state component
+  const EmptyState = () => (
+    <div className="text-center py-5">
+      <div className="mb-4">
+        <CIcon icon={cilCheckCircle} size="4xl" className="text-success opacity-50" />
+      </div>
+      <h4 className="text-muted mb-3">No Products to Confirm</h4>
+      <p className="text-muted mb-0">
+        All products have been confirmed! New batches will appear here when they need confirmation.
+      </p>
+    </div>
+  );
     
   return (
     <div className="p-0">
@@ -333,54 +346,112 @@ function ConfirmProduct() {
         </CAlert>
       )}
 
-      {/* {failedItems.map((item, index) => (
-        <CAlert key={index} color="warning" className="d-flex align-items-center mb-2">
-          <CIcon icon={cilWarning} className="flex-shrink-0 me-2" width={24} height={24} />
-          <div>
-            Looks like you're trying to add {item.quantity} to <strong>{item.name}</strong>, but only <strong>{item.capacity - item.current_quantity}</strong> more can fit (limit <strong>{item.capacity}</strong>).
+      {/* Check if there's no data and show empty state */}
+      {tableData.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <>
+          {/* Desktop Table View */}
+          <div className="d-none d-md-block" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+            <table className="table table-hover table-bordered align-middle">
+              <thead className="table-light " style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#f8f9fa' }}>
+                <tr>
+                  <th>Batch name</th>
+                  <th>Predicted Qty</th>
+                  <th>Actual Qty</th>
+                  <th style={{ width: '100px' }}>{t('LABELS.actions')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tableData.map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.batch_no}</td>
+                    <td>{Number(item.predicted_qty).toFixed(2)}</td>
+                    <td>
+                      <input
+                        type="number"
+                        min="1"
+                        className="form-control"
+                        value={quantities[item.id] || ''}
+                        onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                        placeholder={t('LABELS.qty')}
+                      />
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-outline-success btn-sm w-100"
+                        onClick={() => handleAddClick(item)}
+                        disabled={!quantities[item.id] || quantities[item.id] <= 0}
+                      >
+                        Submit
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </CAlert>
-      ))} */}
 
-      <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-        <table className="table table-hover table-bordered align-middle">
-          <thead className="table-light " style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#f8f9fa' }}>
-            <tr>
-              <th>Batch name</th>
-              <th>Predicted Qty</th>
-              <th>Actual Qty</th>
-              <th style={{ width: '100px' }}>{t('LABELS.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tableData.map((item) => (
-              <tr key={item.id}>
-                <td>{item.batch_no}</td>
-                <td>{Number(item.predicted_qty).toFixed(2)}</td>
-                <td>
-                  <input
-                    type="number"
-                    min="1"
-                    className="form-control"
-                    value={quantities[item.id] || ''}
-                    onChange={(e) => handleQuantityChange(item.id, e.target.value)}
-                    placeholder={t('LABELS.qty')}
-                  />
-                </td>
-                <td>
-                  <button
-                    className="btn btn-outline-success btn-sm w-100"
-                    onClick={() => handleAddClick(item)}
-                    disabled={!quantities[item.id] || quantities[item.id] <= 0}
-                  >
-                    Submit
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          {/* Mobile Card View */}
+          <div className="d-md-none">
+            <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+              {tableData.map((item) => (
+                <div key={item.id} className="card mb-3 shadow-sm">
+                  <div className="card-body p-3">
+                    <div className="row">
+                      {/* Batch Info */}
+                      <div className="col-12 mb-3">
+                        <h6 className="card-title mb-1 text-primary">📦 {item.batch_no}</h6>
+                        <small className="text-muted">
+                          <strong>Predicted:</strong> {Number(item.predicted_qty).toFixed(2)}
+                        </small>
+                      </div>
+                      
+                      {/* Actual Quantity Input */}
+                      <div className="col-12 mb-3">
+                        <label className="form-label fw-bold text-success mb-2">
+                          ✏️ Enter Actual Quantity
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          className="form-control form-control-lg"
+                          value={quantities[item.id] || ''}
+                          onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                          placeholder="Enter actual quantity..."
+                          style={{ 
+                            fontSize: '16px',
+                            padding: '12px 16px',
+                            borderRadius: '8px',
+                            border: '2px solid #e9ecef'
+                          }}
+                        />
+                      </div>
+                      
+                      {/* Submit Button */}
+                      <div className="col-12">
+                        <button
+                          className="btn btn-success w-100 py-2 fw-bold"
+                          onClick={() => handleAddClick(item)}
+                          disabled={!quantities[item.id] || quantities[item.id] <= 0}
+                          style={{ 
+                            fontSize: '16px',
+                            borderRadius: '8px',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                          }}
+                        >
+                          <CIcon icon={cilCheckCircle} className="me-2" />
+                          Submit Confirmation
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Add Product Modal */}
       <CModal 
@@ -528,6 +599,24 @@ function ConfirmProduct() {
         .table-container {
           -ms-overflow-style: none;  /* IE and Edge */
           scrollbar-width: none;  /* Firefox */
+        }
+
+        /* Mobile input focus styles */
+        @media (max-width: 768px) {
+          .form-control:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+          }
+          
+          .card {
+            border: 1px solid #e9ecef;
+            transition: all 0.2s ease;
+          }
+          
+          .card:hover {
+            border-color: #28a745;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          }
         }
       `}</style>
     </div>
