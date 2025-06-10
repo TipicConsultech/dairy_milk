@@ -1608,6 +1608,8 @@ const downloadCSV = (data, columns, filename) => {
 //   }
 // }
 //   };
+
+
 const fetchReportData = async () => {
   try {
     let date = {};
@@ -1726,7 +1728,8 @@ const fetchReportData = async () => {
           Data: calculatePnL(rawExpenseData, rawSalesData),
           totalSales: Math.round(salesResp.summary.profitLoss.totalSales),
           totalExpenses: Math.round(salesResp.summary.profitLoss.totalExpenses),
-          totalProfitOrLoss: Math.round(salesResp.summary.profitLoss.totalProfitLoss),
+          // totalProfitOrLoss: Math.round(salesResp.summary.profitLoss.totalSales-expenseData.totalExpense),
+         totalProfitOrLoss: totalPandL(rawExpenseData, rawSalesData),
         });
       } else {
         const pnlDataArray = calculatePnL(rawExpenseData, rawSalesData);
@@ -1746,6 +1749,7 @@ const fetchReportData = async () => {
       );
       if (Array.isArray(resp)) {
         setProductWiseData(resp);
+        
       } else {
         showToast('danger', 'Failed to fetch product-wise earnings report');
       }
@@ -1804,6 +1808,27 @@ const fetchReportData = async () => {
   downloadCSV(data, columns, filename);
 };
 
+
+const totalPandL = (rawExpenseData, rawSalesData) => {
+  try {
+    // Calculate total sales
+    const totalSales = rawSalesData.reduce((sum, entry) => {
+      return sum + (entry.totalAmount || 0);
+    }, 0);
+    
+    // Calculate total expenses
+    const totalExpenses = rawExpenseData.reduce((sum, entry) => {
+      return sum + (entry.total_price || 0);
+    }, 0);
+    
+    // Return total P&L (Sales - Expenses)
+    return totalSales - totalExpenses;
+    
+  } catch (error) {
+    showToast('danger', error.message);
+    return 0;
+  }
+}
 
   const calculatePnL = (rawExpenseData, rawSalesData) => {
     try {

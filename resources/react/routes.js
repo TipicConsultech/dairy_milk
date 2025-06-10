@@ -73,12 +73,12 @@ const DairyFarmInventory=React.lazy(() => import('./views/dairy/DairyFarmInvento
 const DeliveryRecord=React.lazy(() => import('./views/dairy/DeliveryRecord'))
 const DailyTallies=React.lazy(() => import('./views/dairy/DailyTallies'))
 
-const CreateProductFromProduct=React.lazy(() => import('./views/dairy/CreateProductFromProduct'))
+const CreateProductFromProduct=React.lazy(() => import('./views/dairy/CreateProductFromMilk'))
 
 const LaboratoryUser=React.lazy(() => import('./views/dairy/LaboratoryUser'))
 const FinalProductInvenrty = React.lazy(()=>import('./views/dairy/FinalProductInvenrty'))
 const RetailProductInvenrty = React.lazy(()=>import('./views/dairy/RetailProductInventory'))
-const ProductCreationCalculator = React.lazy(()=>import('./views/dairy/ProductCreationCalculator'))
+// const ProductCreationCalculator = React.lazy(()=>import('./views/dairy/ProductCreationCalculator'))
 
 export default function fetchRoutes(){
   const user=getUserType();
@@ -181,7 +181,7 @@ export default function fetchRoutes(){
       { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord},
       { path: '/finalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty},
       { path: '/retailProductInvenrty', name: 'RetailProductInvenrty', element:RetailProductInvenrty},
-      { path: '/ProductCreationCalculator', name: 'ProductCreationCalculator', element:ProductCreationCalculator},
+      // { path: '/ProductCreationCalculator', name: 'ProductCreationCalculator', element:ProductCreationCalculator},
 
   ]
   }
@@ -238,7 +238,7 @@ export default function fetchRoutes(){
       { path: '/DeliveryRecord', name: 'DeliveryRecord', element:DeliveryRecord},
       { path: '/finalProductInvenrty', name: 'FinalProductInvenrty', element:FinalProductInvenrty},
       { path: '/retailProductInvenrty', name: 'RetailProductInvenrty', element:RetailProductInvenrty},
-      { path: '/ProductCreationCalculator', name: 'ProductCreationCalculator', element:ProductCreationCalculator},
+      // { path: '/ProductCreationCalculator', name: 'ProductCreationCalculator', element:ProductCreationCalculator},
 
 
 
@@ -259,7 +259,7 @@ export default function fetchRoutes(){
     { path:'/resetPassword', name: 'Update Password', element: Resetpassword },
     { path: '/updatepassword', name: 'Reset Password', element: Updatepassword },
     { path: '/dailyTalliesReport', name: 'Daily Tallies', element:DailyTallies } ,
-    { path: '/ProductCreationCalculator', name: 'ProductCreationCalculator', element:ProductCreationCalculator},
+    // { path: '/ProductCreationCalculator', name: 'ProductCreationCalculator', element:ProductCreationCalculator},
   ]
   }
   //Delivery Team

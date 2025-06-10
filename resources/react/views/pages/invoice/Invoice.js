@@ -826,29 +826,59 @@ const Invoice = () => {
     setState(updatedState);
   }}
 /> */}
-<CFormInput
-  type="number"
-  value={oitem.dQty === '' || oitem.dQty === undefined ? '' : oitem.dQty}
-  placeholder={`Stock: ${oitem.qty ?? 0}`}
-  onChange={(e) => {
-    const value = e.target.value === '' ? '' : parseFloat(e.target.value);
-
+<CFormInput 
+  type="number" 
+  value={oitem.dQty === '' || oitem.dQty === undefined ? '' : oitem.dQty} 
+  placeholder={`Stock: ${oitem.qty ?? 0}`} 
+  onChange={(e) => { 
+    const inputValue = e.target.value;
+    
+    // If input is empty, set as empty string
+    if (inputValue === '') {
+      const updatedItems = [...state.items];
+      updatedItems[index].dQty = '';
+      updatedItems[index].total_price = 0;
+      const updatedState = { 
+        ...state, 
+        items: updatedItems, 
+        totalAmount: calculateTotal(updatedItems), 
+      };
+      calculateFinalAmount(updatedState);
+      setState(updatedState);
+      return;
+    }
+    
+    const value = parseFloat(inputValue);
+    
+    // Validation: Clear if value is negative, zero, or NaN
+    if (isNaN(value) || value <= 0) {
+      const updatedItems = [...state.items];
+      updatedItems[index].dQty = '';
+      updatedItems[index].total_price = 0;
+      const updatedState = { 
+        ...state, 
+        items: updatedItems, 
+        totalAmount: calculateTotal(updatedItems), 
+      };
+      calculateFinalAmount(updatedState);
+      setState(updatedState);
+      return;
+    }
+    
+    // Valid positive value
     const updatedItems = [...state.items];
     updatedItems[index].dQty = value;
-
     const price = parseFloat(updatedItems[index].dPrice || 0);
     const qty = parseFloat(value || 0);
     updatedItems[index].total_price = price && qty ? price * qty : 0;
-
-    const updatedState = {
-      ...state,
-      items: updatedItems,
-      totalAmount: calculateTotal(updatedItems),
+    const updatedState = { 
+      ...state, 
+      items: updatedItems, 
+      totalAmount: calculateTotal(updatedItems), 
     };
-
     calculateFinalAmount(updatedState);
     setState(updatedState);
-  }}
+  }} 
 />
 
 </div>

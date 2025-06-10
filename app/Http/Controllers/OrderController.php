@@ -546,18 +546,17 @@ class OrderController extends Controller
         return response()->json($result);
     }
 
-
-    public function productWiseEarnings(Request $request)
-{
+public function productWiseEarnings(Request $request) {
     $start = $request->startDate;
     $end = $request->endDate;
 
     $data = DB::table('order_details')
         ->join('products', 'order_details.product_id', '=', 'products.id')
         ->whereBetween('order_details.created_at', [$start, $end])
-        ->groupBy('order_details.product_id', 'products.name')
+        ->groupBy('order_details.product_id', 'products.name', 'products.unit')
         ->select(
             'products.name as product_name',
+            'products.unit as product_unit',
             DB::raw('MIN(order_details.oPrice) as product_oPrice'),  // original price
             DB::raw('SUM(order_details.dQty) as totalQty'),
             DB::raw('SUM(order_details.dQty * order_details.dPrice) as totalRevenue')

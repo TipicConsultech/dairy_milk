@@ -489,7 +489,7 @@ const ProductModal = ({ productId, sourceType, visible, setVisible, onSuccess })
   };
 
   return (
-    <CModal visible={visible} onClose={() => setVisible(false)} size="lg" alignment="center">
+    <CModal visible={visible} backdrop="static"  onClose={() => setVisible(false)} size="lg" alignment="center">
       <CModalHeader onClose={() => setVisible(false)}>
         <CModalTitle>
           {sourceType === 'retail' ? t('LABELS.edit_retail_product') : t('LABELS.edit_factory_product')}

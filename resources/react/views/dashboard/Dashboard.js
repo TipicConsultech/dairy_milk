@@ -115,7 +115,7 @@ const Dashboard = (Props) => {
                       {t('LABELS.available_stock')}
                     </CTableHeaderCell>
                     <CTableHeaderCell scope="col" className="text-center" style={{ width: '25%' }}>
-                      {t('LABELS.cost')}
+                      {t('LABELS.cost')} 
                     </CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
@@ -142,7 +142,7 @@ const Dashboard = (Props) => {
                           <CTableHeaderCell>{lng === 'en' ? p.name : decodeUnicode(p.localName)}</CTableHeaderCell>
   
                           <CTableDataCell className="text-center font-weight-bold text-black" style={{ width: '16%' }}>
-                            {p.max_stock}
+                            {p.max_stock} {p.unit || '-'}
                           </CTableDataCell>
   
                           <CTableDataCell className="text-center font-weight-bold text-black" style={{ width: '16%' }}>
@@ -150,7 +150,7 @@ const Dashboard = (Props) => {
                           </CTableDataCell>
   
                           <CTableDataCell className="text-center font-weight-bold text-black" style={{ width: '16%' }}>
-                            {totalCost.toFixed(2)}
+                            {totalCost.toFixed(0)}&nbsp; ₹ 
                           </CTableDataCell>
                         </CTableRow>
                       )
