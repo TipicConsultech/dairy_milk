@@ -681,10 +681,10 @@ console.log('required product',newReqProduct);
                 </div>
               </CCol>
 
-              <CCol md={3}>
+              <CCol md={4}>
   <CFormInput
     type="number"
-    placeholder={productAvailQty !== null ? t('LABELS.availableQuantityValue', { qty: productAvailQty }) : t('LABELS.availableQuantity')}
+    placeholder={productAvailQty !== null ? t('LABELS.availableQuantityValue', { qty: productAvailQty +" "+ newReqProduct.unit }) : t('LABELS.availableQuantity')}
     value={newReqProduct.quantity}
     onChange={(e) => {
       const value = e.target.value;
@@ -818,7 +818,7 @@ console.log('required product',newReqProduct);
     type="number"
     placeholder={
       rawMaterialavailableQty !== null
-        ? t('LABELS.availableQuantityValue', { qty: rawMaterialavailableQty })
+        ? t('LABELS.availableQuantityValue', { qty: rawMaterialavailableQty} )
         : t('LABELS.availableQuantity')
     }
     value={newIngredient.quantity}
