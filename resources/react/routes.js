@@ -73,7 +73,7 @@ const DairyFarmInventory=React.lazy(() => import('./views/dairy/DairyFarmInvento
 const DeliveryRecord=React.lazy(() => import('./views/dairy/DeliveryRecord'))
 const DailyTallies=React.lazy(() => import('./views/dairy/DailyTallies'))
 
-const CreateProductFromProduct=React.lazy(() => import('./views/dairy/CreateProductFromProduct'))
+const CreateProductFromProduct=React.lazy(() => import('./views/dairy/CreateProductFromMilk'))
 
 const LaboratoryUser=React.lazy(() => import('./views/dairy/LaboratoryUser'))
 const FinalProductInvenrty = React.lazy(()=>import('./views/dairy/FinalProductInvenrty'))
