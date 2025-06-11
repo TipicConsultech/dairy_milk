@@ -681,63 +681,24 @@ console.log('required product',newReqProduct);
                 </div>
               </CCol>
 
-              <CCol md={3}>
-                <CFormInput
-                  type="number"
-                  placeholder={productAvailQty!==null ? t('LABELS.availableQuantityValue', { qty: productAvailQty }) : t('LABELS.availableQuantity')}
-                  value={newReqProduct.quantity}
-                  onChange={handleRequiredProductQty}
-                  className={prodError ? 'is-invalid' : ''}
-                />
-                {prodError && <div className="text-danger mt-1">{prodError}</div>}
-              </CCol>
-
-              {/* Desktop View: unit and + button in separate columns */}
-              {/* <CCol md={3} className="d-none d-md-block">
+              <CCol md={4}>
   <CFormInput
-    value={
-      newProduct?.liters
-        ? newProduct.liters + ' ltr'
-        : ''
-    }
-    placeholder={t('LABELS.milk_required')}
-    disabled
+    type="number"
+    placeholder={productAvailQty !== null ? t('LABELS.availableQuantityValue', { qty: productAvailQty +" "+ newReqProduct.unit }) : t('LABELS.availableQuantity')}
+    value={newReqProduct.quantity}
+    onChange={(e) => {
+      const value = e.target.value;
+      if (value === '' || parseFloat(value) >0) {
+        setNewReqProduct(prev => ({
+          ...prev,
+          quantity: value
+        }));
+      }
+    }}
+    className={prodError ? 'is-invalid' : ''}
   />
-</CCol>
-
-              <CCol md={2} className="d-none d-md-block">
-                <CButton
-                  color="success"
-                  variant="outline"
-                  onClick={addProduct}
-                  disabled={!!prodError || !newProduct.name || !newProduct.quantity}
-                >
-                  <CIcon icon={cilPlus} />
-                </CButton>
-              </CCol> */}
-
-              {/* Mobile View: unit and + button in the same row */}
-              {/* <CCol xs={12} className="d-flex d-md-none justify-content-between align-items-center gap-3">
-                <CFormInput
-    value={
-      newProduct?.liters
-        ? newProduct.liters + ' ltr'
-        : ''
-    }
-    placeholder={t('LABELS.milk_required')}
-    disabled
-  />
-                <CButton
-                  color="success"
-                  variant="outline"
-                  onClick={addProduct}
-                  disabled={!!prodError || !newProduct.name || !newProduct.quantity}
-                  className="w-auto"
-                >
-                  <CIcon icon={cilPlus} />
-                </CButton>
-              </CCol> */}
-              
+  {prodError && <div className="text-danger mt-1">{prodError}</div>}
+</CCol>  
             </CRow>
 
             {products.map((p, idx) => (
@@ -852,20 +813,26 @@ console.log('required product',newReqProduct);
  
 
               </CCol>
-              <CCol md={3}>
-                <CFormInput
-                  type="number"
-                  placeholder={
-                    rawMaterialavailableQty !== null
-                      ? t('LABELS.availableQuantityValue', { qty: rawMaterialavailableQty })
-                      : t('LABELS.availableQuantity')
-                  }
-                  value={newIngredient.quantity}
-                  onChange={handleIngredientQtyChange}
-                  className={ingError ? 'is-invalid' : ''}
-                />
-                {ingError && <div className="text-danger mt-1">{ingError}</div>}
-              </CCol>
+            <CCol md={3}>
+  <CFormInput
+    type="number"
+    placeholder={
+      rawMaterialavailableQty !== null
+        ? t('LABELS.availableQuantityValue', { qty: rawMaterialavailableQty} )
+        : t('LABELS.availableQuantity')
+    }
+    value={newIngredient.quantity}
+    onChange={(e) => {
+      const value = e.target.value;
+      setNewIngredient(prev => ({
+        ...prev,
+        quantity: parseFloat(value) < 1 ? '' : value
+      }));
+    }}
+    className={ingError ? 'is-invalid' : ''}
+  />
+  {ingError && <div className="text-danger mt-1">{ingError}</div>}
+</CCol>
 
               {/* Desktop View */}
               <CCol md={3} className="d-none d-md-block">
@@ -1073,7 +1040,7 @@ console.log('required product',newReqProduct);
   <CCol md={3} className="d-none d-md-block">
   <CFormInput
     value={
-      calculatedResult ? 'Calculated Qty : '+ calculatedResult
+      calculatedResult ? 'Calculated Qty : '+ Number( calculatedResult).toFixed(1) 
         : 'Calculating ..'
     }
    
@@ -1097,7 +1064,7 @@ console.log('required product',newReqProduct);
                 
   <CFormInput
     value={
-      calculatedResult ? 'Calculated Qty : '+ calculatedResult
+      calculatedResult ? 'Calculated Qty : '+ Number( calculatedResult).toFixed(1)
         : 'Calculating ..'
 
     }

@@ -366,7 +366,7 @@ function ConfirmProduct() {
                 {tableData.map((item) => (
                   <tr key={item.id}>
                     <td>{item.batch_no}</td>
-                    <td>{Number(item.predicted_qty).toFixed(2)}</td>
+                    <td>{Number(item.predicted_qty).toFixed(2)}  &nbsp; {item?.unit}</td>
                     <td>
                       <input
                         type="number"

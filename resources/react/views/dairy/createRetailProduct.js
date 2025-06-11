@@ -67,6 +67,8 @@ const createRetailProduct = () => {
 
   const [createdSummary, setCreatedSummary] = useState(null); // Will store success/error messages with product details
 
+  console.log(createdSummary);
+
   const [selectedBatchId, setSelectedBatchId] = useState('');
   const [selectedBatch, setSelectedBatch] = useState(null); // holds the selected object
 
@@ -1043,7 +1045,7 @@ const createRetailProduct = () => {
 
                 {/* Unit Display: quarter on mobile, 3 cols on desktop */}
                 <CCol xs={3} md={3} className="d-flex align-items-center">
-                 {p.unit}
+                pcs
                 </CCol>
 
                 {/* Delete Button: quarter on mobile, 2 cols on desktop */}
@@ -1061,31 +1063,6 @@ const createRetailProduct = () => {
           {t('LABELS.submit')}
         </CButton>
 
-        {/* {createdSummary && (
-          <CAlert color={createdSummary.success ? 'success' : 'danger'} className='mt-2'>
-            <div>
-              <strong>{createdSummary.success ? t('LABELS.productCreated') : t('LABELS.error')}:</strong>
-              {createdSummary.products ? (
-                // Display each product in the array with its details
-                <div className="mt-2">
-                  {createdSummary.products.map((product, index) => (
-                    <div key={index} className="mb-2">
-                      <p><strong>{product.product_name}</strong> {t('MSG.createdSuccessfully')}</p>
-                      <ul className="mb-0">
-                        <li>{t('LABELS.createdQuantity')}: {product.created_quantity}</li>
-                        <li>{t('LABELS.previousQuantity')}: {product.previous_quantity}</li>
-                        <li>{t('LABELS.updatedQuantity')}: {product.updated_quantity}</li>
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p>{createdSummary.text}</p>
-              )}
-              <p className="mt-1 text-muted">{t('LABELS.createdAt')}: {createdSummary.time}</p>
-            </div>
-          </CAlert>
-        )} */}
 {createdSummary && (
   <CAlert color={createdSummary.success ? 'success' : 'danger'} className='mt-2'>
     <div>
@@ -1101,9 +1078,9 @@ const createRetailProduct = () => {
                 <strong>{product.product_name}</strong> {t('MSG.createdSuccessfully')}
               </p>
               <ul className="mb-0">
-                <li>{t('LABELS.createdQuantity')}: {product.created_quantity}</li>
-                <li>{t('LABELS.previousQuantity')}: {product.previous_quantity}</li>
-                <li>{t('LABELS.updatedQuantity')}: {product.updated_quantity}</li>
+                <li>{t('LABELS.createdQuantity')}: {product.created_quantity} &nbsp;pcs</li>
+                <li>{t('LABELS.previousQuantity')}: {product.previous_quantity} &nbsp;pcs</li>
+                <li>{t('LABELS.updatedQuantity')}: {product.updated_quantity} &nbsp;pcs</li>
               </ul>
             </div>
           ))}
@@ -1113,7 +1090,7 @@ const createRetailProduct = () => {
       )}
 
       <p className="mt-1 text-muted">
-        {t('LABELS.createdAt')}: {formatDate(createdSummary.time)}
+        {t('LABELS.createdAt')}: {createdSummary?.time}
       </p>
     </div>
   </CAlert>

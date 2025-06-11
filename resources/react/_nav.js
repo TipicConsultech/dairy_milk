@@ -239,12 +239,12 @@ export default function fetchNavItems(t1){
         to: '/invoice',
         icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
       },
-      {
-        component: CNavItem,
-        name: t("LABELS.ProductCreationCalculator"),
-        to: '/ProductCreationCalculator',
-        icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
-      },
+      // {
+      //   component: CNavItem,
+      //   name: t("LABELS.ProductCreationCalculator"),
+      //   to: '/ProductCreationCalculator',
+      //   icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
+      // },
 
       {
         component: CNavGroup,
@@ -421,12 +421,12 @@ export default function fetchNavItems(t1){
         ],
       },
 
-      {
-        component: CNavItem,
-        name: t("LABELS.ProductCreationCalculator"),
-        to: '/ProductCreationCalculator',
-        icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
-      },
+      // {
+      //   component: CNavItem,
+      //   name: t("LABELS.ProductCreationCalculator"),
+      //   to: '/ProductCreationCalculator',
+      //   icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
+      // },
 
 
       // {
@@ -600,12 +600,12 @@ export default function fetchNavItems(t1){
         to: '/dailyTalliesReport',
         icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
       },
-      {
-        component: CNavItem,
-        name: t("LABELS.ProductCreationCalculator"),
-        to: '/ProductCreationCalculator',
-        icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
-      }
+      // {
+      //   component: CNavItem,
+      //   name: t("LABELS.ProductCreationCalculator"),
+      //   to: '/ProductCreationCalculator',
+      //   icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
+      // }
 
 ]
 

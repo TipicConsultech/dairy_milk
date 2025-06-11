@@ -317,16 +317,37 @@ const NewExpense = () => {
                   <div className="col-sm-4">
                     <div className="mb-3">
                       <CFormLabel htmlFor="name"><b>{t("LABELS.about_expense")}</b></CFormLabel>
-                      <CFormInput
-                        type="text"
-                        id="name"
-                        placeholder={t("LABELS.enter_expense_description")}
-                        name="name"
-                        value={state.name}
-                        onChange={handleChange}
-                        required
-                        feedbackInvalid={t("MSG.expense_description_validation")}
-                      />
+                     <CFormInput
+  type="text"
+  id="name"
+  placeholder={t("LABELS.enter_expense_description")}
+  name="name"
+  value={state.name}
+  onChange={(e) => {
+    // Remove any numeric characters from the input
+    const filteredValue = e.target.value.replace(/[0-9]/g, '');
+    
+    // Create a synthetic event with the filtered value
+    const syntheticEvent = {
+      ...e,
+      target: {
+        ...e.target,
+        value: filteredValue,
+        name: e.target.name
+      }
+    };
+    
+    handleChange(syntheticEvent);
+  }}
+  onKeyPress={(e) => {
+    // Prevent numeric keys from being entered
+    if (/[0-9]/.test(e.key)) {
+      e.preventDefault();
+    }
+  }}
+  required
+  feedbackInvalid={t("MSG.expense_description_validation")}
+/>
                     </div>
                   </div>
                   <div className="col-sm-4">

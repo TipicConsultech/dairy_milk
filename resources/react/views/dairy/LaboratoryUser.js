@@ -734,7 +734,7 @@ const LaboratoryUser = () => {
 <CCol xs={6}>
   <div className="align-items-center">
     <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '100%' }}>
-      {t('LABELS.avgRate')}
+      {t('LABELS.avgRate') + " "+'₹'}
     </CFormLabel>
     <CFormInput
       type="number"
@@ -757,7 +757,7 @@ const LaboratoryUser = () => {
 <CCol xs={6}>
   <div className="align-items-center">
     <CFormLabel className="mb-0 me-2 fw-bold" style={{ width: '100%' }}>
-      {t('LABELS.totalAmount')}
+      {t('LABELS.totalAmount')+ " "+'₹'}
     </CFormLabel>
     <CFormInput
       type="number"

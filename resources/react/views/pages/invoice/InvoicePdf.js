@@ -125,9 +125,10 @@ export function generatePDF(grandTotal, invoiceNo, customerName, formData, remai
     }
 
     additionalDetailsData.push(
-        ["Amount Paid:", `${formData.amountPaid.toFixed(2)} /-`],
-        ["Balance Amount:", `${remainingAmount.toFixed(2)} /-`],
-        ["Payment Mode:", formData.paymentMode]
+        ["Amount Paid (In Rupees):", `${formData.amountPaid.toFixed(2)} /-`],
+        ["Balance Amount (In Rupees):", `${remainingAmount.toFixed(2)} /-`],
+        // ["Payment Mode:", formData.paymentMode]
+        // ["Payment Mode:", "Cash"]
     );
 
     pdf.autoTable({

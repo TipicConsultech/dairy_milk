@@ -302,14 +302,17 @@ const InvoiceDetails = () => {
                     <td>Amount Paid:</td>
                     <td>{formData.amountPaid}&nbsp;₹</td>
                   </tr>
+             
                   <tr>
                     <td>Balance Amount:</td>
                     <td>{remainingAmount}&nbsp;₹</td>
                   </tr>
-                  <tr>
+                  {/* <tr>
                     <td>Payment Mode:</td>
                     <td>{formData.paymentMode}</td>
-                  </tr>
+                    <td>Cash</td>
+                    
+                  </tr> */}
                 </tbody>
               </table>
             </div>

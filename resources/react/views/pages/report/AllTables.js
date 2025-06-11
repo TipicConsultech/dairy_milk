@@ -119,7 +119,7 @@ function All_Tables({
   {
     accessorKey: 'totalQty',
     header: 'Quantity Sold',
-    Cell: ({ cell }) => `${Number(cell.getValue() || 0)}`,
+    Cell: ({ cell }) => cell.getValue() || 0,
   },
   {
     accessorKey: 'totalRevenue',
@@ -161,15 +161,21 @@ function All_Tables({
       {selectedOption === '4' && (
         <MantineReactTable
           columns={productEarningsColumns}
-          data={
-            Array.isArray(productWiseData)
-              ? productWiseData.map((item) => ({
-                  ...item,
-                  totalQty: Number(item.totalQty),
-                  totalRevenue: Number(item.totalRevenue),
-                }))
-              : []
-          }
+          // data={
+          //   Array.isArray(productWiseData)
+          //     ? productWiseData.map((item) => ({
+          //         ...item,
+          //         totalQty: `${Number(item.totalQty)}` + ` ${item?.product_unit}`,
+          //         totalRevenue: Number(item.totalRevenue) ,
+          //       }))
+          //     : []
+          // }
+          data={ productWiseData.map((item) => ({
+    ...item,
+    // Fix: Use template literal or proper string concatenation
+    totalQty: item?.totalQty + " "+item?.product_unit,
+    totalRevenue: Number(item.totalRevenue),
+  }))}
           initialState={{ density: 'xs' }}
           enableFullScreenToggle={false}
         />

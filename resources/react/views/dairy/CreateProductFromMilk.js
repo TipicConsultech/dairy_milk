@@ -447,28 +447,41 @@ const milkFormattedData = milkEntries.reduce((acc, entry, index) => {
     </div>
   </CCol>
 
-  <CCol md={3}>
-    <CFormInput
-      type="number"
-      placeholder={
-        availableQty !== null
-          ? `${t('LABELS.availableQuantity')}: ${availableQty} ltr`
-          : t('LABELS.enterMilkForProduct')
+ <CCol md={3}>
+  <CFormInput
+    type="number"
+    placeholder={
+      availableQty !== null
+        ? `${t('LABELS.availableQuantity')}: ${availableQty} ltr`
+        : t('LABELS.enterMilkForProduct')
+    }
+    value={milkAmount}
+    onChange={(e) => {
+      const value = e.target.value;
+
+      // Convert to float
+      const numValue = parseFloat(value);
+
+      // If value is negative, clear the input
+      if (numValue < 1) {
+        setMilkAmount('');
+        setError('');
+        return;
       }
-      value={milkAmount}
-      onChange={(e) => {
-        const value = e.target.value;
-        setMilkAmount(value);
-        if (availableQty !== null && parseFloat(value) > availableQty) {
-          setError(t('MSG.quantityExceedsAvailableMilk'));
-        } else {
-          setError('');
-        }
-      }}
-      className={error ? 'is-invalid' : ''}
-    />
-    {error && <div className="text-danger mt-1">{error}</div>}
-  </CCol>
+
+      setMilkAmount(value);
+
+      if (availableQty !== null && numValue > availableQty) {
+        setError(t('MSG.quantityExceedsAvailableMilk'));
+      } else {
+        setError('');
+      }
+    }}
+    className={error ? 'is-invalid' : ''}
+  />
+  {error && <div className="text-danger mt-1">{error}</div>}
+</CCol>
+
 
   <CCol md={2} className="d-flex ">
     <CButton
@@ -505,33 +518,94 @@ const milkFormattedData = milkEntries.reduce((acc, entry, index) => {
 </CRow>
 
 {milkEntries.length > 0 && milkEntries.map((entry, index) => (
-  <CCardBody>
-  <CRow key={index} className=" bg-light rounded">
-
-    <CCol xs={3} md={2}>
-      <b>{entry.name}</b>
-      <div className="text-muted text-bold small d-md-none">
-        {entry.quantity} Ltr&nbsp;&nbsp;FAT: {entry.fat || '-'}&nbsp;&nbsp;LACTO: {entry.lacto || '-'}
+  <CCardBody key={index}>
+    <CRow className="bg-light rounded p-2">
+      {/* Mobile Layout */}
+      <div className="d-md-none w-100">
+        <CRow className="mb-2">
+          <CCol xs={8}>
+            <h6 className="mb-1 fw-bold">{entry.name}</h6>
+          </CCol>
+          <CCol xs={4} className="text-end">
+            <CButton
+              color="danger"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setMilkEntries(prev => prev.filter((_, i) => i !== index));
+              }}
+            >
+              <CIcon icon={cilTrash} />
+            </CButton>
+          </CCol>
+        </CRow>
+        
+        <CRow className="g-2">
+          <CCol xs={6}>
+            <small className="text-muted d-block">QUANTITY</small>
+            <span className="fw-semibold">{entry.quantity} Ltr</span>
+          </CCol>
+          <CCol xs={6}>
+            <small className="text-muted d-block">FAT</small>
+            <span className="fw-semibold">{entry.fat || '-'}</span>
+          </CCol>
+          <CCol xs={6}>
+            <small className="text-muted d-block">LACTO</small>
+            <span className="fw-semibold">{entry.lacto || '-'}</span>
+          </CCol>
+          <CCol xs={6}>
+            <small className="text-muted d-block">SNF</small>
+            <span className="fw-semibold">{entry.snf || '-'}</span>
+          </CCol>
+          {entry.ts && (
+            <CCol xs={6}>
+              <small className="text-muted d-block">TS</small>
+              <span className="fw-semibold">{entry.ts}</span>
+            </CCol>
+          )}
+        </CRow>
       </div>
-    </CCol>
-    <CCol className="d-none d-md-block" md={2}>QUANTITY: {entry.quantity}</CCol>
-    <CCol className="d-none d-md-block" md={2}>FAT: {entry.fat || '-'}</CCol>
-    <CCol className="d-none d-md-block" md={2}>LACTO: {entry.lacto || '-'}</CCol>
-    <CCol className="d-none d-md-block" md={1}>SNF: {entry.snf || '-'}</CCol>
-    <CCol className="d-none d-md-block" md={1}>TS: {entry.ts || '-'}</CCol>
 
-    <CCol xs={4} md={1} className="text-end">
-      <CButton
-        color="danger"
-        variant="outline"
-        onClick={() => {
-          setMilkEntries(prev => prev.filter((_, i) => i !== index));
-        }}
-      >
-        <CIcon icon={cilTrash} />
-      </CButton>
-    </CCol>
-  </CRow>
+      {/* Desktop Layout */}
+      <div className="d-none d-md-flex w-100 align-items-center">
+        <CCol md={2}>
+          <b>{entry.name}</b>
+        </CCol>
+        <CCol md={2}>
+          <span className="text-muted small">QTY: </span>
+          {entry.quantity} Ltr
+        </CCol>
+      
+        <CCol md={2}>
+          <span className="text-muted small">LACTO: </span>
+          {entry.lacto || '-'}
+        </CCol>
+
+          <CCol md={2}>
+          <span className="text-muted small">FAT: </span>
+          {entry.fat || '-'}
+        </CCol>
+        <CCol md={2}>
+          <span className="text-muted small">SNF: </span>
+          {entry.snf || '-'}
+        </CCol>
+        <CCol md={1}>
+          <span className="text-muted small">TS: </span>
+          {entry.ts || '-'}
+        </CCol>
+        <CCol md={1} className="text-end">
+          <CButton
+            color="danger"
+            variant="outline"
+            onClick={() => {
+              setMilkEntries(prev => prev.filter((_, i) => i !== index));
+            }}
+          >
+            <CIcon icon={cilTrash} />
+          </CButton>
+        </CCol>
+      </div>
+    </CRow>
   </CCardBody>
 ))}
 
@@ -578,43 +652,7 @@ const milkFormattedData = milkEntries.reduce((acc, entry, index) => {
                     </div>
                   )}
 
-                  {/* {isDropdownOpen && (
-                    <div
-                      className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm z-index-dropdown"
-                      style={{maxHeight: '200px', overflowY: 'auto', zIndex: 1000}}
-                    >
-                      {ingredientOptions
-                        .filter(item => item.toLowerCase().includes(newIngredient.name.toLowerCase()))
-                        .map((item, index) => (
-                          <div
-                            key={index}
-                            className="p-2 cursor-pointer hover-bg-light"
-                            style={{cursor: 'pointer'}}
-                            onClick={() => {
-                              // Simulate the original handleIngredientChange logic
-                              const selectedItem = rawMaterialData.find((material) => material.name === item);
-                              
-
-                              if (selectedItem) {
-                                setNewIngredient({
-                                  ...newIngredient,
-                                  id: selectedItem.id,
-                                  name: item,
-      
-                                  available_qty: selectedItem.available_qty,
-                                  unit: selectedItem.unit
-                                });
-                                setRawMaterialavailableQty(selectedItem.available_qty);
-                              }
-                              setIsDropdownOpen(false);
-                              setIngError('');
-                            }}
-                          >
-                            {item}
-                          </div>
-                        ))}
-                    </div>
-                  )} */}
+                
                   {isDropdownOpen && (
   <div
     className="position-absolute w-100 mt-1 border rounded bg-white shadow-sm z-index-dropdown"
@@ -659,18 +697,25 @@ const milkFormattedData = milkEntries.reduce((acc, entry, index) => {
 
               </CCol>
               <CCol md={3}>
-                <CFormInput
-                  type="number"
-                  placeholder={
-                    rawMaterialavailableQty !== null
-                      ? t('LABELS.availableQuantityValue', { qty: rawMaterialavailableQty })
-                      : t('LABELS.availableQuantity')
-                  }
-                  value={newIngredient.quantity}
-                  onChange={handleIngredientQtyChange}
-                  className={ingError ? 'is-invalid' : ''}
-                />
-                {ingError && <div className="text-danger mt-1">{ingError}</div>}
+               <CFormInput
+  type="number"
+  placeholder={
+    rawMaterialavailableQty !== null
+      ? t('LABELS.availableQuantityValue', { qty: rawMaterialavailableQty })
+      : t('LABELS.availableQuantity')
+  }
+  value={newIngredient.quantity}
+  onChange={(e) => {
+    const value = e.target.value;
+    if (value === '' || parseFloat(value) > 0) {
+      setNewIngredient(prev => ({
+        ...prev,
+        quantity: value
+      }));
+    }
+  }}
+  className={ingError ? 'is-invalid' : ''}
+/>
               </CCol>
 
               {/* Desktop View */}
