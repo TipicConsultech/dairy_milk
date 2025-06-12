@@ -633,7 +633,7 @@ const createRetailProduct = () => {
             <CFormInput
               type="text"
               placeholder={t('LABELS.quantity')}
-               value={selectedBatch!==null ? selectedBatch?.product_qty :`${t('LABELS.quantity')}`}
+               value={selectedBatch!==null ? selectedBatch?.product_qty +" "+selectedBatch?.unit :`${t('LABELS.quantity')}`}
                disabled
             />
           </CCol>
@@ -749,20 +749,28 @@ const createRetailProduct = () => {
 
 
               </CCol>
-              <CCol md={3}>
-                <CFormInput
-                  type="number"
-                  placeholder={
-                    rawMaterialavailableQty !== null
-                      ? `${t('LABELS.availableQuantity')}: ${rawMaterialavailableQty}`
-                      : t('LABELS.quantity')
-                  }
-                  value={newIngredient.quantity}
-                  onChange={handleIngredientQtyChange}
-                  className={ingError ? 'is-invalid' : ''}
-                />
-                {ingError && <div className="text-danger mt-1">{ingError}</div>}
-              </CCol>
+             <CCol md={3}>
+  <CFormInput
+    type="number"
+    placeholder={
+      rawMaterialavailableQty !== null
+        ? `${t('LABELS.availableQuantity')}: ${rawMaterialavailableQty}`
+        : t('LABELS.quantity')
+    }
+    value={newIngredient.quantity}
+    onChange={(e) => {
+      const value = e.target.value;
+      if (value === '' || parseFloat(value) > 0) {
+        setNewIngredient(prev => ({
+          ...prev,
+          quantity: value
+        }));
+      }
+    }}
+    className={ingError ? 'is-invalid' : ''}
+  />
+  {ingError && <div className="text-danger mt-1">{ingError}</div>}
+</CCol>
 
               {/* Desktop View: separate columns */}
               <CCol md={3} className="d-none d-md-block">
@@ -945,18 +953,24 @@ const createRetailProduct = () => {
                 </div>
               </CCol>
 
-              <CCol md={3}>
-                <CFormInput
-                  type="number"
-                  placeholder={t('LABELS.enterQuantity')}
-
-                  
-                  value={newProduct.quantity}
-                  onChange={handleProductQty}
-                  className={prodError ? 'is-invalid' : ''}
-                />
-                {prodError && <div className="text-danger mt-1">{prodError}</div>}
-              </CCol>
+           <CCol md={3}>
+  <CFormInput
+    type="number"
+    placeholder={t('LABELS.enterQuantity')}
+    value={newProduct.quantity}
+    onChange={(e) => {
+      const value = e.target.value;
+      if (value === '' || parseFloat(value) > 0) {
+        setNewProduct(prev => ({
+          ...prev,
+          quantity: value
+        }));
+      }
+    }}
+    className={prodError ? 'is-invalid' : ''}
+  />
+  {prodError && <div className="text-danger mt-1">{prodError}</div>}
+</CCol>
 
                <CCol md={3}>
                <CFormInput

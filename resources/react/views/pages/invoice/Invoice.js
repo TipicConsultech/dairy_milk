@@ -717,256 +717,707 @@ const Invoice = () => {
               </div>
             </div>
              {/* Products table - fully responsive for all screen sizes */}
-<div className="products-table">
-  {/* Table headers - visible on md screens and up */}
-  <div className="row d-none d-md-flex py-2 border-bottom">
-    <div className="col-md-4">
-      <div className="fw-bold">{t('LABELS.product')}</div>
-    </div>
-    <div className="col-md-2">
-      <div className="fw-bold">{t('LABELS.quantity')}</div>
-    </div>
-    <div className="col-md-2">
-      <div className="fw-bold">{t('LABELS.price')} ₹</div>
-    </div>
-    <div className="col-md-2">
-      <div className="fw-bold">{t('LABELS.totalRs')}</div>
-    </div>
-    <div className="col-md-2">
-      <div className="fw-bold">{t('LABELS.action')}</div>
+
+{/* Products section - Enhanced responsive design */}
+<div className="products-section">
+  {/* Desktop Table Header */}
+  <div className="d-none d-lg-block">
+    <div className="row py-3 bg-light border-bottom fw-bold">
+      <div className="col-4">{t('LABELS.product')}</div>
+      <div className="col-2 text-center">{t('LABELS.quantity')}</div>
+      <div className="col-2 text-center">{t('LABELS.price')} ₹</div>
+      <div className="col-2 text-center">{t('LABELS.totalRs')}</div>
+      <div className="col-2 text-center">{t('LABELS.action')}</div>
     </div>
   </div>
 
-  {/* Product items with improved responsiveness */}
+  {/* Product Items */}
   {state.items?.map((oitem, index) => (
-    <div key={index} className="row py-3 border-bottom align-items-center">
-      {/* Product field - full width on xs/sm, 4 columns on md+ */}
-      <div className="col-12 col-md-4 mb-3 mb-md-0">
-        <div className="d-md-none fw-bold mb-2">{t('LABELS.product')}</div>
-        <div className="product-search-container" ref={productsDropdownRef}>
-          <CFormInput
-            type="text"
-            value={oitem.product_name || ''}
-            onChange={(e) => handleProductSearchChange(e, index)}
-            onFocus={() => {
-              setCurrentEditIndex(index);
-              setIsProductsDropdownOpen(true);
-            }}
-            placeholder="Search or select product"
-            required
-            invalid={oitem.notSelected === true}
-            feedbackInvalid="Select product."
-            className="product-search-input"
-          />
-          
-          {!oitem.product_name ? (
-            <div
-            className="dropdown-icon"
-            onClick={() => {
-              setCurrentEditIndex(index);
-              setIsProductsDropdownOpen(true);
-            }}
-          >
-            <CIcon icon={cilChevronBottom} size="sm" />
+    <div key={index} className="product-item">
+      
+      {/* Desktop View */}
+      <div className="d-none d-lg-block">
+        <div className="row py-3 border-bottom align-items-center">
+          {/* Product */}
+          <div className="col-4">
+            <div className="product-search-container desktop-product-search" ref={el => {
+              // Create individual ref for each product row
+              if (el) {
+                if (!window.productRefs) window.productRefs = {};
+                window.productRefs[index] = el;
+              }
+            }}>
+              <CFormInput
+                type="text"
+                value={oitem.product_name || ''}
+                onChange={(e) => handleProductSearchChange(e, index)}
+                onFocus={() => {
+                  setCurrentEditIndex(index);
+                  setIsProductsDropdownOpen(true);
+                }}
+                placeholder="Search or select product"
+                required
+                invalid={oitem.notSelected === true}
+                feedbackInvalid="Select product."
+                className="product-search-input"
+              />
+              
+              {!oitem.product_name ? (
+                <div className="dropdown-icon desktop-dropdown-icon" onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setCurrentEditIndex(index);
+                  setIsProductsDropdownOpen(true);
+                }}>
+                  <CIcon icon={cilChevronBottom} size="sm" />
+                </div>
+              ) : (
+                <div className="clear-button desktop-clear-button" onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  clearProductSelection(index);
+                }}>
+                  <CIcon icon={cilX} size="sm" />
+                </div>
+              )}
+              
+              {isProductsDropdownOpen && currentEditIndex === index && (
+                <div className="products-dropdown desktop-dropdown">
+                  <div className="dropdown-header">
+                    <i className="fas fa-list me-2"></i>Available Products
+                  </div>
+                  {productOptions
+                    .filter(item => 
+                      item.toLowerCase().includes((oitem.product_name || '').toLowerCase())
+                    )
+                    .map((item, idx) => (
+                      <div 
+                        key={idx}
+                        className="dropdown-item desktop-dropdown-item"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // Immediately handle the selection
+                          console.log('Desktop: Selecting product:', item, 'for index:', index);
+                          handleProductSelectFromDropdown(item, index);
+                          setIsProductsDropdownOpen(false);
+                          setCurrentEditIndex(-1);
+                        }}
+                      >
+                        <i className="fas fa-box me-2 text-muted"></i>
+                        {item}
+                      </div>
+                    ))}
+                  {productOptions.filter(item => 
+                    item.toLowerCase().includes((oitem.product_name || '').toLowerCase())
+                  ).length === 0 && (
+                    <div className="dropdown-item text-muted">
+                      <i className="fas fa-exclamation-circle me-2"></i>
+                      No products found
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          ) : (
-            <div className="clear-button" onClick={() => clearProductSelection(index)}>
-              <CIcon icon={cilX} size="sm" />
+          {/* Quantity */}
+          <div className="col-2 text-center">
+            <CFormInput
+              type="number"
+              value={oitem.dQty === '' || oitem.dQty === undefined ? '' : oitem.dQty}
+              placeholder={`Stock: ${oitem.qty ?? 0}`}
+              onChange={(e) => {
+                const inputValue = e.target.value;
+                
+                if (inputValue === '') {
+                  const updatedItems = [...state.items];
+                  updatedItems[index].dQty = '';
+                  updatedItems[index].total_price = 0;
+                  const updatedState = { 
+                    ...state, 
+                    items: updatedItems, 
+                    totalAmount: calculateTotal(updatedItems), 
+                  };
+                  calculateFinalAmount(updatedState);
+                  setState(updatedState);
+                  return;
+                }
+                
+                const value = parseFloat(inputValue);
+                
+                if (isNaN(value) || value <= 0) {
+                  const updatedItems = [...state.items];
+                  updatedItems[index].dQty = '';
+                  updatedItems[index].total_price = 0;
+                  const updatedState = { 
+                    ...state, 
+                    items: updatedItems, 
+                    totalAmount: calculateTotal(updatedItems), 
+                  };
+                  calculateFinalAmount(updatedState);
+                  setState(updatedState);
+                  return;
+                }
+                
+                const updatedItems = [...state.items];
+                updatedItems[index].dQty = value;
+                const price = parseFloat(updatedItems[index].dPrice || 0);
+                const qty = parseFloat(value || 0);
+                updatedItems[index].total_price = price && qty ? price * qty : 0;
+                const updatedState = { 
+                  ...state, 
+                  items: updatedItems, 
+                  totalAmount: calculateTotal(updatedItems), 
+                };
+                calculateFinalAmount(updatedState);
+                setState(updatedState);
+              }}
+              className="text-center"
+            />
+          </div>
+
+          {/* Price */}
+          <div className="col-2 text-center">
+            <span className="fw-semibold">{oitem.dPrice} ₹</span>
+          </div>
+
+          {/* Total */}
+          <div className="col-2 text-center">
+            <span className="fw-bold text-success">{oitem.total_price}</span>
+          </div>
+
+          {/* Actions */}
+          <div className="col-2 text-center">
+            <div className="d-flex justify-content-center gap-2">
+              {state.items.length > 1 && (
+                <CButton 
+                  color="outline-danger" 
+                  size="sm" 
+                  onClick={() => handleRemoveProductRow(index)}
+                  className="p-1"
+                >
+                  <CIcon icon={cilDelete} size="sm" />
+                </CButton>
+              )}
+              {index === state.items.length - 1 && (
+                <CButton 
+                  color="outline-success" 
+                  size="sm" 
+                  onClick={handleAddProductRow}
+                  className="p-1"
+                >
+                  <CIcon icon={cilPlus} size="sm" />
+                </CButton>
+              )}
             </div>
-          )}
-          
-          {isProductsDropdownOpen && currentEditIndex === index && (
-            <div className="products-dropdown">
-              {productOptions
-                .filter(item => 
-                  item.toLowerCase().includes((oitem.product_name || '').toLowerCase())
-                )
-                .map((item, idx) => (
-                  <div 
-                    key={idx}
-                    className="dropdown-item"
-                    onClick={() => handleProductSelectFromDropdown(item, index)}
-                  >
-                    {item}
+          </div>
+        </div>
+      </div>
+
+      {/* Enhanced Mobile View */}
+      <div className="d-lg-none">
+        <div className="mobile-product-card">
+          <div className="card border-0 shadow-sm mb-3">
+            <div className="card-header bg-gradient-primary text-white p-2">
+              <div className="d-flex justify-content-between align-items-center">
+                <h6 className="mb-0 fw-bold">
+                  <i className="fas fa-box me-2"></i>Product #{index + 1}
+                </h6>
+                <div className="d-flex gap-1">
+                  {state.items.length > 1 && (
+                    <CButton 
+                      color="outline-light" 
+                      size="sm" 
+                      onClick={() => handleRemoveProductRow(index)}
+                      className="p-1 btn-sm-icon"
+                      title="Remove Product"
+                    >
+                      <CIcon icon={cilDelete} size="sm" />
+                    </CButton>
+                  )}
+                  {index === state.items.length - 1 && (
+                    <CButton 
+                      color="outline-light" 
+                      size="sm" 
+                      onClick={handleAddProductRow}
+                      className="p-1 btn-sm-icon"
+                      title="Add Product"
+                    >
+                      <CIcon icon={cilPlus} size="sm" />
+                    </CButton>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            <div className="card-body p-3">
+              
+              {/* Product Selection */}
+              <div className="mb-3">
+                <label className="form-label fw-bold text-primary mb-2 d-flex align-items-center">
+                  <i className="fas fa-search me-2"></i>
+                  <span>{t('LABELS.product')}</span>
+                  {oitem.product_name && (
+                    <span className="badge bg-success ms-2">Selected</span>
+                  )}
+                </label>
+                
+                <div className="product-search-container" ref={productsDropdownRef}>
+                  <CFormInput
+                    type="text"
+                    value={oitem.product_name || ''}
+                    onChange={(e) => handleProductSearchChange(e, index)}
+                    onFocus={() => {
+                      setCurrentEditIndex(index);
+                      setIsProductsDropdownOpen(true);
+                    }}
+                    placeholder="Search or select product"
+                    required
+                    invalid={oitem.notSelected === true}
+                    feedbackInvalid="Please select a product."
+                    className="product-search-input mobile-input"
+                  />
+                  
+                  {!oitem.product_name ? (
+                    <div className="dropdown-icon mobile-dropdown-icon" onClick={() => {
+                      setCurrentEditIndex(index);
+                      setIsProductsDropdownOpen(true);
+                    }}>
+                      <CIcon icon={cilChevronBottom} size="sm" />
+                    </div>
+                  ) : (
+                    <div className="clear-button mobile-clear-button" onClick={() => clearProductSelection(index)}>
+                      <CIcon icon={cilX} size="sm" />
+                    </div>
+                  )}
+                  
+                  {isProductsDropdownOpen && currentEditIndex === index && (
+                    <div className="products-dropdown mobile-dropdown">
+                      <div className="dropdown-header">
+                        <i className="fas fa-list me-2"></i>Available Products
+                      </div>
+                      {productOptions
+                        .filter(item => 
+                          item.toLowerCase().includes((oitem.product_name || '').toLowerCase())
+                        )
+                        .map((item, idx) => (
+                          <div 
+                            key={idx}
+                            className="dropdown-item mobile-dropdown-item"
+                            onClick={() => handleProductSelectFromDropdown(item, index)}
+                          >
+                            <i className="fas fa-box me-2 text-muted"></i>
+                            {item}
+                          </div>
+                        ))}
+                      {productOptions.filter(item => 
+                        item.toLowerCase().includes((oitem.product_name || '').toLowerCase())
+                      ).length === 0 && (
+                        <div className="dropdown-item text-muted">
+                          <i className="fas fa-exclamation-circle me-2"></i>
+                          No products found
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Selected Product Display */}
+                {oitem.product_name && (
+                  <div className="selected-product-info mt-2 p-2 bg-light rounded">
+                    <small className="text-success fw-bold">
+                      <i className="fas fa-check-circle me-1"></i>
+                      Selected: {oitem.product_name}
+                    </small>
                   </div>
-                ))}
+                )}
+              </div>
+
+              {/* Quantity and Stock Info */}
+              <div className="row mb-3">
+                <div className="col-8">
+                  <label className="form-label fw-bold text-info mb-2 d-flex align-items-center">
+                    <i className="fas fa-calculator me-2"></i>
+                    <span>{t('LABELS.quantity')}</span>
+                  </label>
+                  <CFormInput
+                    type="number"
+                    value={oitem.dQty === '' || oitem.dQty === undefined ? '' : oitem.dQty}
+                    placeholder="Enter quantity"
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      
+                      if (inputValue === '') {
+                        const updatedItems = [...state.items];
+                        updatedItems[index].dQty = '';
+                        updatedItems[index].total_price = 0;
+                        const updatedState = { 
+                          ...state, 
+                          items: updatedItems, 
+                          totalAmount: calculateTotal(updatedItems), 
+                        };
+                        calculateFinalAmount(updatedState);
+                        setState(updatedState);
+                        return;
+                      }
+                      
+                      const value = parseFloat(inputValue);
+                      
+                      if (isNaN(value) || value <= 0) {
+                        const updatedItems = [...state.items];
+                        updatedItems[index].dQty = '';
+                        updatedItems[index].total_price = 0;
+                        const updatedState = { 
+                          ...state, 
+                          items: updatedItems, 
+                          totalAmount: calculateTotal(updatedItems), 
+                        };
+                        calculateFinalAmount(updatedState);
+                        setState(updatedState);
+                        return;
+                      }
+                      
+                      const updatedItems = [...state.items];
+                      updatedItems[index].dQty = value;
+                      const price = parseFloat(updatedItems[index].dPrice || 0);
+                      const qty = parseFloat(value || 0);
+                      updatedItems[index].total_price = price && qty ? price * qty : 0;
+                      const updatedState = { 
+                        ...state, 
+                        items: updatedItems, 
+                        totalAmount: calculateTotal(updatedItems), 
+                      };
+                      calculateFinalAmount(updatedState);
+                      setState(updatedState);
+                    }}
+                    className="mobile-input"
+                  />
+                </div>
+                
+                <div className="col-4">
+                  <label className="form-label fw-bold text-secondary mb-2 d-flex align-items-center">
+                    <i className="fas fa-warehouse me-2"></i>
+                    <span>Stock</span>
+                  </label>
+                  <div className="stock-display">
+                    <span className="fw-bold text-info">{oitem.qty ?? 0}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Price and Total */}
+              <div className="row mb-3">
+                <div className="col-6">
+                  <label className="form-label fw-bold text-warning mb-2 d-flex align-items-center">
+                    <i className="fas fa-tag me-2"></i>
+                    <span>{t('LABELS.price')}</span>
+                  </label>
+                  <div className="price-display">
+                    <span className="fw-bold fs-5 text-warning">
+                      {oitem.dPrice ? `₹${oitem.dPrice}` : '₹0.00'}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="col-6">
+                  <label className="form-label fw-bold text-success mb-2 d-flex align-items-center">
+                    <i className="fas fa-rupee-sign me-2"></i>
+                    <span>{t('LABELS.totalRs')}</span>
+                  </label>
+                  <div className="total-display">
+                    <span className="fw-bold fs-4 text-success">
+                      ₹{oitem.total_price || '0.00'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Action Buttons - Full Width */}
+              <div className="d-flex gap-2 mt-3">
+                {state.items.length > 1 && (
+                  <CButton 
+                    color="outline-danger" 
+                    className="flex-fill"
+                    onClick={() => handleRemoveProductRow(index)}
+                  >
+                    <CIcon icon={cilDelete} size="sm" className="me-2" />
+                    Remove Product
+                  </CButton>
+                )}
+                {index === state.items.length - 1 && (
+                  <CButton 
+                    color="outline-success" 
+                    className="flex-fill"
+                    onClick={handleAddProductRow}
+                  >
+                    <CIcon icon={cilPlus} size="sm" className="me-2" />
+                    Add New Product
+                  </CButton>
+                )}
+              </div>
+              
             </div>
-          )}
+          </div>
         </div>
       </div>
 
-      {/* Quantity field - half width on xs/sm, 2 columns on md+ */}
-      <div className="col-6 col-md-2 mb-3 mb-md-0">
-        <div className="d-md-none fw-bold mb-2">{t('LABELS.quantity')}</div>
-        {/* <CFormInput
-  type="number"
-  value={oitem.dQty}
-  placeholder={`${t('LABELS.stock')}: ${oitem.qty}`}
-  onChange={(e) => {
-    const value = e.target.value === '' ? '' : parseFloat(e.target.value);
-
-    const updatedItems = [...state.items];
-    updatedItems[index].dQty = value;
-
-    // ✅ Safe total_price calculation
-    const price = parseFloat(updatedItems[index].dPrice || 0);
-    const qty = parseFloat(value || 0);
-    updatedItems[index].total_price = price && qty ? price * qty : 0;
-
-    const updatedState = {
-      ...state,
-      items: updatedItems,
-      totalAmount: calculateTotal(updatedItems),
-    };
-
-    // ✅ Recalculate balance after total changes
-    calculateFinalAmount(updatedState);
-
-    setState(updatedState);
-  }}
-/> */}
-<CFormInput 
-  type="number" 
-  value={oitem.dQty === '' || oitem.dQty === undefined ? '' : oitem.dQty} 
-  placeholder={`Stock: ${oitem.qty ?? 0}`} 
-  onChange={(e) => { 
-    const inputValue = e.target.value;
-    
-    // If input is empty, set as empty string
-    if (inputValue === '') {
-      const updatedItems = [...state.items];
-      updatedItems[index].dQty = '';
-      updatedItems[index].total_price = 0;
-      const updatedState = { 
-        ...state, 
-        items: updatedItems, 
-        totalAmount: calculateTotal(updatedItems), 
-      };
-      calculateFinalAmount(updatedState);
-      setState(updatedState);
-      return;
-    }
-    
-    const value = parseFloat(inputValue);
-    
-    // Validation: Clear if value is negative, zero, or NaN
-    if (isNaN(value) || value <= 0) {
-      const updatedItems = [...state.items];
-      updatedItems[index].dQty = '';
-      updatedItems[index].total_price = 0;
-      const updatedState = { 
-        ...state, 
-        items: updatedItems, 
-        totalAmount: calculateTotal(updatedItems), 
-      };
-      calculateFinalAmount(updatedState);
-      setState(updatedState);
-      return;
-    }
-    
-    // Valid positive value
-    const updatedItems = [...state.items];
-    updatedItems[index].dQty = value;
-    const price = parseFloat(updatedItems[index].dPrice || 0);
-    const qty = parseFloat(value || 0);
-    updatedItems[index].total_price = price && qty ? price * qty : 0;
-    const updatedState = { 
-      ...state, 
-      items: updatedItems, 
-      totalAmount: calculateTotal(updatedItems), 
-    };
-    calculateFinalAmount(updatedState);
-    setState(updatedState);
-  }} 
-/>
-
-</div>
-
-      {/* Price field - half width on xs/sm, 2 columns on md+ */}
-      <div className="col-6 col-md-2 mb-3 mb-md-0">
-        <div className="d-md-none fw-bold mb-2">{t('LABELS.price')}</div>
-        <p className="mb-0">{oitem.dPrice   } ₹</p>
-        {/* <p className="mb-0">
-  {oitem.product_name && oitem.dPrice !== undefined
-    ? `${oitem.dPrice} ₹${oitem?.unit && oitem?.unit !== 'NA' ? ' / ' + oitem?.unit : ''}`
-    : ''}
-</p> */}
-
-      </div>
-
-      {/* Total price field - half width on xs/sm, 2 columns on md+ */}
-      <div className="col-6 col-md-2 mb-3 mb-md-0">
-        <div className="d-md-none fw-bold mb-2">{t('LABELS.totalRs')}</div>
-        <p className="mb-0 fw-bold">{oitem.total_price }</p>
-      </div>
-
-      {/* Action buttons - half width on xs/sm, 2 columns on md+ */}
-      <div className="col-6 col-md-2 text-end text-md-start">
-        <div className="d-md-none fw-bold mb-2">{t('LABELS.action')}</div>
-        <div className="d-flex justify-content-end justify-content-md-start">
-          {state.items.length > 1 && (
-            <CButton color="" className="me-2 p-1" onClick={() => handleRemoveProductRow(index)}>
-              <CIcon icon={cilDelete} size="lg" style={{ '--ci-primary-color': 'red' }} />
-            </CButton>
-          )}
-          {index === state.items.length - 1 && (
-            <CButton color="" className="p-1" onClick={handleAddProductRow}>
-              <CIcon icon={cilPlus} size="lg" style={{ '--ci-primary-color': 'green' }} />
-            </CButton>
-          )}
-        </div>
-      </div>
     </div>
   ))}
+</div>
 
-  {/* Add CSS for the components */}
-  <style jsx>{`
-    .product-search-container {
+<style jsx>{`
+  .products-section {
+    margin-bottom: 2rem;
+  }
+  
+  .product-search-container {
+    position: relative;
+  }
+  
+  .dropdown-icon, .clear-button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    z-index: 2;
+  }
+  
+  .products-dropdown {
+    position: absolute;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    margin-top: 4px;
+  }
+  
+  .dropdown-item {
+    padding: 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f8f9fa;
+    transition: background-color 0.15s ease-in-out;
+  }
+  
+  .dropdown-item:hover {
+    background-color: #e9ecef;
+  }
+  
+  .dropdown-item:last-child {
+    border-bottom: none;
+  }
+  
+  /* Desktop specific styles */
+  @media (min-width: 992px) {
+    .products-section .row:hover {
+      background-color: #f8f9fa;
+      transition: background-color 0.15s ease-in-out;
+    }
+    
+    .desktop-product-search {
       position: relative;
     }
     
-    .dropdown-icon, .clear-button {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
+    .desktop-dropdown {
+      border-radius: 0.375rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
     }
     
-    .products-dropdown {
-      position: absolute;
-      width: 100%;
-      max-height: 200px;
-      overflow-y: auto;
-      z-index: 1000;
-      background: white;
-      border: 1px solid #dee2e6;
-      border-radius: 0.25rem;
-      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-      margin-top: 4px;
+    .desktop-dropdown-icon, .desktop-clear-button {
+      background: #f8f9fa;
+      border-radius: 4px;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease-in-out;
     }
     
-    .dropdown-item {
-      padding: 0.5rem;
-      cursor: pointer;
+    .desktop-dropdown-icon:hover {
+      background: #e9ecef;
     }
     
-    .dropdown-item:hover {
-      background-color: #f8f9fa;
+    .desktop-clear-button {
+      background: #dc3545;
+      color: white;
     }
     
-    @media (max-width: 767px) {
-      .products-table {
-        margin-bottom: 1rem;
-      }
-      
-      .products-table .row {
-        margin-bottom: 0.5rem;
-      }
+    .desktop-clear-button:hover {
+      background: #c82333;
     }
-  `}</style>
-</div>
+    
+    .desktop-dropdown-item {
+      display: flex;
+      align-items: center;
+      padding: 0.625rem 0.75rem;
+      font-size: 0.875rem;
+    }
+    
+    .desktop-dropdown-item:hover {
+      background: #f8f9fa;
+      border-left: 3px solid #0d6efd;
+    }
+    
+    .dropdown-header {
+      background: #f8f9fa;
+      padding: 0.5rem 0.75rem;
+      font-weight: 600;
+      font-size: 0.8125rem;
+      color: #495057;
+      border-bottom: 1px solid #dee2e6;
+      border-radius: 0.375rem 0.375rem 0 0;
+    }
+  }
+  
+  /* Enhanced Mobile specific styles */
+  @media (max-width: 991px) {
+    .mobile-product-card {
+      margin-bottom: 1.5rem;
+    }
+    
+    .mobile-product-card .card {
+      border-radius: 0.75rem;
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      border: 1px solid #e9ecef;
+    }
+    
+    .mobile-product-card .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .card-header {
+      border-radius: 0.75rem 0.75rem 0 0 !important;
+      background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+    }
+    
+    .mobile-input {
+      border-radius: 0.5rem;
+      border: 2px solid #e9ecef;
+      transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    
+    .mobile-input:focus {
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .mobile-dropdown-icon, .mobile-clear-button {
+      background: #f8f9fa;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      right: 8px;
+    }
+    
+    .mobile-clear-button {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .mobile-dropdown {
+      border-radius: 0.5rem;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    .dropdown-header {
+      background: #f8f9fa;
+      padding: 0.75rem;
+      font-weight: bold;
+      font-size: 0.875rem;
+      color: #495057;
+      border-bottom: 1px solid #dee2e6;
+      border-radius: 0.5rem 0.5rem 0 0;
+    }
+    
+    .mobile-dropdown-item {
+      padding: 0.75rem;
+      transition: all 0.15s ease-in-out;
+    }
+    
+    .mobile-dropdown-item:hover {
+      background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+      padding-left: 1rem;
+    }
+    
+    .selected-product-info {
+      border-left: 4px solid #198754;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .price-display, .total-display, .stock-display {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      text-align: center;
+      border: 2px solid #e9ecef;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease-in-out;
+    }
+    
+    .total-display {
+      background: linear-gradient(135deg, #d1e7dd 0%, #a3cfbb 100%);
+      border-color: #198754;
+    }
+    
+    .price-display {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      border-color: #ffc107;
+    }
+    
+    .stock-display {
+      background: linear-gradient(135deg, #cff4fc 0%, #9eeaf9 100%);
+      border-color: #0dcaf0;
+    }
+    
+    .form-label {
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .form-label i {
+      color: inherit;
+      font-size: 1rem;
+    }
+    
+    .btn-sm-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    
+    .badge {
+      font-size: 0.7rem;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+  }
+`}</style>
 
               {/* Payment info - made responsive */}
               <div className="row mt-4">
@@ -985,17 +1436,27 @@ const Invoice = () => {
                   </div>
                 </div>
                 <div className="col-md-4 col-12 mb-3">
+                  
                   <div className="mb-3">
-                    <CFormLabel htmlFor="paidAmount">{t('LABELS.paidAmountRs')}</CFormLabel>
-                    <CFormInput
-                      type="number"
-                      id="paidAmount"
-                      placeholder=""
-                      name="paidAmount"
-                      value={state.paidAmount}
-                      onChange={handleChange}
-                    />
-                  </div>
+  <CFormLabel htmlFor="paidAmount">{t('LABELS.paidAmountRs')}</CFormLabel>
+  <CFormInput
+    type="number"
+    id="paidAmount"
+    placeholder=""
+    name="paidAmount"
+    value={state.paidAmount}
+    onChange={(e) => {
+      const value = e.target.value;
+      if (value === '' || parseFloat(value) >= 0) {
+        handleChange(e);
+      } else {
+        // Clear the input if negative
+        setState(prev => ({ ...prev, paidAmount: '' }));
+      }
+    }}
+  />
+</div>
+                  
                 </div>
                 <div className="col-md-4 col-12 mb-3">
                   <div className="mb-3">

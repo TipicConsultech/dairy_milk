@@ -689,13 +689,16 @@ const Delivery = () => {
                           id="eQty"
                           placeholder="0"
                           name="eQty"
-                          
                           style={{height : '41px'}}
                           value={p.eQty ?? 0}
                           onChange={(e)=>{
-                            handleQuantityChange(index, Math.min(parseInt(e.target.value ?? '0'), customerHistory?.returnEmptyProducts?.find((itm)=> itm.product_sizes_id === p.sizes[0].id)?.quantity ?? 0),'eQty')
+                            const inputValue = e.target.value === '' ? 0 : parseInt(e.target.value);
+                            const maxAllowed = customerHistory?.returnEmptyProducts?.find((itm)=> itm.product_sizes_id === p.sizes[0].id)?.quantity ?? 0;
+                            const finalValue = Math.max(0, Math.min(inputValue, maxAllowed));
+                            handleQuantityChange(index, finalValue, 'eQty');
                           }}
                           min="0"
+                          max={customerHistory?.returnEmptyProducts?.find((itm)=> itm.product_sizes_id === p.sizes[0].id)?.quantity ?? 0}
                         />
                         <button
                           className="btn btn-success"
