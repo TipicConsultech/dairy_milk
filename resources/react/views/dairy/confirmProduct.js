@@ -24,9 +24,10 @@ import { useTranslation } from 'react-i18next';
 
 
 function ConfirmProduct() {
-    const { t, i18n } = useTranslation("global");
+  const { t, i18n } = useTranslation("global");
   const [tableData, setTableData] = useState([]);
   const [quantities, setQuantities] = useState({});
+  const [remarks, setRemarks] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
   const [failedItems, setFailedItems] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
@@ -34,8 +35,11 @@ function ConfirmProduct() {
   const [message,setMessage]=useState(null);
   const [failAlert, setFailAlert] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  console.log('table data',tableData);
-  
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedQuantity, setSelectedQuantity] = useState(null);
+  const [selectedRemark, setSelectedRemark] = useState(null);
+
   // Modal and form states
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -74,28 +78,8 @@ function ConfirmProduct() {
     }
   }, [syncLocalName, formData.name]);
 
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
-  };
+ 
 
-  const handleSubmit = async () => {
-    if (!selectedFile) return;
-
-    setUploading(true);
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-   
-    try {
-      const res = await postFormData('/api/uploadCSVRawMaterial', formData);
-      alert('File uploaded successfully!');
-    } catch (error) {
-      console.error('Upload failed:', error);
-      alert('Upload failed');
-    } finally {
-      setUploading(false);
-      setSelectedFile(null);
-    }
-  };
   
   useEffect(() => {
     getData();
@@ -134,7 +118,7 @@ function ConfirmProduct() {
   
   // Fixed handleQuantityChange to store quantities by item ID
   const handleQuantityChange = (id, value) => {
-    if (value === '' || /^[1-9][0-9]*$/.test(value)) {
+    if (value === '' ||  /^[0-9]*\.?[0-9]*$/.test(value)) {
       setQuantities((prev) => ({
         ...prev,
         [id]: value  // Store quantity by item ID
@@ -142,50 +126,76 @@ function ConfirmProduct() {
     }
   };
 
-  console.log(quantities);
+ const handleRemarkChange = (id, value) => {
+    if (value != '' || value !=null) {
+       setRemarks((prev) => ({
+        ...prev,
+        [id]: value  // Store quantity by item ID
+      }));
+    }
+  };
+ 
+  console.log(remarks);
   
 
   // Fixed handleAddClick function
-  const handleAddClick = async (item) => {
-    const quantity = quantities[item.id];
-    if (!quantity || quantity <= 0) {
-      alert('Please enter a valid quantity greater than 0');
-      return;
-    }
+ const handleAddClick = (item) => {
+  const quantity = quantities[item.id];
+  if (!quantity || quantity <= 0) {
+    alert('Please enter a valid quantity greater than 0');
+    return;
+  }
 
-    // Create the correct data structure
-    const data = {
-      "product_tracker_id": item.id,  // Use the actual item ID
-      "actual_quantity": parseInt(quantity)  // Use the entered quantity
-    };
+  const remark = remarks[item.id] || null;
 
-    try {
-      const resp = await post(`/api/confirmProduct`, data);  // Pass the data object
-     
-      if(resp?.failed){
-        setFailedItems(resp?.failed);
-        setFailAlert(true);
-        setMessage(null);
+  if (parseInt(quantity) !== parseInt(item.predicted_qty)) {
+    // Show confirmation modal if quantities differ
+    setSelectedItem(item);
+    setSelectedQuantity(quantity);
+    setSelectedRemark(remark);
+    setShowConfirmModal(true);
+  } else {
+    // Directly call API if quantities match
+    confirmApiCall(item, quantity, remark);
+  }
+};
 
-      }
-      else if(resp?.updated || resp?.status === 201){
-        setShowAlertSingleProduct(true);
-        setMessage(resp);
-        // Clear only the specific item's quantity
-        setQuantities(prev => {
-          const newQuantities = { ...prev };
-          delete newQuantities[item.id];
-          return newQuantities;
-        });
-        setFailedItems([]);
-        getData(); // Refresh the data
-      }
-    } catch (e) {
-      console.error('Error confirming product:', e);
-      alert('Failed to confirm product');
-      setMessage(null)
-    }
+
+const confirmApiCall = async (item, quantity, remark) => {
+  const data = {
+    product_tracker_id: item.id,
+    actual_quantity: parseInt(quantity),
+    remark: remark
   };
+
+  try {
+    const resp = await post(`/api/confirmProduct`, data);
+
+    if (resp?.failed) {
+      setFailedItems(resp?.failed);
+      setFailAlert(true);
+      setMessage(null);
+    } else if (resp?.updated || resp?.status === 201) {
+      setShowAlertSingleProduct(true);
+      setMessage(resp);
+
+      // Clear quantity for this item only
+      setQuantities(prev => {
+        const newQuantities = { ...prev };
+        delete newQuantities[item.id];
+        return newQuantities;
+      });
+
+      setFailedItems([]);
+      getData(); // Refresh table/list
+    }
+  } catch (e) {
+    console.error('Error confirming product:', e);
+    alert('Failed to confirm product');
+    setMessage(null);
+  }
+};
+
 
   const handleDownload = async () => {
     try {
@@ -315,6 +325,29 @@ function ConfirmProduct() {
           <h5 className="mb-0" >Confirm Product </h5> 
         </div>
       </CCardHeader>
+      <CModal visible={showConfirmModal} onClose={() => setShowConfirmModal(false)}>
+  <CModalHeader>
+    <CModalTitle>Confirm Quantity Difference</CModalTitle>
+  </CModalHeader>
+  <CModalBody>
+    <p>
+      Selected Batch: <strong>{selectedItem?.batch_no}</strong><br />
+      Predicted Quantity: <strong>{selectedItem?.predicted_qty}</strong><br />
+      Entered Quantity: <strong>{selectedQuantity}</strong><br /><br />
+      The entered quantity is different from the predicted quantity.<br />
+      Do you want to submit it anyway?
+    </p>
+  </CModalBody>
+  <CModalFooter>
+    <CButton color="secondary" onClick={() => setShowConfirmModal(false)}>Cancel</CButton>
+    <CButton color="primary" onClick={() => {
+      setShowConfirmModal(false);
+      confirmApiCall(selectedItem, selectedQuantity, selectedRemark);
+    }}>
+      Submit
+    </CButton>
+  </CModalFooter>
+</CModal>
 
       {showAlert && (
         <CAlert color="success" onDismiss={() => setShowAlert(false)}>
@@ -356,15 +389,18 @@ function ConfirmProduct() {
             <table className="table table-hover table-bordered align-middle">
               <thead className="table-light " style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: '#f8f9fa' }}>
                 <tr>
+                  <th>Product</th>
                   <th>Batch name</th>
                   <th>Predicted Qty</th>
                   <th>Actual Qty</th>
+                  <th>Remark</th>
                   <th style={{ width: '100px' }}>{t('LABELS.actions')}</th>
                 </tr>
               </thead>
               <tbody>
                 {tableData.map((item) => (
                   <tr key={item.id}>
+                    <td>{item.name}</td>
                     <td>{item.batch_no}</td>
                     <td>{Number(item.predicted_qty).toFixed(2)}  &nbsp; {item?.unit}</td>
                     <td>
@@ -375,6 +411,14 @@ function ConfirmProduct() {
                         value={quantities[item.id] || ''}
                         onChange={(e) => handleQuantityChange(item.id, e.target.value)}
                         placeholder={t('LABELS.qty')}
+                      />
+                    </td>
+                     <td>
+                      <input
+                        className="form-control"
+                        value={remarks[item.id] || ''}
+                        onChange={(e) => handleRemarkChange(item.id, e.target.value)}
+                        placeholder=" Enter Remark"
                       />
                     </td>
                     <td>
@@ -401,6 +445,7 @@ function ConfirmProduct() {
                     <div className="row">
                       {/* Batch Info */}
                       <div className="col-12 mb-3">
+                        <h6 className="card-title mb-1 text-primary">🍬 {item.name}</h6>
                         <h6 className="card-title mb-1 text-primary">📦 {item.batch_no}</h6>
                         <small className="text-muted">
                           <strong>Predicted:</strong> {Number(item.predicted_qty).toFixed(2)}
@@ -428,6 +473,25 @@ function ConfirmProduct() {
                         />
                       </div>
                       
+ <div className="col-12 mb-3">
+                        <label className="form-label fw-bold text-success mb-2">
+                          ✏️ Enter Remark
+                        </label>
+                      <input
+                        className="form-control"
+                        value={remarks[item.id] || ''}
+                        onChange={(e) => handleRemarkChange(item.id, e.target.value)}
+                        placeholder=" Enter Remark"
+                        style={{ 
+                            fontSize: '16px',
+                            padding: '12px 16px',
+                            borderRadius: '8px',
+                            border: '2px solid #e9ecef'
+                          }}
+                      />
+          </div>          
+
+
                       {/* Submit Button */}
                       <div className="col-12">
                         <button

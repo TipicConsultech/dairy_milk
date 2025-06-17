@@ -30,7 +30,7 @@ class ProductsTracker extends Model
   
     protected $casts = [
     'processed_id' => 'array',
-      'misc' => 'array',
+   
 ];
 
     public function factoryProduct()

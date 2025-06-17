@@ -487,7 +487,7 @@ console.log('required product',newReqProduct);
   factoryProductId: newProduct.id,
   factoryProductIdQty:calculatedResult,
   dependedProductId: newReqProduct.id,
-  dependedProductQty:newReqProduct.quantity
+  dependedProductQty:newReqProduct.quantity,
 };
     try{
      const resp=await post('/api/createProductFromProduct',data) ;

@@ -142,7 +142,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/productComponents', [ProductComponentController::class, 'store']);
     Route::get('/productComponents/{productId}', [ProductComponentController::class, 'getByProductId']);
     Route::post('/productCalculations', [commonController::class, 'evaluateFormula']);
-    Route::post('/createProductFromProduct', [commonController::class, 'evaluateFormula']);
+    Route::post('/createProductFromProduct', [commonController::class, 'createProductFromProduct']);
 
 
     

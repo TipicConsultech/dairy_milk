@@ -274,6 +274,8 @@ public function unConfirmProduct() {
     foreach ($productTrackers as $tracker) {
         $productSize = ProductSize::find($tracker->product_size_id);
         $tracker->unit = $productSize ? $productSize->unit : null;
+        $tracker->name= $productSize ? $productSize->name : null;
+        $tracker->localName= $productSize ? $productSize->localName : null;
     }
 
     return response()->json([
@@ -289,6 +291,7 @@ public function confirmProduct(Request $request)
     $payload = $request->validate([
         'product_tracker_id' => ['required', 'integer'],
         'actual_quantity'    => ['required', 'integer'],
+        'remark'=>['string']
     ]);
 
     $companyId = Auth::user()->company_id;
@@ -400,9 +403,10 @@ public function confirmProduct(Request $request)
         // ✅ Update product tracker (common for both flows)
         $productTracker->update([
             'product_qty' => $payload['actual_quantity'],
-            'current_qty' => $payload['actual_quantity'],
+            'current_qty' => $payload['actual_quantity'],   
             'isProcessed' => 1,
             'updated_by'  => Auth::user()->id,
+            'misc'=>$payload['remark']
         ]);
 
         // ✅ Create daily tally (only for milk-based production)
@@ -552,7 +556,7 @@ public function createProduct(Request $request)
     }
 
     // Step 4: Generate Batch Name
-    $timestamp = Carbon::now()->format('d-m-Y-H-i-s');
+    $timestamp = Carbon::now()->format('d-m-Y H-i-s');
     $prefix = strtoupper(substr($product->name, 0, 3));
     $batchName = $prefix . '-' . $timestamp;
 
@@ -721,20 +725,20 @@ function evaluateFormula(Request $request) {
 public function createProductFromProduct(Request $request)
 {
     $payload = $request->validate([
-        'factoryProductId'        => ['required', 'integer'],
-        'factoryProductIdQty'     => ['required', 'numeric', 'min:0.01'],
-        'dependedProductId'       => ['required', 'integer'],
-        'dependedProductQty'      => ['required', 'numeric', 'min:0.01'],
-        'Ingradians'              => ['nullable', 'array'],
-        'Ingradians.*.id'         => ['required_with:Ingradians', 'integer'],
-        'Ingradians.*.qty'        => ['required_with:Ingradians', 'numeric', 'min:0.01'],
+        'factoryProductId'     => ['required', 'integer'],
+        'factoryProductIdQty'  => ['required', 'numeric', 'min:0.01'],
+        'dependedProductId'    => ['required', 'integer'],
+        'dependedProductQty'   => ['required', 'numeric', 'min:0.01'],
+        'ingredients'          => ['nullable', 'array'],
+        'ingredients.*.id'     => ['required_with:ingredients', 'integer'],
+        'ingredients.*.qty'    => ['required_with:ingredients', 'numeric', 'min:0.01'],
     ]);
 
-    $userCompanyId = Auth::user()->company_id;
+    $companyId = Auth::user()->company_id;
 
-    // Step 1: Validate Factory Product (the product being created)
+    // Step 1: Validate Factory Product
     $factoryProduct = ProductSize::where('id', $payload['factoryProductId'])
-        ->where('company_id', $userCompanyId)
+        ->where('company_id', $companyId)
         ->lockForUpdate()
         ->first();
 
@@ -742,9 +746,9 @@ public function createProductFromProduct(Request $request)
         return response()->json(['message' => 'Invalid factoryProductId'], 422);
     }
 
-    // Step 2: Validate Depended Product (the product being consumed)
+    // Step 2: Validate Depended Product
     $dependedProduct = ProductSize::where('id', $payload['dependedProductId'])
-        ->where('company_id', $userCompanyId)
+        ->where('company_id', $companyId)
         ->lockForUpdate()
         ->first();
 
@@ -752,7 +756,6 @@ public function createProductFromProduct(Request $request)
         return response()->json(['message' => 'Invalid dependedProductId'], 422);
     }
 
-    // Check if depended product has sufficient quantity
     if ($payload['dependedProductQty'] > $dependedProduct->qty) {
         return response()->json([
             'message' => 'Insufficient quantity for depended product ID: ' . $payload['dependedProductId'],
@@ -764,33 +767,34 @@ public function createProductFromProduct(Request $request)
     // Step 3: Validate Raw Materials (Ingredients)
     $rawMaterialsToDeduct = [];
 
-    if (!empty($payload['Ingradians'])) {
-        $rawMaterialIds = collect($payload['Ingradians'])->pluck('id')->toArray();
+    if (!empty($payload['ingredients'])) {
+        $ingredientIds = collect($payload['ingredients'])->pluck('id')->toArray();
 
-        $rawMaterialsFromDB = RawMaterial::whereIn('id', $rawMaterialIds)
-            ->where('company_id', $userCompanyId)
+        $rawMaterials = RawMaterial::whereIn('id', $ingredientIds)
+            ->where('company_id', $companyId)
             ->lockForUpdate()
-            ->get()->keyBy('id');
+            ->get()
+            ->keyBy('id');
 
-        foreach ($payload['Ingradians'] as $ingredient) {
-            $dbMaterial = $rawMaterialsFromDB[$ingredient['id']] ?? null;
+        foreach ($payload['ingredients'] as $ingredient) {
+            $rm = $rawMaterials[$ingredient['id']] ?? null;
 
-            if (!$dbMaterial) {
+            if (!$rm) {
                 return response()->json([
                     'message' => 'Invalid ingredient ID: ' . $ingredient['id']
                 ], 422);
             }
 
-            if ($ingredient['qty'] > $dbMaterial->unit_qty) {
+            if ($ingredient['qty'] > $rm->unit_qty) {
                 return response()->json([
-                    'message' => 'Insufficient ingredient quantity for ID: ' . $ingredient['id'],
-                    'available' => $dbMaterial->unit_qty,
+                    'message' => 'Insufficient quantity for ingredient ID: ' . $ingredient['id'],
+                    'available' => $rm->unit_qty,
                     'requested' => $ingredient['qty']
                 ], 422);
             }
 
             $rawMaterialsToDeduct[] = [
-                'model' => $dbMaterial,
+                'model' => $rm,
                 'deduct_qty' => $ingredient['qty']
             ];
         }
@@ -801,42 +805,33 @@ public function createProductFromProduct(Request $request)
     $prefix = strtoupper(substr($factoryProduct->name, 0, 3));
     $batchName = $prefix . '-' . $timestamp;
 
-    // Step 5: Perform Deduction Transaction
     try {
         DB::beginTransaction();
 
-        // Deduct depended product quantity
-        if (($dependedProduct->qty - $payload['dependedProductQty']) < 0) {
-            throw new \Exception("Depended product {$dependedProduct->id} cannot go negative.");
-        }
-
+        // Deduct depended product
         $dependedProduct->qty -= $payload['dependedProductQty'];
         $dependedProduct->save();
 
-        // Deduct raw materials (ingredients)
+        // Deduct raw materials
         foreach ($rawMaterialsToDeduct as $rmData) {
             $rm = $rmData['model'];
             $deductQty = $rmData['deduct_qty'];
-
-            if (($rm->unit_qty - $deductQty) < 0) {
-                throw new \Exception("Raw material {$rm->id} cannot go negative.");
-            }
 
             $rm->unit_qty -= $deductQty;
             $rm->save();
         }
 
-        // Create ProductsTracker record
+        // Create ProductsTracker entry
         $productTracker = ProductsTracker::create([
             'product_size_id'     => $factoryProduct->id,
-            'company_id'          => Auth::user()->company_id,
-            'processed_id'        => null, // Set to null as per requirement
+            'company_id'          => $companyId,
+            'processed_id'        => null,
             'product_qty'         => null,
             'predicted_qty'       => $payload['factoryProductIdQty'],
             'current_qty'         => null,
             'product_qty_used'    => $payload['dependedProductQty'],
             'req_product_id'      => $payload['dependedProductId'],
-            'milkUsed'            => 0, // No milk used in this process
+            'milkUsed'            => 0,
             'batch_no'            => $batchName,
             'misc'                => null,
             'created_by'          => Auth::user()->id,
@@ -846,22 +841,21 @@ public function createProductFromProduct(Request $request)
         DB::commit();
 
         return response()->json([
-            'factoryProductId'    => $payload['factoryProductId'],
-            'factoryProductIdQty' => $payload['factoryProductIdQty'],
-            'dependedProductId'   => $payload['dependedProductId'],
-            'dependedProductQty'  => $payload['dependedProductQty'],
-            'Ingradians'          => $payload['Ingradians'] ?? [],
-            'batch_name'          => $batchName,
-            'product_tracker'     => $productTracker,
-            'depended_product_info' => [
-                'id' => $dependedProduct->id,
-                'name' => $dependedProduct->name,
+            'factoryProductId'       => $payload['factoryProductId'],
+            'factoryProductIdQty'    => $payload['factoryProductIdQty'],
+            'dependedProductId'      => $payload['dependedProductId'],
+            'dependedProductQty'     => $payload['dependedProductQty'],
+            'ingredients'            => $payload['ingredients'] ?? [],
+            'batch_name'             => $batchName,
+            'product_tracker'        => $productTracker,
+            'depended_product_info'  => [
+                'id'                 => $dependedProduct->id,
+                'name'               => $dependedProduct->name,
                 'remaining_quantity' => $dependedProduct->qty
             ],
-            'message'             => 'Product created from product and quantities deducted successfully.',
-            'status'              => 201
+            'message' => 'Product created and all quantities deducted successfully.',
+            'status'  => 201
         ], 201);
-        
     } catch (\Exception $e) {
         DB::rollBack();
 
@@ -871,6 +865,7 @@ public function createProductFromProduct(Request $request)
         ], 500);
     }
 }
+
 
 }
 
